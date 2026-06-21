@@ -24,7 +24,7 @@
             margin-bottom: 20px; 
         }
         .header img { 
-            max-width: 150px; 
+            max-width: 180px; 
             height: auto; 
             margin-bottom: 10px; 
         }
@@ -79,7 +79,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="logo5.png" alt="Company Logo">
+            <img src="logo6.png" alt="No Problem Pressure Washing Solutions Logo">
             <h1>Estimate Calculator</h1>
         </div>
         
@@ -111,21 +111,17 @@
 
     <script>
         function calculateEstimate() {
-            // Retrieve values from the inputs
             const surfaceRate = parseFloat(document.getElementById('surfaceType').value);
             const sqft = parseFloat(document.getElementById('sqft').value);
             const difficulty = parseFloat(document.getElementById('difficulty').value);
 
-            // Validation to ensure the user entered a real number for square footage
             if (isNaN(sqft) || sqft <= 0) {
                 alert("Please enter a valid square footage.");
                 return;
             }
 
-            // Calculate the total cost
             const total = surfaceRate * sqft * difficulty;
             
-            // Format and display the result
             document.getElementById('totalPrice').innerText = "$" + total.toFixed(2);
             document.getElementById('resultBox').style.display = 'block';
         }
