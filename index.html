@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Power Washing Estimator</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f4f7f6; 
+            margin: 0; 
+            padding: 20px; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 100%; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+        }
+        .header img { 
+            max-width: 150px; 
+            height: auto; 
+            margin-bottom: 10px; 
+        }
+        h1 { 
+            font-size: 24px; 
+            margin: 0; 
+            color: #0056b3; 
+        }
+        label { 
+            font-weight: bold; 
+            display: block; 
+            margin-top: 15px; 
+            margin-bottom: 5px; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 16px; 
+        }
+        button { 
+            width: 100%; 
+            background-color: #0056b3; 
+            color: white; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-top: 25px; 
+            cursor: pointer; 
+        }
+        button:active { 
+            background-color: #004494; 
+        }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background-color: #e9ecef; 
+            border-radius: 6px; 
+            text-align: center; 
+        }
+        .result h2 { 
+            margin: 0; 
+            font-size: 28px; 
+            color: #28a745; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo5.png" alt="Company Logo">
+            <h1>Estimate Calculator</h1>
+        </div>
+        
+        <label for="surfaceType">Surface Type</label>
+        <select id="surfaceType">
+            <option value="0.15">House Siding ($0.15/sq ft)</option>
+            <option value="0.20">Driveway / Concrete ($0.20/sq ft)</option>
+            <option value="0.25">Wood Deck / Fence ($0.25/sq ft)</option>
+            <option value="0.30">Roof Washing ($0.30/sq ft)</option>
+        </select>
+
+        <label for="sqft">Total Square Footage</label>
+        <input type="number" id="sqft" placeholder="e.g., 1500" inputmode="numeric">
+
+        <label for="difficulty">Difficulty/Grime Multiplier</label>
+        <select id="difficulty">
+            <option value="1.0">Standard (1x)</option>
+            <option value="1.2">Heavy Grime (1.2x)</option>
+            <option value="1.5">Extreme/Requires Chemicals (1.5x)</option>
+        </select>
+
+        <button onclick="calculateEstimate()">Calculate Estimate</button>
+
+        <div class="result" id="resultBox" style="display: none;">
+            <p style="margin: 0 0 5px 0; font-weight: bold;">Estimated Total:</p>
+            <h2 id="totalPrice">$0.00</h2>
+        </div>
+    </div>
+
+    <script>
+        function calculateEstimate() {
+            // Retrieve values from the inputs
+            const surfaceRate = parseFloat(document.getElementById('surfaceType').value);
+            const sqft = parseFloat(document.getElementById('sqft').value);
+            const difficulty = parseFloat(document.getElementById('difficulty').value);
+
+            // Validation to ensure the user entered a real number for square footage
+            if (isNaN(sqft) || sqft <= 0) {
+                alert("Please enter a valid square footage.");
+                return;
+            }
+
+            // Calculate the total cost
+            const total = surfaceRate * sqft * difficulty;
+            
+            // Format and display the result
+            document.getElementById('totalPrice').innerText = "$" + total.toFixed(2);
+            document.getElementById('resultBox').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
