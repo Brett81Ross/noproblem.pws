@@ -189,35 +189,35 @@
         </div>
         <div class="brand-title">No Problem <span>Power Washing</span></div>
         <div class="tagline">
-            Select the siding profiles present, then capture or upload an image to generate an instant project washing quote.
+            Select the surface materials present, then capture or upload an image to generate an instant project quote using premium tier pricing grids.
         </div>
 
         <div class="action-card">
-            <span class="section-label">Select Siding Target Surfaces:</span>
+            <span class="section-label">Select Project Surfaces:</span>
             <div class="checklist-container">
+                <label class="check-item">
+                    <input type="checkbox" name="sidingType" value="Standard Siding (Regular)">
+                    <span>Siding (0.20)</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="sidingType" value="Premium Siding (Mid)">
+                    <span>Siding (0.25)</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="sidingType" value="Heavy Siding (High)">
+                    <span>Siding (0.28)</span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="sidingType" value="Brick / Masonry">
+                    <span>Brick (0.35)</span>
+                </label>
                 <label class="check-item">
                     <input type="checkbox" name="sidingType" value="Concrete / Fiber Cement">
                     <span>Concrete</span>
                 </label>
                 <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Brick / Masonry">
-                    <span>Brick</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Vinyl Siding">
-                    <span>Vinyl</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Wood Shingle / Lap">
-                    <span>Wood</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Stucco">
+                    <input type="checkbox" name="sidingType" value="Stucco / Exterior Finish">
                     <span>Stucco</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Metal / Aluminum">
-                    <span>Metal</span>
                 </label>
             </div>
 
@@ -231,241 +231,13 @@
         <div class="result-card" id="outputCard" style="display: none;">
             <div class="result-title-row">
                 <p class="result-title" id="statusHeader">Estimate Report</p>
-                <button class="copy-btn" id="copyButton" onclick="copyToClipboard
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MachZero</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0b0f19;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            text-align: center;
-        }
-        .logo-container {
-            margin-top: 20px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 120px;
-        }
-        .logo-container img {
-            max-width: 100%;
-            height: auto;
-            max-height: 120px;
-            display: block;
-        }
-        .brand-title {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            margin: 10px 0;
-            text-transform: uppercase;
-        }
-        .brand-title span {
-            color: #38bdf8;
-        }
-        .tagline {
-            font-size: 14px;
-            color: #94a3b8;
-            line-height: 1.5;
-            padding: 0 20px;
-            margin-bottom: 30px;
-        }
-        .action-card {
-            background-color: #1e293b;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .section-label {
-            font-size: 13px;
-            font-weight: bold;
-            color: #38bdf8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            display: block;
-        }
-        .checklist-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .check-item {
-            display: flex;
-            align-items: center;
-            background-color: #0b0f19;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid #334155;
-        }
-        .check-item input {
-            margin-right: 10px;
-            transform: scale(1.2);
-            accent-color: #38bdf8;
-        }
-        .check-item span {
-            font-size: 14px;
-            color: #e2e8f0;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            background-color: #38bdf8;
-            color: #0b0f19;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .btn:active {
-            background-color: #0ea5e9;
-        }
-        .btn-secondary {
-            background-color: #2563eb;
-            color: #ffffff;
-            margin-bottom: 0;
-        }
-        .btn-secondary:active {
-            background-color: #1d4ed8;
-        }
-        .hidden-input {
-            display: none;
-        }
-        .result-card {
-            background-color: #1e293b;
-            border-left: 4px solid #38bdf8;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: left;
-            margin-top: 20px;
-            position: relative;
-        }
-        .result-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .result-title {
-            font-size: 14px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-            font-weight: bold;
-        }
-        .copy-btn {
-            background-color: #334155;
-            color: #38bdf8;
-            border: 1px solid #475569;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-        .copy-btn:active {
-            background-color: #475569;
-        }
-        .result-text {
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 0;
-            white-space: pre-wrap;
-        }
-        .footer {
-            margin-top: 40px;
-            font-size: 11px;
-            color: #64748b;
-            letter-spacing: 0.5px;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="app-container">
-        <div class="logo-container">
-            <img src="logo1.jpg" alt="MachZero Logo">
-        </div>
-        <div class="brand-title">Mach<span>zero</span></div>
-        <div class="tagline">
-            Select materials, snap a photo or upload an image to instantly estimate installation or replacement valuation metrics.
-        </div>
-
-        <div class="action-card">
-            <span class="section-label">Select Siding Profiles:</span>
-            <div class="checklist-container">
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Concrete / Fiber Cement">
-                    <span>Concrete</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Brick / Masonry Veneer">
-                    <span>Brick</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Vinyl Siding">
-                    <span>Vinyl</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Wood Shingle / Lap">
-                    <span>Wood</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Stucco">
-                    <span>Stucco</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Metal / Aluminum">
-                    <span>Metal</span>
-                </label>
-            </div>
-
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input" onchange="handleFileSelect(this)">
-            <input type="file" id="fileInput" accept="image/*" class="hidden-input" onchange="handleFileSelect(this)">
-
-            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Image</button>
-        </div>
-
-        <div class="result-card" id="outputCard" style="display: none;">
-            <div class="result-title-row">
-                <p class="result-title" id="statusHeader">Analysis Report</p>
                 <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy</button>
             </div>
-            <div class="result-text" id="analysisResult">Processing...</div>
+            <div class="result-text" id="analysisResult">Processing Matrix...</div>
         </div>
 
         <div class="footer">
-            &copy; 2026 MachZero&trade;<br>
+            &copy; 2026 No Problem Power Washing&trade;<br>
             Powered by CactusByte Studios &bull; All Rights Reserved
         </div>
     </div>
@@ -480,7 +252,7 @@
                 copyBtn.style.color = "#4ade80";
                 setTimeout(() => {
                     copyBtn.innerText = "Copy";
-                    copyBtn.style.color = "#38bdf8";
+                    copyBtn.style.color = "#00b4d8";
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy text: ', err);
@@ -490,7 +262,6 @@
         function handleFileSelect(input) {
             if (!input.files || !input.files[0]) return;
             
-            // Collect all selected checklist siding types
             const checkedBoxes = document.querySelectorAll('input[name="sidingType"]:checked');
             const selectedMaterials = Array.from(checkedBoxes).map(cb => cb.value);
 
@@ -503,8 +274,8 @@
             resultCard.style.display = 'block';
             copyBtn.style.display = 'none';
             statusHeader.innerText = "System Status";
-            statusHeader.style.color = "#38bdf8";
-            textOutput.innerText = "Compressing asset fields...";
+            statusHeader.style.color = "#00b4d8";
+            textOutput.innerText = "Analyzing image surface data...";
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -533,7 +304,7 @@
                     
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                     
-                    textOutput.innerText = "Running calculations based on material criteria...";
+                    textOutput.innerText = "Calculating dynamic square foot parameters...";
 
                     try {
                         const response = await fetch('/api/analyze', {
@@ -550,27 +321,8 @@
                         if (contentType && contentType.includes("application/json")) {
                             data = await response.json();
                         } else {
-                            throw new Error("Server routing mismatch. Trigger a manual deployment rebuild from your Vercel panel.");
+                            throw new Error("Server routing fault. Verify deployment builds are active.");
                         }
                         
                         if (!response.ok || data.error) {
-                            throw new Error(data.error || 'Server endpoint response error.');
-                        }
-                        
-                        statusHeader.innerText = "Analysis Report";
-                        statusHeader.style.color = "#4ade80";
-                        textOutput.innerText = data.result;
-                        copyBtn.style.display = 'block';
-
-                    } catch (err) {
-                        statusHeader.innerText = "Network Fault";
-                        statusHeader.style.color = "#ef4444";
-                        textOutput.innerText = err.message;
-                        copyBtn.style.display = 'none';
-                    }
-                };
-            };
-        }
-    </script>
-</body>
-</html>
+                            throw new Error
