@@ -84,7 +84,6 @@
             cursor: pointer;
             user-select: none;
             border: 1px solid #3a506b;
-            transition: background-color 0.2s;
         }
         .check-item input {
             margin-right: 12px;
@@ -162,9 +161,6 @@
             cursor: pointer;
             text-transform: uppercase;
         }
-        .copy-btn:active {
-            background-color: #1c2541;
-        }
         .result-text {
             font-size: 15px;
             line-height: 1.6;
@@ -189,7 +185,7 @@
         </div>
         <div class="brand-title">No Problem <span>Power Washing</span></div>
         <div class="tagline">
-            Select the surface materials present, then capture or upload an image to generate an instant project quote using premium tier pricing grids.
+            Select the surface materials present, then capture or upload an image to generate an instant project quote.
         </div>
 
         <div class="action-card">
@@ -246,16 +242,9 @@
         function copyToClipboard() {
             const textToCopy = document.getElementById('analysisResult').innerText;
             const copyBtn = document.getElementById('copyButton');
-            
             navigator.clipboard.writeText(textToCopy).then(() => {
                 copyBtn.innerText = "Copied!";
-                copyBtn.style.color = "#4ade80";
-                setTimeout(() => {
-                    copyBtn.innerText = "Copy";
-                    copyBtn.style.color = "#00b4d8";
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
+                setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
             });
         }
 
@@ -269,13 +258,11 @@
             const resultCard = document.getElementById('outputCard');
             const statusHeader = document.getElementById('statusHeader');
             const textOutput = document.getElementById('analysisResult');
-            const copyBtn = document.getElementById('copyButton');
 
             resultCard.style.display = 'block';
-            copyBtn.style.display = 'none';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerText = "Analyzing image surface data...";
+            textOutput.innerText = "Processing image data...";
 
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -303,8 +290,7 @@
                     ctx.drawImage(img, 0, 0, width, height);
                     
                     const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    textOutput.innerText = "Calculating dynamic square foot parameters...";
+                    textOutput.innerText = "Calculating job pricing parameters...";
 
                     try {
                         const response = await fetch('/api/analyze', {
@@ -316,13 +302,24 @@
                             })
                         });
                         
-                        let data;
-                        const contentType = response.headers.get("content-type");
-                        if (contentType && contentType.includes("application/json")) {
-                            data = await response.json();
-                        } else {
-                            throw new Error("Server routing fault. Verify deployment builds are active.");
-                        }
+                        const data = await response.json();
                         
                         if (!response.ok || data.error) {
-                            throw new Error
+                            throw new Error(data.error || 'Server endpoint response error.');
+                        }
+                        
+                        statusHeader.innerText = "Estimate Report";
+                        statusHeader.style.color = "#4ade80";
+                        textOutput.innerText = data.result;
+
+                    } catch (err) {
+                        statusHeader.innerText = "Error Status";
+                        statusHeader.style.color = "#ef4444";
+                        textOutput.innerText = err.message;
+                    }
+                };
+            };
+        }
+    </script>
+</body>
+</html>
