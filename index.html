@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>No Problem Power Washing - Estimator</title>
+    <title>No Problem Power Washing - Auto Estimator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -59,41 +59,6 @@
             margin-bottom: 20px;
             text-align: left;
             border: 1px solid #3a506b;
-        }
-        .section-label {
-            font-size: 13px;
-            font-weight: bold;
-            color: #00b4d8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .checklist-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-        .check-item {
-            display: flex;
-            align-items: center;
-            background-color: #0b132b;
-            padding: 14px;
-            border-radius: 10px;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid #3a506b;
-        }
-        .check-item input {
-            margin-right: 12px;
-            transform: scale(1.3);
-            accent-color: #00b4d8;
-        }
-        .check-item span {
-            font-size: 14px;
-            color: #f1f5f9;
-            font-weight: 500;
         }
         .btn {
             display: block;
@@ -185,43 +150,16 @@
         </div>
         <div class="brand-title">No Problem <span>Power Washing</span></div>
         <div class="tagline">
-            Select the surface materials present, then capture or upload an image to generate an instant project quote.
+            Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
         </div>
 
         <div class="action-card">
-            <span class="section-label">Select Project Surfaces:</span>
-            <div class="checklist-container">
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Standard Siding (Regular)">
-                    <span>Siding (0.20)</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Premium Siding (Mid)">
-                    <span>Siding (0.25)</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Heavy Siding (High)">
-                    <span>Siding (0.28)</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Brick / Masonry">
-                    <span>Brick (0.35)</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Concrete / Fiber Cement">
-                    <span>Concrete</span>
-                </label>
-                <label class="check-item">
-                    <input type="checkbox" name="sidingType" value="Stucco / Exterior Finish">
-                    <span>Stucco</span>
-                </label>
-            </div>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input" onchange="handleFiles(this.files)">
+            
+            <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" onchange="handleFiles(this.files)">
 
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input" onchange="handleFileSelect(this)">
-            <input type="file" id="fileInput" accept="image/*" class="hidden-input" onchange="handleFileSelect(this)">
-
-            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Image</button>
+            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photo</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
         </div>
 
         <div class="result-card" id="outputCard" style="display: none;">
@@ -248,13 +186,9 @@
             });
         }
 
-        function handleFileSelect(input) {
-            if (!input.files || !input.files[0]) return;
-            
-            const checkedBoxes = document.querySelectorAll('input[name="sidingType"]:checked');
-            const selectedMaterials = Array.from(checkedBoxes).map(cb => cb.value);
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
 
-            const file = input.files[0];
             const resultCard = document.getElementById('outputCard');
             const statusHeader = document.getElementById('statusHeader');
             const textOutput = document.getElementById('analysisResult');
@@ -262,63 +196,74 @@
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerText = "Processing image data...";
+            textOutput.innerText = `Preparing ${files.length} job asset(s)...`;
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function (event) {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = async function () {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const maxDimension = 1024;
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    if (width > height && width > maxDimension) {
-                        height *= maxDimension / width;
-                        width = maxDimension;
-                    } else if (height > maxDimension) {
-                        width *= maxDimension / height;
-                        height = maxDimension;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    textOutput.innerText = "Calculating job pricing parameters...";
+            try {
+                const base64Images = [];
 
-                    try {
-                        const response = await fetch('/api/analyze', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                image: compressedBase64,
-                                materials: selectedMaterials
-                            })
-                        });
+                for (let i = 0; i < files.length; i++) {
+                    textOutput.innerText = `Optimizing image ${i + 1} of ${files.length}...`;
+                    const base64Str = await resizeAndCompressImage(files[i]);
+                    base64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+                }
+
+                textOutput.innerText = "AI is evaluating surfaces and compiling project values...";
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ images: base64Images })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Server endpoint response error.');
+                }
+
+                statusHeader.innerText = "Full Job Quote";
+                statusHeader.style.color = "#4ade80";
+                textOutput.innerText = data.result;
+
+            } catch (err) {
+                statusHeader.innerText = "Processing Fault";
+                statusHeader.style.color = "#ef4444";
+                textOutput.innerText = err.message;
+            }
+        }
+
+        function resizeAndCompressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
                         
-                        const data = await response.json();
+                        const maxDimension = 1024;
+                        let width = img.width;
+                        let height = img.height;
                         
-                        if (!response.ok || data.error) {
-                            throw new Error(data.error || 'Server endpoint response error.');
+                        if (width > height && width > maxDimension) {
+                            height *= maxDimension / width;
+                            width = maxDimension;
+                        } else if (height > maxDimension) {
+                            width *= maxDimension / height;
+                            height = maxDimension;
                         }
                         
-                        statusHeader.innerText = "Estimate Report";
-                        statusHeader.style.color = "#4ade80";
-                        textOutput.innerText = data.result;
-
-                    } catch (err) {
-                        statusHeader.innerText = "Error Status";
-                        statusHeader.style.color = "#ef4444";
-                        textOutput.innerText = err.message;
-                    }
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                    img.onerror = (err) => reject(err);
                 };
-            };
+                reader.onerror = (err) => reject(err);
+            });
         }
     </script>
 </body>
