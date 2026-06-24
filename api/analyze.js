@@ -17,37 +17,37 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: 'Configuration error: Missing API Token configuration.' });
         }
 
-        const { image, materials } = req.body;
-        if (!image) {
-            return res.status(400).json({ error: 'Missing image payload target assets.' });
+        const { images } = req.body;
+        if (!images || !Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({ error: 'Missing target job asset images.' });
         }
 
-        const cleanBase64 = image.replace(/^data:image\/\w+;base64,/, "");
         const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
-        const selections = (materials && materials.length > 0) ? materials : ["Unspecified Surface"];
+        // Map every incoming image into the parts structure for the AI payload
+        const imageParts = images.map(base64Data => ({
+            inlineData: { mimeType: "image/jpeg", data: base64Data }
+        }));
 
-        const promptText = `You are the master AI estimator engine for "No Problem Power Washing". 
-Calculate job costs from the image using this strict pricing and pressure rule matrix:
+        const promptText = `You are the automated site-estimator for "No Problem Power Washing".
+Analyze the attached image(s) of the property to formulate a precise service quote.
 
-1. PRICING RULES:
-   - If "Standard Siding (Regular)" is selected: Calculate total cost strictly at $0.20 per sq ft.
-   - If "Premium Siding (Mid)" is selected: Calculate total cost strictly at $0.25 per sq ft.
-   - If "Heavy Siding (High)" is selected: Calculate total cost strictly at $0.28 per sq ft.
-   - If "Brick / Masonry" is selected: Calculate total cost strictly at $0.35 per sq ft.
-   - If any other option (Concrete, Stucco, etc.) is selected without a specific price noted, use a standard base rate of $0.30 per sq ft.
+PRICING & WASHING LOGIC MATRIX:
+1. Siding / Vinyl Profiles:
+   - Identify any regular vinyl or light siding panels.
+   - Price calculation: Base rate is strictly $0.25 per square foot.
+   - Cleaning method: Must specify Soft Wash Method (low pressure chemical clean) to prevent structural damage.
 
-2. PRESSURE TECHNIQUE RULES:
-   - Siding profiles ("Standard Siding", "Premium Siding", "Heavy Siding") MUST be designated for Soft Washing to prevent damage.
-   - Brick, Concrete, and ALL other surfaces NOT designated as siding MUST be processed using High Pressure Washing.
+2. Heavy / Hard Target Surfaces (Brick, Stucco, Stone, Concrete masonry):
+   - Identify sections constructed of brick, concrete driveways/walkways, or stucco finishes.
+   - Price calculation: Must scale higher than siding due to material density. Use $0.35 per sq ft for brick/stucco, and $0.30 per sq ft for ground concrete.
+   - Cleaning method: Must specify High Pressure Power Washing Point.
 
-User Selections: ${selections.join(', ')}
-
-Output a professional estimate report containing:
-- Estimated Square Footage of the surface area visible.
-- Required Wash Method (Clearly state High Pressure Washing Point vs Soft Wash Method based on the rules).
-- Detailed Cost Estimation Breakdown (Show the math: Sq Ft x Price Rate).
-- Surface condition notes observed in the photo.`;
+Formulate an aggregated project quote accounting for all submitted views:
+- Total Square Footage breakdown per material class found.
+- Equipment/Technique breakdown (Which parts get Soft Wash vs High Pressure).
+- Total Estimated Job Valuation (Show the line-item calculations clearly).
+- Condition assessment (Note visual indicators like algae, black mold, or oxidation).`;
 
         const response = await fetch(targetUrl, {
             method: 'POST',
@@ -56,7 +56,7 @@ Output a professional estimate report containing:
                 contents: [{
                     parts: [
                         { text: promptText },
-                        { inlineData: { mimeType: "image/jpeg", data: cleanBase64 } }
+                        ...imageParts
                     ]
                 }]
             })
