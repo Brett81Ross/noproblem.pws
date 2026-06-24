@@ -77,13 +77,15 @@
             box-sizing: border-box;
             text-align: center;
         }
+        .btn:last-child {
+            margin-bottom: 0;
+        }
         .btn:active {
             background-color: #0096c7;
         }
         .btn-secondary {
             background-color: #3a506b;
             color: #ffffff;
-            margin-bottom: 0;
             border: 1px solid #5c718e;
         }
         .btn-secondary:active {
@@ -154,4 +156,87 @@
         </div>
 
         <div class="action-card">
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input" onchange="handleFiles(this.files)">
+            <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" onchange="handleFiles(this.files)">
+
+            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photo</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
+        </div>
+
+        <div class="result-card" id="outputCard" style="display: none;">
+            <div class="result-title-row">
+                <p class="result-title" id="statusHeader">Estimate Report</p>
+                <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy</button>
+            </div>
+            <div class="result-text" id="analysisResult">Processing Matrix...</div>
+        </div>
+
+        <div class="footer">
+            &copy; 2026 No Problem Power Washing&trade;<br>
+            Powered by CactusByte Studios &bull; All Rights Reserved
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const textToCopy = document.getElementById('analysisResult').innerText;
+            const copyBtn = document.getElementById('copyButton');
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.innerText = "Copied!";
+                setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
+            });
+        }
+
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
+
+            const resultCard = document.getElementById('outputCard');
+            const statusHeader = document.getElementById('statusHeader');
+            const textOutput = document.getElementById('analysisResult');
+
+            resultCard.style.display = 'block';
+            statusHeader.innerText = "System Status";
+            statusHeader.style.color = "#00b4d8";
+            textOutput.innerText = `Preparing ${files.length} job asset(s)...`;
+
+            try {
+                const base64Images = [];
+
+                for (let i = 0; i < files.length; i++) {
+                    textOutput.innerText = `Optimizing image ${i + 1} of ${files.length}...`;
+                    const base64Str = await resizeAndCompressImage(files[i]);
+                    base64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+                }
+
+                textOutput.innerText = "AI is evaluating surfaces and compiling project values...";
+
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ images: base64Images })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(data.error || 'Server endpoint response error.');
+                }
+
+                statusHeader.innerText = "Full Job Quote";
+                statusHeader.style.color = "#4ade80";
+                textOutput.innerText = data.result;
+
+            } catch (err) {
+                statusHeader.innerText = "Processing Fault";
+                statusHeader.style.color = "#ef4444";
+                textOutput.innerText = err.message;
+            }
+        }
+
+        function resizeAndCompressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.
