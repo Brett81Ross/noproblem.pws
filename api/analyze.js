@@ -10,10 +10,10 @@ export const config = {
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(455).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Explicitly target your corrected Vercel environment variable name with underscores
+    // Explicitly target your custom Vercel environment variable name
     const apiKey = process.env['Gemini_API_Key_2'];
 
     if (!apiKey) {
@@ -29,7 +29,10 @@ export default async function handler(req, res) {
         }
 
         // Initialize the Gemini client using the SDK pattern
-        const ai = new GoogleGenAI({ apiKey: apiKey });
+        const genAI = new GoogleGenAI(apiKey);
+        
+        // Use standard text-and-images structure for mult-modal generation
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         // Map incoming base64 images into the structural formats the API expects
         const mediaContents = images.map(b64 => ({
@@ -52,13 +55,13 @@ export default async function handler(req, res) {
             Keep your response highly professional, organized, and clear so it can be copied directly into a client proposal.
         `;
 
-        // Request processing from the Gemini model
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [promptText, ...mediaContents]
-        });
-
-        const resultText = response.text || "Unable to parse visual project constraints.";
+        // Request processing from the Gemini model using the multi-part structure
+        const result = await model.generateContent([
+            promptText,
+            ...mediaContents,
+        ]);
+        const response = await result.response;
+        const resultText = response.text() || "Unable to parse visual project constraints.";
         return res.status(200).json({ result: resultText });
 
     } catch (error) {
