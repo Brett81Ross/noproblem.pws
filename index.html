@@ -100,6 +100,22 @@
         .hidden-input {
             display: none;
         }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .preview-thumbnail {
+            width: 100%;
+            padding-top: 100%;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #00b4d8;
+            background-size: cover;
+            background-position: center;
+        }
         .result-card {
             background-color: #1c2541;
             border-left: 4px solid #00b4d8;
@@ -134,13 +150,52 @@
             cursor: pointer;
             text-transform: uppercase;
         }
-        .result-text {
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 0;
-            white-space: pre-wrap;
-            color: #f8fafc;
+        
+        /* New Dynamic Proposal Graphic Blocks */
+        .proposal-section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #00b4d8;
+            margin: 20px 0 10px 0;
+            font-weight: 800;
+            border-bottom: 1px solid #3a506b;
+            padding-bottom: 5px;
         }
+        .proposal-section-title:first-of-type {
+            margin-top: 5px;
+        }
+        .proposal-item {
+            background-color: #0b132b;
+            border: 1px solid #24334c;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e2e8f0;
+        }
+        .proposal-total-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid #4ade80;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .proposal-total-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        .proposal-total-amount {
+            font-size: 28px;
+            font-weight: 900;
+            color: #4ade80;
+        }
+        
         .footer {
             margin-top: 40px;
             font-size: 11px;
@@ -162,11 +217,13 @@
         </div>
 
         <div class="action-card">
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input" onchange="handleFiles(this.files)">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" onchange="handleFiles(this.files)">
             <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" onchange="handleFiles(this.files)">
 
-            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photo</button>
+            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
             <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
+            
+            <div class="preview-grid" id="imagePreviewGrid"></div>
         </div>
 
         <div class="result-card" id="outputCard" style="display: none;">
@@ -174,7 +231,7 @@
                 <p class="result-title" id="statusHeader">Estimate Report</p>
                 <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy</button>
             </div>
-            <div class="result-text" id="analysisResult">Processing Matrix...</div>
+            <div id="analysisResult">Processing Matrix...</div>
         </div>
 
         <div class="footer">
@@ -185,6 +242,7 @@
 
     <script>
         function copyToClipboard() {
+            // Extracts standard raw text cleanly for copy-paste utility compatibility
             const textToCopy = document.getElementById('analysisResult').innerText;
             const copyBtn = document.getElementById('copyButton');
             navigator.clipboard.writeText(textToCopy).then(() => {
@@ -193,28 +251,74 @@
             });
         }
 
+        // Elegant client-side layout compiler engine
+        function formatProposalHTML(rawText) {
+            if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
+                return `<div style="font-size: 15px; color:#94a3b8;">${rawText}</div>`;
+            }
+
+            const lines = rawText.split('\n');
+            let htmlOutput = "";
+            let insideSection = false;
+
+            lines.forEach(line => {
+                const cleanLine = line.trim();
+                if (!cleanLine) return;
+
+                // Detect Section Headers
+                if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
+                    htmlOutput += `<div class="proposal-section-title">${cleanLine.replace(':', '')}</div>`;
+                    insideSection = true;
+                } 
+                // Detect Total Contract Box Line
+                else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
+                    const priceMatch = cleanLine.match(/\$[0-9,.]+/);
+                    const price = priceMatch ? priceMatch[0] : cleanLine;
+                    htmlOutput += `
+                        <div class="proposal-total-card">
+                            <div class="proposal-total-label">Suggested Contract Total</div>
+                            <div class="proposal-total-amount">${price}</div>
+                        </div>
+                    `;
+                } 
+                // Style regular rows cleanly into standalone graphic list elements
+                else {
+                    let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
+                    htmlOutput += `<div class="proposal-item">${textContent}</div>`;
+                }
+            });
+
+            return htmlOutput || rawText;
+        }
+
         async function handleFiles(files) {
             if (!files || files.length === 0) return;
 
             const resultCard = document.getElementById('outputCard');
             const statusHeader = document.getElementById('statusHeader');
             const textOutput = document.getElementById('analysisResult');
+            const previewGrid = document.getElementById('imagePreviewGrid');
 
+            previewGrid.innerHTML = "";
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerText = `Preparing ${files.length} job asset(s)...`;
+            textOutput.innerHTML = formatProposalHTML(`Preparing ${files.length} job asset(s)...`);
 
             try {
                 const base64Images = [];
 
                 for (let i = 0; i < files.length; i++) {
-                    textOutput.innerText = `Optimizing image ${i + 1} of ${files.length}...`;
                     const base64Str = await resizeAndCompressImage(files[i]);
                     base64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+
+                    const thumb = document.createElement('div');
+                    thumb.className = 'preview-thumbnail';
+                    thumb.style.backgroundImage = `url(${base64Str})`;
+                    previewGrid.appendChild(thumb);
                 }
 
-                textOutput.innerText = "AI is evaluating surfaces and compiling project values...";
+                textOutput.innerHTML = formatProposalHTML("AI is evaluating surfaces and compiling project values...");
 
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -230,12 +334,12 @@
 
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
-                textOutput.innerText = data.result;
+                textOutput.innerHTML = formatProposalHTML(data.result);
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
                 statusHeader.style.color = "#ef4444";
-                textOutput.innerText = err.message;
+                textOutput.innerHTML = formatProposalHTML(err.message);
             }
         }
 
