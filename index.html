@@ -97,9 +97,28 @@
         .btn-secondary:active {
             background-color: #24334c;
         }
-        .hidden-input {
-            display: none;
+        
+        /* Utility Action Layout Matrix */
+        .utility-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
         }
+        .btn-utility {
+            padding: 12px;
+            font-size: 13px;
+            border-radius: 8px;
+            margin-bottom: 0;
+        }
+        .btn-email {
+            background-color: #4ade80;
+            color: #0b132b;
+        }
+        .btn-email:active {
+            background-color: #22c55e;
+        }
+
         .preview-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -151,16 +170,16 @@
             text-transform: uppercase;
         }
         
-        /* New Dynamic Proposal Graphic Blocks */
+        /* Enhanced UI Scanability Layout */
         .proposal-section-title {
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: #00b4d8;
-            margin: 20px 0 10px 0;
+            margin: 25px 0 12px 0;
             font-weight: 800;
-            border-bottom: 1px solid #3a506b;
-            padding-bottom: 5px;
+            border-bottom: 2px solid #24334c;
+            padding-bottom: 6px;
         }
         .proposal-section-title:first-of-type {
             margin-top: 5px;
@@ -168,20 +187,43 @@
         .proposal-item {
             background-color: #0b132b;
             border: 1px solid #24334c;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 8px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
             font-size: 14px;
             line-height: 1.5;
             color: #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+        .item-text {
+            padding-right: 15px;
+            flex-grow: 1;
+        }
+        .highlight-surface { color: #38bdf8; font-weight: 600; }
+        .highlight-spec { color: #94a3b8; font-size: 13px; }
+        
+        /* High-Contrast Cost Badge Elements */
+        .price-badge {
+            background-color: #1e293b;
+            color: #38bdf8;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 15px;
+            border: 1px solid #00b4d8;
+            white-space: nowrap;
         }
         .proposal-total-card {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px solid #4ade80;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.15);
         }
         .proposal-total-label {
             font-size: 12px;
@@ -189,19 +231,24 @@
             letter-spacing: 1px;
             color: #94a3b8;
             margin-bottom: 5px;
+            font-weight: bold;
         }
         .proposal-total-amount {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 900;
             color: #4ade80;
         }
-        
-        .footer {
-            margin-top: 40px;
-            font-size: 11px;
-            color: #64748b;
-            letter-spacing: 0.5px;
-            text-align: center;
+
+        /* Dedicated PDF Generation Output Layout Context */
+        @media print {
+            body { background: #ffffff; color: #000000; padding: 0; }
+            .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
+            .app-container { max-width: 100%; width: 100%; }
+            .result-card { border: none; background: transparent; padding: 0; }
+            .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; }
+            .price-badge { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; }
+            .proposal-total-card { border: 2px solid #16a34a; background: #f0fdf4; }
+            .proposal-total-amount { color: #16a34a; }
         }
     </style>
 </head>
@@ -229,9 +276,15 @@
         <div class="result-card" id="outputCard" style="display: none;">
             <div class="result-title-row">
                 <p class="result-title" id="statusHeader">Estimate Report</p>
-                <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy</button>
+                <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
             </div>
+            
             <div id="analysisResult">Processing Matrix...</div>
+
+            <div class="utility-row" id="actionPanel" style="display: none;">
+                <button class="btn btn-secondary btn-utility" onclick="generatePDF()">Export PDF</button>
+                <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
+            </div>
         </div>
 
         <div class="footer">
@@ -241,50 +294,79 @@
     </div>
 
     <script>
+        let currentRawResult = "";
+
         function copyToClipboard() {
-            // Extracts standard raw text cleanly for copy-paste utility compatibility
             const textToCopy = document.getElementById('analysisResult').innerText;
             const copyBtn = document.getElementById('copyButton');
             navigator.clipboard.writeText(textToCopy).then(() => {
                 copyBtn.innerText = "Copied!";
-                setTimeout(() => { copyBtn.innerText = "Copy"; }, 2000);
+                setTimeout(() => { copyBtn.innerText = "Copy Text"; }, 2000);
             });
         }
 
-        // Elegant client-side layout compiler engine
-        function formatProposalHTML(rawText) {
+        function generatePDF() {
+            window.print();
+        }
+
+        function sendProposalEmail() {
+            const subjectLine = encodeURIComponent("No Problem Pressure Washing Solutions - Project Estimate Proposal");
+            const bodyContent = encodeURIComponent(currentRawResult);
+            window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
+        }
+
+        // Intelligently scans, colorizes, and isolates numeric metrics dynamically
+        function parseScannableHTML(rawText) {
             if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
                 return `<div style="font-size: 15px; color:#94a3b8;">${rawText}</div>`;
             }
 
             const lines = rawText.split('\n');
             let htmlOutput = "";
-            let insideSection = false;
 
             lines.forEach(line => {
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
-                // Detect Section Headers
+                // Headers
                 if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
                     htmlOutput += `<div class="proposal-section-title">${cleanLine.replace(':', '')}</div>`;
-                    insideSection = true;
                 } 
-                // Detect Total Contract Box Line
+                // Target Total Amount Block
                 else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
                     const priceMatch = cleanLine.match(/\$[0-9,.]+/);
                     const price = priceMatch ? priceMatch[0] : cleanLine;
                     htmlOutput += `
                         <div class="proposal-total-card">
-                            <div class="proposal-total-label">Suggested Contract Total</div>
+                            <div class="proposal-total-label">Project Contract Total</div>
                             <div class="proposal-total-amount">${price}</div>
                         </div>
                     `;
                 } 
-                // Style regular rows cleanly into standalone graphic list elements
+                // Styled List Elements with Cost Badges
                 else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    htmlOutput += `<div class="proposal-item">${textContent}</div>`;
+                    
+                    // Pull specific dollar pricing components out of text string dynamically
+                    const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
+                    let badgeHTML = "";
+                    
+                    if (segmentPriceMatch) {
+                        badgeHTML = `<span class="price-badge">${segmentPriceMatch[0]}</span>`;
+                        textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
+                    }
+
+                    // Scan and color-code high priority category labels
+                    textContent = textContent
+                        .replace(/(SOFT WASH|PRESSURE WASH|SURFACE CLEANING|BRIGHTENING)/gi, '<span class="highlight-surface">$1</span>')
+                        .replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
+
+                    htmlOutput += `
+                        <div class="proposal-item">
+                            <div class="item-text">${textContent}</div>
+                            ${badgeHTML}
+                        </div>
+                    `;
                 }
             });
 
@@ -298,12 +380,14 @@
             const statusHeader = document.getElementById('statusHeader');
             const textOutput = document.getElementById('analysisResult');
             const previewGrid = document.getElementById('imagePreviewGrid');
+            const actionPanel = document.getElementById('actionPanel');
 
             previewGrid.innerHTML = "";
+            actionPanel.style.display = "none";
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerHTML = formatProposalHTML(`Preparing ${files.length} job asset(s)...`);
+            textOutput.innerHTML = parseScannableHTML(`Preparing ${files.length} job asset(s)...`);
 
             try {
                 const base64Images = [];
@@ -318,7 +402,7 @@
                     previewGrid.appendChild(thumb);
                 }
 
-                textOutput.innerHTML = formatProposalHTML("AI is evaluating surfaces and compiling project values...");
+                textOutput.innerHTML = parseScannableHTML("AI is evaluating surfaces and compiling project values...");
 
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -332,14 +416,16 @@
                     throw new Error(data.error || 'Server endpoint response error.');
                 }
 
+                currentRawResult = data.result;
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
-                textOutput.innerHTML = formatProposalHTML(data.result);
+                textOutput.innerHTML = parseScannableHTML(data.result);
+                actionPanel.style.display = "grid";
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
                 statusHeader.style.color = "#ef4444";
-                textOutput.innerHTML = formatProposalHTML(err.message);
+                textOutput.innerHTML = parseScannableHTML(err.message);
             }
         }
 
