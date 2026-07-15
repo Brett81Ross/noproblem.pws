@@ -98,7 +98,17 @@
             background-color: #24334c;
         }
         
-        /* Strict Hidden Inputs Safeguard */
+        /* Green Main Trigger Action Button Style */
+        .btn-trigger {
+            background-color: #4ade80;
+            color: #0b132b;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.25);
+        }
+        .btn-trigger:active {
+            background-color: #22c55e;
+        }
+        
         .hidden-input {
             display: none !important;
             opacity: 0 !important;
@@ -110,7 +120,7 @@
         
         .utility-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, 12fr);
             gap: 12px;
             margin-top: 20px;
         }
@@ -277,6 +287,8 @@
             <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
             
             <div class="preview-grid" id="imagePreviewGrid"></div>
+            
+            <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
         </div>
 
         <div class="result-card" id="outputCard" style="display: none;">
@@ -301,10 +313,11 @@
 
     <script>
         let currentRawResult = "";
+        let stagedBase64Images = [];
 
-        // Wire inputs programmatically to guarantee listener mapping across devices
-        document.getElementById('cameraInput').addEventListener('change', function() { handleFiles(this.files); });
-        document.getElementById('fileInput').addEventListener('change', function() { handleFiles(this.files); });
+        // Catch selections and stage them into memory without firing the API immediately
+        document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
+        document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
         function copyToClipboard() {
             const textToCopy = document.getElementById('analysisResult').innerText;
@@ -376,41 +389,51 @@
             return htmlOutput || rawText;
         }
 
-        async function handleFiles(files) {
+        async function stageFiles(files) {
             if (!files || files.length === 0) return;
+
+            const previewGrid = document.getElementById('imagePreviewGrid');
+            const processTrigger = document.getElementById('processTrigger');
+            
+            // Allow accumulating photos sequentially by not clearing the main array 
+            for (let i = 0; i < files.length; i++) {
+                const base64Str = await resizeAndCompressImage(files[i]);
+                stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+
+                const thumb = document.createElement('div');
+                thumb.className = 'preview-thumbnail';
+                thumb.style.backgroundImage = `url(${base64Str})`;
+                previewGrid.appendChild(thumb);
+            }
+
+            // Make green button visible
+            if (stagedBase64Images.length > 0) {
+                processTrigger.setAttribute('style', 'display: block !important;');
+            }
+        }
+
+        async function submitJobForAnalysis() {
+            if (stagedBase64Images.length === 0) return;
 
             const resultCard = document.getElementById('outputCard');
             const statusHeader = document.getElementById('statusHeader');
             const textOutput = document.getElementById('analysisResult');
-            const previewGrid = document.getElementById('imagePreviewGrid');
             const actionPanel = document.getElementById('actionPanel');
+            const processTrigger = document.getElementById('processTrigger');
 
-            previewGrid.innerHTML = "";
+            // Hide the green button while computing
+            processTrigger.setAttribute('style', 'display: none !important;');
             actionPanel.setAttribute('style', 'display: none !important;');
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerHTML = parseScannableHTML(`Preparing ${files.length} job asset(s)...`);
+            textOutput.innerHTML = parseScannableHTML("AI is evaluating surfaces and compiling project values...");
 
             try {
-                const base64Images = [];
-
-                for (let i = 0; i < files.length; i++) {
-                    const base64Str = await resizeAndCompressImage(files[i]);
-                    base64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
-
-                    const thumb = document.createElement('div');
-                    thumb.className = 'preview-thumbnail';
-                    thumb.style.backgroundImage = `url(${base64Str})`;
-                    previewGrid.appendChild(thumb);
-                }
-
-                textOutput.innerHTML = parseScannableHTML("AI is evaluating surfaces and compiling project values...");
-
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ images: base64Images })
+                    body: JSON.stringify({ images: stagedBase64Images })
                 });
 
                 const data = await response.json();
@@ -423,14 +446,16 @@
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
                 textOutput.innerHTML = parseScannableHTML(data.result);
-                
-                // Show utilities explicitly as a grid once the final dataset resolves
                 actionPanel.setAttribute('style', 'display: grid !important;');
+                
+                // Clear state for next run
+                stagedBase64Images = [];
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
                 statusHeader.style.color = "#ef4444";
                 textOutput.innerHTML = parseScannableHTML(err.message);
+                processTrigger.setAttribute('style', 'display: block !important;');
             }
         }
 
