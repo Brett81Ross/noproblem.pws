@@ -9,7 +9,6 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-    // Explicitly set headers before executing logic to prevent raw text falls
     res.setHeader('Content-Type', 'application/json');
 
     if (req.method !== 'POST') {
@@ -30,7 +29,6 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'No image assets provided.' });
         }
 
-        // Correct class initialization pattern for the SDK
         const genAI = new GoogleGenAI({ apiKey: apiKey });
         
         const mediaParts = images.map(b64 => ({
@@ -53,7 +51,6 @@ export default async function handler(req, res) {
             Keep your response highly professional, organized, and clear so it can be copied directly into a client proposal.
         `;
 
-        // Modern client generation syntax pattern
         const response = await genAI.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
