@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "No Problem Pressure Washing Solutions Auto Estimator",
   "main": "api/analyze.js",
+  "type": "module",
   "engines": {
     "node": "22.x"
   },
