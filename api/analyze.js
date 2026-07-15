@@ -42,13 +42,12 @@ export default async function handler(req, res) {
             You are an expert cost estimator for No Problem Power Washing. 
             Analyze the provided job site images thoroughly and calculate a comprehensive commercial/residential bidding estimate.
             
-            Provide a clean breakdown itemizing:
-            1. Identified structures and total estimated surface areas (e.g., driveways, siding, sidewalks, decks).
-            2. Material types detected (concrete, vinyl, wood, brick) and heavy staining/debris severity.
-            3. Detailed cost breakdown with specific line items.
-            4. Suggested total project contract price.
+            Format your response exactly using these text layout rules so the UI engine can convert it into visual cards:
+            1. Every section header must be on its own line and end exactly with a colon (e.g. "SURFACE MANAGEMENT BREAKDOWN:").
+            2. Itemized line values must follow beneath it as separate lines starting with a hyphen.
+            3. The absolute last line of the analysis must contain the phrase "TOTAL CONTRACT PRICE:" followed immediately by the final dollar amount.
             
-            Keep your response highly professional, organized, and clear so it can be copied directly into a client proposal.
+            CRITICAL: Do NOT include markdown characters like asterisks (**) or hashtags (#). Use plain uppercase text for headers. Keep individual line points highly specific, organized, and clean.
         `;
 
         const response = await genAI.models.generateContent({
