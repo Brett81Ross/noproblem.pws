@@ -9,16 +9,18 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+    // Explicitly set headers before executing logic to prevent raw text falls
+    res.setHeader('Content-Type', 'application/json');
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Explicitly target your custom Vercel environment variable name
-    const apiKey = process.env['Gemini_API_Key_2'];
+    const apiKey = process.env.Gemini_API_Key_2 || process.env['Gemini_API_Key_2'];
 
     if (!apiKey) {
         return res.status(500).json({ 
-            error: 'Configuration error: Missing API Token configuration.' 
+            error: 'Configuration error: Missing Gemini_API_Key_2 environment variable.' 
         });
     }
 
@@ -28,10 +30,9 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'No image assets provided.' });
         }
 
-        // Initialize the Gemini client using the correct SDK configuration object
-        const genAI = new GoogleGenAI({ apiKey });
+        // Correct class initialization pattern for the SDK
+        const genAI = new GoogleGenAI({ apiKey: apiKey });
         
-        // Map incoming base64 images into the structural formats the API expects
         const mediaParts = images.map(b64 => ({
             inlineData: {
                 mimeType: "image/jpeg",
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
             Keep your response highly professional, organized, and clear so it can be copied directly into a client proposal.
         `;
 
-        // Request processing using the correct SDK model call structure
+        // Modern client generation syntax pattern
         const response = await genAI.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: [
@@ -65,7 +66,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ result: resultText });
 
     } catch (error) {
-        console.error('API processing error:', error);
-        return res.status(500).json({ error: error.message || 'Internal processing error.' });
+        console.error('API execution fault:', error);
+        return res.status(500).json({ error: error.message || 'Internal processing error occurred during analysis.' });
     }
 }
