@@ -28,14 +28,11 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'No image assets provided.' });
         }
 
-        // Initialize the Gemini client using the SDK pattern
-        const genAI = new GoogleGenAI(apiKey);
+        // Initialize the Gemini client using the correct SDK configuration object
+        const genAI = new GoogleGenAI({ apiKey });
         
-        // Use standard text-and-images structure for mult-modal generation
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
         // Map incoming base64 images into the structural formats the API expects
-        const mediaContents = images.map(b64 => ({
+        const mediaParts = images.map(b64 => ({
             inlineData: {
                 mimeType: "image/jpeg",
                 data: b64
@@ -55,13 +52,16 @@ export default async function handler(req, res) {
             Keep your response highly professional, organized, and clear so it can be copied directly into a client proposal.
         `;
 
-        // Request processing from the Gemini model using the multi-part structure
-        const result = await model.generateContent([
-            promptText,
-            ...mediaContents,
-        ]);
-        const response = await result.response;
-        const resultText = response.text() || "Unable to parse visual project constraints.";
+        // Request processing using the correct SDK model call structure
+        const response = await genAI.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+                promptText,
+                ...mediaParts
+            ]
+        });
+
+        const resultText = response.text || "Unable to parse visual project constraints.";
         return res.status(200).json({ result: resultText });
 
     } catch (error) {
