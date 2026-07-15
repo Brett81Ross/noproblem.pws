@@ -98,12 +98,21 @@
             background-color: #24334c;
         }
         
-        /* Utility Action Layout Matrix */
+        /* Strict Hidden Inputs Safeguard */
+        .hidden-input {
+            display: none !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            width: 0 !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+        
         .utility-row {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         .btn-utility {
             padding: 12px;
@@ -170,7 +179,6 @@
             text-transform: uppercase;
         }
         
-        /* Enhanced UI Scanability Layout */
         .proposal-section-title {
             font-size: 12px;
             text-transform: uppercase;
@@ -205,7 +213,6 @@
         .highlight-surface { color: #38bdf8; font-weight: 600; }
         .highlight-spec { color: #94a3b8; font-size: 13px; }
         
-        /* High-Contrast Cost Badge Elements */
         .price-badge {
             background-color: #1e293b;
             color: #38bdf8;
@@ -239,7 +246,6 @@
             color: #4ade80;
         }
 
-        /* Dedicated PDF Generation Output Layout Context */
         @media print {
             body { background: #ffffff; color: #000000; padding: 0; }
             .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
@@ -264,8 +270,8 @@
         </div>
 
         <div class="action-card">
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" onchange="handleFiles(this.files)">
-            <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" onchange="handleFiles(this.files)">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
+            <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
 
             <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
             <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
@@ -281,7 +287,7 @@
             
             <div id="analysisResult">Processing Matrix...</div>
 
-            <div class="utility-row" id="actionPanel" style="display: none;">
+            <div class="utility-row" id="actionPanel" style="display: none !important;">
                 <button class="btn btn-secondary btn-utility" onclick="generatePDF()">Export PDF</button>
                 <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
             </div>
@@ -295,6 +301,10 @@
 
     <script>
         let currentRawResult = "";
+
+        // Wire inputs programmatically to guarantee listener mapping across devices
+        document.getElementById('cameraInput').addEventListener('change', function() { handleFiles(this.files); });
+        document.getElementById('fileInput').addEventListener('change', function() { handleFiles(this.files); });
 
         function copyToClipboard() {
             const textToCopy = document.getElementById('analysisResult').innerText;
@@ -315,7 +325,6 @@
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
-        // Intelligently scans, colorizes, and isolates numeric metrics dynamically
         function parseScannableHTML(rawText) {
             if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
                 return `<div style="font-size: 15px; color:#94a3b8;">${rawText}</div>`;
@@ -328,11 +337,9 @@
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
-                // Headers
                 if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
                     htmlOutput += `<div class="proposal-section-title">${cleanLine.replace(':', '')}</div>`;
                 } 
-                // Target Total Amount Block
                 else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
                     const priceMatch = cleanLine.match(/\$[0-9,.]+/);
                     const price = priceMatch ? priceMatch[0] : cleanLine;
@@ -343,11 +350,8 @@
                         </div>
                     `;
                 } 
-                // Styled List Elements with Cost Badges
                 else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    
-                    // Pull specific dollar pricing components out of text string dynamically
                     const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
                     let badgeHTML = "";
                     
@@ -356,7 +360,6 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
                     }
 
-                    // Scan and color-code high priority category labels
                     textContent = textContent
                         .replace(/(SOFT WASH|PRESSURE WASH|SURFACE CLEANING|BRIGHTENING)/gi, '<span class="highlight-surface">$1</span>')
                         .replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
@@ -383,7 +386,7 @@
             const actionPanel = document.getElementById('actionPanel');
 
             previewGrid.innerHTML = "";
-            actionPanel.style.display = "none";
+            actionPanel.setAttribute('style', 'display: none !important;');
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
@@ -420,7 +423,9 @@
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
                 textOutput.innerHTML = parseScannableHTML(data.result);
-                actionPanel.style.display = "grid";
+                
+                // Show utilities explicitly as a grid once the final dataset resolves
+                actionPanel.setAttribute('style', 'display: grid !important;');
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
