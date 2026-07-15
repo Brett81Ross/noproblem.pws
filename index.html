@@ -218,7 +218,6 @@
             text-transform: uppercase;
         }
         
-        /* Upgraded Readable Font Size Structure */
         .proposal-section-title {
             font-size: 15px;
             text-transform: uppercase;
@@ -265,7 +264,6 @@
             flex-grow: 1;
             font-weight: 500;
         }
-        .highlight-surface { color: #38bdf8; font-weight: 700; }
         .highlight-spec { color: #cbd5e1; font-size: 15px; font-weight: 400; }
         
         .price-badge {
@@ -499,9 +497,8 @@
                         disabled: false
                     });
 
-                    const styledDisplay = textContent
-                        .replace(/(SOFT WASH|PRESSURE WASH|SURFACE CLEANING|BRIGHTENING)/gi, '<span class="highlight-surface">$1</span>')
-                        .replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
+                    // Stripped out bright blue inline highlighting engine completely
+                    const styledDisplay = textContent.replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
 
                     if (parsedNumericValue > 0) {
                         htmlOutput += `
