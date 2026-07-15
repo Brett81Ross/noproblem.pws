@@ -2,7 +2,10 @@
   "name": "noproblem-pws",
   "version": "1.0.0",
   "description": "No Problem Pressure Washing Solutions Auto Estimator",
-  "main": "index.html",
+  "main": "api/analyze.js",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@google/genai": "^0.1.1"
   }
