@@ -101,7 +101,6 @@
             background-color: #24334c;
         }
         
-        /* Main Trigger Button & Loading Motion State */
         .btn-trigger {
             background-color: #4ade80;
             color: #0b132b;
@@ -112,7 +111,6 @@
             background-color: #22c55e;
         }
         
-        /* Dynamic Loading Animation Stream */
         .btn-loading {
             background-color: #15803d !important;
             color: #a7f3d0 !important;
@@ -151,7 +149,7 @@
         
         .utility-row {
             display: grid;
-            grid-template-columns: repeat(2, 12fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-top: 20px;
         }
@@ -233,6 +231,8 @@
         .proposal-section-title:first-of-type {
             margin-top: 5px;
         }
+        
+        /* Interactive Toggle Cards Setup */
         .proposal-item {
             background-color: #0b132b;
             border: 1px solid #24334c;
@@ -246,7 +246,21 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
         }
+        .proposal-item:hover {
+            border-color: #00b4d8;
+        }
+        
+        /* Declined Omitted Opaque Component Rule */
+        .proposal-item.disabled-card {
+            opacity: 0.35;
+            background-color: #121824;
+            border-color: #1c2541;
+        }
+        
         .item-text {
             padding-right: 15px;
             flex-grow: 1;
@@ -263,7 +277,15 @@
             font-size: 15px;
             border: 1px solid #00b4d8;
             white-space: nowrap;
+            transition: all 0.2s ease;
         }
+        .proposal-item.disabled-card .price-badge {
+            background-color: #0b132b;
+            color: #64748b;
+            border-color: #334155;
+            text-decoration: line-through;
+        }
+        
         .proposal-total-card {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px solid #4ade80;
@@ -272,6 +294,7 @@
             margin-top: 25px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(74, 222, 128, 0.15);
+            transition: all 0.3s ease;
         }
         .proposal-total-label {
             font-size: 12px;
@@ -287,7 +310,6 @@
             color: #4ade80;
         }
 
-        /* Added Extra Margin Space To Move Footer Elements Down */
         .footer {
             margin-top: 75px;
             font-size: 11px;
@@ -300,6 +322,8 @@
         @media print {
             body { background: #ffffff; color: #000000; padding: 0; }
             .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
+            /* Hide items completely during PDF print generation if disabled on dashboard screen */
+            .proposal-item.disabled-card { display: none !important; }
             .app-container { max-width: 100%; width: 100%; }
             .result-card { border: none; background: transparent; padding: 0; }
             .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; }
@@ -353,16 +377,42 @@
     </div>
 
     <script>
-        let currentRawResult = "";
         let stagedBase64Images = [];
+        let priceItemsRegistry = []; 
 
         document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
         document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
+        // Compiles current dynamic calculation layout cleanly into plain text strings
+        function generateActiveProposalText() {
+            let proposalText = "NO PROBLEM PRESSURE WASHING SOLUTIONS\nPROJECT ESTIMATE PROPOSAL\n\n";
+            let currentSection = "";
+            let runningTotal = 0;
+            
+            priceItemsRegistry.forEach(item => {
+                if (item.disabled) return;
+                
+                if (item.section !== currentSection) {
+                    currentSection = item.section;
+                    proposalText += `\n${currentSection.toUpperCase()}:\n`;
+                }
+                
+                if (item.value > 0) {
+                    proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+                    runningTotal += item.value;
+                } else {
+                    proposalText += `- ${item.cleanText}\n`;
+                }
+            });
+            
+            proposalText += `\nTOTAL ACTIVE CONTRACT PRICE: $${runningTotal.toFixed(2)}\n`;
+            return proposalText;
+        }
+
         function copyToClipboard() {
-            const textToCopy = document.getElementById('analysisResult').innerText;
+            const compiledText = generateActiveProposalText();
             const copyBtn = document.getElementById('copyButton');
-            navigator.clipboard.writeText(textToCopy).then(() => {
+            navigator.clipboard.writeText(compiledText).then(() => {
                 copyBtn.innerText = "Copied!";
                 setTimeout(() => { copyBtn.innerText = "Copy Text"; }, 2000);
             });
@@ -373,60 +423,121 @@
         }
 
         function sendProposalEmail() {
+            const activeText = generateActiveProposalText();
             const subjectLine = encodeURIComponent("No Problem Pressure Washing Solutions - Project Estimate Proposal");
-            const bodyContent = encodeURIComponent(currentRawResult);
+            const bodyContent = encodeURIComponent(activeText);
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
-        function parseScannableHTML(rawText) {
+        // Handles dynamic item addition and runtime calculation tracking
+        function togglePriceCard(index) {
+            const cardElement = document.getElementById(`priceCard_${index}`);
+            if (!cardElement || !priceItemsRegistry[index]) return;
+            
+            // Toggle memory model flags
+            priceItemsRegistry[index].disabled = !priceItemsRegistry[index].disabled;
+            
+            // Sync presentation visuals
+            if (priceItemsRegistry[index].disabled) {
+                cardElement.classList.add('disabled-card');
+            } else {
+                cardElement.classList.remove('disabled-card');
+            }
+            
+            recalculateGrandTotal();
+        }
+
+        function recalculateGrandTotal() {
+            let runningSum = 0;
+            priceItemsRegistry.forEach(item => {
+                if (!item.disabled) {
+                    runningSum += item.value;
+                }
+            });
+            
+            const totalDisplay = document.getElementById('grandTotalDisplay');
+            if (totalDisplay) {
+                totalDisplay.innerText = `$${runningSum.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+        }
+
+        function parseInteractiveHTML(rawText) {
             if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
                 return `<div style="font-size: 15px; color:#94a3b8;">${rawText}</div>`;
             }
 
             const lines = rawText.split('\n');
             let htmlOutput = "";
+            let currentSectionName = "General Details";
+            let globalCardIndex = 0;
+            priceItemsRegistry = []; // Reset internal memory mapping
 
             lines.forEach(line => {
                 const cleanLine = line.trim();
                 if (!cleanLine) return;
 
                 if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
-                    htmlOutput += `<div class="proposal-section-title">${cleanLine.replace(':', '')}</div>`;
+                    currentSectionName = cleanLine.replace(':', '').trim();
+                    htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
                 } 
                 else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
-                    const priceMatch = cleanLine.match(/\$[0-9,.]+/);
-                    const price = priceMatch ? priceMatch[0] : cleanLine;
-                    htmlOutput += `
-                        <div class="proposal-total-card">
-                            <div class="proposal-total-label">Project Contract Total</div>
-                            <div class="proposal-total-amount">${price}</div>
-                        </div>
-                    `;
+                    // Handled safely at the bottom by the dynamic sum counter
+                    return;
                 } 
                 else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
                     const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
                     let badgeHTML = "";
+                    let parsedNumericValue = 0;
                     
                     if (segmentPriceMatch) {
+                        const rawNumStr = segmentPriceMatch[0].replace('$', '').replace(/,/g, '');
+                        parsedNumericValue = parseFloat(rawNumStr) || 0;
                         badgeHTML = `<span class="price-badge">${segmentPriceMatch[0]}</span>`;
                         textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
                     }
 
-                    textContent = textContent
+                    // Save line data models into state matrix tracking
+                    priceItemsRegistry.push({
+                        id: globalCardIndex,
+                        section: currentSectionName,
+                        cleanText: textContent,
+                        value: parsedNumericValue,
+                        disabled: false
+                    });
+
+                    const styledDisplay = textContent
                         .replace(/(SOFT WASH|PRESSURE WASH|SURFACE CLEANING|BRIGHTENING)/gi, '<span class="highlight-surface">$1</span>')
                         .replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
 
-                    htmlOutput += `
-                        <div class="proposal-item">
-                            <div class="item-text">${textContent}</div>
-                            ${badgeHTML}
-                        </div>
-                    `;
+                    // If it's a priced service line item, wrap it inside a touch toggle click layer
+                    if (parsedNumericValue > 0) {
+                        htmlOutput += `
+                            <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
+                                <div class="item-text">${styledDisplay}</div>
+                                ${badgeHTML}
+                            </div>
+                        `;
+                    } else {
+                        htmlOutput += `
+                            <div class="proposal-item" style="cursor: default;">
+                                <div class="item-text">${styledDisplay}</div>
+                            </div>
+                        `;
+                    }
+                    globalCardIndex++;
                 }
             });
 
-            return htmlOutput || rawText;
+            // Append live mathematical calculations block
+            htmlOutput += `
+                <div class="proposal-total-card">
+                    <div class="proposal-total-label">Project Contract Total</div>
+                    <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
+                </div>
+            `;
+
+            return htmlOutput;
         }
 
         async function stageFiles(files) {
@@ -447,7 +558,6 @@
 
             if (stagedBase64Images.length > 0) {
                 processTrigger.setAttribute('style', 'display: block !important;');
-                // Reset button design if it was in loading state previously
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = "Analyze Project";
             }
@@ -462,7 +572,6 @@
             const actionPanel = document.getElementById('actionPanel');
             const processTrigger = document.getElementById('processTrigger');
 
-            // Apply the sweep loading animation and text state changes instantly
             processTrigger.className = "btn btn-trigger btn-loading";
             processTrigger.innerText = "Analyzing Site...";
             
@@ -470,7 +579,7 @@
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
-            textOutput.innerHTML = parseScannableHTML("AI is evaluating surfaces and compiling project values...");
+            textOutput.innerHTML = parseInteractiveHTML("AI is evaluating surfaces and compiling project values...");
 
             try {
                 const response = await fetch('/api/analyze', {
@@ -485,22 +594,21 @@
                     throw new Error(data.error || 'Server endpoint response error.');
                 }
 
-                currentRawResult = data.result;
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
-                textOutput.innerHTML = parseScannableHTML(data.result);
+                textOutput.innerHTML = parseInteractiveHTML(data.result);
+                
+                // Initialize the math engine on deployment load
+                recalculateGrandTotal();
                 actionPanel.setAttribute('style', 'display: grid !important;');
                 
-                // Reset setup views cleanly
                 processTrigger.setAttribute('style', 'display: none !important;');
                 stagedBase64Images = [];
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
                 statusHeader.style.color = "#ef4444";
-                textOutput.innerHTML = parseScannableHTML(err.message);
-                
-                // Restore primary state on error drop
+                textOutput.innerHTML = parseInteractiveHTML(err.message);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = "Analyze Project";
             }
