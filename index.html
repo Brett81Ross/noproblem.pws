@@ -154,8 +154,8 @@
             margin-top: 20px;
         }
         .btn-utility {
-            padding: 12px;
-            font-size: 13px;
+            padding: 14px;
+            font-size: 15px;
             border-radius: 8px;
             margin-bottom: 0;
         }
@@ -199,7 +199,7 @@
             margin-bottom: 15px;
         }
         .result-title {
-            font-size: 14px;
+            font-size: 15px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -210,42 +210,42 @@
             background-color: #0b132b;
             color: #00b4d8;
             border: 1px solid #3a506b;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
         }
         
+        /* Upgraded Readable Font Size Structure */
         .proposal-section-title {
-            font-size: 12px;
+            font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: #00b4d8;
-            margin: 25px 0 12px 0;
+            margin: 30px 0 14px 0;
             font-weight: 800;
             border-bottom: 2px solid #24334c;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
         }
         .proposal-section-title:first-of-type {
             margin-top: 5px;
         }
         
-        /* Interactive Toggle Cards Setup */
         .proposal-item {
             background-color: #0b132b;
             border: 1px solid #24334c;
-            padding: 14px 16px;
+            padding: 16px 18px;
             border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 12px;
+            font-size: 17px;
             line-height: 1.5;
-            color: #e2e8f0;
+            color: #f1f5f9;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
             cursor: pointer;
             user-select: none;
             transition: all 0.2s ease;
@@ -254,9 +254,8 @@
             border-color: #00b4d8;
         }
         
-        /* Declined Omitted Opaque Component Rule */
         .proposal-item.disabled-card {
-            opacity: 0.35;
+            opacity: 0.3;
             background-color: #121824;
             border-color: #1c2541;
         }
@@ -264,17 +263,18 @@
         .item-text {
             padding-right: 15px;
             flex-grow: 1;
+            font-weight: 500;
         }
-        .highlight-surface { color: #38bdf8; font-weight: 600; }
-        .highlight-spec { color: #94a3b8; font-size: 13px; }
+        .highlight-surface { color: #38bdf8; font-weight: 700; }
+        .highlight-spec { color: #cbd5e1; font-size: 15px; font-weight: 400; }
         
         .price-badge {
             background-color: #1e293b;
             color: #38bdf8;
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 6px;
             font-weight: 800;
-            font-size: 15px;
+            font-size: 18px;
             border: 1px solid #00b4d8;
             white-space: nowrap;
             transition: all 0.2s ease;
@@ -290,29 +290,29 @@
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px solid #4ade80;
             border-radius: 12px;
-            padding: 20px;
-            margin-top: 25px;
+            padding: 22px;
+            margin-top: 30px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.15);
+            box-shadow: 0 6px 18px rgba(74, 222, 128, 0.2);
             transition: all 0.3s ease;
         }
         .proposal-total-label {
-            font-size: 12px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #94a3b8;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             font-weight: bold;
         }
         .proposal-total-amount {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 900;
             color: #4ade80;
         }
 
         .footer {
             margin-top: 75px;
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
             letter-spacing: 0.5px;
             text-align: center;
@@ -322,14 +322,13 @@
         @media print {
             body { background: #ffffff; color: #000000; padding: 0; }
             .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
-            /* Hide items completely during PDF print generation if disabled on dashboard screen */
             .proposal-item.disabled-card { display: none !important; }
             .app-container { max-width: 100%; width: 100%; }
             .result-card { border: none; background: transparent; padding: 0; }
-            .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; }
-            .price-badge { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; }
+            .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; font-size: 16px; }
+            .price-badge { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; font-size: 16px; }
             .proposal-total-card { border: 2px solid #16a34a; background: #f0fdf4; }
-            .proposal-total-amount { color: #16a34a; }
+            .proposal-total-amount { color: #16a34a; font-size: 32px; }
         }
     </style>
 </head>
@@ -383,7 +382,6 @@
         document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
         document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
-        // Compiles current dynamic calculation layout cleanly into plain text strings
         function generateActiveProposalText() {
             let proposalText = "NO PROBLEM PRESSURE WASHING SOLUTIONS\nPROJECT ESTIMATE PROPOSAL\n\n";
             let currentSection = "";
@@ -429,15 +427,12 @@
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
-        // Handles dynamic item addition and runtime calculation tracking
         function togglePriceCard(index) {
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
             
-            // Toggle memory model flags
             priceItemsRegistry[index].disabled = !priceItemsRegistry[index].disabled;
             
-            // Sync presentation visuals
             if (priceItemsRegistry[index].disabled) {
                 cardElement.classList.add('disabled-card');
             } else {
@@ -463,14 +458,14 @@
 
         function parseInteractiveHTML(rawText) {
             if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
-                return `<div style="font-size: 15px; color:#94a3b8;">${rawText}</div>`;
+                return `<div style="font-size: 16px; color:#94a3b8;">${rawText}</div>`;
             }
 
             const lines = rawText.split('\n');
             let htmlOutput = "";
             let currentSectionName = "General Details";
             let globalCardIndex = 0;
-            priceItemsRegistry = []; // Reset internal memory mapping
+            priceItemsRegistry = []; 
 
             lines.forEach(line => {
                 const cleanLine = line.trim();
@@ -481,7 +476,6 @@
                     htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
                 } 
                 else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
-                    // Handled safely at the bottom by the dynamic sum counter
                     return;
                 } 
                 else {
@@ -497,7 +491,6 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
                     }
 
-                    // Save line data models into state matrix tracking
                     priceItemsRegistry.push({
                         id: globalCardIndex,
                         section: currentSectionName,
@@ -510,7 +503,6 @@
                         .replace(/(SOFT WASH|PRESSURE WASH|SURFACE CLEANING|BRIGHTENING)/gi, '<span class="highlight-surface">$1</span>')
                         .replace(/(\(.*?\))/g, '<span class="highlight-spec">$1</span>');
 
-                    // If it's a priced service line item, wrap it inside a touch toggle click layer
                     if (parsedNumericValue > 0) {
                         htmlOutput += `
                             <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
@@ -529,7 +521,6 @@
                 }
             });
 
-            // Append live mathematical calculations block
             htmlOutput += `
                 <div class="proposal-total-card">
                     <div class="proposal-total-label">Project Contract Total</div>
@@ -598,7 +589,6 @@
                 statusHeader.style.color = "#4ade80";
                 textOutput.innerHTML = parseInteractiveHTML(data.result);
                 
-                // Initialize the math engine on deployment load
                 recalculateGrandTotal();
                 actionPanel.setAttribute('style', 'display: grid !important;');
                 
