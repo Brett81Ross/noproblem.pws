@@ -678,15 +678,19 @@
                         const rawNumStr = segmentPriceMatch[0].replace('$', '').replace(/,/g, '');
                         parsedNumericValue = parseFloat(rawNumStr) || 0;
                         badgeHTML = `<span class="price-badge">${segmentPriceMatch[0]}</span>`;
-                        textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
+                        textContent = textContent.replace(segmentPriceMatch[0], "").trim();
                     }
 
+                    // Look safely for subtext details like "Approx. 120 linear feet" or "Siding, Beams..."
                     const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors)[^,$\n]*/i);
                     let formulaText = "";
                     if (formulaMatch) {
                         formulaText = formulaMatch[0].replace(/[()]/g, '').trim();
                         textContent = textContent.replace(formulaMatch[0], "").trim();
                     }
+                    
+                    // Clean up trailing dashes or colons left over from parsing out the strings
+                    textContent = textContent.replace(/:\s*$/, "").replace(/-\s*$/, "").replace(/\s*-\s*$/, "").trim();
 
                     priceItemsRegistry.push({
                         id: globalCardIndex,
@@ -702,6 +706,7 @@
                     if (formulaText) {
                         rightSideWrapHTML += `<span class="highlight-spec">${formulaText}</span>`;
                     }
+                    
                     if (parsedNumericValue > 0) {
                         rightSideWrapHTML += `${badgeHTML}</div>`;
                         htmlOutput += `
@@ -792,7 +797,6 @@
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
                 
-                // Inject the interactive user hint text natively right before rendering the compiled lists
                 textOutput.innerHTML = `<div style="font-size: 13px; color: #94a3b8; margin-top:-5px; margin-bottom: 16px; font-style: italic; text-align:left; border-left: 2px solid #38bdf8; padding-left: 8px;">💡 Tap any item package card to add or subtract it dynamically from the Project Contract Total below.</div>` + parseInteractiveHTML(data.result);
                 
                 recalculateGrandTotal();
