@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>No Problem Pressure Washing - Auto Estimator</title>
+    <title>BidSnap - Smart Estimator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -65,6 +65,7 @@
             margin-bottom: 20px;
             text-align: left;
             border: 1px solid #3a506b;
+            position: relative;
         }
         .btn {
             display: block;
@@ -112,7 +113,6 @@
             background-color: #22c55e;
         }
         
-        /* Monetization Panel Layout Split Matrix */
         .monetize-container {
             margin-top: 25px;
             text-align: center;
@@ -150,18 +150,52 @@
             color: #0b132b;
             margin-bottom: 0;
             border: 1px solid rgba(74, 222, 128, 0.5);
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.15);
             padding: 14px 8px;
             font-size: 14px;
         }
-        .btn-lifetime:active {
-            background-color: #22c55e;
-            transform: scale(0.98);
-        }
         
+        /* Paywall Block Screen Overlay Layer */
+        .paywall-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 19, 43, 0.96);
+            border-radius: 16px;
+            z-index: 10;
+            box-sizing: border-box;
+            padding: 30px 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .paywall-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffdd00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .paywall-desc {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        .paywall-btn-stack {
+            width: 100%;
+        }
+        .btn-pay-single {
+            background-color: #38bdf8;
+            color: #0b132b;
+        }
+
         @keyframes trueFrequency {
             0% { box-shadow: 0 0 10px rgba(255, 221, 0, 0.3); }
-            50% { box-shadow: 0 0 20px rgba(255, 221, 0, 0.7), 0 0 10px rgba(255, 221, 0, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(255, 221, 0, 0.7); }
             100% { box-shadow: 0 0 10px rgba(255, 221, 0, 0.3); }
         }
         
@@ -395,14 +429,23 @@
 
     <div class="app-container">
         <div class="logo-container">
-            <div class="brand-badge">NP</div>
+            <div class="brand-badge">BS</div>
         </div>
-        <div class="brand-title">No Problem <span>Pressure Washing</span></div>
+        <div class="brand-title">Bid<span>Snap</span></div>
         <div class="tagline">
             Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
         </div>
 
         <div class="action-card">
+            <div class="paywall-overlay" id="paywallOverlay">
+                <div class="paywall-title">Scan Limit Reached</div>
+                <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
+                <div class="paywall-btn-stack">
+                    <a href="https://buy.stripe.com/YOUR_99_DOLLAR_LIFETIME_LINK_HERE" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
+                    <a href="https://buy.stripe.com/YOUR_SINGLE_SCAN_PAYMENT_LINK_HERE" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+                </div>
+            </div>
+
             <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
             <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
 
@@ -413,12 +456,10 @@
             
             <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
             
-            <!-- Dual Option Payment Link Matrix Wrapper -->
             <div class="coffee-container">
-                <div class="coffee-note">Support future updates or lock in unlimited field access forever!</div>
+                <div class="coffee-note">Enjoy BidSnap? Fuel the developer's coffee tank!</div>
                 <div class="monetize-row">
                     <a href="https://buy.stripe.com/YOUR_5_DOLLAR_COFFEE_LINK_HERE" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
-                    <a href="https://buy.stripe.com/YOUR_99_DOLLAR_LIFETIME_LINK_HERE" target="_blank" class="btn btn-lifetime" id="lifetimeLink">Lifetime Deal</a>
                 </div>
             </div>
         </div>
@@ -438,8 +479,8 @@
         </div>
 
         <div class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by CactusByte Studios &bull; All Rights Reserved
+            &copy; 2026 BidSnap App Solutions, LLC&trade;<br>
+            All Rights Reserved
         </div>
     </div>
 
@@ -447,11 +488,53 @@
         let stagedBase64Images = [];
         let priceItemsRegistry = []; 
 
-        document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
-        document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
+        // Core Gating Engine Rule Checks
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // If Stripe redirects back with a verification key, save states permanently
+            if (urlParams.get('payment') === 'success') {
+                if (urlParams.get('type') === 'lifetime') {
+                    localStorage.setItem('membershipStatus', 'lifetime');
+                } else if (urlParams.get('type') === 'single') {
+                    let credits = parseInt(localStorage.getItem('scanCredits') || '0');
+                    localStorage.setItem('scanCredits', (credits + 1).toString());
+                }
+                // Strip the keys out of the URL bar so they can't just refresh to fake it
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            checkGatekeeperConstraints();
+        });
+
+        function checkGatekeeperConstraints() {
+            const status = localStorage.getItem('membershipStatus');
+            if (status === 'lifetime') return true; // Lifetime member bypasses all checks
+
+            let credits = parseInt(localStorage.getItem('scanCredits') || '0');
+            if (credits > 0) return true; // Has single tokens remaining
+
+            const lastScanTime = localStorage.getItem('lastScanTimestamp');
+            if (!lastScanTime) return true; // Brand new user, gets first scan
+
+            // Evaluate if 7 full days (604800000 ms) have passed since the previous scan
+            const oneWeek = 7 * 24 * 60 * 60 * 1000;
+            const timeElapsed = Date.now() - parseInt(lastScanTime);
+            
+            if (timeElapsed >= oneWeek) {
+                return true; 
+            }
+
+            // Lock down panel if validation limits fail
+            document.getElementById('paywallOverlay').style.display = 'flex';
+            return false;
+        }
+
+        document.getElementById('cameraInput').addEventListener('change', function() { if(checkGatekeeperConstraints()) stageFiles(this.files); });
+        document.getElementById('fileInput').addEventListener('change', function() { if(checkGatekeeperConstraints()) stageFiles(this.files); });
 
         function generateActiveProposalText() {
-            let proposalText = "NO PROBLEM PRESSURE WASHING SOLUTIONS\nPROJECT ESTIMATE PROPOSAL\n\n";
+            let proposalText = "BIDSNAP PROJECT ESTIMATE PROPOSAL\n\n";
             let currentSection = "";
             let runningTotal = 0;
             
@@ -490,7 +573,7 @@
 
         function sendProposalEmail() {
             const activeText = generateActiveProposalText();
-            const subjectLine = encodeURIComponent("No Problem Pressure Washing Solutions - Project Estimate Proposal");
+            const subjectLine = encodeURIComponent("BidSnap Project Estimate Proposal");
             const bodyContent = encodeURIComponent(activeText);
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
@@ -633,6 +716,7 @@
         }
 
         async function submitJobForAnalysis() {
+            if (!checkGatekeeperConstraints()) return;
             if (stagedBase64Images.length === 0) return;
 
             const resultCard = document.getElementById('outputCard');
@@ -669,9 +753,19 @@
                 
                 recalculateGrandTotal();
                 actionPanel.setAttribute('style', 'display: grid !important;');
-                
                 processTrigger.setAttribute('style', 'display: none !important;');
                 stagedBase64Images = [];
+
+                // Deduct token credits or save execution timestamps to limit free use
+                const status = localStorage.getItem('membershipStatus');
+                if (status !== 'lifetime') {
+                    let credits = parseInt(localStorage.getItem('scanCredits') || '0');
+                    if (credits > 0) {
+                        localStorage.setItem('scanCredits', (credits - 1).toString());
+                    } else {
+                        localStorage.setItem('lastScanTimestamp', Date.now().toString());
+                    }
+                }
 
             } catch (err) {
                 statusHeader.innerText = "Processing Fault";
