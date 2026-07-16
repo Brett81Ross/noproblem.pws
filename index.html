@@ -85,6 +85,7 @@
             position: relative;
             overflow: hidden;
             transition: all 0.2s ease;
+            text-decoration: none;
         }
         .btn:last-child {
             margin-bottom: 0;
@@ -109,6 +110,17 @@
         }
         .btn-trigger:active {
             background-color: #22c55e;
+        }
+        
+        /* Premium Coffee Donation Button Layout */
+        .btn-coffee {
+            background: linear-gradient(135deg, #ffdd00, #f3b000);
+            color: #0b132b;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(243, 176, 0, 0.25);
+        }
+        .btn-coffee:active {
+            background: #d19700;
         }
         
         .btn-loading {
@@ -265,6 +277,14 @@
             font-weight: 500;
         }
         
+        .highlight-spec {
+            display: block;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 4px;
+        }
+        
         .price-badge {
             background-color: #1e293b;
             color: #38bdf8;
@@ -350,6 +370,8 @@
             <div class="preview-grid" id="imagePreviewGrid"></div>
             
             <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
+            
+            <a href="YOUR_PAYMENT_URL_HERE" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
         </div>
 
         <div class="result-card" id="outputCard" style="display: none;">
@@ -393,7 +415,7 @@
                 }
                 
                 if (item.value > 0) {
-                    proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+                    proposalText += `- ${item.cleanText} (${item.mathFormula}): $${item.value.toFixed(2)}\n`;
                     runningTotal += item.value;
                 } else {
                     proposalText += `- ${item.cleanText}\n`;
@@ -424,7 +446,6 @@
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
-        // Toggles active items
         function togglePriceCard(index) {
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -454,7 +475,6 @@
             }
         }
 
-        // Cleaned up function that keeps line item sentences totally uniform
         function parseInteractiveHTML(rawText) {
             if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
                 return `<div style="font-size: 16px; color:#94a3b8;">${rawText}</div>`;
@@ -490,26 +510,39 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
                     }
 
+                    const formulaMatch = textContent.match(/\(([^)]+)\)/);
+                    let formulaText = "";
+                    if (formulaMatch) {
+                        formulaText = formulaMatch[1];
+                        textContent = textContent.replace(formulaMatch[0], "").trim();
+                    }
+
                     priceItemsRegistry.push({
                         id: globalCardIndex,
                         section: currentSectionName,
                         cleanText: textContent,
+                        mathFormula: formulaText,
                         value: parsedNumericValue,
                         disabled: false
                     });
 
-                    // Stripped down style injections to create continuous white typography flows
+                    let detailsHTML = `<div class="item-text">${textContent}`;
+                    if (formulaText) {
+                        detailsHTML += `<span class="highlight-spec">${formulaText}</span>`;
+                    }
+                    detailsHTML += `</div>`;
+
                     if (parsedNumericValue > 0) {
                         htmlOutput += `
                             <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
-                                <div class="item-text">${textContent}</div>
+                                ${detailsHTML}
                                 ${badgeHTML}
                             </div>
                         `;
                     } else {
                         htmlOutput += `
                             <div class="proposal-item" style="cursor: default;">
-                                <div class="item-text">${textContent}</div>
+                                ${detailsHTML}
                             </div>
                         `;
                     }
