@@ -363,12 +363,17 @@
         }
         .proposal-item:hover {
             border-color: #00b4d8;
+            background-color: #1a233d;
+        }
+        .proposal-item:active {
+            transform: scale(0.98);
         }
         
         .proposal-item.disabled-card {
             opacity: 0.3;
             background-color: #121824;
             border-color: #1c2541;
+            transform: none !important;
         }
         
         .item-text {
@@ -518,7 +523,6 @@
         </div>
     </div>
 
-    <!-- Firm Base Flex-Anchor Footer Container -->
     <div class="footer">
         &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
         All Rights Reserved
@@ -769,6 +773,7 @@
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
             statusHeader.style.color = "#00b4d8";
+            
             textOutput.innerHTML = parseInteractiveHTML("AI is evaluating surfaces and compiling project values...");
 
             try {
@@ -786,7 +791,9 @@
 
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
-                textOutput.innerHTML = parseInteractiveHTML(data.result);
+                
+                // Inject the interactive user hint text natively right before rendering the compiled lists
+                textOutput.innerHTML = `<div style="font-size: 13px; color: #94a3b8; margin-top:-5px; margin-bottom: 16px; font-style: italic; text-align:left; border-left: 2px solid #38bdf8; padding-left: 8px;">💡 Tap any item package card to add or subtract it dynamically from the Project Contract Total below.</div>` + parseInteractiveHTML(data.result);
                 
                 recalculateGrandTotal();
                 actionPanel.setAttribute('style', 'display: grid !important;');
