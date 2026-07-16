@@ -112,30 +112,29 @@
             background-color: #22c55e;
         }
         
-        /* Resonating Glow Animation Setup for Coffee Trigger */
+        /* Resonating Glow Coffee Button Setup */
         .btn-coffee {
-            background: linear-gradient(135deg, #ffdd00, #f3b000);
+            background-color: #ffdd00;
             color: #0b132b;
             margin-top: 15px;
-            animation: resonancePulse 2s infinite ease-in-out;
             border: 1px solid rgba(255, 221, 0, 0.5);
+            animation: trueFrequency 2.5s infinite ease-in-out;
         }
         .btn-coffee:active {
-            background: #d19700;
+            background-color: #e6c700;
+            transform: scale(0.98);
         }
         
-        @keyframes resonancePulse {
+        /* The Harmonic Resonance Animation Engine */
+        @keyframes trueFrequency {
             0% {
-                box-shadow: 0 0 5px rgba(243, 176, 0, 0.4), 0 0 10px rgba(243, 176, 0, 0.2);
-                transform: scale(1);
+                box-shadow: 0 0 10px rgba(255, 221, 0, 0.3), 0 0 0px rgba(255, 221, 0, 0);
             }
             50% {
-                box-shadow: 0 0 20px rgba(255, 221, 0, 0.8), 0 0 30px rgba(243, 176, 0, 0.5);
-                transform: scale(1.02);
+                box-shadow: 0 0 25px rgba(255, 221, 0, 0.8), 0 0 15px rgba(255, 221, 0, 0.4);
             }
             100% {
-                box-shadow: 0 0 5px rgba(243, 176, 0, 0.4), 0 0 10px rgba(243, 176, 0, 0.2);
-                transform: scale(1);
+                box-shadow: 0 0 10px rgba(255, 221, 0, 0.3), 0 0 0px rgba(255, 221, 0, 0);
             }
         }
         
