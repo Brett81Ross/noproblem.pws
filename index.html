@@ -380,6 +380,8 @@
             padding-right: 15px;
             flex-grow: 1;
             font-weight: 500;
+            word-break: break-word; /* Prevents long non-priced entries from stretching out */
+            white-space: normal;
         }
         
         .item-right-wrap {
@@ -387,13 +389,15 @@
             align-items: center;
             gap: 12px;
             flex-shrink: 0;
-            white-space: nowrap;
         }
         .highlight-spec {
             color: #94a3b8;
             font-size: 13px;
             font-weight: 400;
             text-align: right;
+            white-space: normal;
+            max-width: 160px; /* Safe bounds for mobile calculation text */
+            word-break: break-word;
         }
         
         .price-badge {
@@ -606,6 +610,7 @@
             });
         }
 
+        // Print/PDF trigger layout helper
         function generatePDF() {
             window.print();
         }
@@ -617,6 +622,7 @@
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
+        // Core dynamic price toggling calculation layer
         function togglePriceCard(index) {
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -681,15 +687,14 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").trim();
                     }
 
-                    // Look safely for subtext details like "Approx. 120 linear feet" or "Siding, Beams..."
-                    const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors)[^,$\n]*/i);
+                    // Scans text block smoothly to pull measurements or dynamic equations
+                    const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors|Includes)[^,$\n]*/i);
                     let formulaText = "";
                     if (formulaMatch) {
                         formulaText = formulaMatch[0].replace(/[()]/g, '').trim();
                         textContent = textContent.replace(formulaMatch[0], "").trim();
                     }
                     
-                    // Clean up trailing dashes or colons left over from parsing out the strings
                     textContent = textContent.replace(/:\s*$/, "").replace(/-\s*$/, "").replace(/\s*-\s*$/, "").trim();
 
                     priceItemsRegistry.push({
