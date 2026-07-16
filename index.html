@@ -9,29 +9,32 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            background-color: #0b132b;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0b132b;
             color: #ffffff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
             box-sizing: border-box;
             padding: 20px;
+            overflow-x: hidden;
         }
-        .app-container {
+        /* Lock down the entire layout within one strict vertical container block */
+        .wrapper-container {
             width: 100%;
             max-width: 480px;
-            text-align: center;
             display: flex;
             flex-direction: column;
-            flex-grow: 1;
+            min-height: calc(100vh - 40px);
+            box-sizing: border-box;
         }
         .main-content {
             flex-grow: 1;
             width: 100%;
+            text-align: center;
         }
         .logo-container {
             margin-top: 30px;
@@ -307,6 +310,8 @@
             text-align: left;
             margin-top: 20px;
             position: relative;
+            width: 100%;
+            box-sizing: border-box;
         }
         .result-title-row {
             display: flex;
@@ -364,6 +369,8 @@
             cursor: pointer;
             user-select: none;
             transition: all 0.2s ease;
+            box-sizing: border-box;
+            width: 100%;
         }
         .proposal-item:hover {
             border-color: #00b4d8;
@@ -431,6 +438,8 @@
             text-align: center;
             box-shadow: 0 6px 18px rgba(74, 222, 128, 0.2);
             transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
         .proposal-total-label {
             font-size: 14px;
@@ -448,7 +457,6 @@
 
         .footer {
             width: 100%;
-            max-width: 480px;
             margin-top: 40px;
             margin-bottom: 20px;
             font-size: 12px;
@@ -457,13 +465,14 @@
             text-align: center;
             line-height: 1.6;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         @media print {
             body { background: #ffffff; color: #000000; padding: 0; }
             .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
             .proposal-item.disabled-card { display: none !important; }
-            .app-container { max-width: 100%; width: 100%; }
+            .wrapper-container { max-width: 100%; width: 100%; }
             .result-card { border: none; background: transparent; padding: 0; }
             .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; font-size: 16px; }
             .price-badge { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; font-size: 16px; }
@@ -474,7 +483,8 @@
 </head>
 <body>
 
-    <div class="app-container">
+    <div class="wrapper-container">
+        
         <div class="main-content">
             <div class="logo-container">
                 <div class="brand-badge">NP</div>
@@ -537,6 +547,7 @@
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
             All Rights Reserved
         </div>
+        
     </div>
 
     <script>
