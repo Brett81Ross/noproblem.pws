@@ -19,15 +19,19 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
-            padding: 20px 20px 40px 20px;
+            padding: 20px;
         }
         .app-container {
             width: 100%;
             max-width: 480px;
             text-align: center;
-            flex: 1 0 auto;
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
+        }
+        .main-content {
+            flex-grow: 1;
+            width: 100%;
         }
         .logo-container {
             margin-top: 30px;
@@ -380,7 +384,7 @@
             padding-right: 15px;
             flex-grow: 1;
             font-weight: 500;
-            word-break: break-word; /* Prevents long non-priced entries from stretching out */
+            word-break: break-word;
             white-space: normal;
         }
         
@@ -396,7 +400,7 @@
             font-weight: 400;
             text-align: right;
             white-space: normal;
-            max-width: 160px; /* Safe bounds for mobile calculation text */
+            max-width: 160px;
             word-break: break-word;
         }
         
@@ -443,15 +447,16 @@
         }
 
         .footer {
-            flex-shrink: 0;
             width: 100%;
+            max-width: 480px;
             margin-top: 40px;
+            margin-bottom: 20px;
             font-size: 12px;
             color: #64748b;
             letter-spacing: 0.5px;
             text-align: center;
             line-height: 1.6;
-            clear: both;
+            box-sizing: border-box;
         }
 
         @media print {
@@ -470,66 +475,68 @@
 <body>
 
     <div class="app-container">
-        <div class="logo-container">
-            <div class="brand-badge">NP</div>
-        </div>
-        <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
-        <div class="tagline">
-            Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
-        </div>
-
-        <div class="action-card">
-            <div class="paywall-overlay" id="paywallOverlay">
-                <div class="paywall-title">Scan Limit Reached</div>
-                <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
-                <div class="paywall-btn-stack">
-                    <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
-                    <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
-                </div>
+        <div class="main-content">
+            <div class="logo-container">
+                <div class="brand-badge">NP</div>
+            </div>
+            <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
+            <div class="tagline">
+                Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
             </div>
 
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
-            <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
+            <div class="action-card">
+                <div class="paywall-overlay" id="paywallOverlay">
+                    <div class="paywall-title">Scan Limit Reached</div>
+                    <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
+                    <div class="paywall-btn-stack">
+                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
+                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+                    </div>
+                </div>
 
-            <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
-            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
-            
-            <div class="preview-grid" id="imagePreviewGrid"></div>
-            
-            <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
-            
-            <div class="monetize-container">
-                <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank or upgrade below!</div>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
+                <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
+
+                <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
                 
-                <div class="purchase-options-grid">
-                    <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
-                    <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
+                <div class="preview-grid" id="imagePreviewGrid"></div>
+                
+                <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
+                
+                <div class="monetize-container">
+                    <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank or upgrade below!</div>
+                    
+                    <div class="purchase-options-grid">
+                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
+                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
+                    </div>
+                    
+                    <div class="monetize-row">
+                        <a href="https://buy.stripe.com/test_aFafZhacdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card" id="outputCard" style="display: none;">
+                <div class="result-title-row">
+                    <p class="result-title" id="statusHeader">Estimate Report</p>
+                    <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
                 
-                <div class="monetize-row">
-                    <a href="https://buy.stripe.com/test_aFafZhacdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
+                <div id="analysisResult">Processing Matrix...</div>
+
+                <div class="utility-row" id="actionPanel" style="display: none !important;">
+                    <button class="btn btn-secondary btn-utility" onclick="generatePDF()">Export PDF</button>
+                    <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
                 </div>
             </div>
         </div>
 
-        <div class="result-card" id="outputCard" style="display: none;">
-            <div class="result-title-row">
-                <p class="result-title" id="statusHeader">Estimate Report</p>
-                <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
-            </div>
-            
-            <div id="analysisResult">Processing Matrix...</div>
-
-            <div class="utility-row" id="actionPanel" style="display: none !important;">
-                <button class="btn btn-secondary btn-utility" onclick="generatePDF()">Export PDF</button>
-                <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
-            </div>
+        <div class="footer">
+            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
+            All Rights Reserved
         </div>
-    </div>
-
-    <div class="footer">
-        &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-        All Rights Reserved
     </div>
 
     <script>
@@ -610,7 +617,6 @@
             });
         }
 
-        // Print/PDF trigger layout helper
         function generatePDF() {
             window.print();
         }
@@ -622,7 +628,6 @@
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
 
-        // Core dynamic price toggling calculation layer
         function togglePriceCard(index) {
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -687,7 +692,6 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").trim();
                     }
 
-                    // Scans text block smoothly to pull measurements or dynamic equations
                     const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors|Includes)[^,$\n]*/i);
                     let formulaText = "";
                     if (formulaMatch) {
