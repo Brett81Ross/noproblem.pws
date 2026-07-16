@@ -112,15 +112,31 @@
             background-color: #22c55e;
         }
         
-        /* Premium Coffee Donation Button Layout */
+        /* Resonating Glow Animation Setup for Coffee Trigger */
         .btn-coffee {
             background: linear-gradient(135deg, #ffdd00, #f3b000);
             color: #0b132b;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(243, 176, 0, 0.25);
+            animation: resonancePulse 2s infinite ease-in-out;
+            border: 1px solid rgba(255, 221, 0, 0.5);
         }
         .btn-coffee:active {
             background: #d19700;
+        }
+        
+        @keyframes resonancePulse {
+            0% {
+                box-shadow: 0 0 5px rgba(243, 176, 0, 0.4), 0 0 10px rgba(243, 176, 0, 0.2);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(255, 221, 0, 0.8), 0 0 30px rgba(243, 176, 0, 0.5);
+                transform: scale(1.02);
+            }
+            100% {
+                box-shadow: 0 0 5px rgba(243, 176, 0, 0.4), 0 0 10px rgba(243, 176, 0, 0.2);
+                transform: scale(1);
+            }
         }
         
         .btn-loading {
