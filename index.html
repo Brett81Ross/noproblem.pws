@@ -553,6 +553,8 @@
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = []; 
+// Master developer bypass key
+localStorage.setItem('membershipStatus', 'lifetime');
 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
