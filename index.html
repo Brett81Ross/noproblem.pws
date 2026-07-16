@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BidSnap - Smart Estimator</title>
+    <title>No Problem Pressure Washing Estimator</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -119,7 +119,7 @@
             border-top: 1px dashed #3a506b;
             padding-top: 20px;
         }
-        .monetize-note {
+        .coffee-note {
             font-size: 13px;
             color: #94a3b8;
             line-height: 1.4;
@@ -154,7 +154,6 @@
             font-size: 15px;
         }
         
-        /* Paywall Block Screen Overlay Layer */
         .paywall-overlay {
             display: none;
             position: absolute;
@@ -430,9 +429,9 @@
 
     <div class="app-container">
         <div class="logo-container">
-            <div class="brand-badge">BS</div>
+            <div class="brand-badge">NP</div>
         </div>
-        <div class="brand-title">Bid<span>Snap</span></div>
+        <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
         <div class="tagline">
             Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
         </div>
@@ -442,9 +441,11 @@
                 <div class="paywall-title">Scan Limit Reached</div>
                 <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
                 <div class="paywall-btn-stack">
+                    <!-- LINE 200: PASTE $99 LIFETIME ACCESS LINK DIRECTLY BELOW -->
                     <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
                     
-                    <a href="https://buy.stripe.com/test_aFafZhaczdeneNb4pPdnW01" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+                    <!-- LINE 203: PASTE SINGLE SCAN LINK DIRECTLY BELOW -->
+                    <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
                 </div>
             </div>
 
@@ -459,9 +460,10 @@
             <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
             
             <div class="coffee-container">
-                <div class="coffee-note">Enjoy BidSnap? Fuel the developer's coffee tank!</div>
+                <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank!</div>
                 <div class="monetize-row">
-                    <a href="https://buy.stripe.com/YOUR_5_DOLLAR_COFFEE_LINK_HERE" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
+                    <!-- LINE 215: PASTE VOLUNTARY $5 COFFEE DONATION LINK DIRECTLY BELOW -->
+                    <a href="https://buy.stripe.com/test_aFafZhaczdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
                 </div>
             </div>
         </div>
@@ -481,7 +483,7 @@
         </div>
 
         <div class="footer">
-            &copy; 2026 BidSnap App Solutions, LLC&trade;<br>
+            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
             All Rights Reserved
         </div>
     </div>
@@ -490,7 +492,6 @@
         let stagedBase64Images = [];
         let priceItemsRegistry = []; 
 
-        // Core Gating Engine Rule Checks
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             
@@ -532,7 +533,7 @@
         document.getElementById('fileInput').addEventListener('change', function() { if(checkGatekeeperConstraints()) stageFiles(this.files); });
 
         function generateActiveProposalText() {
-            let proposalText = "BIDSNAP PROJECT ESTIMATE PROPOSAL\n\n";
+            let proposalText = "NO PROBLEM PRESSURE WASHING ESTIMATOR PROPOSAL\n\n";
             let currentSection = "";
             let runningTotal = 0;
             
@@ -571,7 +572,7 @@
 
         function sendProposalEmail() {
             const activeText = generateActiveProposalText();
-            const subjectLine = encodeURIComponent("BidSnap Project Estimate Proposal");
+            const subjectLine = encodeURIComponent("No Problem Pressure Washing Estimator - Project Estimate Proposal");
             const bodyContent = encodeURIComponent(activeText);
             window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
         }
