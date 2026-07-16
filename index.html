@@ -22,7 +22,6 @@
             padding: 20px;
             overflow-x: hidden;
         }
-        /* Lock down the entire layout within one strict vertical container block */
         .wrapper-container {
             width: 100%;
             max-width: 480px;
@@ -136,18 +135,11 @@
             border-top: 1px dashed #3a506b;
             padding-top: 20px;
         }
-        .coffee-note {
-            font-size: 13px;
-            color: #94a3b8;
-            line-height: 1.4;
-            margin-bottom: 16px;
-            font-style: italic;
-        }
         .purchase-options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 0; /* Cleaned up trailing button gap layout */
         }
         .btn-pay-single {
             background-color: #38bdf8;
@@ -170,19 +162,6 @@
         }
         .btn-lifetime:active {
             background-color: #22c55e;
-        }
-        .btn-coffee {
-            background-color: #ffdd00;
-            color: #0b132b;
-            margin-bottom: 0;
-            border: 1px solid rgba(255, 221, 0, 0.5);
-            animation: trueFrequency 2.5s infinite ease-in-out;
-            padding: 16px;
-            font-size: 15px;
-        }
-        .btn-coffee:active {
-            background-color: #e6c700;
-            transform: scale(0.98);
         }
         
         .paywall-overlay {
@@ -222,39 +201,6 @@
             margin-top: 12px;
             font-size: 16px;
             padding: 16px;
-        }
-
-        @keyframes trueFrequency {
-            0% { box-shadow: 0 0 10px rgba(255, 221, 0, 0.3); }
-            50% { box-shadow: 0 0 20px rgba(255, 221, 0, 0.7); }
-            100% { box-shadow: 0 0 10px rgba(255, 221, 0, 0.3); }
-        }
-        
-        .btn-loading {
-            background-color: #15803d !important;
-            color: #a7f3d0 !important;
-            cursor: not-allowed;
-            pointer-events: none;
-            animation: pulseGlow 1.5s infinite alternate;
-        }
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: loadingSweep 1.2s infinite linear;
-        }
-
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 4px 10px rgba(21, 128, 61, 0.2); opacity: 0.85; }
-            100% { box-shadow: 0 4px 20px rgba(74, 222, 128, 0.5); opacity: 1; }
-        }
-        @keyframes loadingSweep {
-            0% { left: -100%; }
-            100% { left: 100%; }
         }
         
         .hidden-input {
@@ -515,15 +461,9 @@
                 <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
                 
                 <div class="monetize-container">
-                    <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank or upgrade below!</div>
-                    
                     <div class="purchase-options-grid">
                         <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
                         <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
-                    </div>
-                    
-                    <div class="monetize-row">
-                        <a href="https://buy.stripe.com/test_aFafZhacdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
                     </div>
                 </div>
             </div>
@@ -553,8 +493,6 @@
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = []; 
-// Master developer bypass key
-localStorage.setItem('membershipStatus', 'lifetime');
 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
