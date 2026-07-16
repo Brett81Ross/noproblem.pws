@@ -113,6 +113,7 @@
             background-color: #22c55e;
         }
         
+        /* Premium Tier Multi-Button System Styling Blocks */
         .monetize-container {
             margin-top: 25px;
             text-align: center;
@@ -123,13 +124,36 @@
             font-size: 13px;
             color: #94a3b8;
             line-height: 1.4;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             font-style: italic;
         }
-        .monetize-row {
+        .purchase-options-grid {
             display: grid;
-            grid-template-columns: repeat(1, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+            margin-bottom: 12px;
+        }
+        .btn-pay-single {
+            background-color: #38bdf8;
+            color: #0b132b;
+            margin-bottom: 0;
+            font-size: 13px;
+            padding: 14px 8px;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+        .btn-pay-single:active {
+            background-color: #0284c7;
+        }
+        .btn-lifetime {
+            background-color: #4ade80;
+            color: #0b132b;
+            margin-bottom: 0;
+            border: 1px solid rgba(74, 222, 128, 0.5);
+            padding: 14px 8px;
+            font-size: 13px;
+        }
+        .btn-lifetime:active {
+            background-color: #22c55e;
         }
         .btn-coffee {
             background-color: #ffdd00;
@@ -137,21 +161,12 @@
             margin-bottom: 0;
             border: 1px solid rgba(255, 221, 0, 0.5);
             animation: trueFrequency 2.5s infinite ease-in-out;
-            padding: 14px 8px;
-            font-size: 14px;
+            padding: 16px;
+            font-size: 15px;
         }
         .btn-coffee:active {
             background-color: #e6c700;
             transform: scale(0.98);
-        }
-        
-        .btn-lifetime {
-            background-color: #4ade80;
-            color: #0b132b;
-            margin-bottom: 0;
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            padding: 16px 8px;
-            font-size: 15px;
         }
         
         .paywall-overlay {
@@ -187,10 +202,10 @@
         .paywall-btn-stack {
             width: 100%;
         }
-        .btn-pay-single {
-            background-color: #38bdf8;
-            color: #0b132b;
+        .paywall-btn-stack .btn-pay-single {
             margin-top: 12px;
+            font-size: 16px;
+            padding: 16px;
         }
 
         @keyframes trueFrequency {
@@ -353,12 +368,19 @@
             font-weight: 500;
         }
         
+        /* Pricing Metric Horizontal Core Layout Alignment */
+        .item-right-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
         .highlight-spec {
-            display: block;
             color: #94a3b8;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 400;
-            margin-top: 4px;
+            text-align: right;
         }
         
         .price-badge {
@@ -441,11 +463,8 @@
                 <div class="paywall-title">Scan Limit Reached</div>
                 <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
                 <div class="paywall-btn-stack">
-                    <!-- LINE 200: PASTE $99 LIFETIME ACCESS LINK DIRECTLY BELOW -->
-                    <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
-                    
-                    <!-- LINE 203: PASTE SINGLE SCAN LINK DIRECTLY BELOW -->
-                    <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+                    <a href="https://buy.stripe.com/YOUR_99_DOLLAR_LIFETIME_LINK_HERE" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
+                    <a href="https://buy.stripe.com/YOUR_SINGLE_SCAN_PAYMENT_LINK_HERE" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
                 </div>
             </div>
 
@@ -459,10 +478,16 @@
             
             <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
             
-            <div class="coffee-container">
-                <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank!</div>
+            <!-- Three Button Premium Gateway Engine Matrix -->
+            <div class="monetize-container">
+                <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank or upgrade below!</div>
+                
+                <div class="purchase-options-grid">
+                    <a href=https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
+                    <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
+                </div>
+                
                 <div class="monetize-row">
-                    <!-- LINE 215: PASTE VOLUNTARY $5 COFFEE DONATION LINK DIRECTLY BELOW -->
                     <a href="https://buy.stripe.com/test_aFafZhaczdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
                 </div>
             </div>
@@ -641,10 +666,10 @@
                         textContent = textContent.replace(segmentPriceMatch[0], "").replace(/:\s*$/, "").replace(/\(\s*\)\s*$/, "").trim();
                     }
 
-                    const formulaMatch = textContent.match(/\(([^)]+)\)/);
+                    const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors)[^,$\n]*/i);
                     let formulaText = "";
                     if (formulaMatch) {
-                        formulaText = formulaMatch[1];
+                        formulaText = formulaMatch[0].replace(/[()]/g, '').trim();
                         textContent = textContent.replace(formulaMatch[0], "").trim();
                     }
 
@@ -657,23 +682,25 @@
                         disabled: false
                     });
 
-                    let detailsHTML = `<div class="item-text">${textContent}`;
+                    let detailsHTML = `<div class="item-text">${textContent}</div>`;
+                    let rightSideWrapHTML = `<div class="item-right-wrap">`;
                     if (formulaText) {
-                        detailsHTML += `<span class="highlight-spec">${formulaText}</span>`;
+                        rightSideWrapHTML += `<span class="highlight-spec">${formulaText}</span>`;
                     }
-                    detailsHTML += `</div>`;
-
                     if (parsedNumericValue > 0) {
+                        rightSideWrapHTML += `${badgeHTML}</div>`;
                         htmlOutput += `
                             <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
                                 ${detailsHTML}
-                                ${badgeHTML}
+                                ${rightSideWrapHTML}
                             </div>
                         `;
                     } else {
+                        rightSideWrapHTML += `</div>`;
                         htmlOutput += `
                             <div class="proposal-item" style="cursor: default;">
                                 ${detailsHTML}
+                                ${rightSideWrapHTML}
                             </div>
                         `;
                     }
