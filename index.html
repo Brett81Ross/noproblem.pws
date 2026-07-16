@@ -5,19 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>No Problem Pressure Washing Estimator</title>
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #0b132b;
             color: #ffffff;
-            margin: 0;
-            padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            padding: 20px 20px 40px 20px;
         }
         .app-container {
             width: 100%;
             max-width: 480px;
             text-align: center;
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
         }
         .logo-container {
             margin-top: 30px;
@@ -113,7 +123,6 @@
             background-color: #22c55e;
         }
         
-        /* Premium Tier Multi-Button System Styling Blocks */
         .monetize-container {
             margin-top: 25px;
             text-align: center;
@@ -368,7 +377,6 @@
             font-weight: 500;
         }
         
-        /* Pricing Metric Horizontal Core Layout Alignment */
         .item-right-wrap {
             display: flex;
             align-items: center;
@@ -426,12 +434,15 @@
         }
 
         .footer {
-            margin-top: 75px;
+            flex-shrink: 0;
+            width: 100%;
+            margin-top: 40px;
             font-size: 12px;
             color: #64748b;
             letter-spacing: 0.5px;
             text-align: center;
             line-height: 1.6;
+            clear: both;
         }
 
         @media print {
@@ -458,15 +469,15 @@
             Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
         </div>
 
-        <div class="paywall-overlay" id="paywallOverlay">
-    <div class="paywall-title">Scan Limit Reached</div>
-    <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
-    <div class="paywall-btn-stack">
-        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
-        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
-    </div>
-</div>
-
+        <div class="action-card">
+            <div class="paywall-overlay" id="paywallOverlay">
+                <div class="paywall-title">Scan Limit Reached</div>
+                <div class="paywall-desc">You've used your 1 free scan for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
+                <div class="paywall-btn-stack">
+                    <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
+                    <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+                </div>
+            </div>
 
             <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
             <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
@@ -478,7 +489,6 @@
             
             <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
             
-            <!-- Three Button Premium Gateway Engine Matrix -->
             <div class="monetize-container">
                 <div class="coffee-note">Enjoying the estimator? Fuel the developer's coffee tank or upgrade below!</div>
                 
@@ -488,7 +498,7 @@
                 </div>
                 
                 <div class="monetize-row">
-                    <a href="https://buy.stripe.com/test_aFafZhaczdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
+                    <a href="https://buy.stripe.com/test_aFafZhacdeneNb4pPdnW01" target="_blank" class="btn btn-coffee" id="coffeeLink">Buy Me A Coffee</a>
                 </div>
             </div>
         </div>
@@ -506,11 +516,12 @@
                 <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
             </div>
         </div>
+    </div>
 
-        <div class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            All Rights Reserved
-        </div>
+    <!-- Firm Base Flex-Anchor Footer Container -->
+    <div class="footer">
+        &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
+        All Rights Reserved
     </div>
 
     <script>
