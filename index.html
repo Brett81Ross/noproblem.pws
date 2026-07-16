@@ -21,7 +21,6 @@
             padding: 20px;
             overflow-x: hidden;
         }
-        /* Rigidly keeps content bound tightly centered */
         .wrapper-container {
             width: 100%;
             max-width: 480px;
@@ -351,7 +350,7 @@
             font-weight: 400;
             text-align: right;
             white-space: normal;
-            max-width: 160px;
+            max-width: 140px;
             word-break: break-word;
         }
         
@@ -480,8 +479,8 @@
         </div>
 
         <div class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            All Rights Reserved
+            &copy; 2026 No Problem Pressure Washing Solutions,LLC&trade;<br>
+            Powered by Cactus🌵Byte Studios All Rights Reserved
         </div>
     </div>
 
@@ -500,7 +499,6 @@
                     localStorage.setItem('scanCredits', (credits + 1).toString());
                 }
                 
-                // Safely scrub URL variables out without causing layout shifts
                 try {
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } catch(e) { console.log(e); }
@@ -631,6 +629,8 @@
                 } 
                 else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
+                    
+                    // Safely extract price details before parsing out specific structural subtexts
                     const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
                     let badgeHTML = "";
                     let parsedNumericValue = 0;
@@ -650,6 +650,10 @@
                     }
                     
                     textContent = textContent.replace(/:\s*$/, "").replace(/-\s*$/, "").replace(/\s*-\s*$/, "").trim();
+                    // Scrub stray formatting leftover symbols seamlessly
+                    if (textContent.startsWith(',') || textContent.startsWith(':')) {
+                        textContent = textContent.substring(1).trim();
+                    }
 
                     priceItemsRegistry.push({
                         id: globalCardIndex,
