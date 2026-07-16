@@ -6,32 +6,30 @@
     <title>No Problem Pressure Washing Estimator</title>
     <style>
         html, body {
-            height: 100%;
             margin: 0;
             padding: 0;
             background-color: #0b132b;
+            min-height: 100vh;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
             box-sizing: border-box;
             padding: 20px;
             overflow-x: hidden;
         }
+        /* Rigidly keeps content bound tightly centered */
         .wrapper-container {
             width: 100%;
             max-width: 480px;
             display: flex;
             flex-direction: column;
-            min-height: calc(100vh - 40px);
             box-sizing: border-box;
         }
         .main-content {
-            flex-grow: 1;
             width: 100%;
             text-align: center;
         }
@@ -139,7 +137,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin-bottom: 0; /* Cleaned up trailing button gap layout */
+            margin-bottom: 0;
         }
         .btn-pay-single {
             background-color: #38bdf8;
@@ -411,7 +409,6 @@
             text-align: center;
             line-height: 1.6;
             box-sizing: border-box;
-            flex-shrink: 0;
         }
 
         @media print {
@@ -430,7 +427,6 @@
 <body>
 
     <div class="wrapper-container">
-        
         <div class="main-content">
             <div class="logo-container">
                 <div class="brand-badge">NP</div>
@@ -487,7 +483,6 @@
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
             All Rights Reserved
         </div>
-        
     </div>
 
     <script>
@@ -504,7 +499,11 @@
                     let credits = parseInt(localStorage.getItem('scanCredits') || '0');
                     localStorage.setItem('scanCredits', (credits + 1).toString());
                 }
-                window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Safely scrub URL variables out without causing layout shifts
+                try {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } catch(e) { console.log(e); }
             }
             
             checkGatekeeperConstraints();
