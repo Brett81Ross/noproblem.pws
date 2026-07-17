@@ -146,7 +146,6 @@
         .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); }
         .btn-trigger { background: linear-gradient(135deg, #16a34a, #059669); color: #ffffff; margin-top: 15px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25); }
         
-        /* 💎 CYAN TELEMETRY SCANNING STATE ENGINE */
         .btn-loading {
             background: linear-gradient(270deg, #091d2c, #0b253a, #020617, #061524) !important;
             background-size: 400% 400% !important;
@@ -172,7 +171,6 @@
             animation: scannerLaser 1.5s infinite linear;
         }
 
-        /* Spinner graphic component built straight into dynamic state class */
         .btn-spinner {
             width: 18px;
             height: 18px;
@@ -216,6 +214,8 @@
         .copy-btn { background-color: #020617; color: #00f0ff; border: 1px solid #1e293b; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
+        
+        .hidden-input { display: none !important; opacity: 0 !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
     </style>
 </head>
 <body>
@@ -231,8 +231,12 @@
             </div>
 
             <div class="action-card">
-                <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
-                <button class="btn" onclick="document.getElementById('fileInput').click()">Take / Upload Photos</button>
+                <!-- Dual input streams back online with environment capture indicators -->
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
+                <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
+
+                <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
                 
                 <div class="preview-grid" id="imagePreviewGrid"></div>
                 <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
@@ -278,6 +282,7 @@
         let priceItemsRegistry = [];
         let currentSelectedTier = 'better';
 
+        document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
         document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
         async function stageFiles(files) {
@@ -391,8 +396,6 @@
 
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
-            
-            // Clean, dramatic neon loading setup activation
             processTrigger.className = "btn btn-trigger btn-loading";
             processTrigger.innerHTML = `<span class="btn-spinner"></span> RUNNING MATRIX SCAN ENGINE...`;
 
@@ -431,7 +434,9 @@
                         ctx.drawImage(img, 0, 0, 600, 450);
                         resolve(canvas.toDataURL('image/jpeg', 0.5)); 
                     };
+                    img.onerror = (err) => reject(err);
                 };
+                reader.onerror = (err) => reject(err);
             });
         }
     </script>
