@@ -86,7 +86,6 @@
             text-shadow: 0 1px 5px rgba(0,0,0,0.5);
         }
 
-        /* Token Diagnostic Centering Container */
         .token-wrapper {
             width: 100%;
             display: flex;
@@ -94,7 +93,6 @@
             align-items: center;
             margin-bottom: 20px;
         }
-        /* Token Diagnostic Dashboard Badge styled to stay centered */
         .token-diagnostic-bar {
             display: inline-flex;
             align-items: center;
@@ -110,20 +108,9 @@
             color: #00f0ff;
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
-        .token-pulse-dot {
-            width: 7px;
-            height: 7px;
-            background-color: #00f0ff;
-            border-radius: 50%;
-            animation: tokenPulse 1.5s infinite alternate;
-        }
-        @keyframes tokenPulse {
-            0% { opacity: 0.4; box-shadow: 0 0 2px #00f0ff; }
-            100% { opacity: 1; box-shadow: 0 0 8px #00f0ff; }
-        }
         
-        /* Deep Void Card Container */
-        .action-card {
+        /* Step Engine Section Wrappers */
+        .app-phase-card {
             background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -133,10 +120,113 @@
             margin-bottom: 20px;
             text-align: left;
             border: 1px solid rgba(58, 80, 107, 0.35);
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .text-field {
+            width: 100%;
+            background: rgba(2, 6, 23, 0.7);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            padding: 14px;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .text-field:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+
+        /* Metric Choice Tokens Group */
+        .token-choice-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .choice-pill {
+            background: rgba(2, 6, 23, 0.7);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #cbd5e1;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .choice-pill.active {
+            border-color: #00f0ff;
+            color: #00f0ff;
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        /* Service Selector Grid Matrix */
+        .service-matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .service-box {
+            background: rgba(2, 6, 23, 0.7);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .service-box.selected {
+            border-color: #00f0ff;
+            color: #ffffff;
+            background: rgba(0, 240, 255, 0.05);
+        }
+        .checkbox-indicator {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #475569;
+            border-radius: 4px;
+            display: inline-block;
             position: relative;
+            flex-shrink: 0;
+        }
+        .service-box.selected .checkbox-indicator {
+            border-color: #00f0ff;
+            background-color: #00f0ff;
+        }
+
+        /* Dynamic Measurement Module Sliders */
+        .measurement-sub-panel {
+            background: rgba(2, 6, 23, 0.4);
+            border: 1px dashed rgba(30, 41, 59, 0.8);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 15px;
         }
         
-        /* High-Contrast Luminous Cyan Action Elements */
         .btn {
             display: block;
             width: 100%;
@@ -164,9 +254,7 @@
         }
         .btn:active {
             transform: scale(0.97);
-            box-shadow: 0 2px 8px rgba(0, 240, 255, 0.15);
         }
-        
         .btn-secondary {
             background: rgba(255, 255, 255, 0.03);
             color: #f1f5f9;
@@ -174,10 +262,6 @@
             backdrop-filter: blur(4px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        .btn-secondary:active {
-            background: rgba(255, 255, 255, 0.01);
-        }
-        
         .btn-trigger {
             background: linear-gradient(135deg, #16a34a, #059669);
             color: #ffffff;
@@ -185,7 +269,6 @@
             box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25);
         }
         
-        /* Deep Emerald Processing State Engine */
         .btn-loading {
             background: linear-gradient(270deg, #14532d, #166534, #064e3b, #14532d) !important;
             background-size: 600% 600% !important;
@@ -196,122 +279,46 @@
             border: 1px solid #16a34a !important;
             animation: darkGreenGradientMove 4s ease infinite, darkGreenPulseGlow 1.6s infinite alternate !important;
         }
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.2), transparent);
-            animation: loadingSweep 1.4s infinite linear;
-        }
+        @keyframes darkGreenGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes darkGreenPulseGlow { 0% { box-shadow: 0 0 8px rgba(22, 163, 74, 0.2); } 100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.5); } }
 
-        @keyframes darkGreenGradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes darkGreenPulseGlow {
-            0% { box-shadow: 0 0 8px rgba(22, 163, 74, 0.2); }
-            100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.5); }
-        }
-        @keyframes loadingSweep {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .monetize-container {
-            margin-top: 25px;
-            text-align: center;
-            border-top: 1px dashed rgba(58, 80, 107, 0.4);
-            padding-top: 20px;
-        }
-        .purchase-options-grid {
+        /* Dynamic Diagnostics Analytics Indicators */
+        .telemetry-row {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1.2fr 0.8fr;
             gap: 12px;
-            margin-bottom: 0;
+            margin-top: 15px;
         }
-        .btn-pay-single {
-            background: rgba(56, 189, 248, 0.05);
-            color: #38bdf8;
-            margin-bottom: 0;
-            font-size: 13px;
-            padding: 14px 8px;
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            backdrop-filter: blur(4px);
-            box-shadow: none;
-        }
-        .btn-pay-single:active {
-            background: rgba(56, 189, 248, 0.15);
-        }
-        .btn-lifetime {
-            background: rgba(74, 222, 128, 0.05);
-            color: #4ade80;
-            margin-bottom: 0;
-            border: 1px solid rgba(74, 222, 128, 0.25);
-            padding: 14px 8px;
-            font-size: 13px;
-            backdrop-filter: blur(4px);
-            box-shadow: none;
-        }
-        .btn-lifetime:active {
-            background: rgba(74, 222, 128, 0.15);
-        }
-        
-        .paywall-overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(2, 6, 23, 0.98);
-            border-radius: 20px;
-            z-index: 10;
+        .telemetry-box {
+            background: rgba(2, 6, 23, 0.5);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            padding: 12px;
             box-sizing: border-box;
-            padding: 30px 20px;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
         }
-        .paywall-title {
-            font-size: 20px;
+        .telemetry-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .telemetry-val {
+            font-size: 16px;
             font-weight: 800;
-            color: #ffdd00;
-            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .confidence-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 900;
             text-transform: uppercase;
         }
-        .paywall-desc {
-            font-size: 14px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-bottom: 25px;
-        }
-        .paywall-btn-stack {
-            width: 100%;
-        }
-        .paywall-btn-stack .btn-lifetime {
-            margin-top: 12px;
-            font-size: 16px;
-            padding: 16px;
-            background: #16a34a;
-            color: #ffffff;
-            border: none;
-        }
-        
-        .hidden-input {
-            display: none !important;
-            opacity: 0 !important;
-            position: absolute !important;
-            width: 0 !important;
-            height: 0 !important;
-            overflow: hidden !important;
-        }
-        
-        /* Automated Package Tier Strategic Navigation Buttons */
+        .conf-high { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+
         .tier-selection-matrix {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -331,487 +338,244 @@
             color: #94a3b8;
             cursor: pointer;
             text-align: center;
-            transition: all 0.25s ease;
         }
-        .matrix-tier-tab.active-good {
-            border-color: #f59e0b;
-            color: #f59e0b;
-            background: rgba(245, 158, 11, 0.1);
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
-        }
-        .matrix-tier-tab.active-better {
-            border-color: #00f0ff;
-            color: #00f0ff;
-            background: rgba(0, 240, 255, 0.1);
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
-        }
-        .matrix-tier-tab.active-best {
-            border-color: #a855f7;
-            color: #a855f7;
-            background: rgba(168, 85, 247, 0.1);
-            box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
-        }
+        .matrix-tier-tab.active-good { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .matrix-tier-tab.active-better { border-color: #00f0ff; color: #00f0ff; background: rgba(0, 240, 255, 0.1); }
+        .matrix-tier-tab.active-best { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.1); }
 
-        .utility-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
-        .btn-utility {
-            padding: 14px;
-            font-size: 15px;
-            border-radius: 8px;
-            margin-bottom: 0;
-        }
-        .btn-email {
-            background: linear-gradient(135deg, #16a34a, #15803d);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
-        }
-
-        .preview-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .preview-thumbnail {
-            width: 100%;
-            padding-top: 100%;
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #00f0ff;
-            background-size: cover;
-            background-position: center;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
-        }
+        .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .preview-thumbnail { width: 100%; padding-top: 100%; border-radius: 8px; border: 1px solid #00f0ff; background-size: cover; background-position: center; }
         
-        /* Revitalized Result Canvas Frame */
         .result-card {
             background: rgba(9, 13, 22, 0.9);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border-left: 4px solid #00f0ff;
             padding: 20px;
             border-radius: 16px;
             text-align: left;
             margin-top: 20px;
-            position: relative;
             width: 100%;
             box-sizing: border-box;
             border-top: 1px solid rgba(255,255,255,0.03);
-            border-right: 1px solid rgba(255,255,255,0.03);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
-        .result-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .result-title {
-            font-size: 15px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0;
-            font-weight: bold;
-        }
-        .copy-btn {
-            background-color: #020617;
-            color: #00f0ff;
-            border: 1px solid #1e293b;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
-        .copy-btn:active {
-            background-color: #00f0ff;
-            color: #020617;
-        }
-        
-        .proposal-section-title {
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #00f0ff;
-            margin: 30px 0 14px 0;
-            font-weight: 800;
-            border-bottom: 2px solid rgba(30, 41, 59, 0.5);
-            padding-bottom: 8px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
-        }
-        .proposal-section-title:first-of-type {
-            margin-top: 5px;
-        }
-        
-        .proposal-item {
-            background: rgba(2, 6, 23, 0.7);
-            border: 1px solid rgba(30, 41, 59, 0.7);
-            padding: 16px 18px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            font-size: 17px;
-            line-height: 1.5;
-            color: #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-            width: 100%;
-        }
-        .proposal-item:hover {
-            border-color: #00f0ff;
-            background: rgba(15, 23, 42, 0.8);
-        }
-        .proposal-item:active {
-            transform: scale(0.99);
-        }
-        
-        .proposal-item.disabled-card {
-            opacity: 0.2;
-            background-color: rgba(2, 6, 23, 0.3);
-            border-color: transparent;
-            transform: none !important;
-            box-shadow: none;
-        }
-        
-        .item-text {
-            padding-right: 15px;
-            flex-grow: 1;
-            font-weight: 500;
-            word-break: break-word;
-            white-space: normal;
-        }
-        
-        .item-right-wrap {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-        .highlight-spec {
-            color: #64748b;
-            font-size: 13px;
-            font-weight: 400;
-            text-align: right;
-            white-space: normal;
-            max-width: 140px;
-            word-break: break-word;
-        }
-        
-        .price-badge {
-            background-color: #0f172a;
-            color: #38bdf8;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-weight: 800;
-            font-size: 18px;
-            border: 1px solid #0077b6;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-        .proposal-item.disabled-card .price-badge {
-            background-color: #020617;
-            color: #475569;
-            border-color: #1e293b;
-            text-decoration: line-through;
-        }
+        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 30px 0 14px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 8px; }
+        .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 17px; display: flex; justify-content: space-between; align-items: center; }
+        .price-badge { background-color: #0f172a; color: #38bdf8; padding: 8px 14px; border-radius: 8px; font-weight: 800; border: 1px solid #0077b6; }
         
         .proposal-total-card {
             background: linear-gradient(135deg, #0f172a, #020617);
             border: 2px solid #22c55e;
             border-radius: 14px;
             padding: 22px;
-            margin-top: 30px;
+            margin-top: 20px;
             text-align: center;
             box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
-            transition: all 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
         }
-        .proposal-total-label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #64748b;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-        .proposal-total-amount {
-            font-size: 36px;
-            font-weight: 900;
-            color: #22c55e;
-            text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-        }
-
-        .footer {
-            width: 100%;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-size: 12px;
-            color: #64748b;
-            letter-spacing: 0.5px;
-            text-align: center;
-            line-height: 1.6;
-            box-sizing: border-box;
-            opacity: 0.6;
-        }
-
-        @media print {
-            body { background: #ffffff; color: #000000; padding: 0; animation: none; }
-            .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row, .tier-selection-matrix, .token-wrapper { display: none !important; }
-            .proposal-item.disabled-card { display: none !important; }
-            .wrapper-container { max-width: 100%; width: 100%; }
-            .result-card { border: none; background: transparent; padding: 0; }
-            .proposal-item { background: #f8fafc; border: 1px solid #cbd5e1; color: #000000; font-size: 16px; }
-            .price-badge { background: #e2e8f0; color: #0f172a; border: 1px solid #94a3b8; font-size: 16px; }
-            .proposal-total-card { border: 2px solid #16a34a; background: #f0fdf4; }
-            .proposal-total-amount { color: #16a34a; font-size: 32px; }
-        }
+        .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+        .footer { width: 100%; margin-top: 40px; margin-bottom: 20px; font-size: 12px; color: #64748b; text-align: center; opacity: 0.6; }
     </style>
 </head>
 <body>
 
     <div class="wrapper-container">
         <div class="main-content">
-            <div class="logo-container">
-                <div class="brand-badge">NP</div>
-            </div>
+            <div class="logo-container"><div class="brand-badge">NP</div></div>
             <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
-            <div class="tagline">
-                Snap photos or upload multiple images of a job site. The AI automatically scans all structures, identifies surfaces, and calculates your full bidding quote.
-            </div>
+            <div class="tagline">Advanced AI-Assisted Property Intelligence Scan Platform</div>
 
-            <!-- Centering wrapper applied to keep badge locked down mid-screen -->
             <div class="token-wrapper">
-                <div class="token-diagnostic-bar">
-                    <div class="token-pulse-dot"></div>
-                    <span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span>
-                </div>
+                <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
             </div>
 
-            <div class="action-card">
-                <div class="paywall-overlay" id="paywallOverlay">
-                    <div class="paywall-title">Scan Limit Reached</div>
-                    <div class="paywall-desc">You've used your 7 free scans for this week. Unlock unlimited access or purchase an extra token to process this bid.</div>
-                    <div class="paywall-btn-stack">
-                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Get Lifetime Membership ($99)</a>
-                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Single Scan Credit</a>
+            <!-- PHASE 1: PROPERTY METRICS AND SCOPE SELECTION PANEL -->
+            <div class="app-phase-card" id="panelPhase1">
+                <div class="input-group">
+                    <label>Property Target Profile</label>
+                    <div class="token-choice-row">
+                        <div class="choice-pill active" id="profRes" onclick="setProfile('Residential')">Residential</div>
+                        <div class="choice-pill" id="profCom" onclick="setProfile('Commercial')">Commercial</div>
                     </div>
                 </div>
 
-                <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input" style="display:none !important;">
-                <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input" style="display:none !important;">
+                <div class="input-group">
+                    <label>Select Operational Scopes</label>
+                    <div class="service-matrix-grid">
+                        <div class="service-box" id="srvHouse" onclick="toggleService('House')"><span class="checkbox-indicator"></span>House Wash</div>
+                        <div class="service-box" id="srvDrive" onclick="toggleService('Driveway')"><span class="checkbox-indicator"></span>Driveway</div>
+                        <div class="service-box" id="srvFence" onclick="toggleService('Fence')"><span class="checkbox-indicator"></span>Fence Line</div>
+                        <div class="service-box" id="srvRoof" onclick="toggleService('Roof')"><span class="checkbox-indicator"></span>Roof Treatment</div>
+                    </div>
+                </div>
 
-                <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
-                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Multiple Photos</button>
+                <div class="measurement-sub-panel">
+                    <div class="input-group" id="wrapHouseSqft">
+                        <label>House Footprint (Approx SqFt)</label>
+                        <input type="number" class="text-field" id="valHouseSqft" placeholder="e.g. 2000" value="1800">
+                    </div>
+                    <div class="input-group" id="wrapDriveSqft" style="display:none;">
+                        <label>Driveway Layout Area (SqFt)</label>
+                        <input type="number" class="text-field" id="valDriveSqft" placeholder="e.g. 600">
+                    </div>
+                    <div class="input-group" id="wrapFenceLf" style="display:none;">
+                        <label>Fence Line Dimension (Linear Feet)</label>
+                        <input type="number" class="text-field" id="valFenceLf" placeholder="e.g. 150">
+                    </div>
+                    <div class="input-group">
+                        <label>Structural Levels / Stories</label>
+                        <input type="number" class="text-field" id="valStories" value="1" min="1">
+                    </div>
+                </div>
                 
+                <button class="btn" style="margin-top:20px;" onclick="advanceToPhase2()">Next: Lead Information</button>
+            </div>
+
+            <!-- PHASE 2: LEAD CAPTURE VALIDATION PANEL -->
+            <div class="app-phase-card" id="panelPhase2" style="display:none;">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" class="text-field" id="leadName" placeholder="Brett Ross">
+                </div>
+                <div class="input-group">
+                    <label>Contact Phone</label>
+                    <input type="tel" class="text-field" id="leadPhone" placeholder="(580) 555-0199">
+                </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" class="text-field" id="leadEmail" placeholder="brett@noproblem.com">
+                </div>
+                <div class="input-group">
+                    <label>Project Address</label>
+                    <input type="text" class="text-field" id="leadAddress" placeholder="Oklahoma City, OK">
+                </div>
+                
+                <button class="btn" onclick="advanceToUploadStage()">Unlock Matrix Scan Engine</button>
+            </div>
+
+            <!-- UPLOAD PANEL (UNLOCKED POST LEAD VALIDATION) -->
+            <div class="app-phase-card" id="panelUpload" style="display:none;">
+                <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Upload Site Imagery</button>
                 <div class="preview-grid" id="imagePreviewGrid"></div>
-                
-                <button class="btn btn-trigger" id="processTrigger" style="display: none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
-                
-                <div class="monetize-container">
-                    <div class="purchase-options-grid">
-                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
-                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
-                    </div>
-                </div>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Analysis Engine</button>
             </div>
 
+            <!-- ADVANCED REPORT CONTAINER OUTPUT -->
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
-                    <p class="result-title" id="statusHeader">Estimate Report</p>
-                    <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
+                    <p class="result-title">Project Estimate Matrix</p>
                 </div>
 
-                <!-- Innovative Tier Selection Tabs Matrix -->
-                <div class="tier-selection-matrix" id="matrixTierRow" style="display: none;">
+                <div class="tier-selection-matrix" id="matrixTierRow">
                     <div class="matrix-tier-tab" id="tabGood" onclick="switchActiveTier('good')">Good</div>
                     <div class="matrix-tier-tab" id="tabBetter" onclick="switchActiveTier('better')">Better</div>
                     <div class="matrix-tier-tab" id="tabBest" onclick="switchActiveTier('best')">Best</div>
                 </div>
-                
-                <div id="analysisResult">Processing Matrix...</div>
 
-                <div class="utility-row" id="actionPanel" style="display: none !important;">
-                    <button class="btn btn-secondary btn-utility" onclick="generatePDF()">Export PDF</button>
-                    <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
+                <div id="analysisResult"></div>
+
+                <!-- Range and Precision AI Telemetry Analytics Layout Grid -->
+                <div class="telemetry-row">
+                    <div class="telemetry-box">
+                        <div class="telemetry-label">Calculated Project Bid Range</div>
+                        <div class="telemetry-val" id="lblTelemetryRange">$0.00 - $0.00</div>
+                    </div>
+                    <div class="telemetry-box" style="text-align: center;">
+                        <div class="telemetry-label">AI Confidence</div>
+                        <div style="margin-top:4px;"><span class="confidence-badge conf-high" id="lblTelemetryConfidence">High</span></div>
+                    </div>
+                </div>
+                
+                <div class="proposal-total-card">
+                    <div class="telemetry-label" style="color:#94a3b8;">Selected Active Tier Total</div>
+                    <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
             </div>
         </div>
-
-        <div class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            All Rights Reserved
-        </div>
+        <div class="footer">&copy; 2026 No Problem Pressure Washing Solutions, LLC</div>
     </div>
 
     <script>
         let stagedBase64Images = [];
-        let priceItemsRegistry = []; 
-        let currentSelectedTier = 'better'; 
-        let textUpdateInterval = null;
+        let priceItemsRegistry = [];
+        let currentSelectedTier = 'better';
+        let projectProfile = 'Residential';
+        let targetedServices = ['House'];
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            if (urlParams.get('payment') === 'success') {
-                if (urlParams.get('type') === 'lifetime') {
-                    localStorage.setItem('membershipStatus', 'lifetime');
-                } else if (urlParams.get('type') === 'single') {
-                    let credits = parseInt(localStorage.getItem('scanCredits') || '0');
-                    localStorage.setItem('scanCredits', (credits + 1).toString());
-                }
-                
-                try {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                } catch(e) { console.log(e); }
-            }
-            
-            checkGatekeeperConstraints();
-            updateTokenDashboardDisplay();
-        });
-
-        function checkGatekeeperConstraints() {
-            const status = localStorage.getItem('membershipStatus');
-            if (status === 'lifetime') return true; 
-
-            let credits = parseInt(localStorage.getItem('scanCredits') || '0');
-            if (credits > 0) return true; 
-
-            let localScanTimestamps = JSON.parse(localStorage.getItem('scanTimestampsTracker') || '[]');
-            const oneWeek = 7 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            
-            localScanTimestamps = localScanTimestamps.filter(timestamp => (now - timestamp) < oneWeek);
-            localStorage.setItem('scanTimestampsTracker', JSON.stringify(localScanTimestamps));
-            
-            if (localScanTimestamps.length < 7) {
-                return true; 
-            }
-
-            document.getElementById('paywallOverlay').style.display = 'flex';
-            return false;
+        function setProfile(type) {
+            projectProfile = type;
+            document.getElementById('profRes').className = 'choice-pill' + (type==='Residential'?' active':'');
+            document.getElementById('profCom').className = 'choice-pill' + (type==='Commercial'?' active':'');
         }
 
-        function updateTokenDashboardDisplay() {
-            const displayBadge = document.getElementById('tokenStatusDisplay');
-            if (!displayBadge) return;
-
-            const status = localStorage.getItem('membershipStatus');
-            if (status === 'lifetime') {
-                displayBadge.innerText = "System Premium Status: UNLIMITED UNLOCKED";
-                return;
-            }
-
-            let credits = parseInt(localStorage.getItem('scanCredits') || '0');
-            if (credits > 0) {
-                displayBadge.innerText = `Premium Scan Credits Remaining: ${credits}`;
-                return;
-            }
-
-            let localScanTimestamps = JSON.parse(localStorage.getItem('scanTimestampsTracker') || '[]');
-            const oneWeek = 7 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            localScanTimestamps = localScanTimestamps.filter(timestamp => (now - timestamp) < oneWeek);
-            
-            const remainingTokens = 7 - localScanTimestamps.length;
-            displayBadge.innerText = `Tokens Remaining: ${remainingTokens} / 7 Active`;
-        }
-
-        document.getElementById('cameraInput').addEventListener('change', function() { if(checkGatekeeperConstraints()) stageFiles(this.files); });
-        document.getElementById('fileInput').addEventListener('change', function() { if(checkGatekeeperConstraints()) stageFiles(this.files); });
-
-        function generateActiveProposalText() {
-            let proposalText = `NO PROBLEM PRESSURE WASHING ESTIMATOR PROPOSAL\n`;
-            proposalText += `TIER STRATEGY PACKAGE LEVEL: ${currentSelectedTier.toUpperCase()}\n\n`;
-            
-            let currentSection = "";
-            let runningTotal = 0;
-            
-            priceItemsRegistry.forEach(item => {
-                if (item.disabled) return;
-                
-                if (item.section !== currentSection) {
-                    currentSection = item.section;
-                    proposalText += `\n${currentSection.toUpperCase()}:\n`;
-                }
-                
-                let tierPrice = calculateTargetTierPrice(item.value, currentSelectedTier, item.cleanText);
-                
-                if (tierPrice > 0) {
-                    proposalText += `- ${item.cleanText} (${item.mathFormula || 'Standard Rate'}): $${tierPrice.toFixed(2)}\n`;
-                    runningTotal += tierPrice;
-                } else {
-                    proposalText += `- ${item.cleanText}\n`;
-                }
-            });
-            
-            proposalText += `\nTOTAL ACTIVE CONTRACT PRICE: $${runningTotal.toFixed(2)}\n`;
-            return proposalText;
-        }
-
-        function copyToClipboard() {
-            const compiledText = generateActiveProposalText();
-            const copyBtn = document.getElementById('copyButton');
-            navigator.clipboard.writeText(compiledText).then(() => {
-                copyBtn.innerText = "Copied!";
-                setTimeout(() => { copyBtn.innerText = "Copy Text"; }, 2000);
-            });
-        }
-
-        function generatePDF() {
-            window.print();
-        }
-
-        function sendProposalEmail() {
-            const activeText = generateActiveProposalText();
-            const subjectLine = encodeURIComponent("No Problem Pressure Washing Estimator - Project Estimate Proposal");
-            const bodyContent = encodeURIComponent(activeText);
-            window.location.href = `mailto:?subject=${subjectLine}&body=${bodyContent}`;
-        }
-
-        function togglePriceCard(index) {
-            const cardElement = document.getElementById(`priceCard_${index}`);
-            if (!cardElement || !priceItemsRegistry[index]) return;
-            
-            priceItemsRegistry[index].disabled = !priceItemsRegistry[index].disabled;
-            
-            if (priceItemsRegistry[index].disabled) {
-                cardElement.classList.add('disabled-card');
+        function toggleService(srv) {
+            const index = targetedServices.indexOf(srv);
+            const box = document.getElementById('srv' + srv.substring(0,5));
+            if(index > -1) {
+                if(targetedServices.length === 1) return; // Force at least one selection
+                targetedServices.splice(index, 1);
+                box.classList.remove('selected');
+                document.getElementById('wrap' + srv.substring(0,5) + (srv==='Fence'?'Lf':'Sqft')).style.display = 'none';
             } else {
-                cardElement.classList.remove('disabled-card');
+                targetedServices.push(srv);
+                box.classList.add('selected');
+                document.getElementById('wrap' + srv.substring(0,5) + (srv==='Fence'?'Lf':'Sqft')).style.display = 'block';
             }
-            
-            recalculateGrandTotal();
         }
 
-        function calculateTargetTierPrice(basePrice, tier, description) {
-            if (basePrice === 0) return 0;
-            
-            if (tier === 'good') {
-                return basePrice * 0.85; 
-            } else if (tier === 'best') {
-                return basePrice * 1.35; 
+        function advanceToPhase2() {
+            document.getElementById('panelPhase1').style.display = 'none';
+            document.getElementById('panelPhase2').style.display = 'block';
+        }
+
+        function advanceToUploadStage() {
+            // Validate Lead Capture Wall Data Fields
+            if(!document.getElementById('leadName').value || !document.getElementById('leadPhone').value) {
+                alert('Please enter your name and phone number to unlock the estimator data module.');
+                return;
             }
+            
+            // Database Capture Pipeline Mockhook
+            console.log("Storing operational customer lead info package:", {
+                name: document.getElementById('leadName').value,
+                phone: document.getElementById('leadPhone').value,
+                email: document.getElementById('leadEmail').value,
+                address: document.getElementById('leadAddress').value,
+                metrics: { profile: projectProfile, scopes: targetedServices }
+            });
+
+            document.getElementById('panelPhase2').style.display = 'none';
+            document.getElementById('panelUpload').style.display = 'block';
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
+
+        async function stageFiles(files) {
+            if (!files || files.length === 0) return;
+            const previewGrid = document.getElementById('imagePreviewGrid');
+            const processTrigger = document.getElementById('processTrigger');
+            
+            for (let i = 0; i < files.length; i++) {
+                const base64Str = await resizeAndCompressImage(files[i]);
+                stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+                const thumb = document.createElement('div');
+                thumb.className = 'preview-thumbnail';
+                thumb.style.backgroundImage = `url(${base64Str})`;
+                previewGrid.appendChild(thumb);
+            }
+            if (stagedBase64Images.length > 0) {
+                processTrigger.setAttribute('style', 'display: block !important;');
+            }
+        }
+
+        function calculateTargetTierPrice(basePrice, tier) {
+            if (basePrice === 0) return 0;
+            if (tier === 'good') return basePrice * 0.85; 
+            if (tier === 'best') return basePrice * 1.35; 
             return basePrice; 
         }
 
         function switchActiveTier(targetTier) {
             currentSelectedTier = targetTier;
-            
             document.getElementById('tabGood').className = 'matrix-tier-tab' + (targetTier === 'good' ? ' active-good' : '');
             document.getElementById('tabBetter').className = 'matrix-tier-tab' + (targetTier === 'better' ? ' active-better' : '');
             document.getElementById('tabBest').className = 'matrix-tier-tab' + (targetTier === 'best' ? ' active-best' : '');
@@ -819,33 +583,28 @@
             priceItemsRegistry.forEach(item => {
                 const badge = document.getElementById(`priceBadge_${item.id}`);
                 if (badge) {
-                    let updatedPrice = calculateTargetTierPrice(item.value, targetTier, item.cleanText);
-                    badge.innerText = `$${updatedPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    let updatedPrice = calculateTargetTierPrice(item.value, targetTier);
+                    badge.innerText = `$${updatedPrice.toFixed(2)}`;
                 }
             });
-            
             recalculateGrandTotal();
         }
 
         function recalculateGrandTotal() {
             let runningSum = 0;
             priceItemsRegistry.forEach(item => {
-                if (!item.disabled) {
-                    runningSum += calculateTargetTierPrice(item.value, currentSelectedTier, item.cleanText);
-                }
+                runningSum += calculateTargetTierPrice(item.value, currentSelectedTier);
             });
             
-            const totalDisplay = document.getElementById('grandTotalDisplay');
-            if (totalDisplay) {
-                totalDisplay.innerText = `$${runningSum.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-            }
+            document.getElementById('grandTotalDisplay').innerText = `$${runningSum.toFixed(2)}`;
+            
+            // Build Phase 1 Statistical Operational Range Calculators
+            let rangeLow = runningSum * 0.90;
+            let rangeHigh = runningSum * 1.15;
+            document.getElementById('lblTelemetryRange').innerText = `$${rangeLow.toFixed(2)} - $${rangeHigh.toFixed(2)}`;
         }
 
         function parseInteractiveHTML(rawText) {
-            if (rawText.startsWith("Preparing") || rawText.startsWith("AI is") || rawText.startsWith("Error") || rawText.startsWith("Processing")) {
-                return `<div style="font-size: 16px; color:#94a3b8;">${rawText}</div>`;
-            }
-
             const lines = rawText.split('\n');
             let htmlOutput = "";
             let currentSectionName = "General Details";
@@ -859,188 +618,64 @@
                 if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
                     currentSectionName = cleanLine.replace(':', '').trim();
                     htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
-                } 
-                else if (cleanLine.toUpperCase().includes('TOTAL CONTRACT PRICE') || cleanLine.toUpperCase().includes('TOTAL ESTIMATE')) {
-                    return;
-                } 
-                else {
+                } else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    
                     const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
                     let parsedNumericValue = 0;
                     
                     if (segmentPriceMatch) {
-                        const rawNumStr = segmentPriceMatch[0].replace('$', '').replace(/,/g, '');
-                        parsedNumericValue = parseFloat(rawNumStr) || 0;
+                        parsedNumericValue = parseFloat(segmentPriceMatch[0].replace('$', '').replace(/,/g, '')) || 0;
                         textContent = textContent.replace(segmentPriceMatch[0], "").trim();
                     }
 
-                    const formulaMatch = textContent.match(/\(([^)]+)\)/) || textContent.match(/(?:Approx\.|Siding|Beams|Posts|Doors|Includes)[^,$\n]*/i);
-                    let formulaText = "";
-                    if (formulaMatch) {
-                        formulaText = formulaMatch[0].replace(/[()]/g, '').trim();
-                        textContent = textContent.replace(formulaMatch[0], "").trim();
-                    }
-                    
-                    textContent = textContent.replace(/:\s*$/, "").replace(/-\s*$/, "").replace(/\s*-\s*$/, "").trim();
-                    if (textContent.startsWith(',') || textContent.startsWith(':')) {
-                        textContent = textContent.substring(1).trim();
-                    }
+                    priceItemsRegistry.push({ id: globalCardIndex, section: currentSectionName, cleanText: textContent, value: parsedNumericValue });
 
-                    priceItemsRegistry.push({
-                        id: globalCardIndex,
-                        section: currentSectionName,
-                        cleanText: textContent,
-                        mathFormula: formulaText,
-                        value: parsedNumericValue,
-                        disabled: false
-                    });
-
-                    let detailsHTML = `<div class="item-text">${textContent}</div>`;
-                    let rightSideWrapHTML = `<div class="item-right-wrap">`;
-                    if (formulaText) {
-                        rightSideWrapHTML += `<span class="highlight-spec">${formulaText}</span>`;
-                    }
-                    
                     if (parsedNumericValue > 0) {
-                        rightSideWrapHTML += `<span class="price-badge" id="priceBadge_${globalCardIndex}">$${parsedNumericValue.toFixed(2)}</span></div>`;
                         htmlOutput += `
-                            <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
-                                ${detailsHTML}
-                                ${rightSideWrapHTML}
-                            </div>
-                        `;
-                    } else {
-                        rightSideWrapHTML += `</div>`;
-                        htmlOutput += `
-                            <div class="proposal-item" style="cursor: default;">
-                                ${detailsHTML}
-                                ${rightSideWrapHTML}
-                            </div>
-                        `;
+                            <div class="proposal-item">
+                                <div class="item-text">${textContent}</div>
+                                <span class="price-badge" id="priceBadge_${globalCardIndex}">$${parsedNumericValue.toFixed(2)}</span>
+                            </div>`;
                     }
                     globalCardIndex++;
                 }
             });
-
-            htmlOutput += `
-                <div class="proposal-total-card">
-                    <div class="proposal-total-label">Project Contract Total</div>
-                    <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
-                </div>
-            `;
-
             return htmlOutput;
         }
 
-        async function stageFiles(files) {
-            if (!files || files.length === 0) return;
-
-            const previewGrid = document.getElementById('imagePreviewGrid');
-            const processTrigger = document.getElementById('processTrigger');
-            
-            for (let i = 0; i < files.length; i++) {
-                const base64Str = await resizeAndCompressImage(files[i]);
-                stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
-
-                const thumb = document.createElement('div');
-                thumb.className = 'preview-thumbnail';
-                thumb.style.backgroundImage = `url(${base64Str})`;
-                previewGrid.appendChild(thumb);
-            }
-
-            if (stagedBase64Images.length > 0) {
-                processTrigger.setAttribute('style', 'display: block !important;');
-                processTrigger.className = "btn btn-trigger";
-                processTrigger.innerText = "Analyze Project";
-            }
-        }
-
         async function submitJobForAnalysis() {
-            if (!checkGatekeeperConstraints()) return;
-            if (stagedBase64Images.length === 0) return;
-
-            const resultCard = document.getElementById('outputCard');
-            const statusHeader = document.getElementById('statusHeader');
-            const textOutput = document.getElementById('analysisResult');
-            const actionPanel = document.getElementById('actionPanel');
             const processTrigger = document.getElementById('processTrigger');
-            const tierNavRow = document.getElementById('matrixTierRow');
-
             processTrigger.className = "btn btn-trigger btn-loading";
-            
-            const totalImages = stagedBase64Images.length;
-            let dynamicSteps = [];
-            
-            for (let i = 1; i <= totalImages; i++) {
-                dynamicSteps.push(`Analyzing Site Image ${i} of ${totalImages}...`);
-            }
-            dynamicSteps.push("Parsing Surface Substrates...");
-            dynamicSteps.push("Calculating Structural Dimensions...");
-            dynamicSteps.push("Compiling Project Proposal...");
-            
-            let stepIndex = 0;
-            processTrigger.innerText = dynamicSteps[0];
-            
-            textUpdateInterval = setInterval(() => {
-                stepIndex = (stepIndex + 1) % dynamicSteps.length;
-                processTrigger.innerText = dynamicSteps[stepIndex];
-            }, 1400);
-            
-            actionPanel.setAttribute('style', 'display: none !important;');
-            tierNavRow.style.display = 'none';
-            resultCard.style.display = 'block';
-            statusHeader.innerText = "System Status";
-            statusHeader.style.color = "#00f0ff";
-            
-            textOutput.innerHTML = parseInteractiveHTML("AI is evaluating surfaces and compiling project values...");
+            processTrigger.innerText = "Processing Matrix Values...";
+
+            // Packages physical payload metrics collected inside Phase 1 variables
+            const analysisPayload = {
+                images: stagedBase64Images,
+                propertyProfile: projectProfile,
+                scopes: targetedServices,
+                houseSqft: document.getElementById('valHouseSqft').value,
+                driveSqft: document.getElementById('valDriveSqft').value,
+                fenceLf: document.getElementById('valFenceLf').value,
+                stories: document.getElementById('valStories').value
+            };
 
             try {
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ images: stagedBase64Images })
+                    body: JSON.stringify(analysisPayload)
                 });
-
                 const data = await response.json();
-
-                if (!response.ok || data.error) {
-                    throw new Error(data.error || 'Server endpoint response error.');
-                }
-
-                clearInterval(textUpdateInterval);
-                statusHeader.innerText = "Full Job Quote";
-                statusHeader.style.color = "#22c55e";
                 
-                textOutput.innerHTML = `<div style="font-size: 13px; color: #94a3b8; margin-top:-5px; margin-bottom: 16px; font-style: italic; text-align:left; border-left: 2px solid #38bdf8; padding-left: 8px;">💡 Tap any item package card to add or subtract it dynamically from the Project Contract Total below.</div>` + parseInteractiveHTML(data.result);
+                document.getElementById('panelUpload').style.display = 'none';
+                document.getElementById('outputCard').style.display = 'block';
+                document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
                 
-                tierNavRow.style.display = 'grid';
-                switchActiveTier('better'); 
-                
-                actionPanel.setAttribute('style', 'display: grid !important;');
-                processTrigger.setAttribute('style', 'display: none !important;');
-                stagedBase64Images = [];
-
-                const status = localStorage.getItem('membershipStatus');
-                if (status !== 'lifetime') {
-                    let credits = parseInt(localStorage.getItem('scanCredits') || '0');
-                    if (credits > 0) {
-                        localStorage.setItem('scanCredits', (credits - 1).toString());
-                    } else {
-                        let localScanTimestamps = JSON.parse(localStorage.getItem('scanTimestampsTracker') || '[]');
-                        localScanTimestamps.push(Date.now());
-                        localStorage.setItem('scanTimestampsTracker', JSON.stringify(localScanTimestamps));
-                    }
-                }
-                updateTokenDashboardDisplay();
-
+                switchActiveTier('better');
             } catch (err) {
-                clearInterval(textUpdateInterval);
-                statusHeader.innerText = "Processing Fault";
-                statusHeader.style.color = "#ef4444";
-                textOutput.innerHTML = parseInteractiveHTML(err.message);
+                alert('Analysis fault: ' + err.message);
                 processTrigger.className = "btn btn-trigger";
-                processTrigger.innerText = "Analyze Project";
+                processTrigger.innerText = "Run Analysis Engine";
             }
         }
 
@@ -1054,27 +689,11 @@
                     img.onload = function () {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        
-                        const maxDimension = 800; 
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > height && width > maxDimension) {
-                            height *= maxDimension / width;
-                            width = maxDimension;
-                        } else if (height > maxDimension) {
-                            width *= maxDimension / height;
-                            height = maxDimension;
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.45)); 
+                        canvas.width = 600; canvas.height = 450;
+                        ctx.drawImage(img, 0, 0, 600, 450);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5)); 
                     };
-                    img.onerror = (err) => reject(err);
                 };
-                reader.onerror = (err) => reject(err);
             });
         }
     </script>
