@@ -109,7 +109,7 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
         
-        .app-phase-card {
+        .action-card {
             background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -119,108 +119,7 @@
             margin-bottom: 20px;
             text-align: left;
             border: 1px solid rgba(58, 80, 107, 0.35);
-            box-sizing: border-box;
-            width: 100%;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
-        }
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #94a3b8;
-            margin-bottom: 8px;
-        }
-        .text-field {
-            width: 100%;
-            background: rgba(2, 6, 23, 0.7);
-            border: 1px solid rgba(30, 41, 59, 0.8);
-            padding: 14px;
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 15px;
-            box-sizing: border-box;
-            transition: all 0.2s ease;
-        }
-        .text-field:focus {
-            outline: none;
-            border-color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
-        }
-
-        .token-choice-row {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .choice-pill {
-            background: rgba(2, 6, 23, 0.7);
-            border: 1px solid rgba(30, 41, 59, 0.8);
-            padding: 14px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 700;
-            color: #cbd5e1;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-        }
-        .choice-pill.active {
-            border-color: #00f0ff;
-            color: #00f0ff;
-            background: rgba(0, 240, 255, 0.08);
-        }
-
-        .service-matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        .service-box {
-            background: rgba(2, 6, 23, 0.7);
-            border: 1px solid rgba(30, 41, 59, 0.8);
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #cbd5e1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            user-select: none;
-            transition: all 0.2s ease;
-        }
-        .service-box.selected {
-            border-color: #00f0ff;
-            color: #ffffff;
-            background: rgba(0, 240, 255, 0.05);
-        }
-        .checkbox-indicator {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #475569;
-            border-radius: 4px;
-            display: inline-block;
             position: relative;
-            flex-shrink: 0;
-        }
-        .service-box.selected .checkbox-indicator {
-            border-color: #00f0ff;
-            background-color: #00f0ff;
-        }
-
-        .measurement-sub-panel {
-            background: rgba(2, 6, 23, 0.4);
-            border: 1px dashed rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 15px;
         }
         
         .btn {
@@ -259,15 +158,8 @@
         }
         @keyframes darkGreenGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        .telemetry-row { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; margin-top: 15px; }
-        .telemetry-box { background: rgba(2, 6, 23, 0.5); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 10px; padding: 12px; box-sizing: border-box; }
-        .telemetry-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .telemetry-val { font-size: 16px; font-weight: 800; color: #ffffff; }
-        .confidence-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
-        .conf-high { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-
         .tier-selection-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 20px; }
-        .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
+        .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; color: #94a3b8; }
         .matrix-tier-tab.active-good { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
         .matrix-tier-tab.active-better { border-color: #00f0ff; color: #00f0ff; background: rgba(0, 240, 255, 0.1); }
         .matrix-tier-tab.active-best { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.1); }
@@ -282,6 +174,18 @@
         .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 20px; text-align: center; }
         .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
         .footer { width: 100%; margin-top: 40px; margin-bottom: 20px; font-size: 12px; color: #64748b; text-align: center; opacity: 0.6; }
+        
+        .monetize-container { margin-top: 25px; text-align: center; border-top: 1px dashed rgba(58, 80, 107, 0.4); padding-top: 20px; }
+        .purchase-options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .btn-pay-single { background: rgba(56, 189, 248, 0.05); color: #38bdf8; font-size: 13px; padding: 14px 8px; border: 1px solid rgba(56, 189, 248, 0.25); }
+        .btn-lifetime { background: rgba(74, 222, 128, 0.05); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.25); padding: 14px 8px; font-size: 13px; }
+        
+        .utility-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+        .btn-utility { padding: 14px; font-size: 15px; border-radius: 8px; }
+        .btn-email { background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; }
+        .copy-btn { background-color: #020617; color: #00f0ff; border: 1px solid #1e293b; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -290,124 +194,50 @@
         <div class="main-content">
             <div class="logo-container"><div class="brand-badge">NP</div></div>
             <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
-            <div class="tagline">Advanced AI Property Intelligence Scan Platform</div>
+            <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
 
             <div class="token-wrapper">
                 <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
             </div>
 
-            <!-- PHASE 1: CHAMELEON METRIC PROFILE SELECTION PANEL -->
-            <div class="app-phase-card" id="panelPhase1">
-                <div class="input-group">
-                    <label>Property Target Profile</label>
-                    <div class="token-choice-row">
-                        <div class="choice-pill active" id="profRes" onclick="setProfile('Residential')">Residential</div>
-                        <div class="choice-pill" id="profCom" onclick="setProfile('Commercial')">Commercial</div>
+            <div class="action-card">
+                <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Take / Upload Photos</button>
+                
+                <div class="preview-grid" id="imagePreviewGrid"></div>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
+                
+                <div class="monetize-container">
+                    <div class="purchase-options-grid">
+                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
+                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
                     </div>
                 </div>
+            </div>
 
-                <!-- DYNAMIC RESIDENTIAL OPERATION SCOPES CONTAINER -->
-                <div class="input-group" id="groupResServices">
-                    <label>Select Residential Scopes</label>
-                    <div class="service-matrix-grid">
-                        <div class="service-box selected" id="srvHouse" onclick="toggleService('House')"><span class="checkbox-indicator"></span>House Siding</div>
-                        <div class="service-box" id="srvDrive" onclick="toggleService('Driveway')"><span class="checkbox-indicator"></span>Driveway/Walk</div>
-                        <div class="service-box" id="srvFence" onclick="toggleService('Fence')"><span class="checkbox-indicator"></span>Fence Line</div>
-                        <div class="service-box" id="srvRoof" onclick="toggleService('Roof')"><span class="checkbox-indicator"></span>Soft-Wash Roof</div>
-                    </div>
-                </div>
-
-                <!-- DYNAMIC COMMERCIAL ASSET SCOPES CONTAINER -->
-                <div class="input-group" id="groupComServices" style="display: none;">
-                    <label>Select Commercial Scopes</label>
-                    <div class="service-matrix-grid">
-                        <div class="service-box selected" id="srvStorefront" onclick="toggleService('Storefront')"><span class="checkbox-indicator"></span>Bank Storefront</div>
-                        <div class="service-box" id="srvDriveThru" onclick="toggleService('DriveThru')"><span class="checkbox-indicator"></span>Drive-Thru Lanes</div>
-                        <div class="service-box" id="srvConcrete" onclick="toggleService('Concrete')"><span class="checkbox-indicator"></span>Flatwork Concrete</div>
-                        <div class="service-box" id="srvAtm" onclick="toggleService('Atm')"><span class="checkbox-indicator"></span>ATM Enclosure</div>
-                    </div>
-                </div>
-
-                <!-- DATA TRACKER SHIFTER PANE -->
-                <div class="measurement-sub-panel">
-                    <!-- Residential Logic Elements -->
-                    <div class="input-group" id="wrapHouseSqft">
-                        <label>House Siding Footprint (Approx SqFt)</label>
-                        <input type="number" class="text-field" id="valHouseSqft" value="1800">
-                    </div>
-                    <div class="input-group" id="wrapDriveSqft" style="display:none;">
-                        <label>Driveway Layout Area (SqFt)</label>
-                        <input type="number" class="text-field" id="valDriveSqft" placeholder="e.g. 600">
-                    </div>
-                    <div class="input-group" id="wrapFenceLf" style="display:none;">
-                        <label>Fence Line Dimension (Linear Feet)</label>
-                        <input type="number" class="text-field" id="valFenceLf" placeholder="e.g. 150">
-                    </div>
-                    <div class="input-group" id="wrapStories">
-                        <label>Structural Levels / Stories</label>
-                        <input type="number" class="text-field" id="valStories" value="1" min="1">
-                    </div>
-
-                    <!-- Commercial Intelligence Fields -->
-                    <div class="input-group" id="wrapDriveThruLanes" style="display:none;">
-                        <label>Number of Drive-Thru Lanes</label>
-                        <input type="number" class="text-field" id="valDriveThruLanes" value="1" min="1">
-                    </div>
-                    <div class="input-group" id="wrapConcreteSqft" style="display:none;">
-                        <label>Pedestrian Paths & Flatwork (SqFt)</label>
-                        <input type="number" class="text-field" id="valConcreteSqft" placeholder="e.g. 2500">
-                    </div>
-                    <div class="input-group" id="wrapAtmUnits" style="display:none;">
-                        <label>ATM Enclosure Units</label>
-                        <input type="number" class="text-field" id="valAtmUnits" value="1" min="1">
-                    </div>
-                    <div class="input-group" id="wrapSchedulePremium" style="display:none;">
-                        <div class="service-box" id="srvAfterHours" onclick="toggleAfterHours()"><span class="checkbox-indicator"></span>Require After-Hours / Sunday Schedule</div>
-                    </div>
+            <!-- INSTANT ESTIMATE CONTAINER DISPLAY -->
+            <div class="result-card" id="outputCard" style="display: none;">
+                <div class="result-title-row">
+                    <p class="result-title">Scan Estimate Report</p>
+                    <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
                 
-                <button class="btn" style="margin-top:20px;" onclick="advanceToPhase2()">Next: Lead Information</button>
-            </div>
-
-            <!-- PHASE 2: LEAD CAPTURE VALIDATION PANEL -->
-            <div class="app-phase-card" id="panelPhase2" style="display:none;">
-                <div class="input-group"><label>Full Name</label><input type="text" class="text-field" id="leadName" placeholder="Brett Ross"></div>
-                <div class="input-group"><label>Contact Phone</label><input type="tel" class="text-field" id="leadPhone" placeholder="(580) 514-9929"></div>
-                <div class="input-group"><label>Email Address</label><input type="email" class="text-field" id="leadEmail" placeholder="brett@noproblem.com"></div>
-                <div class="input-group"><label>Project Target Address</label><input type="text" class="text-field" id="leadAddress" placeholder="Oklahoma City, OK"></div>
-                <button class="btn" onclick="advanceToUploadStage()">Unlock Matrix Scan Engine</button>
-            </div>
-
-            <!-- UPLOAD PANEL -->
-            <div class="app-phase-card" id="panelUpload" style="display:none;">
-                <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
-                <button class="btn" onclick="document.getElementById('fileInput').click()">Upload Site Imagery</button>
-                <div class="preview-grid" id="imagePreviewGrid"></div>
-                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Analysis Engine</button>
-            </div>
-
-            <!-- ADVANCED REPORT CONTAINER -->
-            <div class="result-card" id="outputCard" style="display: none;">
-                <div class="result-title-row"><p class="result-title">Project Estimate Matrix</p></div>
                 <div class="tier-selection-matrix" id="matrixTierRow">
                     <div class="matrix-tier-tab" id="tabGood" onclick="switchActiveTier('good')">Good</div>
                     <div class="matrix-tier-tab" id="tabBetter" onclick="switchActiveTier('better')">Better</div>
                     <div class="matrix-tier-tab" id="tabBest" onclick="switchActiveTier('best')">Best</div>
                 </div>
+
                 <div id="analysisResult"></div>
-                <div class="telemetry-row">
-                    <div class="telemetry-box">
-                        <div class="telemetry-label">Calculated Project Bid Range</div>
-                        <div class="telemetry-val" id="lblTelemetryRange">$0.00 - $0.00</div>
-                    </div>
-                    <div class="telemetry-box" style="text-align: center;">
-                        <div class="telemetry-label">AI Confidence</div>
-                        <div style="margin-top:4px;"><span class="confidence-badge conf-high" id="lblTelemetryConfidence">High</span></div>
-                    </div>
-                </div>
+                
                 <div class="proposal-total-card">
-                    <div class="telemetry-label" style="color:#94a3b8;">Selected Active Tier Total</div>
+                    <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700; margin-bottom:4px;">Project Active Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
+                </div>
+
+                <div class="utility-row" id="actionPanel" style="display: none !important;">
+                    <button class="btn btn-secondary btn-utility" onclick="window.print()">Export PDF</button>
+                    <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
                 </div>
             </div>
         </div>
@@ -418,96 +248,7 @@
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
         let currentSelectedTier = 'better';
-        let projectProfile = 'Residential';
-        let targetedServices = ['House'];
-        let requireAfterHours = false;
-
-        function setProfile(type) {
-            projectProfile = type;
-            document.getElementById('profRes').className = 'choice-pill' + (type==='Residential'?' active':'');
-            document.getElementById('profCom').className = 'choice-pill' + (type==='Commercial'?' active':'');
-
-            if(type === 'Residential') {
-                document.getElementById('groupResServices').style.display = 'block';
-                document.getElementById('groupComServices').style.display = 'none';
-                document.getElementById('wrapHouseSqft').style.display = 'block';
-                document.getElementById('wrapStories').style.display = 'block';
-                document.getElementById('wrapSchedulePremium').style.display = 'none';
-                targetedServices = ['House'];
-                resetCheckboxes('Res');
-            } else {
-                document.getElementById('groupResServices').style.display = 'none';
-                document.getElementById('groupComServices').style.display = 'block';
-                document.getElementById('wrapHouseSqft').style.display = 'none';
-                document.getElementById('wrapStories').style.display = 'none';
-                document.getElementById('wrapFenceLf').style.display = 'none';
-                document.getElementById('wrapDriveSqft').style.display = 'none';
-                document.getElementById('wrapSchedulePremium').style.display = 'block';
-                targetedServices = ['Storefront'];
-                resetCheckboxes('Com');
-            }
-            evaluateInputVisibility();
-        }
-
-        function resetCheckboxes(profileMode) {
-            const resBoxes = ['House', 'Driveway', 'Fence', 'Roof'];
-            const comBoxes = ['Storefront', 'DriveThru', 'Concrete', 'Atm'];
-            
-            resBoxes.forEach(s => document.getElementById('srv'+s.substring(0,5)).classList.remove('selected'));
-            comBoxes.forEach(s => {
-                const element = document.getElementById('srv'+s.substring(0,5));
-                if(element) element.classList.remove('selected');
-            });
-
-            if(profileMode === 'Res') document.getElementById('srvHouse').classList.add('selected');
-            if(profileMode === 'Com') document.getElementById('srvStore').classList.add('selected');
-        }
-
-        function toggleService(srv) {
-            const index = targetedServices.indexOf(srv);
-            const box = document.getElementById('srv' + srv.substring(0,5));
-            if(index > -1) {
-                if(targetedServices.length === 1) return;
-                targetedServices.splice(index, 1);
-                box.classList.remove('selected');
-            } else {
-                targetedServices.push(srv);
-                box.classList.add('selected');
-            }
-            evaluateInputVisibility();
-        }
-
-        function toggleAfterHours() {
-            requireAfterHours = !requireAfterHours;
-            document.getElementById('srvAfterH').classList.toggle('selected', requireAfterHours);
-        }
-
-        function evaluateInputVisibility() {
-            // Residential inputs map
-            document.getElementById('wrapHouseSqft').style.display = (projectProfile==='Residential' && targetedServices.includes('House')) ? 'block' : 'none';
-            document.getElementById('wrapStories').style.display = (projectProfile==='Residential' && targetedServices.includes('House')) ? 'block' : 'none';
-            document.getElementById('wrapDriveSqft').style.display = (projectProfile==='Residential' && targetedServices.includes('Driveway')) ? 'block' : 'none';
-            document.getElementById('wrapFenceLf').style.display = (projectProfile==='Residential' && targetedServices.includes('Fence')) ? 'block' : 'none';
-
-            // Commercial inputs map
-            document.getElementById('wrapDriveThruLanes').style.display = (projectProfile==='Commercial' && targetedServices.includes('DriveThru')) ? 'block' : 'none';
-            document.getElementById('wrapConcreteSqft').style.display = (projectProfile==='Commercial' && targetedServices.includes('Concrete')) ? 'block' : 'none';
-            document.getElementById('wrapAtmUnits').style.display = (projectProfile==='Commercial' && targetedServices.includes('Atm')) ? 'block' : 'none';
-        }
-
-        function advanceToPhase2() {
-            document.getElementById('panelPhase1').style.display = 'none';
-            document.getElementById('panelPhase2').style.display = 'block';
-        }
-
-        function advanceToUploadStage() {
-            if(!document.getElementById('leadName').value || !document.getElementById('leadPhone').value) {
-                alert('Please enter your name and phone number to unlock the estimator data module.');
-                return;
-            }
-            document.getElementById('panelPhase2').style.display = 'none';
-            document.getElementById('panelUpload').style.display = 'block';
-        }
+        let textUpdateInterval = null;
 
         document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
@@ -524,7 +265,9 @@
                 thumb.style.backgroundImage = `url(${base64Str})`;
                 previewGrid.appendChild(thumb);
             }
-            if (stagedBase64Images.length > 0) processTrigger.setAttribute('style', 'display: block !important;');
+            if (stagedBase64Images.length > 0) {
+                processTrigger.setAttribute('style', 'display: block !important;');
+            }
         }
 
         function calculateTargetTierPrice(basePrice, tier) {
@@ -555,11 +298,7 @@
             priceItemsRegistry.forEach(item => {
                 runningSum += calculateTargetTierPrice(item.value, currentSelectedTier);
             });
-            
             document.getElementById('grandTotalDisplay').innerText = `$${runningSum.toFixed(2)}`;
-            let rangeLow = runningSum * 0.90;
-            let rangeHigh = runningSum * 1.15;
-            document.getElementById('lblTelemetryRange').innerText = `$${rangeLow.toFixed(2)} - $${rangeHigh.toFixed(2)}`;
         }
 
         function parseInteractiveHTML(rawText) {
@@ -601,42 +340,50 @@
             return htmlOutput;
         }
 
+        function generateActiveProposalText() {
+            let proposalText = `NO PROBLEM PRESSURE WASHING PROPOSAL - ${currentSelectedTier.toUpperCase()} TIER\n\n`;
+            priceItemsRegistry.forEach(item => {
+                let tierPrice = calculateTargetTierPrice(item.value, currentSelectedTier);
+                if (tierPrice > 0) proposalText += `- ${item.cleanText}: $${tierPrice.toFixed(2)}\n`;
+            });
+            proposalText += `\nTOTAL ACTIVE CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+            return proposalText;
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(generateActiveProposalText());
+            const btn = document.getElementById('copyButton');
+            btn.innerText = "Copied!";
+            setTimeout(() => { btn.innerText = "Copy Text"; }, 2000);
+        }
+
+        function sendProposalEmail() {
+            window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
+        }
+
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerText = "Analyzing Properties...";
-
-            const analysisPayload = {
-                images: stagedBase64Images,
-                propertyProfile: projectProfile,
-                scopes: targetedServices,
-                houseSqft: document.getElementById('valHouseSqft').value,
-                driveSqft: document.getElementById('valDriveSqft').value,
-                fenceLf: document.getElementById('valFenceLf').value,
-                stories: document.getElementById('valStories').value,
-                driveThruLanes: document.getElementById('valDriveThruLanes').value,
-                concreteSqft: document.getElementById('valConcreteSqft').value,
-                atmUnits: document.getElementById('valAtmUnits').value,
-                afterHours: requireAfterHours
-            };
+            processTrigger.innerText = "AI Running Image Scan Diagnostic...";
 
             try {
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(analysisPayload)
+                    body: JSON.stringify({ images: stagedBase64Images })
                 });
                 const data = await response.json();
                 
-                document.getElementById('panelUpload').style.display = 'none';
                 document.getElementById('outputCard').style.display = 'block';
+                document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
                 document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
                 
                 switchActiveTier('better');
+                processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
                 alert('Analysis fault: ' + err.message);
                 processTrigger.className = "btn btn-trigger";
-                processTrigger.innerText = "Run Analysis Engine";
+                processTrigger.innerText = "Analyze Project";
             }
         }
 
