@@ -44,26 +44,38 @@
             text-align: center;
         }
         .logo-container {
-            margin-top: 40px;
-            margin-bottom: 30px;
+            margin-top: 35px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
         }
         
         /* PREMIUM LOGO DARK UI BLENDING ENGINE */
         .brand-logo-img {
             width: 100%;
-            max-width: 340px; 
+            max-width: 360px; 
             height: auto;
             display: block;
-            /* Mix-blend-mode screens out the hard black box background instantly */
             mix-blend-mode: screen;
-            filter: drop-shadow(0 4px 20px rgba(0, 240, 255, 0.25));
+            filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.2));
             transition: transform 0.3s ease;
         }
         .brand-logo-img:hover {
             transform: scale(1.02);
+        }
+
+        /* High-contrast header instructions */
+        .tagline {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+            padding: 0 15px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+            font-weight: 500;
         }
 
         .token-wrapper {
@@ -225,6 +237,9 @@
             <div class="logo-container">
                 <img src="noproblem1.png" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
+
+            <!-- Clear header instruction set placed directly below the horizontal asset -->
+            <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
 
             <div class="token-wrapper">
                 <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
