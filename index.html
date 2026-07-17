@@ -50,15 +50,19 @@
             justify-content: center;
             align-items: center;
         }
-        /* Centered logo styling with white contrast filter for dark theme */
+        /* Reverted to stylized NP brand badge */
         .brand-badge {
-            width: 180px; /* Optimal size for mobile/Fold screen context */
-            max-width: 100%;
-            height: auto;
-            /* High-contrast filter to make the logo pop against the void theme */
-            filter: brightness(0) invert(1);
-            -webkit-filter: brightness(0) invert(1);
-            display: block;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00f0ff, #0077b6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.25);
+            font-weight: 900;
+            font-size: 32px;
+            color: #0b132b;
         }
         
         .brand-title {
@@ -508,8 +512,7 @@
     <div class="wrapper-container">
         <div class="main-content">
             <div class="logo-container">
-                <!-- Swapped NP letters for official logo file with contrast filter -->
-                <img src="noproblem.png" alt="No Problem Pressure Washing Logo" class="brand-badge">
+                <div class="brand-badge">NP</div>
             </div>
             <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
             <div class="tagline">
@@ -829,7 +832,6 @@
             let stepIndex = 0;
             processTrigger.innerText = dynamicSteps[0];
             
-            // Retaining the clean, deliberate 1.4-second display pace
             textUpdateInterval = setInterval(() => {
                 stepIndex = (stepIndex + 1) % dynamicSteps.length;
                 processTrigger.innerText = dynamicSteps[stepIndex];
