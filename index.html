@@ -109,7 +109,6 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
         
-        /* Step Engine Section Wrappers */
         .app-phase-card {
             background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
@@ -153,7 +152,6 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
         }
 
-        /* Metric Choice Tokens Group */
         .token-choice-row {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -178,7 +176,6 @@
             background: rgba(0, 240, 255, 0.08);
         }
 
-        /* Service Selector Grid Matrix */
         .service-matrix-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -218,7 +215,6 @@
             background-color: #00f0ff;
         }
 
-        /* Dynamic Measurement Module Sliders */
         .measurement-sub-panel {
             background: rgba(2, 6, 23, 0.4);
             border: 1px dashed rgba(30, 41, 59, 0.8);
@@ -243,31 +239,13 @@
             cursor: pointer;
             box-sizing: border-box;
             text-align: center;
-            position: relative;
-            overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
             box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
         }
-        .btn:last-child {
-            margin-bottom: 0;
-        }
-        .btn:active {
-            transform: scale(0.97);
-        }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.03);
-            color: #f1f5f9;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .btn-trigger {
-            background: linear-gradient(135deg, #16a34a, #059669);
-            color: #ffffff;
-            margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25);
-        }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); }
+        .btn-trigger { background: linear-gradient(135deg, #16a34a, #059669); color: #ffffff; margin-top: 15px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25); }
         
         .btn-loading {
             background: linear-gradient(270deg, #14532d, #166534, #064e3b, #14532d) !important;
@@ -280,65 +258,16 @@
             animation: darkGreenGradientMove 4s ease infinite, darkGreenPulseGlow 1.6s infinite alternate !important;
         }
         @keyframes darkGreenGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes darkGreenPulseGlow { 0% { box-shadow: 0 0 8px rgba(22, 163, 74, 0.2); } 100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.5); } }
 
-        /* Dynamic Diagnostics Analytics Indicators */
-        .telemetry-row {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .telemetry-box {
-            background: rgba(2, 6, 23, 0.5);
-            border: 1px solid rgba(30, 41, 59, 0.8);
-            border-radius: 10px;
-            padding: 12px;
-            box-sizing: border-box;
-        }
-        .telemetry-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-        .telemetry-val {
-            font-size: 16px;
-            font-weight: 800;
-            color: #ffffff;
-        }
-        .confidence-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
+        .telemetry-row { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 12px; margin-top: 15px; }
+        .telemetry-box { background: rgba(2, 6, 23, 0.5); border: 1px solid rgba(30, 41, 59, 0.8); border-radius: 10px; padding: 12px; box-sizing: border-box; }
+        .telemetry-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .telemetry-val { font-size: 16px; font-weight: 800; color: #ffffff; }
+        .confidence-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 900; text-transform: uppercase; }
         .conf-high { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
 
-        .tier-selection-matrix {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-        .matrix-tier-tab {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 12px 6px;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #94a3b8;
-            cursor: pointer;
-            text-align: center;
-        }
+        .tier-selection-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 20px; }
+        .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; }
         .matrix-tier-tab.active-good { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
         .matrix-tier-tab.active-better { border-color: #00f0ff; color: #00f0ff; background: rgba(0, 240, 255, 0.1); }
         .matrix-tier-tab.active-best { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.1); }
@@ -346,31 +275,11 @@
         .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .preview-thumbnail { width: 100%; padding-top: 100%; border-radius: 8px; border: 1px solid #00f0ff; background-size: cover; background-position: center; }
         
-        .result-card {
-            background: rgba(9, 13, 22, 0.9);
-            backdrop-filter: blur(16px);
-            border-left: 4px solid #00f0ff;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: left;
-            margin-top: 20px;
-            width: 100%;
-            box-sizing: border-box;
-            border-top: 1px solid rgba(255,255,255,0.03);
-        }
+        .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
         .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 30px 0 14px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 8px; }
         .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 17px; display: flex; justify-content: space-between; align-items: center; }
         .price-badge { background-color: #0f172a; color: #38bdf8; padding: 8px 14px; border-radius: 8px; font-weight: 800; border: 1px solid #0077b6; }
-        
-        .proposal-total-card {
-            background: linear-gradient(135deg, #0f172a, #020617);
-            border: 2px solid #22c55e;
-            border-radius: 14px;
-            padding: 22px;
-            margin-top: 20px;
-            text-align: center;
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
-        }
+        .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 20px; text-align: center; }
         .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
         .footer { width: 100%; margin-top: 40px; margin-bottom: 20px; font-size: 12px; color: #64748b; text-align: center; opacity: 0.6; }
     </style>
@@ -381,13 +290,13 @@
         <div class="main-content">
             <div class="logo-container"><div class="brand-badge">NP</div></div>
             <div class="brand-title">No Problem <span>Pressure Washing Estimator</span></div>
-            <div class="tagline">Advanced AI-Assisted Property Intelligence Scan Platform</div>
+            <div class="tagline">Advanced AI Property Intelligence Scan Platform</div>
 
             <div class="token-wrapper">
                 <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
             </div>
 
-            <!-- PHASE 1: PROPERTY METRICS AND SCOPE SELECTION PANEL -->
+            <!-- PHASE 1: CHAMELEON METRIC PROFILE SELECTION PANEL -->
             <div class="app-phase-card" id="panelPhase1">
                 <div class="input-group">
                     <label>Property Target Profile</label>
@@ -397,20 +306,34 @@
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label>Select Operational Scopes</label>
+                <!-- DYNAMIC RESIDENTIAL OPERATION SCOPES CONTAINER -->
+                <div class="input-group" id="groupResServices">
+                    <label>Select Residential Scopes</label>
                     <div class="service-matrix-grid">
-                        <div class="service-box" id="srvHouse" onclick="toggleService('House')"><span class="checkbox-indicator"></span>House Wash</div>
-                        <div class="service-box" id="srvDrive" onclick="toggleService('Driveway')"><span class="checkbox-indicator"></span>Driveway</div>
+                        <div class="service-box selected" id="srvHouse" onclick="toggleService('House')"><span class="checkbox-indicator"></span>House Siding</div>
+                        <div class="service-box" id="srvDrive" onclick="toggleService('Driveway')"><span class="checkbox-indicator"></span>Driveway/Walk</div>
                         <div class="service-box" id="srvFence" onclick="toggleService('Fence')"><span class="checkbox-indicator"></span>Fence Line</div>
-                        <div class="service-box" id="srvRoof" onclick="toggleService('Roof')"><span class="checkbox-indicator"></span>Roof Treatment</div>
+                        <div class="service-box" id="srvRoof" onclick="toggleService('Roof')"><span class="checkbox-indicator"></span>Soft-Wash Roof</div>
                     </div>
                 </div>
 
+                <!-- DYNAMIC COMMERCIAL ASSET SCOPES CONTAINER -->
+                <div class="input-group" id="groupComServices" style="display: none;">
+                    <label>Select Commercial Scopes</label>
+                    <div class="service-matrix-grid">
+                        <div class="service-box selected" id="srvStorefront" onclick="toggleService('Storefront')"><span class="checkbox-indicator"></span>Bank Storefront</div>
+                        <div class="service-box" id="srvDriveThru" onclick="toggleService('DriveThru')"><span class="checkbox-indicator"></span>Drive-Thru Lanes</div>
+                        <div class="service-box" id="srvConcrete" onclick="toggleService('Concrete')"><span class="checkbox-indicator"></span>Flatwork Concrete</div>
+                        <div class="service-box" id="srvAtm" onclick="toggleService('Atm')"><span class="checkbox-indicator"></span>ATM Enclosure</div>
+                    </div>
+                </div>
+
+                <!-- DATA TRACKER SHIFTER PANE -->
                 <div class="measurement-sub-panel">
+                    <!-- Residential Logic Elements -->
                     <div class="input-group" id="wrapHouseSqft">
-                        <label>House Footprint (Approx SqFt)</label>
-                        <input type="number" class="text-field" id="valHouseSqft" placeholder="e.g. 2000" value="1800">
+                        <label>House Siding Footprint (Approx SqFt)</label>
+                        <input type="number" class="text-field" id="valHouseSqft" value="1800">
                     </div>
                     <div class="input-group" id="wrapDriveSqft" style="display:none;">
                         <label>Driveway Layout Area (SqFt)</label>
@@ -420,9 +343,26 @@
                         <label>Fence Line Dimension (Linear Feet)</label>
                         <input type="number" class="text-field" id="valFenceLf" placeholder="e.g. 150">
                     </div>
-                    <div class="input-group">
+                    <div class="input-group" id="wrapStories">
                         <label>Structural Levels / Stories</label>
                         <input type="number" class="text-field" id="valStories" value="1" min="1">
+                    </div>
+
+                    <!-- Commercial Intelligence Fields -->
+                    <div class="input-group" id="wrapDriveThruLanes" style="display:none;">
+                        <label>Number of Drive-Thru Lanes</label>
+                        <input type="number" class="text-field" id="valDriveThruLanes" value="1" min="1">
+                    </div>
+                    <div class="input-group" id="wrapConcreteSqft" style="display:none;">
+                        <label>Pedestrian Paths & Flatwork (SqFt)</label>
+                        <input type="number" class="text-field" id="valConcreteSqft" placeholder="e.g. 2500">
+                    </div>
+                    <div class="input-group" id="wrapAtmUnits" style="display:none;">
+                        <label>ATM Enclosure Units</label>
+                        <input type="number" class="text-field" id="valAtmUnits" value="1" min="1">
+                    </div>
+                    <div class="input-group" id="wrapSchedulePremium" style="display:none;">
+                        <div class="service-box" id="srvAfterHours" onclick="toggleAfterHours()"><span class="checkbox-indicator"></span>Require After-Hours / Sunday Schedule</div>
                     </div>
                 </div>
                 
@@ -431,27 +371,14 @@
 
             <!-- PHASE 2: LEAD CAPTURE VALIDATION PANEL -->
             <div class="app-phase-card" id="panelPhase2" style="display:none;">
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" class="text-field" id="leadName" placeholder="Brett Ross">
-                </div>
-                <div class="input-group">
-                    <label>Contact Phone</label>
-                    <input type="tel" class="text-field" id="leadPhone" placeholder="(580) 555-0199">
-                </div>
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" class="text-field" id="leadEmail" placeholder="brett@noproblem.com">
-                </div>
-                <div class="input-group">
-                    <label>Project Address</label>
-                    <input type="text" class="text-field" id="leadAddress" placeholder="Oklahoma City, OK">
-                </div>
-                
+                <div class="input-group"><label>Full Name</label><input type="text" class="text-field" id="leadName" placeholder="Brett Ross"></div>
+                <div class="input-group"><label>Contact Phone</label><input type="tel" class="text-field" id="leadPhone" placeholder="(580) 514-9929"></div>
+                <div class="input-group"><label>Email Address</label><input type="email" class="text-field" id="leadEmail" placeholder="brett@noproblem.com"></div>
+                <div class="input-group"><label>Project Target Address</label><input type="text" class="text-field" id="leadAddress" placeholder="Oklahoma City, OK"></div>
                 <button class="btn" onclick="advanceToUploadStage()">Unlock Matrix Scan Engine</button>
             </div>
 
-            <!-- UPLOAD PANEL (UNLOCKED POST LEAD VALIDATION) -->
+            <!-- UPLOAD PANEL -->
             <div class="app-phase-card" id="panelUpload" style="display:none;">
                 <input type="file" id="fileInput" accept="image/*" multiple style="display:none;">
                 <button class="btn" onclick="document.getElementById('fileInput').click()">Upload Site Imagery</button>
@@ -459,21 +386,15 @@
                 <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Analysis Engine</button>
             </div>
 
-            <!-- ADVANCED REPORT CONTAINER OUTPUT -->
+            <!-- ADVANCED REPORT CONTAINER -->
             <div class="result-card" id="outputCard" style="display: none;">
-                <div class="result-title-row">
-                    <p class="result-title">Project Estimate Matrix</p>
-                </div>
-
+                <div class="result-title-row"><p class="result-title">Project Estimate Matrix</p></div>
                 <div class="tier-selection-matrix" id="matrixTierRow">
                     <div class="matrix-tier-tab" id="tabGood" onclick="switchActiveTier('good')">Good</div>
                     <div class="matrix-tier-tab" id="tabBetter" onclick="switchActiveTier('better')">Better</div>
                     <div class="matrix-tier-tab" id="tabBest" onclick="switchActiveTier('best')">Best</div>
                 </div>
-
                 <div id="analysisResult"></div>
-
-                <!-- Range and Precision AI Telemetry Analytics Layout Grid -->
                 <div class="telemetry-row">
                     <div class="telemetry-box">
                         <div class="telemetry-label">Calculated Project Bid Range</div>
@@ -484,7 +405,6 @@
                         <div style="margin-top:4px;"><span class="confidence-badge conf-high" id="lblTelemetryConfidence">High</span></div>
                     </div>
                 </div>
-                
                 <div class="proposal-total-card">
                     <div class="telemetry-label" style="color:#94a3b8;">Selected Active Tier Total</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
@@ -500,26 +420,79 @@
         let currentSelectedTier = 'better';
         let projectProfile = 'Residential';
         let targetedServices = ['House'];
+        let requireAfterHours = false;
 
         function setProfile(type) {
             projectProfile = type;
             document.getElementById('profRes').className = 'choice-pill' + (type==='Residential'?' active':'');
             document.getElementById('profCom').className = 'choice-pill' + (type==='Commercial'?' active':'');
+
+            if(type === 'Residential') {
+                document.getElementById('groupResServices').style.display = 'block';
+                document.getElementById('groupComServices').style.display = 'none';
+                document.getElementById('wrapHouseSqft').style.display = 'block';
+                document.getElementById('wrapStories').style.display = 'block';
+                document.getElementById('wrapSchedulePremium').style.display = 'none';
+                targetedServices = ['House'];
+                resetCheckboxes('Res');
+            } else {
+                document.getElementById('groupResServices').style.display = 'none';
+                document.getElementById('groupComServices').style.display = 'block';
+                document.getElementById('wrapHouseSqft').style.display = 'none';
+                document.getElementById('wrapStories').style.display = 'none';
+                document.getElementById('wrapFenceLf').style.display = 'none';
+                document.getElementById('wrapDriveSqft').style.display = 'none';
+                document.getElementById('wrapSchedulePremium').style.display = 'block';
+                targetedServices = ['Storefront'];
+                resetCheckboxes('Com');
+            }
+            evaluateInputVisibility();
+        }
+
+        function resetCheckboxes(profileMode) {
+            const resBoxes = ['House', 'Driveway', 'Fence', 'Roof'];
+            const comBoxes = ['Storefront', 'DriveThru', 'Concrete', 'Atm'];
+            
+            resBoxes.forEach(s => document.getElementById('srv'+s.substring(0,5)).classList.remove('selected'));
+            comBoxes.forEach(s => {
+                const element = document.getElementById('srv'+s.substring(0,5));
+                if(element) element.classList.remove('selected');
+            });
+
+            if(profileMode === 'Res') document.getElementById('srvHouse').classList.add('selected');
+            if(profileMode === 'Com') document.getElementById('srvStore').classList.add('selected');
         }
 
         function toggleService(srv) {
             const index = targetedServices.indexOf(srv);
             const box = document.getElementById('srv' + srv.substring(0,5));
             if(index > -1) {
-                if(targetedServices.length === 1) return; // Force at least one selection
+                if(targetedServices.length === 1) return;
                 targetedServices.splice(index, 1);
                 box.classList.remove('selected');
-                document.getElementById('wrap' + srv.substring(0,5) + (srv==='Fence'?'Lf':'Sqft')).style.display = 'none';
             } else {
                 targetedServices.push(srv);
                 box.classList.add('selected');
-                document.getElementById('wrap' + srv.substring(0,5) + (srv==='Fence'?'Lf':'Sqft')).style.display = 'block';
             }
+            evaluateInputVisibility();
+        }
+
+        function toggleAfterHours() {
+            requireAfterHours = !requireAfterHours;
+            document.getElementById('srvAfterH').classList.toggle('selected', requireAfterHours);
+        }
+
+        function evaluateInputVisibility() {
+            // Residential inputs map
+            document.getElementById('wrapHouseSqft').style.display = (projectProfile==='Residential' && targetedServices.includes('House')) ? 'block' : 'none';
+            document.getElementById('wrapStories').style.display = (projectProfile==='Residential' && targetedServices.includes('House')) ? 'block' : 'none';
+            document.getElementById('wrapDriveSqft').style.display = (projectProfile==='Residential' && targetedServices.includes('Driveway')) ? 'block' : 'none';
+            document.getElementById('wrapFenceLf').style.display = (projectProfile==='Residential' && targetedServices.includes('Fence')) ? 'block' : 'none';
+
+            // Commercial inputs map
+            document.getElementById('wrapDriveThruLanes').style.display = (projectProfile==='Commercial' && targetedServices.includes('DriveThru')) ? 'block' : 'none';
+            document.getElementById('wrapConcreteSqft').style.display = (projectProfile==='Commercial' && targetedServices.includes('Concrete')) ? 'block' : 'none';
+            document.getElementById('wrapAtmUnits').style.display = (projectProfile==='Commercial' && targetedServices.includes('Atm')) ? 'block' : 'none';
         }
 
         function advanceToPhase2() {
@@ -528,21 +501,10 @@
         }
 
         function advanceToUploadStage() {
-            // Validate Lead Capture Wall Data Fields
             if(!document.getElementById('leadName').value || !document.getElementById('leadPhone').value) {
                 alert('Please enter your name and phone number to unlock the estimator data module.');
                 return;
             }
-            
-            // Database Capture Pipeline Mockhook
-            console.log("Storing operational customer lead info package:", {
-                name: document.getElementById('leadName').value,
-                phone: document.getElementById('leadPhone').value,
-                email: document.getElementById('leadEmail').value,
-                address: document.getElementById('leadAddress').value,
-                metrics: { profile: projectProfile, scopes: targetedServices }
-            });
-
             document.getElementById('panelPhase2').style.display = 'none';
             document.getElementById('panelUpload').style.display = 'block';
         }
@@ -562,9 +524,7 @@
                 thumb.style.backgroundImage = `url(${base64Str})`;
                 previewGrid.appendChild(thumb);
             }
-            if (stagedBase64Images.length > 0) {
-                processTrigger.setAttribute('style', 'display: block !important;');
-            }
+            if (stagedBase64Images.length > 0) processTrigger.setAttribute('style', 'display: block !important;');
         }
 
         function calculateTargetTierPrice(basePrice, tier) {
@@ -597,8 +557,6 @@
             });
             
             document.getElementById('grandTotalDisplay').innerText = `$${runningSum.toFixed(2)}`;
-            
-            // Build Phase 1 Statistical Operational Range Calculators
             let rangeLow = runningSum * 0.90;
             let rangeHigh = runningSum * 1.15;
             document.getElementById('lblTelemetryRange').innerText = `$${rangeLow.toFixed(2)} - $${rangeHigh.toFixed(2)}`;
@@ -607,7 +565,7 @@
         function parseInteractiveHTML(rawText) {
             const lines = rawText.split('\n');
             let htmlOutput = "";
-            let currentSectionName = "General Details";
+            let currentSectionName = "Details";
             let globalCardIndex = 0;
             priceItemsRegistry = []; 
 
@@ -646,9 +604,8 @@
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerText = "Processing Matrix Values...";
+            processTrigger.innerText = "Analyzing Properties...";
 
-            // Packages physical payload metrics collected inside Phase 1 variables
             const analysisPayload = {
                 images: stagedBase64Images,
                 propertyProfile: projectProfile,
@@ -656,7 +613,11 @@
                 houseSqft: document.getElementById('valHouseSqft').value,
                 driveSqft: document.getElementById('valDriveSqft').value,
                 fenceLf: document.getElementById('valFenceLf').value,
-                stories: document.getElementById('valStories').value
+                stories: document.getElementById('valStories').value,
+                driveThruLanes: document.getElementById('valDriveThruLanes').value,
+                concreteSqft: document.getElementById('valConcreteSqft').value,
+                atmUnits: document.getElementById('valAtmUnits').value,
+                afterHours: requireAfterHours
             };
 
             try {
