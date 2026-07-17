@@ -126,16 +126,16 @@
             background-color: #22c55e;
         }
         
-        /* High-Animation Matrix Loading Engine */
+        /* Brand-Matching Deep Space Blue & Cyan Animation Engine */
         .btn-loading {
-            background: linear-gradient(270deg, #15803d, #22c55e, #10b981, #15803d) !important;
+            background: linear-gradient(270deg, #0077b6, #00b4d8, #03045e, #0077b6) !important;
             background-size: 600% 600% !important;
             color: #ffffff !important;
             cursor: not-allowed;
             pointer-events: none;
             scale: 0.98;
-            border: 1px solid #4ade80 !important;
-            animation: gradientMove 3s ease infinite, pulseGlow 1.2s infinite alternate !important;
+            border: 1px solid #00b4d8 !important;
+            animation: cyanGradientMove 4s ease infinite, cyanPulseGlow 1.6s infinite alternate !important;
         }
         .btn-loading::after {
             content: '';
@@ -144,18 +144,18 @@
             left: -100%;
             width: 200%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: loadingSweep 1s infinite linear;
+            background: linear-gradient(90deg, transparent, rgba(0, 180, 216, 0.4), transparent);
+            animation: loadingSweep 1.4s infinite linear;
         }
 
-        @keyframes gradientMove {
+        @keyframes cyanGradientMove {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); transform: scale(0.98); }
-            100% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.8); transform: scale(1.0); }
+        @keyframes cyanPulseGlow {
+            0% { box-shadow: 0 0 8px rgba(0, 180, 216, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(0, 180, 216, 0.7); }
         }
         @keyframes loadingSweep {
             0% { transform: translateX(-100%); }
@@ -769,23 +769,28 @@
             const actionPanel = document.getElementById('actionPanel');
             const processTrigger = document.getElementById('processTrigger');
 
-            // Trigger the multi-gradient matrix animation engine
+            // Trigger the clean blue-cyan gradient animation engine
             processTrigger.className = "btn btn-trigger btn-loading";
             
-            // Cycle text labels dynamically to show step-by-step progress
-            const steps = [
-                "Scanning Structures...",
-                "Detecting Surface Grime...",
-                "Calculating Area Sizes...",
-                "Compiling Pricing Matrix..."
-            ];
-            let stepIndex = 0;
-            processTrigger.innerText = steps[0];
+            // Build highly specific step parameters based on exact loaded item counts
+            const totalImages = stagedBase64Images.length;
+            let dynamicSteps = [];
             
+            for (let i = 1; i <= totalImages; i++) {
+                dynamicSteps.push(`Analyzing Site Image ${i} of ${totalImages}...`);
+            }
+            dynamicSteps.push("Parsing Surface Substrates...");
+            dynamicSteps.push("Calculating Structural Dimensions...");
+            dynamicSteps.push("Compiling Project Proposal...");
+            
+            let stepIndex = 0;
+            processTrigger.innerText = dynamicSteps[0];
+            
+            // Slower, clean 1.4-second rhythm to make the text perfectly readable
             textUpdateInterval = setInterval(() => {
-                stepIndex = (stepIndex + 1) % steps.length;
-                processTrigger.innerText = steps[stepIndex];
-            }, 750);
+                stepIndex = (stepIndex + 1) % dynamicSteps.length;
+                processTrigger.innerText = dynamicSteps[stepIndex];
+            }, 1400);
             
             actionPanel.setAttribute('style', 'display: none !important;');
             resultCard.style.display = 'block';
