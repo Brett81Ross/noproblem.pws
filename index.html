@@ -11,7 +11,7 @@
             min-height: 100vh;
             width: 100%;
         }
-        /* Revitalized Live Mesh Gradient Theme Background */
+        /* Ultra-Dark Dynamic Live Void Theme Background */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
@@ -21,12 +21,12 @@
             box-sizing: border-box;
             padding: 20px;
             overflow-x: hidden;
-            background: linear-gradient(135deg, #0b132b, #1c2541, #0077b6, #0b132b, #03045e);
+            background: linear-gradient(135deg, #020617, #0b132b, #000000, #090d16, #000000);
             background-size: 400% 400%;
-            animation: liveThemeEngine 20s ease infinite;
+            animation: ultraDarkThemeEngine 22s ease infinite;
         }
 
-        @keyframes liveThemeEngine {
+        @keyframes ultraDarkThemeEngine {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -58,7 +58,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.25);
             font-weight: 900;
             font-size: 28px;
             color: #0b132b;
@@ -70,41 +70,41 @@
             margin: 15px 0 5px 0;
             text-transform: uppercase;
             color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 12px rgba(0,0,0,0.8);
         }
         .brand-title span {
             color: #00f0ff;
-            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
         }
         .tagline {
             font-size: 14px;
-            color: #cbd5e1;
+            color: #94a3b8;
             line-height: 1.5;
             padding: 0 10px;
             margin-bottom: 30px;
-            text-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
         }
         
-        /* Frosted Glass Container to let the live theme breathe through */
+        /* Deep Void Card Container */
         .action-card {
-            background: rgba(28, 37, 65, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             padding: 25px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.7);
             margin-bottom: 20px;
             text-align: left;
-            border: 1px solid rgba(58, 80, 107, 0.5);
+            border: 1px solid rgba(58, 80, 107, 0.35);
             position: relative;
         }
         
-        /* High-Gloss Revitalized Primary Buttons */
+        /* High-Contrast Luminous Cyan Action Elements */
         .btn {
             display: block;
             width: 100%;
-            background: linear-gradient(135deg, #00f0ff, #00b4d8);
-            color: #0b132b;
+            background: linear-gradient(135deg, #00f0ff, #0096c7);
+            color: #020617;
             border: none;
             padding: 16px;
             border-radius: 14px;
@@ -120,45 +120,45 @@
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
         }
         .btn:last-child {
             margin-bottom: 0;
         }
         .btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 8px rgba(0, 240, 255, 0.2);
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(0, 240, 255, 0.15);
         }
         
-        /* Frosted Glass Utility Button */
+        /* Ultra-Dark Frosted Secondary Button */
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.03);
+            color: #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             backdrop-filter: blur(4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .btn-secondary:active {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.01);
         }
         
         .btn-trigger {
-            background: linear-gradient(135deg, #22c55e, #10b981);
+            background: linear-gradient(135deg, #16a34a, #059669);
             color: #ffffff;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25);
         }
         
-        /* Precision Green Loading Rhythm Engine */
+        /* Deep Emerald Processing State Engine */
         .btn-loading {
-            background: linear-gradient(270deg, #15803d, #22c55e, #10b981, #15803d) !important;
+            background: linear-gradient(270deg, #14532d, #166534, #064e3b, #14532d) !important;
             background-size: 600% 600% !important;
             color: #ffffff !important;
             cursor: not-allowed;
             pointer-events: none;
             scale: 0.98;
-            border: 1px solid #4ade80 !important;
-            animation: greenGradientMove 4s ease infinite, greenPulseGlow 1.6s infinite alternate !important;
+            border: 1px solid #16a34a !important;
+            animation: darkGreenGradientMove 4s ease infinite, darkGreenPulseGlow 1.6s infinite alternate !important;
         }
         .btn-loading::after {
             content: '';
@@ -167,18 +167,18 @@
             left: -100%;
             width: 200%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.2), transparent);
             animation: loadingSweep 1.4s infinite linear;
         }
 
-        @keyframes greenGradientMove {
+        @keyframes darkGreenGradientMove {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        @keyframes greenPulseGlow {
-            0% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.3); }
-            100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); }
+        @keyframes darkGreenPulseGlow {
+            0% { box-shadow: 0 0 8px rgba(22, 163, 74, 0.2); }
+            100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.5); }
         }
         @keyframes loadingSweep {
             0% { transform: translateX(-100%); }
@@ -188,7 +188,7 @@
         .monetize-container {
             margin-top: 25px;
             text-align: center;
-            border-top: 1px dashed rgba(58, 80, 107, 0.6);
+            border-top: 1px dashed rgba(58, 80, 107, 0.4);
             padding-top: 20px;
         }
         .purchase-options-grid {
@@ -198,30 +198,30 @@
             margin-bottom: 0;
         }
         .btn-pay-single {
-            background: rgba(56, 189, 248, 0.15);
+            background: rgba(56, 189, 248, 0.05);
             color: #38bdf8;
             margin-bottom: 0;
             font-size: 13px;
             padding: 14px 8px;
-            border: 1px solid rgba(56, 189, 248, 0.4);
+            border: 1px solid rgba(56, 189, 248, 0.25);
             backdrop-filter: blur(4px);
             box-shadow: none;
         }
         .btn-pay-single:active {
-            background: rgba(56, 189, 248, 0.3);
+            background: rgba(56, 189, 248, 0.15);
         }
         .btn-lifetime {
-            background: rgba(74, 222, 128, 0.15);
+            background: rgba(74, 222, 128, 0.05);
             color: #4ade80;
             margin-bottom: 0;
-            border: 1px solid rgba(74, 222, 128, 0.4);
+            border: 1px solid rgba(74, 222, 128, 0.25);
             padding: 14px 8px;
             font-size: 13px;
             backdrop-filter: blur(4px);
             box-shadow: none;
         }
         .btn-lifetime:active {
-            background: rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.15);
         }
         
         .paywall-overlay {
@@ -231,7 +231,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(11, 19, 43, 0.96);
+            background-color: rgba(2, 6, 23, 0.98);
             border-radius: 20px;
             z-index: 10;
             box-sizing: border-box;
@@ -250,7 +250,7 @@
         }
         .paywall-desc {
             font-size: 14px;
-            color: #cbd5e1;
+            color: #94a3b8;
             line-height: 1.5;
             margin-bottom: 25px;
         }
@@ -261,8 +261,9 @@
             margin-top: 12px;
             font-size: 16px;
             padding: 16px;
-            background: #4ade80;
-            color: #0b132b;
+            background: #16a34a;
+            color: #ffffff;
+            border: none;
         }
         
         .hidden-input {
@@ -287,9 +288,9 @@
             margin-bottom: 0;
         }
         .btn-email {
-            background: linear-gradient(135deg, #4ade80, #22c55e);
-            color: #0b132b;
-            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2);
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
         }
 
         .preview-grid {
@@ -307,13 +308,14 @@
             border: 1px solid #00f0ff;
             background-size: cover;
             background-position: center;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
         }
         
+        /* Revitalized Result Canvas Frame */
         .result-card {
-            background: rgba(28, 37, 65, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(9, 13, 22, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-left: 4px solid #00f0ff;
             padding: 20px;
             border-radius: 16px;
@@ -322,9 +324,10 @@
             position: relative;
             width: 100%;
             box-sizing: border-box;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-right: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255,255,255,0.03);
+            border-right: 1px solid rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
         .result-title-row {
             display: flex;
@@ -334,16 +337,16 @@
         }
         .result-title {
             font-size: 15px;
-            color: #94a3b8;
+            color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin: 0;
             font-weight: bold;
         }
         .copy-btn {
-            background-color: #0b132b;
+            background-color: #020617;
             color: #00f0ff;
-            border: 1px solid #3a506b;
+            border: 1px solid #1e293b;
             padding: 8px 14px;
             border-radius: 6px;
             font-size: 13px;
@@ -354,7 +357,7 @@
         }
         .copy-btn:active {
             background-color: #00f0ff;
-            color: #0b132b;
+            color: #020617;
         }
         
         .proposal-section-title {
@@ -364,27 +367,27 @@
             color: #00f0ff;
             margin: 30px 0 14px 0;
             font-weight: 800;
-            border-bottom: 2px solid rgba(36, 51, 76, 0.5);
+            border-bottom: 2px solid rgba(30, 41, 59, 0.5);
             padding-bottom: 8px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
         }
         .proposal-section-title:first-of-type {
             margin-top: 5px;
         }
         
         .proposal-item {
-            background: rgba(11, 19, 43, 0.6);
-            border: 1px solid rgba(36, 51, 76, 0.6);
+            background: rgba(2, 6, 23, 0.7);
+            border: 1px solid rgba(30, 41, 59, 0.7);
             padding: 16px 18px;
             border-radius: 12px;
             margin-bottom: 12px;
             font-size: 17px;
             line-height: 1.5;
-            color: #f1f5f9;
+            color: #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
             cursor: pointer;
             user-select: none;
             transition: all 0.2s ease;
@@ -393,17 +396,18 @@
         }
         .proposal-item:hover {
             border-color: #00f0ff;
-            background: rgba(26, 35, 61, 0.7);
+            background: rgba(15, 23, 42, 0.8);
         }
         .proposal-item:active {
             transform: scale(0.99);
         }
         
         .proposal-item.disabled-card {
-            opacity: 0.25;
-            background-color: rgba(18, 24, 36, 0.4);
+            opacity: 0.2;
+            background-color: rgba(2, 6, 23, 0.3);
             border-color: transparent;
             transform: none !important;
+            box-shadow: none;
         }
         
         .item-text {
@@ -421,7 +425,7 @@
             flex-shrink: 0;
         }
         .highlight-spec {
-            color: #94a3b8;
+            color: #64748b;
             font-size: 13px;
             font-weight: 400;
             text-align: right;
@@ -431,33 +435,31 @@
         }
         
         .price-badge {
-            background-color: #1e293b;
+            background-color: #0f172a;
             color: #38bdf8;
             padding: 8px 14px;
             border-radius: 8px;
             font-weight: 800;
             font-size: 18px;
-            border: 1px solid #00b4d8;
+            border: 1px solid #0077b6;
             white-space: nowrap;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
         }
         .proposal-item.disabled-card .price-badge {
-            background-color: #0b132b;
-            color: #64748b;
-            border-color: #334155;
+            background-color: #020617;
+            color: #475569;
+            border-color: #1e293b;
             text-decoration: line-through;
-            box-shadow: none;
         }
         
         .proposal-total-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 2px solid #4ade80;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            border: 2px solid #22c55e;
             border-radius: 14px;
             padding: 22px;
             margin-top: 30px;
             text-align: center;
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.25);
+            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
             transition: all 0.3s ease;
             width: 100%;
             box-sizing: border-box;
@@ -466,15 +468,15 @@
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #94a3b8;
+            color: #64748b;
             margin-bottom: 6px;
             font-weight: bold;
         }
         .proposal-total-amount {
             font-size: 36px;
             font-weight: 900;
-            color: #4ade80;
-            text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+            color: #22c55e;
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
         }
 
         .footer {
@@ -482,12 +484,12 @@
             margin-top: 40px;
             margin-bottom: 20px;
             font-size: 12px;
-            color: #cbd5e1;
+            color: #64748b;
             letter-spacing: 0.5px;
             text-align: center;
             line-height: 1.6;
             box-sizing: border-box;
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         @media print {
@@ -588,7 +590,6 @@
             checkGatekeeperConstraints();
         });
 
-        // The user residency and identity context elements are safely mapped inside storage routines
         function checkGatekeeperConstraints() {
             const status = localStorage.getItem('membershipStatus');
             if (status === 'lifetime') return true; 
@@ -856,7 +857,7 @@
 
                 clearInterval(textUpdateInterval);
                 statusHeader.innerText = "Full Job Quote";
-                statusHeader.style.color = "#4ade80";
+                statusHeader.style.color = "#22c55e";
                 
                 textOutput.innerHTML = `<div style="font-size: 13px; color: #94a3b8; margin-top:-5px; margin-bottom: 16px; font-style: italic; text-align:left; border-left: 2px solid #38bdf8; padding-left: 8px;">💡 Tap any item package card to add or subtract it dynamically from the Project Contract Total below.</div>` + parseInteractiveHTML(data.result);
                 
