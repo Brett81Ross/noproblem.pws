@@ -52,18 +52,26 @@
             width: 100%;
         }
         
-        /* PREMIUM LOGO DARK UI BLENDING ENGINE */
+        /* 💎 PREMIUM LOGO DYNAMIC GLOW ENGINE */
         .brand-logo-img {
             width: 100%;
-            max-width: 360px; 
+            max-width: 440px; /* Maximum asset architecture scaling expansion */
             height: auto;
             display: block;
             mix-blend-mode: screen;
-            filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.2));
             transition: transform 0.3s ease;
+            /* Injected continuous breathing aura loop */
+            animation: logoCyberGlowPulse 4s ease-in-out infinite;
         }
         .brand-logo-img:hover {
             transform: scale(1.02);
+        }
+
+        /* Rhythmic telemetry laser breath keyframes */
+        @keyframes logoCyberGlowPulse {
+            0% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
+            50% { filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.45)); }
+            100% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
         }
 
         /* High-contrast header instructions */
@@ -238,7 +246,6 @@
                 <img src="noproblem1.png" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
 
-            <!-- Clear header instruction set placed directly below the horizontal asset -->
             <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
 
             <div class="token-wrapper">
