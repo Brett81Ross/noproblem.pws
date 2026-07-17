@@ -144,19 +144,38 @@
         }
         .btn:active { transform: scale(0.97); }
         .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); }
-        .btn-trigger { background: linear-gradient(135deg, #16a34a, #059669); color: #ffffff; margin-top: 15px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25); }
+        .btn-trigger { background: linear-gradient(135deg, #00f0ff, #0077b6); color: #020617; margin-top: 15px; box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25); }
         
+        /* 🚨 BEAST MODE: HYPER-DRAMATIC TELEMETRY SCANNING STATE ENGINE */
         .btn-loading {
-            background: linear-gradient(270deg, #14532d, #166534, #064e3b, #14532d) !important;
-            background-size: 600% 600% !important;
-            color: #ffffff !important;
+            background: linear-gradient(270deg, #9f1239, #be123c, #111827, #0f172a, #020617) !important;
+            background-size: 800% 800% !important;
+            color: #fda4af !important;
             cursor: not-allowed;
             pointer-events: none;
-            scale: 0.98;
-            border: 1px solid #16a34a !important;
-            animation: darkGreenGradientMove 4s ease infinite, darkGreenPulseGlow 1.6s infinite alternate !important;
+            scale: 0.96;
+            border: 1px solid #f43f5e !important;
+            font-family: monospace;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-align: left;
+            padding-left: 20px;
+            animation: matrixGlowMove 3s ease infinite, cyberPulse 1s alternate infinite !important;
         }
-        @keyframes darkGreenGradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 300%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(244, 63, 94, 0.25), rgba(0, 240, 255, 0.3), transparent);
+            animation: laserSweep 1.2s infinite linear;
+        }
+
+        @keyframes matrixGlowMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes cyberPulse { 0% { box-shadow: 0 0 10px rgba(244, 63, 94, 0.3); } 100% { box-shadow: 0 0 25px rgba(0, 240, 255, 0.6); } }
+        @keyframes laserSweep { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
         .tier-selection-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 20px; }
         .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; color: #94a3b8; }
@@ -215,7 +234,6 @@
                 </div>
             </div>
 
-            <!-- INSTANT ESTIMATE CONTAINER DISPLAY -->
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
                     <p class="result-title">Scan Estimate Report</p>
@@ -363,8 +381,33 @@
 
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
+            
+            // Activate the high-contrast dramatic telemetry diagnostic state
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerText = "AI Running Image Scan Diagnostic...";
+            
+            // Tactical operational diagnostic logs sequence
+            const dynamicDiagnosticSteps = [
+ 
+"🔍 Searching for evidence of routine maintenance...",
+  "💀 Detecting civilizations living within the grime layer...",
+  "📐 Measuring surfaces with reckless confidence...",
+  "💰 Calculating the cost of years of procrastination...",
+  "🧪 Determining whether that's dirt or a new species...",
+  "⚠️ Assessing structural integrity and emotional resilience...",
+  "🤖 Simulating thousands of cleaning scenarios...",
+  "🚨 Identifying stains that have achieved permanent residency...",
+  "📊 Converting neglect into billable numbers...",
+  "💎 Finalizing estimate and pretending it was complicated..."
+];
+            
+            let stepIndex = 0;
+            processTrigger.innerText = dynamicDiagnosticSteps[0];
+            
+            // Fast, punchy 950ms ticker rotation for max dramatic effect
+            textUpdateInterval = setInterval(() => {
+                stepIndex = (stepIndex + 1) % dynamicDiagnosticSteps.length;
+                processTrigger.innerText = dynamicDiagnosticSteps[stepIndex];
+            }, 950);
 
             try {
                 const response = await fetch('/api/analyze', {
@@ -374,6 +417,7 @@
                 });
                 const data = await response.json();
                 
+                clearInterval(textUpdateInterval);
                 document.getElementById('outputCard').style.display = 'block';
                 document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
                 document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
@@ -381,6 +425,7 @@
                 switchActiveTier('better');
                 processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
+                clearInterval(textUpdateInterval);
                 alert('Analysis fault: ' + err.message);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = "Analyze Project";
