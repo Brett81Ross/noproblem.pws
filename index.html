@@ -52,14 +52,15 @@
             width: 100%;
         }
         
-        /* 💎 PREMIUM LOGO DYNAMIC GLOW ENGINE */
+        /* 💎 PREMIUM LOGO DYNAMIC GLOW & BACKGROUND STRIPPER ENGINE */
         .brand-logo-img {
             width: 100%;
             max-width: 440px; 
             height: auto;
             display: block;
+            /* Screens out hard black pixels to keep background gradient transparent */
+            mix-blend-mode: screen; 
             transition: transform 0.3s ease;
-            /* Pure transparency breathing aura loop */
             animation: logoCyberGlowPulse 4s ease-in-out infinite;
         }
         .brand-logo-img:hover {
@@ -68,9 +69,9 @@
 
         /* Rhythmic telemetry laser breath keyframes */
         @keyframes logoCyberGlowPulse {
-            0% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
-            50% { filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.45)); }
-            100% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
+            0% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.25)); }
+            50% { filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.55)); }
+            100% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.25)); }
         }
 
         /* High-contrast header instructions */
@@ -242,8 +243,8 @@
     <div class="wrapper-container">
         <div class="main-content">
             <div class="logo-container">
-                <!-- 🌐 Integrated custom asset file pointer context -->
-                <img src="noproblemmatrix.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
+                <!-- 🌐 Remapped directly to point back to the original noproblem.webp filename alignment setup -->
+                <img src="noproblem.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
 
             <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
