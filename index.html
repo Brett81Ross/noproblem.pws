@@ -98,7 +98,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
         }
         .btn:last-child {
@@ -124,6 +124,42 @@
         }
         .btn-trigger:active {
             background-color: #22c55e;
+        }
+        
+        /* High-Animation Matrix Loading Engine */
+        .btn-loading {
+            background: linear-gradient(270deg, #15803d, #22c55e, #10b981, #15803d) !important;
+            background-size: 600% 600% !important;
+            color: #ffffff !important;
+            cursor: not-allowed;
+            pointer-events: none;
+            scale: 0.98;
+            border: 1px solid #4ade80 !important;
+            animation: gradientMove 3s ease infinite, pulseGlow 1.2s infinite alternate !important;
+        }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loadingSweep 1s infinite linear;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); transform: scale(0.98); }
+            100% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.8); transform: scale(1.0); }
+        }
+        @keyframes loadingSweep {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
         
         .monetize-container {
@@ -479,14 +515,15 @@
         </div>
 
         <div class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions,LLC&trade;<br>
-            Powered by Cactus🌵Byte Studios All Rights Reserved
+            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
+            All Rights Reserved
         </div>
     </div>
 
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = []; 
+        let textUpdateInterval = null;
 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -630,7 +667,6 @@
                 else {
                     let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
                     
-                    // Safely extract price details before parsing out specific structural subtexts
                     const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
                     let badgeHTML = "";
                     let parsedNumericValue = 0;
@@ -650,7 +686,6 @@
                     }
                     
                     textContent = textContent.replace(/:\s*$/, "").replace(/-\s*$/, "").replace(/\s*-\s*$/, "").trim();
-                    // Scrub stray formatting leftover symbols seamlessly
                     if (textContent.startsWith(',') || textContent.startsWith(':')) {
                         textContent = textContent.substring(1).trim();
                     }
@@ -734,8 +769,23 @@
             const actionPanel = document.getElementById('actionPanel');
             const processTrigger = document.getElementById('processTrigger');
 
+            // Trigger the multi-gradient matrix animation engine
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerText = "Analyzing Site...";
+            
+            // Cycle text labels dynamically to show step-by-step progress
+            const steps = [
+                "Scanning Structures...",
+                "Detecting Surface Grime...",
+                "Calculating Area Sizes...",
+                "Compiling Pricing Matrix..."
+            ];
+            let stepIndex = 0;
+            processTrigger.innerText = steps[0];
+            
+            textUpdateInterval = setInterval(() => {
+                stepIndex = (stepIndex + 1) % steps.length;
+                processTrigger.innerText = steps[stepIndex];
+            }, 750);
             
             actionPanel.setAttribute('style', 'display: none !important;');
             resultCard.style.display = 'block';
@@ -757,6 +807,7 @@
                     throw new Error(data.error || 'Server endpoint response error.');
                 }
 
+                clearInterval(textUpdateInterval);
                 statusHeader.innerText = "Full Job Quote";
                 statusHeader.style.color = "#4ade80";
                 
@@ -778,6 +829,7 @@
                 }
 
             } catch (err) {
+                clearInterval(textUpdateInterval);
                 statusHeader.innerText = "Processing Fault";
                 statusHeader.style.color = "#ef4444";
                 textOutput.innerHTML = parseInteractiveHTML(err.message);
