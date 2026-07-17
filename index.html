@@ -8,9 +8,10 @@
         html, body {
             margin: 0;
             padding: 0;
-            background-color: #0b132b;
             min-height: 100vh;
+            width: 100%;
         }
+        /* Revitalized Live Mesh Gradient Theme Background */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
@@ -20,7 +21,17 @@
             box-sizing: border-box;
             padding: 20px;
             overflow-x: hidden;
+            background: linear-gradient(135deg, #0b132b, #1c2541, #0077b6, #0b132b, #03045e);
+            background-size: 400% 400%;
+            animation: liveThemeEngine 20s ease infinite;
         }
+
+        @keyframes liveThemeEngine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .wrapper-container {
             width: 100%;
             max-width: 480px;
@@ -42,12 +53,12 @@
         .brand-badge {
             width: 65px;
             height: 65px;
-            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            background: linear-gradient(135deg, #00f0ff, #0077b6);
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(0, 180, 216, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4);
             font-weight: 900;
             font-size: 28px;
             color: #0b132b;
@@ -59,39 +70,48 @@
             margin: 15px 0 5px 0;
             text-transform: uppercase;
             color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         .brand-title span {
-            color: #00b4d8;
+            color: #00f0ff;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
         }
         .tagline {
             font-size: 14px;
-            color: #94a3b8;
+            color: #cbd5e1;
             line-height: 1.5;
             padding: 0 10px;
             margin-bottom: 30px;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.3);
         }
+        
+        /* Frosted Glass Container to let the live theme breathe through */
         .action-card {
-            background-color: #1c2541;
+            background: rgba(28, 37, 65, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             margin-bottom: 20px;
             text-align: left;
-            border: 1px solid #3a506b;
+            border: 1px solid rgba(58, 80, 107, 0.5);
             position: relative;
         }
+        
+        /* High-Gloss Revitalized Primary Buttons */
         .btn {
             display: block;
             width: 100%;
-            background-color: #00b4d8;
+            background: linear-gradient(135deg, #00f0ff, #00b4d8);
             color: #0b132b;
             border: none;
             padding: 16px;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             margin-bottom: 15px;
             cursor: pointer;
             box-sizing: border-box;
@@ -100,42 +120,45 @@
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
         }
         .btn:last-child {
             margin-bottom: 0;
         }
         .btn:active {
-            background-color: #0096c7;
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 240, 255, 0.2);
         }
+        
+        /* Frosted Glass Utility Button */
         .btn-secondary {
-            background-color: #3a506b;
+            background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
-            border: 1px solid #5c718e;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .btn-secondary:active {
-            background-color: #24334c;
+            background: rgba(255, 255, 255, 0.05);
         }
         
         .btn-trigger {
-            background-color: #4ade80;
-            color: #0b132b;
+            background: linear-gradient(135deg, #22c55e, #10b981);
+            color: #ffffff;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.25);
-        }
-        .btn-trigger:active {
-            background-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
         }
         
-        /* Brand-Matching Deep Space Blue & Cyan Animation Engine */
+        /* Precision Green Loading Rhythm Engine */
         .btn-loading {
-            background: linear-gradient(270deg, #0077b6, #00b4d8, #03045e, #0077b6) !important;
+            background: linear-gradient(270deg, #15803d, #22c55e, #10b981, #15803d) !important;
             background-size: 600% 600% !important;
             color: #ffffff !important;
             cursor: not-allowed;
             pointer-events: none;
             scale: 0.98;
-            border: 1px solid #00b4d8 !important;
-            animation: cyanGradientMove 4s ease infinite, cyanPulseGlow 1.6s infinite alternate !important;
+            border: 1px solid #4ade80 !important;
+            animation: greenGradientMove 4s ease infinite, greenPulseGlow 1.6s infinite alternate !important;
         }
         .btn-loading::after {
             content: '';
@@ -144,18 +167,18 @@
             left: -100%;
             width: 200%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 180, 216, 0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.4), transparent);
             animation: loadingSweep 1.4s infinite linear;
         }
 
-        @keyframes cyanGradientMove {
+        @keyframes greenGradientMove {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        @keyframes cyanPulseGlow {
-            0% { box-shadow: 0 0 8px rgba(0, 180, 216, 0.3); }
-            100% { box-shadow: 0 0 20px rgba(0, 180, 216, 0.7); }
+        @keyframes greenPulseGlow {
+            0% { box-shadow: 0 0 8px rgba(74, 222, 128, 0.3); }
+            100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.7); }
         }
         @keyframes loadingSweep {
             0% { transform: translateX(-100%); }
@@ -165,7 +188,7 @@
         .monetize-container {
             margin-top: 25px;
             text-align: center;
-            border-top: 1px dashed #3a506b;
+            border-top: 1px dashed rgba(58, 80, 107, 0.6);
             padding-top: 20px;
         }
         .purchase-options-grid {
@@ -175,26 +198,30 @@
             margin-bottom: 0;
         }
         .btn-pay-single {
-            background-color: #38bdf8;
-            color: #0b132b;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
             margin-bottom: 0;
             font-size: 13px;
             padding: 14px 8px;
             border: 1px solid rgba(56, 189, 248, 0.4);
+            backdrop-filter: blur(4px);
+            box-shadow: none;
         }
         .btn-pay-single:active {
-            background-color: #0284c7;
+            background: rgba(56, 189, 248, 0.3);
         }
         .btn-lifetime {
-            background-color: #4ade80;
-            color: #0b132b;
+            background: rgba(74, 222, 128, 0.15);
+            color: #4ade80;
             margin-bottom: 0;
-            border: 1px solid rgba(74, 222, 128, 0.5);
+            border: 1px solid rgba(74, 222, 128, 0.4);
             padding: 14px 8px;
             font-size: 13px;
+            backdrop-filter: blur(4px);
+            box-shadow: none;
         }
         .btn-lifetime:active {
-            background-color: #22c55e;
+            background: rgba(74, 222, 128, 0.3);
         }
         
         .paywall-overlay {
@@ -205,7 +232,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(11, 19, 43, 0.96);
-            border-radius: 16px;
+            border-radius: 20px;
             z-index: 10;
             box-sizing: border-box;
             padding: 30px 20px;
@@ -230,10 +257,12 @@
         .paywall-btn-stack {
             width: 100%;
         }
-        .paywall-btn-stack .btn-pay-single {
+        .paywall-btn-stack .btn-lifetime {
             margin-top: 12px;
             font-size: 16px;
             padding: 16px;
+            background: #4ade80;
+            color: #0b132b;
         }
         
         .hidden-input {
@@ -258,11 +287,9 @@
             margin-bottom: 0;
         }
         .btn-email {
-            background-color: #4ade80;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
             color: #0b132b;
-        }
-        .btn-email:active {
-            background-color: #22c55e;
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.2);
         }
 
         .preview-grid {
@@ -277,20 +304,27 @@
             position: relative;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid #00b4d8;
+            border: 1px solid #00f0ff;
             background-size: cover;
             background-position: center;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
         }
+        
         .result-card {
-            background-color: #1c2541;
-            border-left: 4px solid #00b4d8;
+            background: rgba(28, 37, 65, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-left: 4px solid #00f0ff;
             padding: 20px;
-            border-radius: 12px;
+            border-radius: 16px;
             text-align: left;
             margin-top: 20px;
             position: relative;
             width: 100%;
             box-sizing: border-box;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .result-title-row {
             display: flex;
@@ -308,7 +342,7 @@
         }
         .copy-btn {
             background-color: #0b132b;
-            color: #00b4d8;
+            color: #00f0ff;
             border: 1px solid #3a506b;
             padding: 8px 14px;
             border-radius: 6px;
@@ -316,27 +350,33 @@
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:active {
+            background-color: #00f0ff;
+            color: #0b132b;
         }
         
         .proposal-section-title {
             font-size: 15px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            color: #00b4d8;
+            color: #00f0ff;
             margin: 30px 0 14px 0;
             font-weight: 800;
-            border-bottom: 2px solid #24334c;
+            border-bottom: 2px solid rgba(36, 51, 76, 0.5);
             padding-bottom: 8px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
         }
         .proposal-section-title:first-of-type {
             margin-top: 5px;
         }
         
         .proposal-item {
-            background-color: #0b132b;
-            border: 1px solid #24334c;
+            background: rgba(11, 19, 43, 0.6);
+            border: 1px solid rgba(36, 51, 76, 0.6);
             padding: 16px 18px;
-            border-radius: 10px;
+            border-radius: 12px;
             margin-bottom: 12px;
             font-size: 17px;
             line-height: 1.5;
@@ -344,7 +384,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
             cursor: pointer;
             user-select: none;
             transition: all 0.2s ease;
@@ -352,17 +392,17 @@
             width: 100%;
         }
         .proposal-item:hover {
-            border-color: #00b4d8;
-            background-color: #1a233d;
+            border-color: #00f0ff;
+            background: rgba(26, 35, 61, 0.7);
         }
         .proposal-item:active {
-            transform: scale(0.98);
+            transform: scale(0.99);
         }
         
         .proposal-item.disabled-card {
-            opacity: 0.3;
-            background-color: #121824;
-            border-color: #1c2541;
+            opacity: 0.25;
+            background-color: rgba(18, 24, 36, 0.4);
+            border-color: transparent;
             transform: none !important;
         }
         
@@ -394,28 +434,30 @@
             background-color: #1e293b;
             color: #38bdf8;
             padding: 8px 14px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 800;
             font-size: 18px;
             border: 1px solid #00b4d8;
             white-space: nowrap;
             transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.15);
         }
         .proposal-item.disabled-card .price-badge {
             background-color: #0b132b;
             color: #64748b;
             border-color: #334155;
             text-decoration: line-through;
+            box-shadow: none;
         }
         
         .proposal-total-card {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 2px solid #4ade80;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 22px;
             margin-top: 30px;
             text-align: center;
-            box-shadow: 0 6px 18px rgba(74, 222, 128, 0.2);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.25);
             transition: all 0.3s ease;
             width: 100%;
             box-sizing: border-box;
@@ -432,6 +474,7 @@
             font-size: 36px;
             font-weight: 900;
             color: #4ade80;
+            text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
         }
 
         .footer {
@@ -439,15 +482,16 @@
             margin-top: 40px;
             margin-bottom: 20px;
             font-size: 12px;
-            color: #64748b;
+            color: #cbd5e1;
             letter-spacing: 0.5px;
             text-align: center;
             line-height: 1.6;
             box-sizing: border-box;
+            opacity: 0.7;
         }
 
         @media print {
-            body { background: #ffffff; color: #000000; padding: 0; }
+            body { background: #ffffff; color: #000000; padding: 0; animation: none; }
             .action-card, .logo-container, .brand-title, .tagline, .footer, .copy-btn, .utility-row { display: none !important; }
             .proposal-item.disabled-card { display: none !important; }
             .wrapper-container { max-width: 100%; width: 100%; }
@@ -544,6 +588,7 @@
             checkGatekeeperConstraints();
         });
 
+        // The user residency and identity context elements are safely mapped inside storage routines
         function checkGatekeeperConstraints() {
             const status = localStorage.getItem('membershipStatus');
             if (status === 'lifetime') return true; 
@@ -769,10 +814,8 @@
             const actionPanel = document.getElementById('actionPanel');
             const processTrigger = document.getElementById('processTrigger');
 
-            // Trigger the clean blue-cyan gradient animation engine
             processTrigger.className = "btn btn-trigger btn-loading";
             
-            // Build highly specific step parameters based on exact loaded item counts
             const totalImages = stagedBase64Images.length;
             let dynamicSteps = [];
             
@@ -786,7 +829,6 @@
             let stepIndex = 0;
             processTrigger.innerText = dynamicSteps[0];
             
-            // Slower, clean 1.4-second rhythm to make the text perfectly readable
             textUpdateInterval = setInterval(() => {
                 stepIndex = (stepIndex + 1) % dynamicSteps.length;
                 processTrigger.innerText = dynamicSteps[stepIndex];
@@ -795,7 +837,7 @@
             actionPanel.setAttribute('style', 'display: none !important;');
             resultCard.style.display = 'block';
             statusHeader.innerText = "System Status";
-            statusHeader.style.color = "#00b4d8";
+            statusHeader.style.color = "#00f0ff";
             
             textOutput.innerHTML = parseInteractiveHTML("AI is evaluating surfaces and compiling project values...");
 
