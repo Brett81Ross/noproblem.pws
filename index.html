@@ -1,3019 +1,870 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    >
-
-    <title>No Problem Pressure Washing Matrix</title>
-
-    <style>
-        :root {
-            --bg: #020617;
-            --panel: rgba(9, 13, 22, 0.9);
-            --panel-strong: rgba(2, 6, 23, 0.96);
-            --cyan: #00f0ff;
-            --cyan-soft: #38bdf8;
-            --green: #22c55e;
-            --yellow: #f59e0b;
-            --red: #ef4444;
-            --purple: #a855f7;
-            --white: #f8fafc;
-            --muted: #94a3b8;
-            --dark-muted: #64748b;
-            --border: rgba(148, 163, 184, 0.18);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-            width: 100%;
-        }
-
-        body {
-            font-family:
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Roboto,
-                Helvetica,
-                Arial,
-                sans-serif;
-
-            color: var(--white);
-            padding: 20px;
-            overflow-x: hidden;
-
-            background:
-                radial-gradient(
-                    circle at top,
-                    rgba(0, 240, 255, 0.08),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    135deg,
-                    #020617,
-                    #0b132b,
-                    #000000,
-                    #090d16,
-                    #000000
-                );
-
-            background-size: 400% 400%;
-            animation: ultraDarkThemeEngine 22s ease infinite;
-        }
-
-        @keyframes ultraDarkThemeEngine {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        button,
-        input,
-        textarea,
-        select {
-            font: inherit;
-        }
-
-        button {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .wrapper-container {
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-        }
-
-        .main-content {
-            width: 100%;
-            text-align: center;
-        }
-
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin-top: 6px;
-            margin-bottom: 4px;
-        }
-
-        .brand-logo-img {
-            width: 100%;
-            max-width: 440px;
-            height: auto;
-            display: block;
-            mix-blend-mode: screen;
-            animation: logoCyberGlowPulse 4s ease-in-out infinite;
-        }
-
-        @keyframes logoCyberGlowPulse {
-            0% {
-                filter: drop-shadow(
-                    0 0 12px rgba(0, 240, 255, 0.25)
-                );
-            }
-
-            50% {
-                filter: drop-shadow(
-                    0 0 30px rgba(0, 240, 255, 0.6)
-                );
-            }
-
-            100% {
-                filter: drop-shadow(
-                    0 0 12px rgba(0, 240, 255, 0.25)
-                );
-            }
-        }
-
-        .tagline {
-            margin: 0 0 18px;
-            padding: 0 16px;
-            color: var(--muted);
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 1.5;
-        }
-
-        .token-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .token-diagnostic-bar {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 14px;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            border-radius: 999px;
-            background: rgba(15, 23, 42, 0.7);
-            color: var(--cyan);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow: 0 0 16px rgba(0, 240, 255, 0.1);
-        }
-
-        .action-card,
-        .result-card,
-        .panel-card {
-            width: 100%;
-            border: 1px solid rgba(0, 240, 255, 0.18);
-            border-radius: 20px;
-            background: var(--panel);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow:
-                0 20px 45px rgba(0, 0, 0, 0.65),
-                0 0 18px rgba(0, 240, 255, 0.04);
-        }
-
-        .action-card {
-            position: relative;
-            padding: 24px;
-            text-align: left;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .btn {
-            position: relative;
-            display: block;
-            width: 100%;
-            margin: 0 0 14px;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            background: linear-gradient(
-                135deg,
-                var(--cyan),
-                #0096c7
-            );
-            color: #020617;
-            font-size: 15px;
-            font-weight: 900;
-            letter-spacing: 1.3px;
-            text-align: center;
-            text-decoration: none;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
-            transition:
-                transform 0.18s ease,
-                filter 0.18s ease,
-                opacity 0.18s ease;
-            overflow: hidden;
-        }
-
-        .btn:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-        .btn:active {
-            transform: scale(0.985);
-        }
-
-        .btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.55;
-            transform: none;
-        }
-
-        .btn-secondary {
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--white);
-            box-shadow: none;
-        }
-
-        .btn-trigger {
-            margin-top: 16px;
-            background: linear-gradient(
-                135deg,
-                #16a34a,
-                #059669
-            );
-            color: white;
-            box-shadow: 0 5px 18px rgba(22, 163, 74, 0.25);
-        }
-
-        .btn-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 11px;
-            pointer-events: none;
-            border: 1px solid var(--cyan);
-            background:
-                linear-gradient(
-                    270deg,
-                    #091d2c,
-                    #0b253a,
-                    #020617,
-                    #061524
-                );
-            background-size: 400% 400%;
-            color: var(--cyan);
-            animation:
-                cyanVoidMove 4s ease infinite,
-                cyanRadarPulse 1.8s alternate infinite;
-        }
-
-        .btn-loading::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 250%;
-            height: 100%;
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(0, 240, 255, 0.2),
-                    transparent
-                );
-            animation: scannerLaser 1.5s linear infinite;
-        }
-
-        .btn-spinner {
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(0, 240, 255, 0.2);
-            border-top-color: var(--cyan);
-            border-radius: 50%;
-            animation: spinWheel 0.75s linear infinite;
-        }
-
-        @keyframes cyanVoidMove {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        @keyframes cyanRadarPulse {
-            0% {
-                box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
-            }
-
-            100% {
-                box-shadow: 0 0 24px rgba(0, 240, 255, 0.52);
-            }
-        }
-
-        @keyframes scannerLaser {
-            0% {
-                transform: translateX(-100%);
-            }
-
-            100% {
-                transform: translateX(100%);
-            }
-        }
-
-        @keyframes spinWheel {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .hidden-input {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            opacity: 0 !important;
-            overflow: hidden !important;
-            pointer-events: none !important;
-        }
-
-        .preview-toolbar {
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .photo-count {
-            color: var(--muted);
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .clear-photos-btn {
-            padding: 7px 10px;
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            border-radius: 8px;
-            background: rgba(239, 68, 68, 0.08);
-            color: #fca5a5;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        .preview-grid {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 12px;
-            overflow: hidden;
-        }
-
-        .preview-item {
-            position: relative;
-        }
-
-        .preview-thumbnail {
-            width: 100%;
-            aspect-ratio: 1;
-            border: 1px solid rgba(0, 240, 255, 0.65);
-            border-radius: 9px;
-            background-position: center;
-            background-size: cover;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.08);
-        }
-
-        .remove-photo {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            width: 24px;
-            height: 24px;
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            border-radius: 50%;
-            background: #111827;
-            color: #fca5a5;
-            font-size: 14px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        .hud-scan-overlay {
-            position: absolute;
-            z-index: 10;
-            top: 0;
-            left: 0;
-            display: none;
-            width: 100%;
-            height: 4px;
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    var(--cyan),
-                    transparent
-                );
-            box-shadow: 0 0 12px var(--cyan);
-            animation: liveHUDScanLine 2s linear infinite;
-        }
-
-        @keyframes liveHUDScanLine {
-            0% {
-                top: 0%;
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                top: 100%;
-                opacity: 0;
-            }
-        }
-
-        .monetize-container {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px dashed rgba(58, 80, 107, 0.45);
-        }
-
-        .purchase-options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .btn-pay-single,
-        .btn-lifetime {
-            margin: 0;
-            padding: 13px 8px;
-            font-size: 12px;
-            letter-spacing: 0.6px;
-            box-shadow: none;
-        }
-
-        .btn-pay-single {
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            background: rgba(56, 189, 248, 0.05);
-            color: var(--cyan-soft);
-        }
-
-        .btn-lifetime {
-            border: 1px solid rgba(74, 222, 128, 0.25);
-            background: rgba(74, 222, 128, 0.05);
-            color: #4ade80;
-        }
-
-        .forge-pipeline {
-            display: none;
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 1px solid rgba(0, 240, 255, 0.22);
-            border-radius: 18px;
-            background: rgba(2, 6, 23, 0.9);
-            text-align: left;
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.06);
-        }
-
-        .pipeline-title {
-            margin: 0 0 16px;
-            color: var(--cyan);
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 1.4px;
-            text-transform: uppercase;
-        }
-
-        .pipeline-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-height: 38px;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-
-        .pipeline-row:last-child {
-            border-bottom: none;
-        }
-
-        .pipeline-name {
-            color: var(--white);
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        .pipeline-status {
-            color: var(--muted);
-            font-size: 11px;
-            font-weight: 900;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .pipeline-row.running .pipeline-status {
-            color: var(--yellow);
-        }
-
-        .pipeline-row.complete .pipeline-status {
-            color: var(--green);
-        }
-
-        .pipeline-row.attention .pipeline-status {
-            color: var(--red);
-        }
-
-        .result-card {
-            display: none;
-            margin-top: 20px;
-            padding: 22px;
-            text-align: left;
-            border-left: 4px solid var(--cyan);
-        }
-
-        .result-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .result-title {
-            margin: 0;
-            color: var(--muted);
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .copy-btn {
-            padding: 8px 12px;
-            border: 1px solid rgba(0, 240, 255, 0.22);
-            border-radius: 7px;
-            background: #020617;
-            color: var(--cyan);
-            font-size: 11px;
-            font-weight: 900;
-            text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        .status-banner {
-            margin-bottom: 18px;
-            padding: 16px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            background: rgba(15, 23, 42, 0.7);
-        }
-
-        .status-banner.approved {
-            border-color: rgba(34, 197, 94, 0.45);
-            background: rgba(34, 197, 94, 0.08);
-        }
-
-        .status-banner.review-required {
-            border-color: rgba(245, 158, 11, 0.5);
-            background: rgba(245, 158, 11, 0.08);
-        }
-
-        .status-label {
-            margin-bottom: 5px;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .status-value {
-            color: var(--white);
-            font-size: 22px;
-            font-weight: 950;
-            letter-spacing: 0.5px;
-        }
-
-        .status-banner.approved .status-value {
-            color: var(--green);
-        }
-
-        .status-banner.review-required .status-value {
-            color: var(--yellow);
-        }
-
-        .status-statement {
-            margin-top: 8px;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        .summary-card {
-            margin-bottom: 18px;
-            padding: 17px;
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            background: rgba(2, 6, 23, 0.72);
-        }
-
-        .summary-text {
-            margin: 0 0 16px;
-            color: #dbeafe;
-            font-size: 14px;
-            line-height: 1.55;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .metric {
-            padding: 12px;
-            border: 1px solid rgba(148, 163, 184, 0.12);
-            border-radius: 11px;
-            background: rgba(15, 23, 42, 0.55);
-        }
-
-        .metric-label {
-            margin-bottom: 5px;
-            color: var(--dark-muted);
-            font-size: 9px;
-            font-weight: 900;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-        }
-
-        .metric-value {
-            color: var(--cyan-soft);
-            font-size: 17px;
-            font-weight: 900;
-        }
-
-        .proposal-section-title {
-            margin: 28px 0 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(30, 41, 59, 0.8);
-            color: var(--cyan);
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: 0.9px;
-            text-transform: uppercase;
-        }
-
-        .section-description {
-            margin: -4px 0 12px;
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.45;
-        }
-
-        .service-card {
-            display: grid;
-            grid-template-columns: 24px minmax(0, 1fr) auto;
-            gap: 12px;
-            align-items: start;
-            margin-bottom: 11px;
-            padding: 15px;
-            border: 1px solid rgba(30, 41, 59, 0.8);
-            border-radius: 13px;
-            background: rgba(2, 6, 23, 0.72);
-            cursor: pointer;
-            user-select: none;
-            transition:
-                border-color 0.2s ease,
-                background 0.2s ease,
-                opacity 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        .service-card:hover {
-            border-color: rgba(0, 240, 255, 0.55);
-            background: rgba(15, 23, 42, 0.82);
-            transform: translateY(-1px);
-        }
-
-        .service-card.unselected {
-            opacity: 0.45;
-        }
-
-        .service-checkbox {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 22px;
-            height: 22px;
-            margin-top: 2px;
-            border: 1px solid rgba(148, 163, 184, 0.4);
-            border-radius: 6px;
-            background: rgba(15, 23, 42, 0.8);
-            color: transparent;
-            font-size: 13px;
-            font-weight: 900;
-        }
-
-        .service-card.selected .service-checkbox {
-            border-color: rgba(34, 197, 94, 0.7);
-            background: rgba(34, 197, 94, 0.16);
-            color: var(--green);
-        }
-
-        .service-content {
-            min-width: 0;
-        }
-
-        .service-name {
-            margin-bottom: 5px;
-            color: var(--white);
-            font-size: 15px;
-            font-weight: 850;
-            line-height: 1.3;
-        }
-
-        .service-reason {
-            margin-bottom: 6px;
-            color: #cbd5e1;
-            font-size: 12px;
-            line-height: 1.45;
-        }
-
-        .service-evidence {
-            color: var(--dark-muted);
-            font-size: 10px;
-            line-height: 1.4;
-        }
-
-        .service-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
-        }
-
-        .service-tag {
-            padding: 4px 7px;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            border-radius: 999px;
-            background: rgba(15, 23, 42, 0.8);
-            color: var(--muted);
-            font-size: 9px;
-            font-weight: 850;
-            text-transform: uppercase;
-        }
-
-        .service-price {
-            min-width: 82px;
-            padding: 8px 10px;
-            border: 1px solid #0077b6;
-            border-radius: 9px;
-            background: #0f172a;
-            color: var(--cyan-soft);
-            font-size: 14px;
-            font-weight: 900;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .empty-state {
-            padding: 14px;
-            border: 1px dashed rgba(148, 163, 184, 0.22);
-            border-radius: 11px;
-            color: var(--dark-muted);
-            font-size: 12px;
-            line-height: 1.45;
-            text-align: center;
-        }
-
-        .info-list {
-            display: grid;
-            gap: 9px;
-        }
-
-        .info-item {
-            padding: 13px;
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            border-radius: 11px;
-            background: rgba(2, 6, 23, 0.64);
-        }
-
-        .info-item-title {
-            margin-bottom: 4px;
-            color: var(--white);
-            font-size: 13px;
-            font-weight: 800;
-        }
-
-        .info-item-text {
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.45;
-        }
-
-        .issue-item {
-            border-color: rgba(245, 158, 11, 0.28);
-            background: rgba(245, 158, 11, 0.06);
-        }
-
-        .hazard-item {
-            border-color: rgba(239, 68, 68, 0.3);
-            background: rgba(239, 68, 68, 0.06);
-        }
-
-        .proposal-total-card {
-            position: sticky;
-            bottom: 10px;
-            z-index: 20;
-            margin-top: 22px;
-            padding: 20px;
-            border: 2px solid var(--green);
-            border-radius: 15px;
-            background:
-                linear-gradient(
-                    135deg,
-                    rgba(15, 23, 42, 0.98),
-                    rgba(2, 6, 23, 0.98)
-                );
-            text-align: center;
-            box-shadow:
-                0 0 24px rgba(34, 197, 94, 0.14),
-                0 14px 28px rgba(0, 0, 0, 0.5);
-        }
-
-        .proposal-total-label {
-            margin-bottom: 5px;
-            color: var(--muted);
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: 0.9px;
-            text-transform: uppercase;
-        }
-
-        .proposal-total-amount {
-            color: var(--green);
-            font-size: 36px;
-            font-weight: 950;
-            text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
-        }
-
-        .minimum-note {
-            display: none;
-            margin-top: 7px;
-            color: var(--yellow);
-            font-size: 10px;
-            line-height: 1.4;
-        }
-
-        .utility-row {
-            display: none;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn-utility {
-            margin: 0;
-            padding: 13px;
-            border-radius: 9px;
-            font-size: 12px;
-        }
-
-        .btn-email {
-            background:
-                linear-gradient(
-                    135deg,
-                    #16a34a,
-                    #15803d
-                );
-            color: white;
-        }
-
-        .final-authority {
-            margin-top: 18px;
-            padding: 13px;
-            border-left: 3px solid var(--purple);
-            border-radius: 8px;
-            background: rgba(168, 85, 247, 0.06);
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.5;
-        }
-
-        .error-card {
-            display: none;
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid rgba(239, 68, 68, 0.45);
-            border-radius: 13px;
-            background: rgba(239, 68, 68, 0.08);
-            color: #fecaca;
-            font-size: 13px;
-            line-height: 1.5;
-            text-align: left;
-        }
-
-        .footer {
-            width: 100%;
-            margin: 38px 0 20px;
-            color: var(--dark-muted);
-            font-size: 10px;
-            line-height: 1.6;
-            letter-spacing: 0.5px;
-            text-align: center;
-            opacity: 0.72;
-        }
-
-        @media print {
-            body {
-                padding: 0;
-                background: white;
-                color: black;
-            }
-
-            .action-card,
-            .token-wrapper,
-            .logo-container,
-            .tagline,
-            .footer,
-            .copy-btn,
-            .utility-row,
-            .remove-photo,
-            .proposal-total-card {
-                display: none !important;
-            }
-
-            .result-card {
-                display: block !important;
-                border: none;
-                box-shadow: none;
-                background: white;
-                color: black;
-            }
-
-            .service-card,
-            .summary-card,
-            .status-banner,
-            .info-item {
-                break-inside: avoid;
-                color: black;
-                background: white;
-                border-color: #d1d5db;
-            }
-
-            .service-name,
-            .status-value,
-            .info-item-title {
-                color: black !important;
-            }
-
-            .service-reason,
-            .service-evidence,
-            .info-item-text,
-            .status-statement,
-            .summary-text {
-                color: #374151 !important;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="wrapper-container">
-        <main class="main-content">
-            <div class="logo-container">
-                <img
-                    src="noproblem.webp"
-                    alt="No Problem Pressure Washing Solutions Logo"
-                    class="brand-logo-img"
-                >
-            </div>
-
-            <div class="tagline">
-                Photograph the property. Forge a scope-based estimate.
-                Verify the evidence. Keep the final decision human.
-            </div>
-
-            <div class="token-wrapper">
-                <div class="token-diagnostic-bar">
-                    <span id="tokenStatusDisplay">
-                        Matrix Vision Online
-                    </span>
-                </div>
-            </div>
-
-            <div id="errorCard" class="error-card"></div>
-
-            <section class="action-card">
-                <input
-                    type="file"
-                    id="cameraInput"
-                    accept="image/*"
-                    capture="environment"
-                    multiple
-                    class="hidden-input"
-                >
-
-                <input
-                    type="file"
-                    id="fileInput"
-                    accept="image/*"
-                    multiple
-                    class="hidden-input"
-                >
-
-                <button
-                    type="button"
-                    class="btn"
-                    onclick="document.getElementById('cameraInput').click()"
-                >
-                    Take Field Photos
-                </button>
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    onclick="document.getElementById('fileInput').click()"
-                >
-                    Upload Saved Photos
-                </button>
-
-                <div
-                    class="preview-toolbar"
-                    id="previewToolbar"
-                >
-                    <span
-                        class="photo-count"
-                        id="photoCountDisplay"
-                    >
-                        0 Photos
-                    </span>
-
-                    <button
-                        type="button"
-                        class="clear-photos-btn"
-                        onclick="clearAllPhotos()"
-                    >
-                        Clear
-                    </button>
-                </div>
-
-                <div
-                    class="preview-grid"
-                    id="imagePreviewGrid"
-                >
-                    <div
-                        class="hud-scan-overlay"
-                        id="hudLaserBeam"
-                    ></div>
-                </div>
-
-                <button
-                    type="button"
-                    class="btn btn-trigger"
-                    id="processTrigger"
-                    style="display: none;"
-                    onclick="submitJobForAnalysis()"
-                >
-                    🔥 Forge Estimate
-                </button>
-
-                <div class="monetize-container">
-                    <div class="purchase-options-grid">
-                        <a
-                            href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02"
-                            class="btn btn-pay-single"
-                        >
-                            Buy 1 Scan Credit
-                        </a>
-
-                        <a
-                            href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00"
-                            class="btn btn-lifetime"
-                        >
-                            Lifetime Access ($99)
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <section
-                class="forge-pipeline"
-                id="forgePipeline"
-            >
-                <h2 class="pipeline-title">
-                    Forge Review Pipeline
-                </h2>
-
-                <div
-                    class="pipeline-row"
-                    id="pipelineVision"
-                >
-                    <span class="pipeline-name">
-                        Vision Review
-                    </span>
-
-                    <span class="pipeline-status">
-                        Waiting
-                    </span>
-                </div>
-
-                <div
-                    class="pipeline-row"
-                    id="pipelinePricing"
-                >
-                    <span class="pipeline-name">
-                        Pricing Review
-                    </span>
-
-                    <span class="pipeline-status">
-                        Waiting
-                    </span>
-                </div>
-
-                <div
-                    class="pipeline-row"
-                    id="pipelineDiscovery"
-                >
-                    <span class="pipeline-name">
-                        Discovery Review
-                    </span>
-
-                    <span class="pipeline-status">
-                        Waiting
-                    </span>
-                </div>
-
-                <div
-                    class="pipeline-row"
-                    id="pipelineField"
-                >
-                    <span class="pipeline-name">
-                        Field Review
-                    </span>
-
-                    <span class="pipeline-status">
-                        Waiting
-                    </span>
-                </div>
-
-                <div
-                    class="pipeline-row"
-                    id="pipelineIntegrity"
-                >
-                    <span class="pipeline-name">
-                        Integrity Review
-                    </span>
-
-                    <span class="pipeline-status">
-                        Waiting
-                    </span>
-                </div>
-            </section>
-
-            <section
-                class="result-card"
-                id="outputCard"
-            >
-                <div class="result-title-row">
-                    <p class="result-title">
-                        Matrix Estimate
-                    </p>
-
-                    <button
-                        type="button"
-                        class="copy-btn"
-                        id="copyButton"
-                        onclick="copyToClipboard()"
-                    >
-                        Copy Proposal
-                    </button>
-                </div>
-
-                <div id="integrityBanner"></div>
-
-                <div id="propertySummary"></div>
-
-                <div id="requiredServices"></div>
-
-                <div id="recommendedServices"></div>
-
-                <div id="optionalServices"></div>
-
-                <div id="fieldPlanSection"></div>
-
-                <div id="discoverySection"></div>
-
-                <div id="hazardsSection"></div>
-
-                <div id="integrityIssuesSection"></div>
-
-                <div
-                    class="final-authority"
-                    id="finalAuthority"
-                ></div>
-
-                <div class="proposal-total-card">
-                    <div class="proposal-total-label">
-                        Selected Service Scope
-                    </div>
-
-                    <div
-                        class="proposal-total-amount"
-                        id="grandTotalDisplay"
-                    >
-                        $0.00
-                    </div>
-
-                    <div
-                        class="minimum-note"
-                        id="minimumNote"
-                    ></div>
-                </div>
-
-                <div
-                    class="utility-row"
-                    id="actionPanel"
-                >
-                    <button
-                        type="button"
-                        class="btn btn-secondary btn-utility"
-                        onclick="window.print()"
-                    >
-                        Export PDF
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn btn-utility btn-email"
-                        onclick="sendProposalEmail()"
-                    >
-                        Email Client
-                    </button>
-                </div>
-            </section>
-        </main>
-
-        <footer class="footer">
-            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by Cactus Wash&trade; Studio &bull;
-            Cactus 🌵 Byte Studios&trade;<br>
-            All Rights Reserved
-        </footer>
-    </div>
-
-    <script>
-        const MAX_IMAGES = 12;
-
-        let stagedImages = [];
-        let matrixEstimate = null;
-        let serviceRegistry = [];
-        let currentTotalValue = 0;
-        let pipelineTimers = [];
-
-        const cameraInput =
-            document.getElementById("cameraInput");
-
-        const fileInput =
-            document.getElementById("fileInput");
-
-        cameraInput.addEventListener(
-            "change",
-            function () {
-                stageFiles(this.files);
-                this.value = "";
-            }
+import { GoogleGenAI } from '@google/genai';
+
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '12mb'
+        }
+    }
+};
+
+const MODEL = 'gemini-2.5-flash';
+const MAX_IMAGES = 12;
+
+const DEFAULT_RATE_CARD = {
+    minimumJob: 199,
+
+    services: {
+        house_wash: {
+            label: 'House Soft Wash',
+            unit: 'sq_ft',
+            rate: 0.22
+        },
+        driveway_cleaning: {
+            label: 'Driveway Surface Cleaning',
+            unit: 'sq_ft',
+            rate: 0.18
+        },
+        sidewalk_cleaning: {
+            label: 'Sidewalk Surface Cleaning',
+            unit: 'sq_ft',
+            rate: 0.16
+        },
+        patio_cleaning: {
+            label: 'Patio Cleaning',
+            unit: 'sq_ft',
+            rate: 0.18
+        },
+        deck_cleaning: {
+            label: 'Deck Cleaning',
+            unit: 'sq_ft',
+            rate: 0.35
+        },
+        fence_cleaning: {
+            label: 'Fence Cleaning',
+            unit: 'linear_ft',
+            rate: 3.25
+        },
+        roof_soft_wash: {
+            label: 'Roof Soft Wash',
+            unit: 'sq_ft',
+            rate: 0.38
+        },
+        gutter_cleaning: {
+            label: 'Gutter Cleaning',
+            unit: 'linear_ft',
+            rate: 1.65
+        },
+        gutter_brightening: {
+            label: 'Gutter Brightening',
+            unit: 'linear_ft',
+            rate: 2.25
+        },
+        retaining_wall: {
+            label: 'Retaining Wall Cleaning',
+            unit: 'sq_ft',
+            rate: 0.32
+        },
+        pool_deck: {
+            label: 'Pool Deck Cleaning',
+            unit: 'sq_ft',
+            rate: 0.24
+        },
+        dumpster_pad: {
+            label: 'Dumpster Pad Cleaning',
+            unit: 'sq_ft',
+            rate: 0.42
+        },
+        rust_treatment: {
+            label: 'Rust Treatment',
+            unit: 'flat',
+            rate: 125
+        },
+        oil_treatment: {
+            label: 'Oil and Grease Treatment',
+            unit: 'flat',
+            rate: 150
+        },
+        oxidation_treatment: {
+            label: 'Oxidation Treatment',
+            unit: 'flat',
+            rate: 175
+        }
+    },
+
+    difficultyMultipliers: {
+        low: 1,
+        moderate: 1.12,
+        high: 1.28,
+        extreme: 1.5
+    }
+};
+
+function clone(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function clamp(value, minimum, maximum) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return minimum;
+    }
+
+    return Math.min(maximum, Math.max(minimum, number));
+}
+
+function roundMoney(value) {
+    return Math.round(
+        (Number(value) + Number.EPSILON) * 100
+    ) / 100;
+}
+
+function safeText(value, fallback = '') {
+    return typeof value === 'string' && value.trim()
+        ? value.trim()
+        : fallback;
+}
+
+function safeArray(value) {
+    return Array.isArray(value) ? value : [];
+}
+
+function sanitizeRate(value, fallback, maximum) {
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return fallback;
+    }
+
+    return clamp(number, 0, maximum);
+}
+
+function buildRateCard(ownerSettings = {}) {
+    const rateCard = clone(DEFAULT_RATE_CARD);
+
+    rateCard.minimumJob = sanitizeRate(
+        ownerSettings.minimumJob,
+        rateCard.minimumJob,
+        10000
+    );
+
+    for (const [serviceId, definition] of Object.entries(
+        rateCard.services
+    )) {
+        const submittedRate =
+            ownerSettings.services?.[serviceId]?.rate;
+
+        definition.rate = sanitizeRate(
+            submittedRate,
+            definition.rate,
+            definition.unit === 'flat' ? 10000 : 100
         );
+    }
 
-        fileInput.addEventListener(
-            "change",
-            function () {
-                stageFiles(this.files);
-                this.value = "";
-            }
+    for (const [difficulty, defaultValue] of Object.entries(
+        rateCard.difficultyMultipliers
+    )) {
+        const submitted =
+            ownerSettings.difficultyMultipliers?.[difficulty];
+
+        const number = Number(submitted);
+
+        rateCard.difficultyMultipliers[difficulty] =
+            Number.isFinite(number)
+                ? clamp(number, 0.5, 5)
+                : defaultValue;
+    }
+
+    return rateCard;
+}
+
+function normalizeImage(image) {
+    if (typeof image !== 'string' || !image.trim()) {
+        throw new Error(
+            'Every image must contain valid base64 data.'
         );
+    }
 
-        function escapeHtml(value) {
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+    const value = image.trim();
+
+    const dataUrlMatch = value.match(
+        /^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/i
+    );
+
+    if (dataUrlMatch) {
+        const mimeType =
+            dataUrlMatch[1].toLowerCase() === 'image/jpg'
+                ? 'image/jpeg'
+                : dataUrlMatch[1].toLowerCase();
+
+        return {
+            mimeType,
+            data: dataUrlMatch[2]
+        };
+    }
+
+    return {
+        mimeType: 'image/jpeg',
+        data: value
+    };
+}
+
+function parseJsonResponse(text) {
+    if (typeof text !== 'string' || !text.trim()) {
+        throw new Error('Gemini returned an empty response.');
+    }
+
+    const cleaned = text
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+
+    return JSON.parse(cleaned);
+}
+
+function normalizeVision(raw) {
+    const property = raw?.property || {};
+    const coverage = raw?.photoCoverage || {};
+    const fieldPlan = raw?.fieldPlan || {};
+
+    return {
+        property: {
+            propertyType: safeText(
+                property.propertyType,
+                'unknown'
+            ),
+            stories: Math.max(
+                1,
+                Math.round(Number(property.stories) || 1)
+            ),
+            overallCondition: safeText(
+                property.overallCondition,
+                'unknown'
+            ),
+            visionConfidence: clamp(
+                property.visionConfidence,
+                0,
+                100
+            ),
+            summary: safeText(
+                property.summary,
+                'Property analysis completed from the supplied images.'
+            )
+        },
+
+        photoCoverage: {
+            frontVisible: Boolean(coverage.frontVisible),
+            rearVisible: Boolean(coverage.rearVisible),
+            leftVisible: Boolean(coverage.leftVisible),
+            rightVisible: Boolean(coverage.rightVisible),
+            roofVisible: Boolean(coverage.roofVisible),
+            coverageScore: clamp(
+                coverage.coverageScore,
+                0,
+                100
+            ),
+            missingViews: safeArray(
+                coverage.missingViews
+            ).map(item => safeText(item)).filter(Boolean)
+        },
+
+        surfaces: safeArray(raw?.surfaces),
+
+        contaminants: safeArray(raw?.contaminants),
+
+        services: safeArray(raw?.services),
+
+        hazards: safeArray(raw?.hazards),
+
+        unknowns: safeArray(raw?.unknowns),
+
+        fieldPlan: {
+            difficulty: [
+                'low',
+                'moderate',
+                'high',
+                'extreme'
+            ].includes(fieldPlan.difficulty)
+                ? fieldPlan.difficulty
+                : 'moderate',
+
+            estimatedCrewSize: Math.max(
+                1,
+                Math.round(
+                    Number(fieldPlan.estimatedCrewSize) || 1
+                )
+            ),
+
+            estimatedLaborHours: Math.max(
+                0,
+                Number(fieldPlan.estimatedLaborHours) || 0
+            ),
+
+            recommendedMethod: safeText(
+                fieldPlan.recommendedMethod,
+                'Verify the cleaning method before beginning work.'
+            ),
+
+            equipment: safeArray(
+                fieldPlan.equipment
+            ).map(item => safeText(item)).filter(Boolean),
+
+            cautions: safeArray(
+                fieldPlan.cautions
+            ).map(item => safeText(item)).filter(Boolean)
         }
+    };
+}
 
-        function formatLabel(value) {
-            return String(value || "Unknown")
-                .replace(/_/g, " ")
-                .replace(/\b\w/g, character =>
-                    character.toUpperCase()
-                );
+function calculateServicePrice(
+    service,
+    rateCard,
+    difficulty,
+    index
+) {
+    const serviceId = safeText(service?.serviceId);
+    const rateDefinition = rateCard.services[serviceId];
+
+    if (!rateDefinition) {
+        return null;
+    }
+
+    const category = [
+        'required',
+        'recommended',
+        'optional'
+    ].includes(service.category)
+        ? service.category
+        : 'optional';
+
+    const confidence = clamp(
+        service.confidence,
+        0,
+        100
+    );
+
+    const quantity =
+        rateDefinition.unit === 'flat'
+            ? 1
+            : clamp(service.quantity, 0, 1000000);
+
+    const difficultyMultiplier =
+        rateCard.difficultyMultipliers[difficulty] || 1;
+
+    const calculatedPrice = roundMoney(
+        quantity *
+        rateDefinition.rate *
+        difficultyMultiplier
+    );
+
+    return {
+        lineItemId: `${serviceId}_${index}`,
+        serviceId,
+        name: rateDefinition.label,
+        category,
+
+        reason: safeText(
+            service.reason,
+            'Service identified from the supplied property images.'
+        ),
+
+        evidence: safeText(
+            service.evidence,
+            'Visible evidence requires contractor verification.'
+        ),
+
+        selectedByDefault:
+            category === 'required' ||
+            category === 'recommended',
+
+        quantity,
+        unit: rateDefinition.unit,
+        unitRate: rateDefinition.rate,
+        difficultyMultiplier,
+        calculatedPrice,
+        confidence,
+
+        requiresMeasurementConfirmation:
+            rateDefinition.unit !== 'flat' &&
+            (
+                safeText(
+                    service.quantityUnit,
+                    'unknown'
+                ) === 'unknown' ||
+                confidence < 70
+            )
+    };
+}
+
+function buildPricing(vision, rateCard) {
+    const difficulty = vision.fieldPlan.difficulty;
+
+    const lineItems = vision.services
+        .map((service, index) =>
+            calculateServicePrice(
+                service,
+                rateCard,
+                difficulty,
+                index
+            )
+        )
+        .filter(Boolean);
+
+    const selectedItems = lineItems.filter(
+        item => item.selectedByDefault
+    );
+
+    const calculatedSubtotal = roundMoney(
+        selectedItems.reduce(
+            (total, item) =>
+                total + item.calculatedPrice,
+            0
+        )
+    );
+
+    const total =
+        calculatedSubtotal > 0
+            ? roundMoney(
+                Math.max(
+                    calculatedSubtotal,
+                    rateCard.minimumJob
+                )
+            )
+            : 0;
+
+    return {
+        currency: 'USD',
+        minimumJob: rateCard.minimumJob,
+        calculatedSubtotal,
+
+        minimumAdjustment:
+            calculatedSubtotal > 0 &&
+            calculatedSubtotal < rateCard.minimumJob
+                ? roundMoney(
+                    rateCard.minimumJob -
+                    calculatedSubtotal
+                )
+                : 0,
+
+        total,
+        difficulty,
+
+        pricingStatus: lineItems.some(
+            item =>
+                item.selectedByDefault &&
+                item.requiresMeasurementConfirmation
+        )
+            ? 'measurement_confirmation_required'
+            : 'calculated',
+
+        lineItems
+    };
+}
+
+function buildIntegrityReview(vision, pricing) {
+    const issues = [];
+    const warnings = [];
+
+    if (vision.property.visionConfidence < 70) {
+        issues.push({
+            code: 'LOW_VISION_CONFIDENCE',
+            message:
+                'Overall visual confidence is below 70%.',
+            action:
+                'Collect clearer or additional property photos.'
+        });
+    }
+
+    if (vision.photoCoverage.coverageScore < 70) {
+        issues.push({
+            code: 'INCOMPLETE_PHOTO_COVERAGE',
+            message:
+                'The supplied photos do not adequately cover the property.',
+            action:
+                vision.photoCoverage.missingViews.length
+                    ? `Collect these views: ${vision.photoCoverage.missingViews.join(', ')}.`
+                    : 'Collect additional property elevations.'
+        });
+    }
+
+    for (const unknown of vision.unknowns) {
+        const finding = {
+            code: 'UNRESOLVED_UNKNOWN',
+            message: safeText(
+                unknown?.question,
+                'An unresolved question remains.'
+            ),
+            action: safeText(
+                unknown?.reason,
+                'Contractor verification is required.'
+            )
+        };
+
+        if (unknown?.blocksApproval) {
+            issues.push(finding);
+        } else {
+            warnings.push(finding);
         }
+    }
 
-        function formatMoney(value) {
-            return new Intl.NumberFormat(
-                "en-US",
-                {
-                    style: "currency",
-                    currency: "USD"
-                }
-            ).format(Number(value) || 0);
-        }
-
-        function formatQuantity(
-            quantity,
-            unit
+    for (const item of pricing.lineItems) {
+        if (
+            item.selectedByDefault &&
+            item.requiresMeasurementConfirmation
         ) {
-            if (unit === "flat") {
-                return "Flat service";
-            }
-
-            const safeQuantity =
-                Number(quantity) || 0;
-
-            if (unit === "sq_ft") {
-                return `${Math.round(
-                    safeQuantity
-                ).toLocaleString()} sq ft`;
-            }
-
-            if (unit === "linear_ft") {
-                return `${Math.round(
-                    safeQuantity
-                ).toLocaleString()} linear ft`;
-            }
-
-            return `${Math.round(
-                safeQuantity
-            ).toLocaleString()} ${formatLabel(unit)}`;
-        }
-
-        async function stageFiles(files) {
-            hideError();
-
-            if (!files || files.length === 0) {
-                return;
-            }
-
-            const remainingSlots =
-                MAX_IMAGES - stagedImages.length;
-
-            if (remainingSlots <= 0) {
-                showError(
-                    `Matrix accepts a maximum of ${MAX_IMAGES} photos per scan.`
-                );
-
-                return;
-            }
-
-            const acceptedFiles =
-                Array.from(files)
-                    .slice(0, remainingSlots);
-
-            const laser =
-                document.getElementById(
-                    "hudLaserBeam"
-                );
-
-            laser.style.display = "block";
-
-            try {
-                for (
-                    const file of acceptedFiles
-                ) {
-                    if (
-                        !file.type.startsWith(
-                            "image/"
-                        )
-                    ) {
-                        continue;
-                    }
-
-                    const compressed =
-                        await resizeAndCompressImage(
-                            file
-                        );
-
-                    stagedImages.push({
-                        previewUrl: compressed,
-                        base64: compressed
-                    });
-                }
-
-                renderPhotoPreviews();
-            } catch (error) {
-                showError(
-                    "One or more photos could not be processed."
-                );
-            } finally {
-                window.setTimeout(
-                    () => {
-                        laser.style.display =
-                            "none";
-                    },
-                    500
-                );
-            }
-        }
-
-        function renderPhotoPreviews() {
-            const grid =
-                document.getElementById(
-                    "imagePreviewGrid"
-                );
-
-            const laser =
-                document.getElementById(
-                    "hudLaserBeam"
-                );
-
-            grid.innerHTML = "";
-            grid.appendChild(laser);
-
-            stagedImages.forEach(
-                (image, index) => {
-                    const wrapper =
-                        document.createElement(
-                            "div"
-                        );
-
-                    wrapper.className =
-                        "preview-item";
-
-                    wrapper.innerHTML = `
-                        <div
-                            class="preview-thumbnail"
-                            style="background-image: url('${image.previewUrl}')"
-                        ></div>
-
-                        <button
-                            type="button"
-                            class="remove-photo"
-                            aria-label="Remove photo"
-                            onclick="removePhoto(${index})"
-                        >
-                            ×
-                        </button>
-                    `;
-
-                    grid.appendChild(wrapper);
-                }
-            );
-
-            const toolbar =
-                document.getElementById(
-                    "previewToolbar"
-                );
-
-            const countDisplay =
-                document.getElementById(
-                    "photoCountDisplay"
-                );
-
-            const processTrigger =
-                document.getElementById(
-                    "processTrigger"
-                );
-
-            countDisplay.textContent =
-                `${stagedImages.length} ` +
-                (
-                    stagedImages.length === 1
-                        ? "Photo"
-                        : "Photos"
-                );
-
-            toolbar.style.display =
-                stagedImages.length > 0
-                    ? "flex"
-                    : "none";
-
-            processTrigger.style.display =
-                stagedImages.length > 0
-                    ? "block"
-                    : "none";
-        }
-
-        function removePhoto(index) {
-            stagedImages.splice(index, 1);
-            renderPhotoPreviews();
-        }
-
-        function clearAllPhotos() {
-            stagedImages = [];
-            renderPhotoPreviews();
-
-            document.getElementById(
-                "outputCard"
-            ).style.display = "none";
-
-            document.getElementById(
-                "forgePipeline"
-            ).style.display = "none";
-
-            matrixEstimate = null;
-            serviceRegistry = [];
-        }
-
-        function resetPipeline() {
-            pipelineTimers.forEach(
-                timer =>
-                    window.clearTimeout(timer)
-            );
-
-            pipelineTimers = [];
-
-            const pipelineIds = [
-                "pipelineVision",
-                "pipelinePricing",
-                "pipelineDiscovery",
-                "pipelineField",
-                "pipelineIntegrity"
-            ];
-
-            pipelineIds.forEach(id => {
-                setPipelineState(
-                    id,
-                    "waiting",
-                    "Waiting"
-                );
+            issues.push({
+                code: 'MEASUREMENT_CONFIRMATION_REQUIRED',
+                message:
+                    `${item.name} has a low-confidence quantity.`,
+                action:
+                    'Confirm its measurement before sending the proposal.'
             });
         }
 
-        function setPipelineState(
-            id,
-            state,
-            label
-        ) {
-            const row =
-                document.getElementById(id);
+        if (!item.evidence || item.evidence.length < 5) {
+            issues.push({
+                code: 'UNSUPPORTED_SERVICE',
+                message:
+                    `${item.name} lacks sufficient supporting evidence.`,
+                action:
+                    'Verify the service or remove it from the scope.'
+            });
+        }
+    }
 
-            if (!row) {
-                return;
-            }
+    for (const hazard of vision.hazards) {
+        const severity = safeText(
+            hazard?.severity,
+            'low'
+        );
 
-            row.className =
-                `pipeline-row ${state}`;
+        const finding = {
+            code:
+                severity === 'critical'
+                    ? 'CRITICAL_HAZARD'
+                    : 'SITE_HAZARD',
 
-            const status =
-                row.querySelector(
-                    ".pipeline-status"
-                );
+            message: safeText(
+                hazard?.hazard,
+                'A possible site hazard was identified.'
+            ),
 
-            status.textContent = label;
+            action: safeText(
+                hazard?.action,
+                'Inspect the hazard before beginning work.'
+            )
+        };
+
+        if (severity === 'critical') {
+            issues.push(finding);
+        } else if (severity === 'high') {
+            warnings.push(finding);
+        }
+    }
+
+    const evidenceScore = clamp(
+        Math.round(
+            vision.property.visionConfidence * 0.45 +
+            vision.photoCoverage.coverageScore * 0.35 +
+            (
+                issues.length === 0
+                    ? 20
+                    : Math.max(
+                        0,
+                        20 - issues.length * 5
+                    )
+            )
+        ),
+        0,
+        100
+    );
+
+    const status =
+        issues.length > 0
+            ? 'review_required'
+            : 'approved';
+
+    return {
+        status,
+        evidenceScore,
+        issues,
+        warnings,
+
+        statement:
+            status === 'approved'
+                ? 'The estimate is supported by the available evidence. The contractor retains final authority.'
+                : 'The estimate requires contractor review before it should be sent to a customer.'
+    };
+}
+
+export default async function handler(req, res) {
+    res.setHeader(
+        'Content-Type',
+        'application/json; charset=utf-8'
+    );
+
+    res.setHeader(
+        'Cache-Control',
+        'no-store'
+    );
+
+    if (req.method !== 'POST') {
+        res.setHeader('Allow', 'POST');
+
+        return res.status(405).json({
+            success: false,
+            code: 'METHOD_NOT_ALLOWED',
+            error: 'Only POST requests are supported.'
+        });
+    }
+
+    const apiKey =
+        process.env.Gemini_API_Key_2 ||
+        process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+        return res.status(500).json({
+            success: false,
+            code: 'MISSING_API_KEY',
+            error:
+                'The Gemini API environment variable is missing.'
+        });
+    }
+
+    try {
+        const {
+            images,
+            ownerSettings
+        } = req.body || {};
+
+        if (!Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({
+                success: false,
+                code: 'NO_IMAGES',
+                error:
+                    'At least one job-site image is required.'
+            });
         }
 
-        function startPipeline() {
-            resetPipeline();
-
-            const pipeline =
-                document.getElementById(
-                    "forgePipeline"
-                );
-
-            pipeline.style.display = "block";
-
-            setPipelineState(
-                "pipelineVision",
-                "running",
-                "Scanning"
-            );
-
-            pipelineTimers.push(
-                window.setTimeout(
-                    () => {
-                        setPipelineState(
-                            "pipelineVision",
-                            "complete",
-                            "Complete"
-                        );
-
-                        setPipelineState(
-                            "pipelinePricing",
-                            "running",
-                            "Calculating"
-                        );
-                    },
-                    900
-                )
-            );
-
-            pipelineTimers.push(
-                window.setTimeout(
-                    () => {
-                        setPipelineState(
-                            "pipelinePricing",
-                            "complete",
-                            "Complete"
-                        );
-
-                        setPipelineState(
-                            "pipelineDiscovery",
-                            "running",
-                            "Questioning"
-                        );
-                    },
-                    1700
-                )
-            );
-
-            pipelineTimers.push(
-                window.setTimeout(
-                    () => {
-                        setPipelineState(
-                            "pipelineDiscovery",
-                            "complete",
-                            "Complete"
-                        );
-
-                        setPipelineState(
-                            "pipelineField",
-                            "running",
-                            "Reviewing"
-                        );
-                    },
-                    2500
-                )
-            );
-
-            pipelineTimers.push(
-                window.setTimeout(
-                    () => {
-                        setPipelineState(
-                            "pipelineField",
-                            "complete",
-                            "Complete"
-                        );
-
-                        setPipelineState(
-                            "pipelineIntegrity",
-                            "running",
-                            "Auditing"
-                        );
-                    },
-                    3300
-                )
-            );
+        if (images.length > MAX_IMAGES) {
+            return res.status(400).json({
+                success: false,
+                code: 'TOO_MANY_IMAGES',
+                error:
+                    `Matrix accepts no more than ${MAX_IMAGES} images per scan.`
+            });
         }
 
-        function finishPipeline(
-            integrityStatus
-        ) {
-            pipelineTimers.forEach(
-                timer =>
-                    window.clearTimeout(timer)
-            );
+        const rateCard =
+            buildRateCard(ownerSettings);
 
-            pipelineTimers = [];
+        const mediaParts = images.map(image => {
+            const normalized = normalizeImage(image);
 
-            setPipelineState(
-                "pipelineVision",
-                "complete",
-                "Complete"
-            );
+            return {
+                inlineData: {
+                    mimeType: normalized.mimeType,
+                    data: normalized.data
+                }
+            };
+        });
 
-            setPipelineState(
-                "pipelinePricing",
-                "complete",
-                "Complete"
-            );
+        const prompt = `
+You are the Vision Review for Matrix, a professional pressure-washing estimating system.
 
-            setPipelineState(
-                "pipelineDiscovery",
-                "complete",
-                "Complete"
-            );
+Analyze the supplied property images.
 
-            setPipelineState(
-                "pipelineField",
-                "complete",
-                "Complete"
-            );
+Return one JSON object using exactly this general structure:
 
-            if (
-                integrityStatus ===
-                "approved"
-            ) {
-                setPipelineState(
-                    "pipelineIntegrity",
-                    "complete",
-                    "Approved"
-                );
-            } else {
-                setPipelineState(
-                    "pipelineIntegrity",
-                    "attention",
-                    "Review Required"
-                );
-            }
-        }
+{
+  "property": {
+    "propertyType": "residential",
+    "stories": 1,
+    "overallCondition": "moderate",
+    "visionConfidence": 80,
+    "summary": "Brief factual property summary."
+  },
+  "photoCoverage": {
+    "frontVisible": true,
+    "rearVisible": false,
+    "leftVisible": false,
+    "rightVisible": false,
+    "roofVisible": false,
+    "coverageScore": 40,
+    "missingViews": ["rear elevation"]
+  },
+  "surfaces": [],
+  "contaminants": [],
+  "services": [
+    {
+      "serviceId": "driveway_cleaning",
+      "category": "required",
+      "reason": "Why the service belongs in the scope.",
+      "evidence": "What is visibly supporting it.",
+      "quantity": 500,
+      "quantityUnit": "sq_ft",
+      "confidence": 65
+    }
+  ],
+  "hazards": [],
+  "unknowns": [
+    {
+      "question": "What must be confirmed?",
+      "reason": "Why confirmation matters.",
+      "blocksApproval": true
+    }
+  ],
+  "fieldPlan": {
+    "difficulty": "moderate",
+    "estimatedCrewSize": 1,
+    "estimatedLaborHours": 2,
+    "recommendedMethod": "Suggested cleaning process.",
+    "equipment": [],
+    "cautions": []
+  }
+}
 
-        async function submitJobForAnalysis() {
-            hideError();
+Allowed serviceId values:
+house_wash
+driveway_cleaning
+sidewalk_cleaning
+patio_cleaning
+deck_cleaning
+fence_cleaning
+roof_soft_wash
+gutter_cleaning
+gutter_brightening
+retaining_wall
+pool_deck
+dumpster_pad
+rust_treatment
+oil_treatment
+oxidation_treatment
 
-            if (
-                stagedImages.length === 0
-            ) {
-                showError(
-                    "Add at least one job-site photo before forging the estimate."
-                );
+Rules:
+- Observe only what the images support.
+- Do not invent an address or customer information.
+- Do not invent exact dimensions when scale is unavailable.
+- Do not calculate or recommend the final price.
+- Lower confidence when measurement scale is weak.
+- Required, recommended, and optional describe scope, never workmanship quality.
+- Add unresolved questions when more evidence is needed.
+- Every service must contain a visible evidence statement.
+- Return JSON only.
+        `.trim();
 
-                return;
-            }
+        const ai = new GoogleGenAI({ apiKey });
 
-            const processTrigger =
-                document.getElementById(
-                    "processTrigger"
-                );
+        const response = await ai.models.generateContent({
+            model: MODEL,
 
-            processTrigger.className =
-                "btn btn-trigger btn-loading";
-
-            processTrigger.innerHTML = `
-                <span class="btn-spinner"></span>
-                Forging Estimate...
-            `;
-
-            processTrigger.disabled = true;
-
-            document.getElementById(
-                "outputCard"
-            ).style.display = "none";
-
-            startPipeline();
-
-            document.getElementById(
-                "hudLaserBeam"
-            ).style.display = "block";
-
-            try {
-                const response =
-                    await fetch(
-                        "/api/analyze",
+            contents: [
+                {
+                    role: 'user',
+                    parts: [
                         {
-                            method: "POST",
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-                            body: JSON.stringify({
-                                images:
-                                    stagedImages.map(
-                                        image =>
-                                            image.base64
-                                    )
-                            })
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-                    throw new Error(
-                        data.error ||
-                        "Matrix could not complete the estimate."
-                    );
+                            text: prompt
+                        },
+                        ...mediaParts
+                    ]
                 }
+            ],
 
-                if (!data.estimate) {
-                    throw new Error(
-                        "The analysis completed without a Matrix Estimate object."
-                    );
-                }
-
-                matrixEstimate =
-                    data.estimate;
-
-                initializeServiceRegistry();
-
-                renderEstimate();
-
-                finishPipeline(
-                    matrixEstimate
-                        .integrity
-                        .status
-                );
-
-                document.getElementById(
-                    "outputCard"
-                ).style.display = "block";
-
-                document.getElementById(
-                    "actionPanel"
-                ).style.display = "grid";
-
-                document.getElementById(
-                    "outputCard"
-                ).scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            } catch (error) {
-                finishPipeline(
-                    "review_required"
-                );
-
-                showError(
-                    error.message ||
-                    "Matrix encountered an unknown analysis fault."
-                );
-            } finally {
-                document.getElementById(
-                    "hudLaserBeam"
-                ).style.display = "none";
-
-                processTrigger.className =
-                    "btn btn-trigger";
-
-                processTrigger.innerHTML =
-                    "🔥 Forge Estimate";
-
-                processTrigger.disabled =
-                    false;
+            config: {
+                responseMimeType: 'application/json',
+                temperature: 0.15,
+                maxOutputTokens: 8192
             }
-        }
+        });
 
-        function initializeServiceRegistry() {
-            const items =
-                matrixEstimate?.pricing
-                    ?.lineItems || [];
+        const rawVision =
+            parseJsonResponse(response.text);
 
-            serviceRegistry =
-                items.map(
-                    (
-                        item,
-                        index
-                    ) => ({
-                        ...item,
-                        registryId:
-                            index,
-                        selected:
-                            Boolean(
-                                item.selectedByDefault
-                            )
-                    })
-                );
+        const vision =
+            normalizeVision(rawVision);
 
-            currentTotalValue = 0;
-        }
+        const pricing =
+            buildPricing(vision, rateCard);
 
-        function renderEstimate() {
-            renderIntegrityBanner();
-            renderPropertySummary();
-
-            renderServiceSection(
-                "requiredServices",
-                "Required Services",
-                "Work supported by the evidence as part of the primary cleaning scope.",
-                "required"
+        const integrity =
+            buildIntegrityReview(
+                vision,
+                pricing
             );
 
-            renderServiceSection(
-                "recommendedServices",
-                "Recommended Add-ons",
-                "Evidence-supported work that meaningfully improves the result.",
-                "recommended"
-            );
-
-            renderServiceSection(
-                "optionalServices",
-                "Optional Services",
-                "Related services that are available but are not necessary for the primary result.",
-                "optional"
-            );
-
-            renderFieldPlan();
-            renderDiscovery();
-            renderHazards();
-            renderIntegrityIssues();
-            renderFinalAuthority();
-            recalculateGrandTotal();
-        }
-
-        function renderIntegrityBanner() {
-            const integrity =
-                matrixEstimate.integrity;
-
-            const approved =
-                integrity.status ===
-                "approved";
-
-            document.getElementById(
-                "integrityBanner"
-            ).innerHTML = `
-                <div class="status-banner ${
-                    approved
-                        ? "approved"
-                        : "review-required"
-                }">
-                    <div class="status-label">
-                        Integrity Status
-                    </div>
-
-                    <div class="status-value">
-                        ${
-                            approved
-                                ? "Approved"
-                                : "Review Required"
-                        }
-                    </div>
-
-                    <div class="status-statement">
-                        ${escapeHtml(
-                            integrity.statement
-                        )}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderPropertySummary() {
-            const property =
-                matrixEstimate.property;
-
-            const coverage =
-                matrixEstimate.photoCoverage;
-
-            const fieldPlan =
-                matrixEstimate.fieldPlan;
-
-            document.getElementById(
-                "propertySummary"
-            ).innerHTML = `
-                <div class="summary-card">
-                    <p class="summary-text">
-                        ${escapeHtml(
-                            property.summary
-                        )}
-                    </p>
-
-                    <div class="metrics-grid">
-                        <div class="metric">
-                            <div class="metric-label">
-                                Property
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    formatLabel(
-                                        property.propertyType
-                                    )
-                                )}
-                            </div>
-                        </div>
-
-                        <div class="metric">
-                            <div class="metric-label">
-                                Stories
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    property.stories
-                                )}
-                            </div>
-                        </div>
-
-                        <div class="metric">
-                            <div class="metric-label">
-                                Vision Confidence
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    property.visionConfidence
-                                )}%
-                            </div>
-                        </div>
-
-                        <div class="metric">
-                            <div class="metric-label">
-                                Photo Coverage
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    coverage.coverageScore
-                                )}%
-                            </div>
-                        </div>
-
-                        <div class="metric">
-                            <div class="metric-label">
-                                Difficulty
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    formatLabel(
-                                        fieldPlan.difficulty
-                                    )
-                                )}
-                            </div>
-                        </div>
-
-                        <div class="metric">
-                            <div class="metric-label">
-                                Estimated Labor
-                            </div>
-
-                            <div class="metric-value">
-                                ${escapeHtml(
-                                    fieldPlan.estimatedLaborHours
-                                )} hrs
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderServiceSection(
-            targetId,
-            title,
-            description,
-            category
-        ) {
-            const target =
-                document.getElementById(
-                    targetId
-                );
-
-            const items =
-                serviceRegistry.filter(
-                    item =>
-                        item.category ===
-                        category
-                );
-
-            let html = `
-                <div class="proposal-section-title">
-                    ${escapeHtml(title)}
-                </div>
-
-                <div class="section-description">
-                    ${escapeHtml(description)}
-                </div>
-            `;
-
-            if (items.length === 0) {
-                html += `
-                    <div class="empty-state">
-                        No ${escapeHtml(
-                            title.toLowerCase()
-                        )} were established from the current evidence.
-                    </div>
-                `;
-
-                target.innerHTML = html;
-                return;
-            }
-
-            items.forEach(item => {
-                html += createServiceCard(
-                    item
-                );
-            });
-
-            target.innerHTML = html;
-        }
-
-        function createServiceCard(item) {
-            return `
-                <div
-                    class="service-card ${
-                        item.selected
-                            ? "selected"
-                            : "unselected"
-                    }"
-                    id="serviceCard_${item.registryId}"
-                    onclick="toggleService(${item.registryId})"
-                >
-                    <div class="service-checkbox">
-                        ${
-                            item.selected
-                                ? "✓"
-                                : ""
-                        }
-                    </div>
-
-                    <div class="service-content">
-                        <div class="service-name">
-                            ${escapeHtml(
-                                item.name
-                            )}
-                        </div>
-
-                        <div class="service-reason">
-                            ${escapeHtml(
-                                item.reason
-                            )}
-                        </div>
-
-                        <div class="service-evidence">
-                            Evidence:
-                            ${escapeHtml(
-                                item.evidence
-                            )}
-                        </div>
-
-                        <div class="service-meta">
-                            <span class="service-tag">
-                                ${escapeHtml(
-                                    formatQuantity(
-                                        item.quantity,
-                                        item.unit
-                                    )
-                                )}
-                            </span>
-
-                            <span class="service-tag">
-                                ${escapeHtml(
-                                    item.confidence
-                                )}% confidence
-                            </span>
-
-                            ${
-                                item.requiresMeasurementConfirmation
-                                    ? `
-                                        <span class="service-tag">
-                                            Verify measurement
-                                        </span>
-                                    `
-                                    : ""
-                            }
-                        </div>
-                    </div>
-
-                    <div class="service-price">
-                        ${formatMoney(
-                            item.calculatedPrice
-                        )}
-                    </div>
-                </div>
-            `;
-        }
-
-        function toggleService(
-            registryId
-        ) {
-            const item =
-                serviceRegistry.find(
-                    service =>
-                        service.registryId ===
-                        registryId
-                );
-
-            if (!item) {
-                return;
-            }
-
-            item.selected =
-                !item.selected;
-
-            renderServiceSection(
-                "requiredServices",
-                "Required Services",
-                "Work supported by the evidence as part of the primary cleaning scope.",
-                "required"
-            );
-
-            renderServiceSection(
-                "recommendedServices",
-                "Recommended Add-ons",
-                "Evidence-supported work that meaningfully improves the result.",
-                "recommended"
-            );
-
-            renderServiceSection(
-                "optionalServices",
-                "Optional Services",
-                "Related services that are available but are not necessary for the primary result.",
-                "optional"
-            );
-
-            recalculateGrandTotal();
-        }
-
-        function recalculateGrandTotal() {
-            const selectedSubtotal =
-                serviceRegistry.reduce(
-                    (
-                        total,
-                        item
-                    ) => {
-                        if (
-                            !item.selected
-                        ) {
-                            return total;
-                        }
-
-                        return (
-                            total +
-                            Number(
-                                item.calculatedPrice ||
-                                0
-                            )
-                        );
-                    },
-                    0
-                );
-
-            const minimumJob =
-                Number(
-                    matrixEstimate
-                        ?.pricing
-                        ?.minimumJob || 0
-                );
-
-            const finalTotal =
-                selectedSubtotal > 0
-                    ? Math.max(
-                        selectedSubtotal,
-                        minimumJob
-                    )
-                    : 0;
-
-            animatePriceRollup(
-                finalTotal
-            );
-
-            const minimumNote =
-                document.getElementById(
-                    "minimumNote"
-                );
-
-            if (
-                selectedSubtotal > 0 &&
-                selectedSubtotal <
-                    minimumJob
-            ) {
-                minimumNote.style.display =
-                    "block";
-
-                minimumNote.textContent =
-                    `Matrix minimum job price applied: ${formatMoney(
-                        minimumJob
-                    )}`;
-            } else {
-                minimumNote.style.display =
-                    "none";
-
-                minimumNote.textContent =
-                    "";
-            }
-        }
-
-        function animatePriceRollup(
-            targetAmount
-        ) {
-            const duration = 380;
-            const startTime =
-                performance.now();
-
-            const startAmount =
-                currentTotalValue;
-
-            const display =
-                document.getElementById(
-                    "grandTotalDisplay"
-                );
-
-            function step(
-                currentTime
-            ) {
-                const elapsed =
-                    currentTime -
-                    startTime;
-
-                const progress =
-                    Math.min(
-                        elapsed /
-                            duration,
-                        1
-                    );
-
-                const eased =
-                    progress *
-                    (
-                        2 -
-                        progress
-                    );
-
-                const amount =
-                    startAmount +
-                    (
-                        targetAmount -
-                        startAmount
-                    ) *
-                        eased;
-
-                display.textContent =
-                    formatMoney(amount);
-
-                if (progress < 1) {
-                    requestAnimationFrame(
-                        step
-                    );
-                } else {
-                    currentTotalValue =
-                        targetAmount;
-
-                    display.textContent =
-                        formatMoney(
-                            targetAmount
-                        );
-                }
-            }
-
-            requestAnimationFrame(step);
-        }
-
-        function renderFieldPlan() {
-            const fieldPlan =
-                matrixEstimate.fieldPlan;
-
-            const equipment =
-                fieldPlan.equipment || [];
-
-            const cautions =
-                fieldPlan.cautions || [];
-
-            let html = `
-                <div class="proposal-section-title">
-                    Field Plan
-                </div>
-
-                <div class="info-list">
-                    <div class="info-item">
-                        <div class="info-item-title">
-                            Recommended Method
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(
-                                fieldPlan.recommendedMethod
-                            )}
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-item-title">
-                            Crew and Duration
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(
-                                fieldPlan.estimatedCrewSize
-                            )}
-                            crew member(s),
-                            approximately
-                            ${escapeHtml(
-                                fieldPlan.estimatedLaborHours
-                            )}
-                            labor hours.
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            if (equipment.length > 0) {
-                html += `
-                    <div class="proposal-section-title">
-                        Recommended Equipment
-                    </div>
-
-                    <div class="info-list">
-                        ${equipment
-                            .map(
-                                item => `
-                                    <div class="info-item">
-                                        <div class="info-item-text">
-                                            ${escapeHtml(
-                                                item
-                                            )}
-                                        </div>
-                                    </div>
-                                `
-                            )
-                            .join("")}
-                    </div>
-                `;
-            }
-
-            if (cautions.length > 0) {
-                html += `
-                    <div class="proposal-section-title">
-                        Field Cautions
-                    </div>
-
-                    <div class="info-list">
-                        ${cautions
-                            .map(
-                                item => `
-                                    <div class="info-item issue-item">
-                                        <div class="info-item-text">
-                                            ${escapeHtml(
-                                                item
-                                            )}
-                                        </div>
-                                    </div>
-                                `
-                            )
-                            .join("")}
-                    </div>
-                `;
-            }
-
-            document.getElementById(
-                "fieldPlanSection"
-            ).innerHTML = html;
-        }
-
-        function renderDiscovery() {
-            const missingViews =
-                matrixEstimate.discovery
-                    ?.missingViews || [];
-
-            const unknowns =
-                matrixEstimate.discovery
-                    ?.unknowns || [];
-
-            if (
-                missingViews.length === 0 &&
-                unknowns.length === 0
-            ) {
-                document.getElementById(
-                    "discoverySection"
-                ).innerHTML = "";
-
-                return;
-            }
-
-            let html = `
-                <div class="proposal-section-title">
-                    Discovery Review
-                </div>
-
-                <div class="info-list">
-            `;
-
-            missingViews.forEach(view => {
-                html += `
-                    <div class="info-item issue-item">
-                        <div class="info-item-title">
-                            Missing View
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(view)}
-                        </div>
-                    </div>
-                `;
-            });
-
-            unknowns.forEach(item => {
-                html += `
-                    <div class="info-item ${
-                        item.blocksApproval
-                            ? "issue-item"
-                            : ""
-                    }">
-                        <div class="info-item-title">
-                            ${escapeHtml(
-                                item.question
-                            )}
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(
-                                item.reason
-                            )}
-                            ${
-                                item.blocksApproval
-                                    ? " This must be resolved before approval."
-                                    : ""
-                            }
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += "</div>";
-
-            document.getElementById(
-                "discoverySection"
-            ).innerHTML = html;
-        }
-
-        function renderHazards() {
-            const hazards =
-                matrixEstimate.vision
-                    ?.hazards || [];
-
-            if (hazards.length === 0) {
-                document.getElementById(
-                    "hazardsSection"
-                ).innerHTML = "";
-
-                return;
-            }
-
-            const html = `
-                <div class="proposal-section-title">
-                    Hazards
-                </div>
-
-                <div class="info-list">
-                    ${hazards
-                        .map(
-                            hazard => `
-                                <div class="info-item hazard-item">
-                                    <div class="info-item-title">
-                                        ${escapeHtml(
-                                            hazard.hazard
-                                        )}
-                                    </div>
-
-                                    <div class="info-item-text">
-                                        Severity:
-                                        ${escapeHtml(
-                                            formatLabel(
-                                                hazard.severity
-                                            )
-                                        )}.
-                                        Evidence:
-                                        ${escapeHtml(
-                                            hazard.evidence
-                                        )}
-                                        Action:
-                                        ${escapeHtml(
-                                            hazard.action
-                                        )}
-                                    </div>
-                                </div>
-                            `
-                        )
-                        .join("")}
-                </div>
-            `;
-
-            document.getElementById(
-                "hazardsSection"
-            ).innerHTML = html;
-        }
-
-        function renderIntegrityIssues() {
-            const issues =
-                matrixEstimate.integrity
-                    ?.issues || [];
-
-            const warnings =
-                matrixEstimate.integrity
-                    ?.warnings || [];
-
-            if (
-                issues.length === 0 &&
-                warnings.length === 0
-            ) {
-                document.getElementById(
-                    "integrityIssuesSection"
-                ).innerHTML = "";
-
-                return;
-            }
-
-            let html = `
-                <div class="proposal-section-title">
-                    Integrity Findings
-                </div>
-
-                <div class="info-list">
-            `;
-
-            issues.forEach(issue => {
-                html += `
-                    <div class="info-item issue-item">
-                        <div class="info-item-title">
-                            ${escapeHtml(
-                                formatLabel(
-                                    issue.code
-                                )
-                            )}
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(
-                                issue.message
-                            )}
-                            ${escapeHtml(
-                                issue.action
-                            )}
-                        </div>
-                    </div>
-                `;
-            });
-
-            warnings.forEach(warning => {
-                html += `
-                    <div class="info-item">
-                        <div class="info-item-title">
-                            ${escapeHtml(
-                                formatLabel(
-                                    warning.code
-                                )
-                            )}
-                        </div>
-
-                        <div class="info-item-text">
-                            ${escapeHtml(
-                                warning.message
-                            )}
-                            ${escapeHtml(
-                                warning.action
-                            )}
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += "</div>";
-
-            document.getElementById(
-                "integrityIssuesSection"
-            ).innerHTML = html;
-        }
-
-        function renderFinalAuthority() {
-            document.getElementById(
-                "finalAuthority"
-            ).textContent =
-                matrixEstimate
-                    .finalAuthority
-                    ?.statement ||
-                "The contractor retains final authority over scope, measurements, safety, and pricing.";
-        }
-
-        function generateActiveProposalText() {
-            if (!matrixEstimate) {
-                return "";
-            }
-
-            const selectedItems =
-                serviceRegistry.filter(
-                    item =>
-                        item.selected
-                );
-
-            const subtotal =
-                selectedItems.reduce(
-                    (
-                        total,
-                        item
-                    ) =>
-                        total +
-                        Number(
-                            item.calculatedPrice ||
-                            0
-                        ),
-                    0
-                );
-
-            const minimumJob =
-                Number(
-                    matrixEstimate
-                        .pricing
-                        .minimumJob || 0
-                );
-
-            const total =
-                subtotal > 0
-                    ? Math.max(
-                        subtotal,
-                        minimumJob
-                    )
-                    : 0;
-
-            let text =
-                "NO PROBLEM PRESSURE WASHING PROPOSAL\n\n";
-
-            text +=
-                `${matrixEstimate.property.summary}\n\n`;
-
-            const categories = [
-                {
-                    key: "required",
-                    label:
-                        "REQUIRED SERVICES"
-                },
-                {
-                    key: "recommended",
-                    label:
-                        "RECOMMENDED ADD-ONS"
-                },
-                {
-                    key: "optional",
-                    label:
-                        "OPTIONAL SERVICES"
-                }
-            ];
-
-            categories.forEach(category => {
-                const categoryItems =
-                    selectedItems.filter(
+        const estimate = {
+            schemaVersion: '1.2.0',
+            generatedAt: new Date().toISOString(),
+            model: MODEL,
+            imageCount: images.length,
+
+            property: vision.property,
+            photoCoverage: vision.photoCoverage,
+
+            vision: {
+                surfaces: vision.surfaces,
+                contaminants: vision.contaminants,
+                hazards: vision.hazards,
+                confidence:
+                    vision.property.visionConfidence
+            },
+
+            discovery: {
+                missingViews:
+                    vision.photoCoverage.missingViews,
+                unknowns:
+                    vision.unknowns
+            },
+
+            services: {
+                required:
+                    pricing.lineItems.filter(
                         item =>
-                            item.category ===
-                            category.key
-                    );
+                            item.category === 'required'
+                    ),
 
-                if (
-                    categoryItems.length ===
-                    0
-                ) {
-                    return;
-                }
+                recommended:
+                    pricing.lineItems.filter(
+                        item =>
+                            item.category === 'recommended'
+                    ),
 
-                text +=
-                    `${category.label}\n`;
+                optional:
+                    pricing.lineItems.filter(
+                        item =>
+                            item.category === 'optional'
+                    )
+            },
 
-                categoryItems.forEach(item => {
-                    text +=
-                        `- ${item.name}: ` +
-                        `${formatMoney(
-                            item.calculatedPrice
-                        )}\n`;
+            pricing,
+            fieldPlan: vision.fieldPlan,
+            integrity,
 
-                    text +=
-                        `  ${item.reason}\n`;
-                });
-
-                text += "\n";
-            });
-
-            text +=
-                `TOTAL SELECTED SCOPE: ${formatMoney(
-                    total
-                )}\n\n`;
-
-            text +=
-                `INTEGRITY STATUS: ${formatLabel(
-                    matrixEstimate.integrity.status
-                )}\n`;
-
-            text +=
-                `EVIDENCE SCORE: ${matrixEstimate.integrity.evidenceScore}%\n\n`;
-
-            text +=
-                "All selected services receive the same professional workmanship standard. Service categories change scope, not quality.\n\n";
-
-            text +=
-                matrixEstimate
-                    .finalAuthority
-                    .statement;
-
-            return text;
-        }
-
-        async function copyToClipboard() {
-            const text =
-                generateActiveProposalText();
-
-            if (!text) {
-                showError(
-                    "No active estimate is available to copy."
-                );
-
-                return;
+            finalAuthority: {
+                role: 'contractor',
+                statement:
+                    'Matrix provides decision support. The contractor must verify measurements, selected scope, site safety, and final pricing.'
             }
+        };
 
-            try {
-                await navigator.clipboard.writeText(
-                    text
-                );
+        return res.status(200).json({
+            success: true,
+            estimate
+        });
+    } catch (error) {
+        console.error(
+            'Matrix analysis fault:',
+            error
+        );
 
-                const button =
-                    document.getElementById(
-                        "copyButton"
-                    );
-
-                button.textContent =
-                    "Copied";
-
-                window.setTimeout(
-                    () => {
-                        button.textContent =
-                            "Copy Proposal";
-                    },
-                    1800
-                );
-            } catch (error) {
-                showError(
-                    "Your browser blocked clipboard access."
-                );
-            }
-        }
-
-        function sendProposalEmail() {
-            const body =
-                generateActiveProposalText();
-
-            if (!body) {
-                showError(
-                    "No active estimate is available to email."
-                );
-
-                return;
-            }
-
-            const subject =
-                "No Problem Pressure Washing Proposal";
-
-            window.location.href =
-                `mailto:?subject=${encodeURIComponent(
-                    subject
-                )}&body=${encodeURIComponent(
-                    body
-                )}`;
-        }
-
-        function resizeAndCompressImage(file) {
-            return new Promise(
-                (
-                    resolve,
-                    reject
-                ) => {
-                    const reader =
-                        new FileReader();
-
-                    reader.onload =
-                        event => {
-                            const image =
-                                new Image();
-
-                            image.onload =
-                                () => {
-                                    const maxWidth =
-                                        1280;
-
-                                    const maxHeight =
-                                        1280;
-
-                                    let width =
-                                        image.width;
-
-                                    let height =
-                                        image.height;
-
-                                    const scale =
-                                        Math.min(
-                                            maxWidth /
-                                                width,
-                                            maxHeight /
-                                                height,
-                                            1
-                                        );
-
-                                    width =
-                                        Math.round(
-                                            width *
-                                                scale
-                                        );
-
-                                    height =
-                                        Math.round(
-                                            height *
-                                                scale
-                                        );
-
-                                    const canvas =
-                                        document.createElement(
-                                            "canvas"
-                                        );
-
-                                    canvas.width =
-                                        width;
-
-                                    canvas.height =
-                                        height;
-
-                                    const context =
-                                        canvas.getContext(
-                                            "2d"
-                                        );
-
-                                    if (!context) {
-                                        reject(
-                                            new Error(
-                                                "Canvas is unavailable."
-                                            )
-                                        );
-
-                                        return;
-                                    }
-
-                                    context.drawImage(
-                                        image,
-                                        0,
-                                        0,
-                                        width,
-                                        height
-                                    );
-
-                                    resolve(
-                                        canvas.toDataURL(
-                                            "image/jpeg",
-                                            0.72
-                                        )
-                                    );
-                                };
-
-                            image.onerror =
-                                () =>
-                                    reject(
-                                        new Error(
-                                            "Image could not be decoded."
-                                        )
-                                    );
-
-                            image.src =
-                                event.target.result;
-                        };
-
-                    reader.onerror =
-                        () =>
-                            reject(
-                                new Error(
-                                    "Image could not be read."
-                                )
-                            );
-
-                    reader.readAsDataURL(
-                        file
-                    );
-                }
-            );
-        }
-
-        function showError(message) {
-            const card =
-                document.getElementById(
-                    "errorCard"
-                );
-
-            card.textContent =
-                message;
-
-            card.style.display =
-                "block";
-
-            card.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-        }
-
-        function hideError() {
-            const card =
-                document.getElementById(
-                    "errorCard"
-                );
-
-            card.textContent = "";
-            card.style.display =
-                "none";
-        }
-    </script>
-</body>
-    </html>
+        return res.status(500).json({
+            success: false,
+            code: 'ANALYSIS_FAILED',
+            error:
+                error?.message ||
+                'Matrix could not complete the property analysis.'
+        });
+    }
+}
