@@ -259,7 +259,19 @@
         .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
         
-        .hidden-input { display: none !important; opacity: 0 !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
+        /* FIX: Valid mobile-compliant hidden inputs. Do NOT use display: none! */
+        .hidden-input { 
+            position: absolute !important; 
+            width: 1px !important; 
+            height: 1px !important; 
+            padding: 0 !important; 
+            margin: -1px !important; 
+            overflow: hidden !important; 
+            clip: rect(0,0,0,0) !important; 
+            border: 0 !important; 
+            opacity: 0 !important;
+            z-index: -1 !important;
+        }
         .item-text { padding-right: 15px; flex-grow: 1; font-weight: 500; word-break: break-word; white-space: normal; text-align: left; line-height: 1.4; }
     </style>
 </head>
@@ -340,27 +352,40 @@
         let currentSelectedTier = 'better';
         let currentTotalValue = 0;
 
-        document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
-        document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
+        // FIX: Rebuilt listeners to clear input memory so it never hangs on repeating files
+        document.getElementById('cameraInput').addEventListener('change', function(e) { 
+            stageFiles(e.target.files); 
+            this.value = ''; 
+        });
+        document.getElementById('fileInput').addEventListener('change', function(e) { 
+            stageFiles(e.target.files); 
+            this.value = ''; 
+        });
 
         async function stageFiles(files) {
             if (!files || files.length === 0) return;
-            const previewGrid = document.getElementById('imagePreviewGrid');
-            const processTrigger = document.getElementById('processTrigger');
-            const laser = document.getElementById('hudLaserBeam');
             
-            laser.style.display = 'block'; 
-            
-            for (let i = 0; i < files.length; i++) {
-                const base64Str = await resizeAndCompressImage(files[i]);
-                stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
-                const thumb = document.createElement('div');
-                thumb.className = 'preview-thumbnail';
-                thumb.style.backgroundImage = `url(${base64Str})`;
-                previewGrid.appendChild(thumb);
-            }
-            if (stagedBase64Images.length > 0) {
-                processTrigger.setAttribute('style', 'display: block !important;');
+            try {
+                const previewGrid = document.getElementById('imagePreviewGrid');
+                const processTrigger = document.getElementById('processTrigger');
+                const laser = document.getElementById('hudLaserBeam');
+                
+                if (laser) laser.style.display = 'block'; 
+                
+                for (let i = 0; i < files.length; i++) {
+                    const base64Str = await resizeAndCompressImage(files[i]);
+                    stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+                    const thumb = document.createElement('div');
+                    thumb.className = 'preview-thumbnail';
+                    thumb.style.backgroundImage = `url(${base64Str})`;
+                    previewGrid.appendChild(thumb);
+                }
+                if (stagedBase64Images.length > 0) {
+                    processTrigger.setAttribute('style', 'display: block !important;');
+                }
+            } catch (error) {
+                alert("Image processing failed: " + error.message);
+                document.getElementById('hudLaserBeam').style.display = 'none';
             }
         }
 
@@ -539,23 +564,33 @@
             }
         }
 
+        // FIX: Rebuilt loading pipeline. Image .src MUST be assigned AFTER .onload is declared.
         function resizeAndCompressImage(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
+                
                 reader.onload = function (event) {
                     const img = new Image();
-                    img.src = event.target.result;
+                    
                     img.onload = function () {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('canvas-gradient' in ctx ? '2d' : '2d');
-                        canvas.width = 600; canvas.height = 450;
-                        ctx.drawImage(img, 0, 0, 600, 450);
-                        resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = 600; 
+                            canvas.height = 450;
+                            ctx.drawImage(img, 0, 0, 600, 450);
+                            resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+                        } catch (e) {
+                            reject(new Error("Canvas layout mapping failed."));
+                        }
                     };
-                    img.onerror = (err) => reject(err);
+                    
+                    img.onerror = () => reject(new Error("Browser engine failed to read image stream."));
+                    img.src = event.target.result; 
                 };
-                reader.onerror = (err) => reject(err);
+                
+                reader.onerror = () => reject(new Error("File reader pipeline crashed."));
+                reader.readAsDataURL(file);
             });
         }
     </script>
