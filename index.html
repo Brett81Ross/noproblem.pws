@@ -386,7 +386,6 @@
             recalculateGrandTotal();
         }
 
-        UX code fix mapping
         function switchActiveTier(targetTier) {
             currentSelectedTier = targetTier;
             document.getElementById('tabGood').className = 'matrix-tier-tab' + (targetTier === 'good' ? ' active-good' : '');
@@ -517,7 +516,6 @@
                 const data = await response.json();
                 document.getElementById('hudLaserBeam').style.display = 'none';
 
-                // Safe guard logic block mapping to alert explicit errors instead of crashing
                 if (!response.ok || data.error) {
                     const errorMsg = data.details || data.error || 'Unknown Server Execution Error';
                     alert('Analysis fault: ' + errorMsg);
