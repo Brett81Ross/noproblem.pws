@@ -44,17 +44,15 @@
             text-align: center;
         }
         
-        /* ⚡ TIGHTENED HIERARCHY LOGO CONTAINER */
         .logo-container {
-            margin-top: 10px;    /* Slashed dead space above */
-            margin-bottom: 5px;  /* Slashed dead space below */
+            margin-top: 10px;
+            margin-bottom: 5px;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
         }
         
-        /* 💎 DYNAMIC GLOW ASSIGNMENT MATRIX */
         .brand-logo-img {
             width: 100%;
             max-width: 440px; 
@@ -108,7 +106,6 @@
             box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
         }
         
-        /* 🌀 AMBIENT BORDER MATRIX ANIMATION */
         .action-card {
             background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
@@ -121,6 +118,7 @@
             position: relative;
             box-shadow: 0 20px 45px rgba(0,0,0,0.7);
             animation: cardAmbientPulse 6s ease-in-out infinite;
+            box-sizing: border-box;
         }
 
         @keyframes cardAmbientPulse {
@@ -154,7 +152,6 @@
         .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); }
         .btn-trigger { background: linear-gradient(135deg, #16a34a, #059669); color: #ffffff; margin-top: 15px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25); }
         
-        /* CYAN TELEMETRY SCANNING STATE ENGINE */
         .btn-loading {
             background: linear-gradient(270deg, #091d2c, #0b253a, #020617, #061524) !important;
             background-size: 400% 400% !important;
@@ -214,7 +211,6 @@
 
         .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; position: relative; overflow: hidden; }
         
-        /* 🛰️ REAL-TIME HUD SCANNING LASER STRIP */
         .hud-scan-overlay {
             position: absolute;
             top: 0;
@@ -238,11 +234,10 @@
         .preview-thumbnail:hover { transform: scale(1.05); }
 
         .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
-        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 30px 0 14px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 8px; }
+        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 25px 0 12px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 6px; }
         
-        /* 🚀 INTERACTIVE SCOPE KINETIC CARDS */
-        .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 17px; display: flex; justify-content: space-between; align-items: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
-        .proposal-item:hover { border-color: #00f0ff; background: rgba(15, 23, 42, 0.8); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 240, 255, 0.1); }
+        .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
+        .proposal-item:hover { border-color: #00f0ff; background: rgba(15, 23, 42, 0.8); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 240, 255, 0.15); }
         .proposal-item:active { transform: scale(0.99); }
         .proposal-item.disabled-card { opacity: 0.25; background-color: rgba(2, 6, 23, 0.3); border-color: transparent; transform: none !important; box-shadow: none; }
         .proposal-item.disabled-card .price-badge { background-color: #020617; color: #475569; border-color: #1e293b; text-decoration: line-through; }
@@ -265,7 +260,7 @@
         .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
         
         .hidden-input { display: none !important; opacity: 0 !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
-        .item-text { padding-right: 15px; flex-grow: 1; font-weight: 500; word-break: break-word; white-space: normal; text-align: left; }
+        .item-text { padding-right: 15px; flex-grow: 1; font-weight: 500; word-break: break-word; white-space: normal; text-align: left; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -290,7 +285,6 @@
                 <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
-                    <!-- Laser overlay vector injected dynamically inside container boundaries -->
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
                 </div>
                 <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
@@ -355,7 +349,7 @@
             const processTrigger = document.getElementById('processTrigger');
             const laser = document.getElementById('hudLaserBeam');
             
-            laser.style.display = 'block'; // Turn scanning laser engine on
+            laser.style.display = 'block'; 
             
             for (let i = 0; i < files.length; i++) {
                 const base64Str = await resizeAndCompressImage(files[i]);
@@ -392,6 +386,7 @@
             recalculateGrandTotal();
         }
 
+        UX code fix mapping
         function switchActiveTier(targetTier) {
             currentSelectedTier = targetTier;
             document.getElementById('tabGood').className = 'matrix-tier-tab' + (targetTier === 'good' ? ' active-good' : '');
@@ -408,17 +403,14 @@
             recalculateGrandTotal();
         }
 
-        /* 📈 TELEMETRY COUNTING ROLLUP ENGINE */
         function animatePriceRollup(targetAmount) {
-            const duration = 400; // Total length of rolling count animation milliseconds
+            const duration = 400; 
             const startTime = performance.now();
             const startAmount = currentTotalValue;
 
             function step(currentTime) {
                 const elapsedTime = currentTime - startTime;
                 const progress = Math.min(elapsedTime / duration, 1);
-                
-                // Ease out quad tracking formula
                 const easeProgress = progress * (2 - progress);
                 const currentCount = startAmount + (targetAmount - startAmount) * easeProgress;
                 
@@ -445,9 +437,11 @@
         }
 
         function parseInteractiveHTML(rawText) {
+            if (!rawText || typeof rawText !== 'string') return '<div style="color:#ef4444; font-style:italic; padding:10px;">Invalid or empty response data.</div>';
+            
             const lines = rawText.split('\n');
             let htmlOutput = "";
-            let currentSectionName = "Details";
+            let currentSectionName = "Scanned Tasks";
             let globalCardIndex = 0;
             priceItemsRegistry = []; 
 
@@ -458,14 +452,14 @@
                 if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
                     currentSectionName = cleanLine.replace(':', '').trim();
                     htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
-                } else {
-                    let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
+                } else if (cleanLine.includes('$')) {
+                    const segmentPriceMatch = cleanLine.match(/\$[0-9,.]+/);
                     let parsedNumericValue = 0;
+                    let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
                     
                     if (segmentPriceMatch) {
                         parsedNumericValue = parseFloat(segmentPriceMatch[0].replace('$', '').replace(/,/g, '')) || 0;
-                        textContent = textContent.replace(segmentPriceMatch[0], "").trim();
+                        textContent = textContent.replace(segmentPriceMatch[0], "").replace(/\s+/g, ' ').trim();
                     }
 
                     priceItemsRegistry.push({ id: globalCardIndex, section: currentSectionName, cleanText: textContent, value: parsedNumericValue, disabled: false });
@@ -478,6 +472,9 @@
                             </div>`;
                     }
                     globalCardIndex++;
+                } else {
+                    let infoText = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
+                    htmlOutput += `<div style="font-size:13px; color:#94a3b8; padding:8px 10px; font-style:italic;">${infoText}</div>`;
                 }
             });
             return htmlOutput;
@@ -516,20 +513,29 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ images: stagedBase64Images })
                 });
-                const data = await response.json();
                 
-                // Shut down scanner light
+                const data = await response.json();
                 document.getElementById('hudLaserBeam').style.display = 'none';
+
+                // Safe guard logic block mapping to alert explicit errors instead of crashing
+                if (!response.ok || data.error) {
+                    const errorMsg = data.details || data.error || 'Unknown Server Execution Error';
+                    alert('Analysis fault: ' + errorMsg);
+                    processTrigger.className = "btn btn-trigger";
+                    processTrigger.innerText = "Analyze Project";
+                    return;
+                }
                 
                 document.getElementById('outputCard').style.display = 'block';
                 document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
                 document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
                 
-                currentTotalValue = 0; // Reset matrix roll variables
+                currentTotalValue = 0; 
                 switchActiveTier('better');
                 processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
-                alert('Analysis fault: ' + err.message);
+                document.getElementById('hudLaserBeam').style.display = 'none';
+                alert('Analysis connection fault: ' + err.message);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = "Analyze Project";
             }
@@ -544,7 +550,7 @@
                     img.src = event.target.result;
                     img.onload = function () {
                         const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
+                        const ctx = canvas.getContext('canvas-gradient' in ctx ? '2d' : '2d');
                         canvas.width = 600; canvas.height = 450;
                         ctx.drawImage(img, 0, 0, 600, 450);
                         resolve(canvas.toDataURL('image/jpeg', 0.5)); 
