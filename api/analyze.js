@@ -200,10 +200,15 @@ export default async function handler(req, res) {
 
         const activeImages = images.slice(0, MAX_IMAGES);
         
-        // 🛰️ Updated configuration target key mapping
-        const aiKey = process.env.GEMINI_API_KEY_2;
+        // 🛡️ BULLETPROOF KEY EXTRACTION
+        // Actively scans environment variables to bypass strict case sensitivity errors
+        const envKeys = Object.keys(process.env);
+        const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
+        
+        const aiKey = process.env.GEMINI_API_KEY_2 || process.env.Gemini_API_Key_2 || (matchingKeyName ? process.env[matchingKeyName] : null);
+
         if (!aiKey) {
-            return res.status(500).json({ error: 'Server Setup Fault: GEMINI_API_KEY_2 variable is missing on Vercel Console.' });
+            return res.status(500).json({ error: 'Server Setup Fault: API Key variable could not be read from Vercel Console.' });
         }
         
         const ai = new GoogleGenAI({ apiKey: aiKey });
