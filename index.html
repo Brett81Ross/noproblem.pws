@@ -202,8 +202,54 @@
             100% { top: 100%; opacity: 0; }
         }
         
-        .preview-thumbnail { width: 100%; padding-top: 100%; border-radius: 8px; border: 1px solid #00f0ff; background-size: cover; background-position: center; transition: transform 0.2s ease; }
-        .preview-thumbnail:hover { transform: scale(1.05); }
+        /* THE RED X AND THUMBNAIL UI FIXES */
+        .preview-thumbnail-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+        }
+        
+        .preview-thumbnail { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 8px; 
+            border: 1px solid #00f0ff; 
+            background-size: cover; 
+            background-position: center; 
+            transition: transform 0.2s ease; 
+        }
+        
+        .preview-thumbnail-wrapper:hover .preview-thumbnail { 
+            transform: scale(1.05); 
+        }
+
+        .remove-photo-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background-color: #ef4444; /* Alert Red */
+            color: #ffffff;
+            border: 2px solid #020617;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            padding: 0;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+        
+        .remove-photo-btn:hover {
+            background-color: #dc2626;
+            transform: scale(1.15);
+        }
 
         .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
         .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 25px 0 16px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.8); padding-bottom: 8px; }
@@ -306,12 +352,13 @@
         
         <div class="footer">
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by Cactus & 🌵 Byte Studios&trade;<br>
+            Powered by Cactus🌵Byte Studios&trade;<br>
             All Rights Reserved
         </div>
     </div>
 
     <script>
+        // NEW CENTRALIZED IMAGE MANAGER
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
         let currentTotalValue = 0;
@@ -329,26 +376,69 @@
             if (!files || files.length === 0) return;
             
             try {
-                const previewGrid = document.getElementById('imagePreviewGrid');
-                const processTrigger = document.getElementById('processTrigger');
                 const laser = document.getElementById('hudLaserBeam');
-                
                 if (laser) laser.style.display = 'block'; 
                 
+                // Add new photos directly to the main array so they stack correctly
                 for (let i = 0; i < files.length; i++) {
                     const base64Str = await resizeAndCompressImage(files[i]);
-                    stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
-                    const thumb = document.createElement('div');
-                    thumb.className = 'preview-thumbnail';
-                    thumb.style.backgroundImage = `url(${base64Str})`;
-                    previewGrid.appendChild(thumb);
+                    stagedBase64Images.push(base64Str); 
                 }
-                if (stagedBase64Images.length > 0) {
-                    processTrigger.setAttribute('style', 'display: block !important;');
-                }
+                
+                // Rebuild the grid completely with the new array
+                renderPreviewGrid();
+                
+                if (laser) laser.style.display = 'none';
             } catch (error) {
                 alert("Image processing failed: " + error.message);
-                document.getElementById('hudLaserBeam').style.display = 'none';
+                const laser = document.getElementById('hudLaserBeam');
+                if (laser) laser.style.display = 'none';
+            }
+        }
+
+        // RED X DELETE FUNCTION
+        function removeStagedImage(index) {
+            stagedBase64Images.splice(index, 1);
+            renderPreviewGrid();
+        }
+
+        // DYNAMIC GRID ENGINE
+        function renderPreviewGrid() {
+            const previewGrid = document.getElementById('imagePreviewGrid');
+            const processTrigger = document.getElementById('processTrigger');
+            const laser = document.getElementById('hudLaserBeam');
+            
+            // Clear out old thumbnails, but keep the scanner laser
+            previewGrid.innerHTML = '';
+            if (laser) previewGrid.appendChild(laser);
+
+            // Rebuild all thumbnails from the array, giving each one a red X
+            stagedBase64Images.forEach((base64Str, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'preview-thumbnail-wrapper';
+
+                const thumb = document.createElement('div');
+                thumb.className = 'preview-thumbnail';
+                thumb.style.backgroundImage = `url(${base64Str})`;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-photo-btn';
+                removeBtn.innerHTML = '✕';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation(); 
+                    removeStagedImage(index);
+                };
+
+                wrapper.appendChild(thumb);
+                wrapper.appendChild(removeBtn);
+                previewGrid.appendChild(wrapper);
+            });
+
+            // Only show the big blue Analyze button if there is at least 1 photo uploaded
+            if (stagedBase64Images.length > 0) {
+                processTrigger.setAttribute('style', 'display: block !important;');
+            } else {
+                processTrigger.setAttribute('style', 'display: none !important;');
             }
         }
 
@@ -472,8 +562,8 @@
             processTrigger.innerHTML = `<span class="btn-spinner"></span> SCANNING PROPERTY SURFACES...`;
 
             try {
-                // ⚠️ THE FIX: Increased the limit so up to 12 photos upload at once
-                const payloadImages = stagedBase64Images.slice(0, 12);
+                // Strips the visual "data:image" prefix before sending so the backend doesn't crash
+                const payloadImages = stagedBase64Images.slice(0, 12).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
