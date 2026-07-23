@@ -1,6 +1,15 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MODEL = 'gemini-2.5-flash';
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '12mb'
+        }
+    }
+};
+
+// Targeting the actual latest model released July 2026
+const MODEL = 'gemini-3.6-flash'; 
 const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -29,6 +38,60 @@ const DEFAULT_RATE_CARD = Object.freeze({
         extreme: 1.5
     }
 });
+
+const matrixVisionSchema = {
+    type: 'object',
+    properties: {
+        property: {
+            type: 'object',
+            properties: {
+                propertyType: { type: 'string', enum: ['residential', 'commercial', 'industrial', 'multi_family', 'unknown'] },
+                stories: { type: 'integer' },
+                overallCondition: { type: 'string', enum: ['light', 'moderate', 'heavy', 'extreme', 'unknown'] },
+                visionConfidence: { type: 'integer' },
+                summary: { type: 'string' }
+            },
+            required: ['propertyType', 'stories', 'overallCondition', 'visionConfidence', 'summary']
+        },
+        services: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    serviceId: { type: 'string', enum: Object.keys(DEFAULT_RATE_CARD.services) },
+                    category: { type: 'string', enum: ['required', 'recommended', 'optional'] },
+                    reason: { type: 'string' },
+                    evidence: { type: 'string' },
+                    quantity: { type: 'number' },
+                    quantityUnit: { type: 'string', enum: ['sq_ft', 'linear_ft', 'flat', 'unknown'] },
+                    confidence: { type: 'integer' }
+                },
+                required: ['serviceId', 'category', 'reason', 'evidence', 'quantity', 'quantityUnit', 'confidence']
+            }
+        },
+        hazards: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    hazard: { type: 'string' },
+                    severity: { type: 'string', enum: ['low', 'moderate', 'high', 'critical'] },
+                    evidence: { type: 'string' },
+                    action: { type: 'string' }
+                },
+                required: ['hazard', 'severity', 'evidence', 'action']
+            }
+        },
+        fieldPlan: {
+            type: 'object',
+            properties: {
+                difficulty: { type: 'string', enum: ['low', 'moderate', 'high', 'extreme'] }
+            },
+            required: ['difficulty']
+        }
+    },
+    required: ['property', 'services', 'hazards', 'fieldPlan']
+};
 
 function cloneDefaultRateCard() {
     return JSON.parse(JSON.stringify(DEFAULT_RATE_CARD));
@@ -64,7 +127,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-async function handler(req, res) {
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed - POST requirements active.' });
     }
@@ -92,7 +155,8 @@ async function handler(req, res) {
             model: MODEL,
             generationConfig: {
                 responseMimeType: 'application/json',
-                temperature: 0.1
+                responseSchema: matrixVisionSchema
+                // ⚠️ TEMPERATURE REMOVED HERE to comply with Gemini 3.6 API rules
             }
         });
 
@@ -109,28 +173,7 @@ async function handler(req, res) {
                         RATE CARD RULES CONFIGURATION:
                         - Minimum Service Order: $${rateCard.minimumJob}
                         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
-                        
-                        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting. Use the following exact JSON structure:
-                        {
-                            "services": [
-                                {
-                                    "serviceId": "house_wash",
-                                    "reason": "Visible dirt and algae on siding.",
-                                    "evidence": "Green discoloration on the north wall.",
-                                    "quantity": 2500,
-                                    "quantityUnit": "sq_ft"
-                                }
-                            ],
-                            "hazards": [
-                                {
-                                    "hazard": "Exposed Outlet",
-                                    "action": "Tape and cover before washing."
-                                }
-                            ],
-                            "fieldPlan": {
-                                "difficulty": "moderate"
-                            }
-                        }`
+                        `
                     },
                     ...activeImages.map((base64Data) => ({
                         inlineData: {
@@ -197,16 +240,7 @@ async function handler(req, res) {
         console.error('API ENGINE FAILURE CORRIDOR:', error);
         return res.status(500).json({
             error: 'Analysis Engine Failure',
-            details: error.message
+            details: error.message || error.toString()
         });
     }
 }
-
-module.exports = handler;
-module.exports.config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '12mb'
-        }
-    }
-};
