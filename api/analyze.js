@@ -1,12 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '12mb'
-        }
-    }
-};
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const MODEL = 'gemini-2.5-flash';
 const MAX_IMAGES = 12;
@@ -37,120 +29,6 @@ const DEFAULT_RATE_CARD = Object.freeze({
         extreme: 1.5
     }
 });
-
-const matrixVisionSchema = {
-    type: 'object',
-    properties: {
-        property: {
-            type: 'object',
-            properties: {
-                propertyType: { type: 'string', enum: ['residential', 'commercial', 'industrial', 'multi_family', 'unknown'] },
-                stories: { type: 'integer' },
-                overallCondition: { type: 'string', enum: ['light', 'moderate', 'heavy', 'extreme', 'unknown'] },
-                visionConfidence: { type: 'integer' },
-                summary: { type: 'string' }
-            },
-            required: ['propertyType', 'stories', 'overallCondition', 'visionConfidence', 'summary']
-        },
-        photoCoverage: {
-            type: 'object',
-            properties: {
-                frontVisible: { type: 'boolean' },
-                rearVisible: { type: 'boolean' },
-                leftVisible: { type: 'boolean' },
-                rightVisible: { type: 'boolean' },
-                roofVisible: { type: 'boolean' },
-                coverageScore: { type: 'integer' },
-                missingViews: { type: 'array', items: { type: 'string' } }
-            },
-            required: ['frontVisible', 'rearVisible', 'leftVisible', 'rightVisible', 'roofVisible', 'coverageScore', 'missingViews']
-        },
-        surfaces: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    name: { type: 'string' },
-                    material: { type: 'string' },
-                    condition: { type: 'string', enum: ['light', 'moderate', 'heavy', 'extreme', 'unknown'] },
-                    estimatedQuantity: { type: 'number' },
-                    quantityUnit: { type: 'string', enum: ['sq_ft', 'linear_ft', 'count', 'unknown'] },
-                    quantityConfidence: { type: 'integer' },
-                    evidence: { type: 'string' }
-                },
-                required: ['name', 'material', 'condition', 'estimatedQuantity', 'quantityUnit', 'quantityConfidence', 'evidence']
-            }
-        },
-        contaminants: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    type: { type: 'string', enum: ['organic_growth', 'mildew', 'algae', 'mold_like_growth', 'rust', 'oil', 'grease', 'oxidation', 'efflorescence', 'dirt', 'unknown'] },
-                    severity: { type: 'string', enum: ['light', 'moderate', 'heavy', 'extreme', 'unknown'] },
-                    affectedArea: { type: 'string' },
-                    confidence: { type: 'integer' },
-                    evidence: { type: 'string' }
-                },
-                required: ['type', 'severity', 'affectedArea', 'confidence', 'evidence']
-            }
-        },
-        services: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    serviceId: { type: 'string', enum: Object.keys(DEFAULT_RATE_CARD.services) },
-                    category: { type: 'string', enum: ['required', 'recommended', 'optional'] },
-                    reason: { type: 'string' },
-                    evidence: { type: 'string' },
-                    quantity: { type: 'number' },
-                    quantityUnit: { type: 'string', enum: ['sq_ft', 'linear_ft', 'flat', 'unknown'] },
-                    confidence: { type: 'integer' }
-                },
-                required: ['serviceId', 'category', 'reason', 'evidence', 'quantity', 'quantityUnit', 'confidence']
-            }
-        },
-        hazards: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    hazard: { type: 'string' },
-                    severity: { type: 'string', enum: ['low', 'moderate', 'high', 'critical'] },
-                    evidence: { type: 'string' },
-                    action: { type: 'string' }
-                },
-                required: ['hazard', 'severity', 'evidence', 'action']
-            }
-        },
-        unknowns: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    question: { type: 'string' },
-                    reason: { type: 'string' },
-                    blocksApproval: { type: 'boolean' }
-                },
-                required: ['question', 'reason', 'blocksApproval']
-            }
-        },
-        fieldPlan: {
-            type: 'object',
-            properties: {
-                difficulty: { type: 'string', enum: ['low', 'moderate', 'high', 'extreme'] },
-                estimatedCrewSize: { type: 'integer' },
-                estimatedLaborHours: { type: 'number' },
-                recommendedMethod: { type: 'string' },
-                equipment: { type: 'array', items: { type: 'string' } },
-                cautions: { type: 'array', items: { type: 'string' } }
-            },
-            required: ['difficulty', 'estimatedCrewSize', 'estimatedLaborHours', 'recommendedMethod', 'equipment', 'cautions']
-        }
-    },
-    required: ['property', 'photoCoverage', 'surfaces', 'contaminants', 'services', 'hazards', 'unknowns', 'fieldPlan']
-};
 
 function cloneDefaultRateCard() {
     return JSON.parse(JSON.stringify(DEFAULT_RATE_CARD));
@@ -186,7 +64,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed - POST requirements active.' });
     }
@@ -200,7 +78,6 @@ export default async function handler(req, res) {
 
         const activeImages = images.slice(0, MAX_IMAGES);
         
-        // Key Extraction
         const envKeys = Object.keys(process.env);
         const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
         
@@ -215,7 +92,6 @@ export default async function handler(req, res) {
             model: MODEL,
             generationConfig: {
                 responseMimeType: 'application/json',
-                responseSchema: matrixVisionSchema,
                 temperature: 0.1
             }
         });
@@ -233,7 +109,28 @@ export default async function handler(req, res) {
                         RATE CARD RULES CONFIGURATION:
                         - Minimum Service Order: $${rateCard.minimumJob}
                         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
-                        `
+                        
+                        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting. Use the following exact JSON structure:
+                        {
+                            "services": [
+                                {
+                                    "serviceId": "house_wash",
+                                    "reason": "Visible dirt and algae on siding.",
+                                    "evidence": "Green discoloration on the north wall.",
+                                    "quantity": 2500,
+                                    "quantityUnit": "sq_ft"
+                                }
+                            ],
+                            "hazards": [
+                                {
+                                    "hazard": "Exposed Outlet",
+                                    "action": "Tape and cover before washing."
+                                }
+                            ],
+                            "fieldPlan": {
+                                "difficulty": "moderate"
+                            }
+                        }`
                     },
                     ...activeImages.map((base64Data) => ({
                         inlineData: {
@@ -304,3 +201,12 @@ export default async function handler(req, res) {
         });
     }
 }
+
+module.exports = handler;
+module.exports.config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '12mb'
+        }
+    }
+};
