@@ -8,7 +8,8 @@ export const config = {
     }
 };
 
-const MODEL = 'gemini-2.5-flash';
+const MODEL = 'gemini-3.6-flash';
+
 const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
