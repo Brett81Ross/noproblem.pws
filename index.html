@@ -11,7 +11,7 @@
             min-height: 100vh;
             width: 100%;
         }
-        /* Ultra-Dark Dynamic Live Void Theme Background */
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: #ffffff;
@@ -38,7 +38,7 @@
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            flex: 1; /* FORCES WRAPPER TO FILL SCREEN HEIGHT */
+            flex: 1; 
         }
         .main-content {
             width: 100%;
@@ -84,29 +84,6 @@
             font-weight: 500;
         }
 
-        .token-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .token-diagnostic-bar {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #00f0ff;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
-        }
-        
         .action-card {
             background: rgba(9, 13, 22, 0.85);
             backdrop-filter: blur(16px);
@@ -193,21 +170,15 @@
         @keyframes scannerLaser { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
         @keyframes spinWheel { to { transform: rotate(360deg); } }
 
-        .tier-selection-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 12px; }
-        .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; color: #94a3b8; transition: all 0.2s ease; }
-        .matrix-tier-tab.active-good { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
-        .matrix-tier-tab.active-better { border-color: #00f0ff; color: #00f0ff; background: rgba(0, 240, 255, 0.15); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
-        .matrix-tier-tab.active-best { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.15); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
-
         .interactive-tooltip {
-            font-size: 12px;
+            font-size: 13px;
             color: #94a3b8;
             margin-bottom: 20px;
             font-style: italic;
             text-align: left;
             border-left: 2px solid #00f0ff;
             padding-left: 10px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; position: relative; overflow: hidden; }
@@ -247,7 +218,6 @@
         .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 20px; text-align: center; }
         .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
         
-        /* FOOTER FORCE BOTTOM FIX */
         .footer { 
             width: 100%; 
             margin-top: auto; 
@@ -261,11 +231,6 @@
             letter-spacing: 0.5px; 
         }
 
-        .monetize-container { margin-top: 25px; text-align: center; border-top: 1px dashed rgba(58, 80, 107, 0.4); padding-top: 20px; }
-        .purchase-options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .btn-pay-single { background: rgba(56, 189, 248, 0.05); color: #38bdf8; font-size: 13px; padding: 14px 8px; border: 1px solid rgba(56, 189, 248, 0.25); }
-        .btn-lifetime { background: rgba(74, 222, 128, 0.05); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.25); padding: 14px 8px; font-size: 13px; }
-        
         .utility-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
         .btn-utility { padding: 14px; font-size: 15px; border-radius: 8px; }
         .btn-email { background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; }
@@ -296,11 +261,7 @@
                 <img src="noproblem.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
 
-            <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
-
-            <div class="token-wrapper">
-                <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
-            </div>
+            <div class="tagline">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
 
             <div class="action-card">
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
@@ -312,37 +273,23 @@
                 <div class="preview-grid" id="imagePreviewGrid">
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
                 </div>
-                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
-                
-                <div class="monetize-container">
-                    <div class="purchase-options-grid">
-                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
-                        <!-- Free access test link setup for Kaleb via promotion code -->
-                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00?prefilled_promo_code=Kaleb" class="btn btn-lifetime">Lifetime Access ($99)</a>
-                    </div>
-                </div>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Diagnostic Scan</button>
             </div>
 
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
-                    <p class="result-title">Scan Matrix Report</p>
+                    <p class="result-title">Itemized Diagnostic Report</p>
                     <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
-                </div>
-                
-                <div class="tier-selection-matrix" id="matrixTierRow">
-                    <div class="matrix-tier-tab" id="tabGood" onclick="switchActiveTier('good')">Good</div>
-                    <div class="matrix-tier-tab" id="tabBetter" onclick="switchActiveTier('better')">Better</div>
-                    <div class="matrix-tier-tab" id="tabBest" onclick="switchActiveTier('best')">Best</div>
                 </div>
 
                 <div class="interactive-tooltip">
-                    💡 Tap individual scope items below to toggle them on or off and update the contract total instantly.
+                    💡 **Tap individual scope items** below to toggle them on or off to adjust the contract total instantly based on customer preference.
                 </div>
 
                 <div id="analysisResult"></div>
                 
                 <div class="proposal-total-card">
-                    <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700; margin-bottom:4px;">Project Active Contract Price</div>
+                    <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700; margin-bottom:4px;">Total Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
 
@@ -363,7 +310,6 @@
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
-        let currentSelectedTier = 'better';
         let currentTotalValue = 0;
 
         document.getElementById('cameraInput').addEventListener('change', function(e) { 
@@ -402,13 +348,6 @@
             }
         }
 
-        function calculateTargetTierPrice(basePrice, tier) {
-            if (basePrice === 0) return 0;
-            if (tier === 'good') return basePrice * 0.85; 
-            if (tier === 'best') return basePrice * 1.35; 
-            return basePrice; 
-        }
-
         function togglePriceCard(index) {
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -421,22 +360,6 @@
                 cardElement.classList.remove('disabled-card');
             }
             
-            recalculateGrandTotal();
-        }
-
-        function switchActiveTier(targetTier) {
-            currentSelectedTier = targetTier;
-            document.getElementById('tabGood').className = 'matrix-tier-tab' + (targetTier === 'good' ? ' active-good' : '');
-            document.getElementById('tabBetter').className = 'matrix-tier-tab' + (targetTier === 'better' ? ' active-better' : '');
-            document.getElementById('tabBest').className = 'matrix-tier-tab' + (targetTier === 'best' ? ' active-best' : '');
-            
-            priceItemsRegistry.forEach(item => {
-                const badge = document.getElementById(`priceBadge_${item.id}`);
-                if (badge) {
-                    let updatedPrice = calculateTargetTierPrice(item.value, targetTier);
-                    badge.innerText = `$${updatedPrice.toFixed(2)}`;
-                }
-            });
             recalculateGrandTotal();
         }
 
@@ -467,7 +390,7 @@
             let runningSum = 0;
             priceItemsRegistry.forEach(item => {
                 if (!item.disabled) {
-                    runningSum += calculateTargetTierPrice(item.value, currentSelectedTier);
+                    runningSum += item.value;
                 }
             });
             animatePriceRollup(runningSum);
@@ -478,7 +401,7 @@
             
             const lines = rawText.split('\n');
             let htmlOutput = "";
-            let currentSectionName = "Scanned Tasks";
+            let currentSectionName = "Property Diagnosis";
             let globalCardIndex = 0;
             priceItemsRegistry = []; 
 
@@ -511,20 +434,19 @@
                     globalCardIndex++;
                 } else {
                     let infoText = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    htmlOutput += `<div style="font-size:13px; color:#94a3b8; padding:8px 10px; font-style:italic;">${infoText}</div>`;
+                    htmlOutput += `<div style="font-size:13px; color:#94a3b8; padding:8px 10px; font-style:italic;">⚠️ ${infoText}</div>`;
                 }
             });
             return htmlOutput;
         }
 
         function generateActiveProposalText() {
-            let proposalText = `NO PROBLEM PRESSURE WASHING PROPOSAL - ${currentSelectedTier.toUpperCase()} TIER\n\n`;
+            let proposalText = `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
             priceItemsRegistry.forEach(item => {
                 if (item.disabled) return;
-                let tierPrice = calculateTargetTierPrice(item.value, currentSelectedTier);
-                if (tierPrice > 0) proposalText += `- ${item.cleanText}: $${tierPrice.toFixed(2)}\n`;
+                if (item.value > 0) proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
             });
-            proposalText += `\nTOTAL ACTIVE CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+            proposalText += `\nTOTAL CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
             return proposalText;
         }
 
@@ -542,7 +464,7 @@
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerHTML = `<span class="btn-spinner"></span> RUNNING MATRIX SCAN ENGINE...`;
+            processTrigger.innerHTML = `<span class="btn-spinner"></span> SCANNING PROPERTY SURFACES...`;
 
             try {
                 const payloadImages = stagedBase64Images.slice(0, 3);
@@ -579,7 +501,7 @@
                 document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
                 
                 currentTotalValue = 0; 
-                switchActiveTier('better');
+                recalculateGrandTotal();
                 processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
                 document.getElementById('hudLaserBeam').style.display = 'none';
@@ -591,7 +513,7 @@
                 
                 alert('Analysis connection fault: ' + feedback);
                 processTrigger.className = "btn btn-trigger";
-                processTrigger.innerText = "Analyze Project";
+                processTrigger.innerText = "Run Diagnostic Scan";
             }
         }
 
