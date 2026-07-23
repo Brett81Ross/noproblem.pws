@@ -173,7 +173,7 @@
         .interactive-tooltip {
             font-size: 13px;
             color: #94a3b8;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             font-style: italic;
             text-align: left;
             border-left: 2px solid #00f0ff;
@@ -206,17 +206,68 @@
         .preview-thumbnail:hover { transform: scale(1.05); }
 
         .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
-        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 25px 0 12px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 6px; }
+        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 25px 0 16px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.8); padding-bottom: 8px; }
         
-        .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 16px; display: flex; justify-content: space-between; align-items: center; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; user-select: none; }
-        .proposal-item:hover { border-color: #00f0ff; background: rgba(15, 23, 42, 0.8); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 240, 255, 0.15); }
+        /* NEW DIAGNOSTIC UI BLOCK */
+        .diagnostic-note {
+            font-size: 14.5px;
+            color: #f8fafc; /* Crisp white for legibility */
+            background: rgba(245, 158, 11, 0.12); /* Soft amber warning background */
+            border-left: 4px solid #f59e0b; /* Thick amber left border */
+            padding: 12px 16px;
+            margin-bottom: 8px; /* Pulled tight to the card below it */
+            border-radius: 6px;
+            line-height: 1.5;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        /* UPGRADED PRICING CARD UI */
+        .proposal-item { 
+            background: rgba(15, 23, 42, 0.95); /* Brighter contrast background */
+            border: 1px solid rgba(56, 189, 248, 0.4); /* Crisp light blue border */
+            padding: 18px 20px; 
+            border-radius: 12px; 
+            margin-bottom: 24px; /* More spacing between service blocks */
+            font-size: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
+            user-select: none; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+        }
+        .proposal-item:hover { border-color: #00f0ff; background: rgba(30, 41, 59, 0.95); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 240, 255, 0.2); }
         .proposal-item:active { transform: scale(0.99); }
-        .proposal-item.disabled-card { opacity: 0.25; background-color: rgba(2, 6, 23, 0.3); border-color: transparent; transform: none !important; box-shadow: none; }
-        .proposal-item.disabled-card .price-badge { background-color: #020617; color: #475569; border-color: #1e293b; text-decoration: line-through; }
+        .proposal-item.disabled-card { opacity: 0.35; background-color: rgba(2, 6, 23, 0.5); border-color: transparent; transform: none !important; box-shadow: none; }
+        .proposal-item.disabled-card .price-badge { background-color: #020617; color: #475569; border-color: #1e293b; text-decoration: line-through; box-shadow: none; }
         
-        .price-badge { background-color: #0f172a; color: #38bdf8; padding: 8px 14px; border-radius: 8px; font-weight: 800; border: 1px solid #0077b6; transition: all 0.2s ease; }
-        .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 20px; text-align: center; }
-        .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+        .item-text { 
+            padding-right: 15px; 
+            flex-grow: 1; 
+            font-weight: 700; /* Bolder text for service name */
+            color: #ffffff; /* Brightest white */
+            word-break: break-word; 
+            white-space: normal; 
+            text-align: left; 
+            line-height: 1.4; 
+        }
+
+        .price-badge { 
+            background-color: #020617; 
+            color: #00f0ff; /* Neon cyan to pop against the dark card */
+            padding: 10px 16px; 
+            border-radius: 8px; 
+            font-weight: 900; 
+            font-size: 16px;
+            border: 1px solid rgba(0, 240, 255, 0.5); 
+            transition: all 0.2s ease; 
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.15);
+        }
+        
+        .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 30px; text-align: center; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.15); }
+        .proposal-total-amount { font-size: 38px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); margin-top: 5px; }
         
         .footer { 
             width: 100%; 
@@ -236,7 +287,7 @@
         .btn-email { background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; }
         .copy-btn { background-color: #020617; color: #00f0ff; border: 1px solid #1e293b; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
+        .result-title { font-size: 16px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: 800; }
         
         .hidden-input { 
             position: absolute !important; 
@@ -250,7 +301,6 @@
             opacity: 0 !important;
             z-index: -1 !important;
         }
-        .item-text { padding-right: 15px; flex-grow: 1; font-weight: 500; word-break: break-word; white-space: normal; text-align: left; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -283,13 +333,13 @@
                 </div>
 
                 <div class="interactive-tooltip">
-                    💡 **Tap individual scope items** below to toggle them on or off to adjust the contract total instantly based on customer preference.
+                    💡 <strong>Tap individual scope items</strong> below to toggle them on or off to adjust the contract total instantly based on customer preference.
                 </div>
 
                 <div id="analysisResult"></div>
                 
                 <div class="proposal-total-card">
-                    <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700; margin-bottom:4px;">Total Contract Price</div>
+                    <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;">Total Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
 
@@ -434,7 +484,9 @@
                     globalCardIndex++;
                 } else {
                     let infoText = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    htmlOutput += `<div style="font-size:13px; color:#94a3b8; padding:8px 10px; font-style:italic;">⚠️ ${infoText}</div>`;
+                    // Strip the raw AI emoji and format it into a clean, legible alert box
+                    infoText = infoText.replace('⚠️', '').trim();
+                    htmlOutput += `<div class="diagnostic-note">🔍 ${infoText}</div>`;
                 }
             });
             return htmlOutput;
