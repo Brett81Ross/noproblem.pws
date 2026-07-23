@@ -6,7 +6,7 @@
     "start": "node api/analyze.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.14.0"
+    "@google/generative-ai": "latest"
   },
   "engines": {
     "node": "24.x"
