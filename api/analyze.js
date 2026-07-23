@@ -8,8 +8,7 @@ export const config = {
     }
 };
 
-const MODEL = 'gemini-3.6-flash';
-
+const MODEL = 'gemini-2.5-flash';
 const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -211,7 +210,6 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Gemini API key is missing. Check your Vercel Environment Variables setup.' });
         }
         
-        // Reverted to the ultra-stable GoogleGenerativeAI connection standard
         const genAI = new GoogleGenerativeAI(aiKey);
         const model = genAI.getGenerativeModel({
             model: MODEL,
@@ -250,7 +248,6 @@ export default async function handler(req, res) {
         const result = await model.generateContent(contents);
         const aiResponse = await result.response;
         
-        // JSON Sanitizer to completely prevent markdown syntax crashes
         let rawResultText = aiResponse.text();
         if (!rawResultText) {
             throw new Error('Telemetry failure: Gemini engine returned empty property results.');
@@ -265,7 +262,6 @@ export default async function handler(req, res) {
         let outputProposalString = "RECOMMENDED ACTION PLAN:\n\n";
         let subtotal = 0;
 
-        // Formats the Diagnostic Note, then prints the Pricing Item
         if (scanData.services && Array.isArray(scanData.services)) {
             scanData.services.forEach((item) => {
                 const spec = rateCard.services[item.serviceId];
