@@ -8,7 +8,6 @@ export const config = {
     }
 };
 
-// Targeting the actual latest model released July 2026
 const MODEL = 'gemini-3.6-flash'; 
 const MAX_IMAGES = 12;
 
@@ -156,36 +155,28 @@ export default async function handler(req, res) {
             generationConfig: {
                 responseMimeType: 'application/json',
                 responseSchema: matrixVisionSchema
-                // ⚠️ TEMPERATURE REMOVED HERE to comply with Gemini 3.6 API rules
             }
         });
 
         const rateCard = buildRateCard(settings);
 
-        const contents = [
-            {
-                role: 'user',
-                parts: [
-                    {
-                        text: `You are the master scanning brain of a commercial and residential pressure washing estimator system.
-                        Analyze these property fields, identify dirty architectural structures, measure surface area dimensions, and match requirements to your provided rate card dataset.
-                        
-                        RATE CARD RULES CONFIGURATION:
-                        - Minimum Service Order: $${rateCard.minimumJob}
-                        ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
-                        `
-                    },
-                    ...activeImages.map((base64Data) => ({
-                        inlineData: {
-                            mimeType: 'image/jpeg',
-                            data: base64Data
-                        }
-                    }))
-                ]
-            }
-        ];
+        // ⚠️ THE FIX: Formatted as a flat string/image array that the SDK expects
+        const promptText = `You are the master scanning brain of a commercial and residential pressure washing estimator system.
+        Analyze these property fields, identify dirty architectural structures, measure surface area dimensions, and match requirements to your provided rate card dataset.
+        
+        RATE CARD RULES CONFIGURATION:
+        - Minimum Service Order: $${rateCard.minimumJob}
+        ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
+        `;
 
-        const result = await model.generateContent(contents);
+        const imageParts = activeImages.map((base64Data) => ({
+            inlineData: {
+                mimeType: 'image/jpeg',
+                data: base64Data
+            }
+        }));
+
+        const result = await model.generateContent([promptText, ...imageParts]);
         const aiResponse = await result.response;
         
         let rawResultText = aiResponse.text();
