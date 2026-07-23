@@ -1,13 +1,14 @@
 {
-  "name": "noproblem-pws",
+  "name": "noproblem-matrix",
   "version": "1.0.0",
-  "description": "No Problem Pressure Washing Solutions Auto Estimator",
-  "main": "api/analyze.js",
-  "type": "module",
-  "engines": {
-    "node": "22.x"
+  "description": "No Problem Pressure Washing AI Matrix",
+  "scripts": {
+    "start": "node api/analyze.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/generative-ai": "^0.14.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
