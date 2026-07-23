@@ -8,6 +8,6 @@
     "node": "22.x"
   },
   "dependencies": {
-    "@google/genai": "latest"
+    "@google/generative-ai": "^0.24.1"
   }
 }
