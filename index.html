@@ -472,7 +472,8 @@
             processTrigger.innerHTML = `<span class="btn-spinner"></span> SCANNING PROPERTY SURFACES...`;
 
             try {
-                const payloadImages = stagedBase64Images.slice(0, 3);
+                // ⚠️ THE FIX: Increased the limit so up to 12 photos upload at once
+                const payloadImages = stagedBase64Images.slice(0, 12);
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -487,7 +488,6 @@
                     let errStr = `Server Fault ${response.status}`;
                     try {
                         const errData = await response.json();
-                        // ⚠️ THE FIX: Grabbing 'details' first so you see the REAL Google API error if it happens!
                         errStr = errData.details || errData.error || errStr;
                     } catch (parseEx) {
                         errStr += " (Vercel Edge Drop or Timeout)";
