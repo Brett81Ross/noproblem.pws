@@ -1,13 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Force Vercel to accept larger payloads so multiple images don't cause a 500 crash
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '20mb',
-    },
-  },
-};
+// Force Vercel to allow the function to run for the maximum Hobby tier limit of 60 seconds
+export const maxDuration = 60;
 
 export default async function handler(req, res) {
   // Block any weird requests that aren't POST
