@@ -1,884 +1,492 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MachZero - AI Resale Matrix</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>No Problem Pressure Washing Matrix</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+        }
+        /* Ultra-Dark Dynamic Live Void Theme Background */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            padding: 20px;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #020617, #0b132b, #000000, #090d16, #000000);
+            background-size: 400% 400%;
+            animation: ultraDarkThemeEngine 22s ease infinite;
+        }
 
-  <!-- iOS Link Preview & Open Graph Optimization -->
-  <meta property="og:title" content="MachZero - AI Resale Estimator">
-  <meta property="og:description" content="Add multiple snapshots to a single batch for immediate, expert resale values and optimized marketplace descriptions.">
-  <meta property="og:image" content="https://machzero-beta.vercel.app/acelynnpro.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
+        @keyframes ultraDarkThemeEngine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
 
-  <style>
-    :root {
-      --bg-dark: #070b19;
-      --card-bg: #111a36;
-      --accent-blue: #38bdf8;
-      --accent-green: #10b981;
-      --accent-indigo: #3b82f6;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      
-      /* MachZero Diagnostic Border Accents */
-      --border-blue: #233a66;
-      --border-indigo: #3c2475;
-      --reverb-orange: #ea580c;
-      --generic-border: #334155;
-    }
-    
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 16px;
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      box-sizing: border-box;
-      /* Prevent overall body scroll horizontally */
-      overflow-x: hidden; 
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .header {
-      text-align: center;
-      margin-top: 24px;
-      margin-bottom: 28px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-    }
-    
-    .logo {
-      width: 140px;
-      height: 140px;
-      margin-bottom: 16px;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      object-fit: cover;
-      display: block;
-    }
-    
-    .title {
-      font-size: 2.2rem;
-      font-weight: 900;
-      margin: 0 0 8px 0;
-      letter-spacing: 2px;
-      color: var(--text-main);
-    }
-    
-    .title span {
-      color: var(--accent-blue);
-    }
-    
-    .description {
-      color: var(--text-muted);
-      max-width: 360px;
-      margin: 0 auto;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-    
-    .button-group {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background: var(--card-bg);
-      padding: 16px;
-      border-radius: 16px;
-      box-sizing: border-box;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    
-    .btn {
-      border: none;
-      padding: 14px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s, background-color 0.2s;
-    }
-    
-    .btn:active {
-      transform: scale(0.98);
-    }
-    
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
-    .btn-camera {
-      background-color: var(--accent-blue);
-      color: #020617;
-    }
-    
-    .btn-upload {
-      background-color: rgba(255, 255, 255, 0.08);
-      color: var(--text-main);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .btn-submit {
-      background-color: var(--accent-green);
-      color: #ffffff;
-      margin-top: 4px;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-    }
-    
-    .status-area {
-      width: 100%;
-      margin-top: 20px;
-    }
-    
-    .loading-card {
-      background-color: var(--card-bg);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 12px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-    
-    .loading-card p {
-      margin: 0;
-      font-weight: 600;
-      color: var(--accent-blue);
-      font-size: 1rem;
-      animation: pulseText 1.5s ease-in-out infinite;
-    }
-    
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(56, 189, 248, 0.1);
-      border-top-color: var(--accent-blue);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+        .wrapper-container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        .main-content {
+            width: 100%;
+            text-align: center;
+        }
+        .logo-container {
+            margin-top: 35px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* 💎 PREMIUM LOGO DYNAMIC GLOW ENGINE */
+        .brand-logo-img {
+            width: 100%;
+            max-width: 440px; 
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+            /* Pure transparency breathing aura loop */
+            animation: logoCyberGlowPulse 4s ease-in-out infinite;
+        }
+        .brand-logo-img:hover {
+            transform: scale(1.02);
+        }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes pulseText {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
-    }
+        /* Rhythmic telemetry laser breath keyframes */
+        @keyframes logoCyberGlowPulse {
+            0% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
+            50% { filter: drop-shadow(0 0 35px rgba(0, 240, 255, 0.45)); }
+            100% { filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.2)); }
+        }
 
-    .error-card {
-      background-color: #27161a;
-      border: 1px solid #ef4444;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    
-    .error-card h4 {
-      margin: 0 0 4px 0;
-      color: #ef4444;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-    }
-    
-    .error-card p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #fca5a5;
-      word-break: break-word;
-    }
-    
-    .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 16px;
-      width: 100%;
-    }
-    
-    .preview-item {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      aspect-ratio: 1 / 1;
-      background-color: #020617;
-    }
-    
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    
-    .remove-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: rgba(15, 23, 42, 0.8);
-      color: #ef4444;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      padding: 0;
-    }
+        /* High-contrast header instructions */
+        .tagline {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+            padding: 0 15px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+            font-weight: 500;
+        }
 
-    .master-report-wrapper {
-      display: none;
-      width: 100%;
-      overflow: hidden; 
-    }
+        .token-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .token-diagnostic-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+        
+        .action-card {
+            background: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+            text-align: left;
+            border: 1px solid rgba(58, 80, 107, 0.35);
+            position: relative;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #00f0ff, #0096c7);
+            color: #020617;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-sizing: border-box;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2);
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.03); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px); }
+        .btn-trigger { background: linear-gradient(135deg, #16a34a, #059669); color: #ffffff; margin-top: 15px; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.25); }
+        
+        /* CYAN TELEMETRY SCANNING STATE ENGINE */
+        .btn-loading {
+            background: linear-gradient(270deg, #091d2c, #0b253a, #020617, #061524) !important;
+            background-size: 400% 400% !important;
+            color: #00f0ff !important;
+            cursor: not-allowed;
+            pointer-events: none;
+            scale: 0.98;
+            border: 1px solid #00f0ff !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            animation: cyanVoidMove 4s ease infinite, cyanRadarPulse 1.8s alternate infinite !important;
+        }
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 250%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+            animation: scannerLaser 1.5s infinite linear;
+        }
 
-    .report-box-primary, .report-box-secondary, .report-box-deep {
-      padding: 24px;
-      border-radius: 12px;
-      text-align: left;
-      margin-bottom: 16px;
-      width: 100%;
-      box-sizing: border-box;
-      overflow: hidden; 
-    }
+        .btn-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-top-color: #00f0ff;
+            border-radius: 50%;
+            animation: spinWheel 0.75s linear infinite;
+            display: inline-block;
+        }
 
-    .report-box-primary {
-      background: var(--card-bg);
-      border: 2px solid var(--accent-blue);
-    }
+        @keyframes cyanVoidMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes cyanRadarPulse { 0% { box-shadow: 0 0 8px rgba(0, 240, 255, 0.2); } 100% { box-shadow: 0 0 22px rgba(0, 240, 255, 0.5); } }
+        @keyframes scannerLaser { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes spinWheel { to { transform: rotate(360deg); } }
 
-    .report-box-secondary {
-      background: #0f162b;
-      border: 2px solid var(--border-blue);
-    }
+        .tier-selection-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; margin-bottom: 12px; }
+        .matrix-tier-tab { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; cursor: pointer; color: #94a3b8; }
+        .matrix-tier-tab.active-good { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .matrix-tier-tab.active-better { border-color: #00f0ff; color: #00f0ff; background: rgba(0, 240, 255, 0.1); }
+        .matrix-tier-tab.active-best { border-color: #a855f7; color: #a855f7; background: rgba(168, 85, 247, 0.1); }
 
-    .report-box-deep {
-      background: #121526;
-      border: 2px solid var(--border-indigo);
-    }
+        /* Sleek Matrix Tooltip Alert Callout Box */
+        .interactive-tooltip {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-style: italic;
+            text-align: left;
+            border-left: 2px solid #00f0ff;
+            padding-left: 10px;
+            line-height: 1.4;
+        }
 
-    /* Consolidated Multi-Marketplace Hub Panel */
-    #marketplace-hub-container {
-      padding: 24px;
-      border-radius: 12px;
-      background: #0f172a;
-      border: 2px solid var(--accent-blue);
-      text-align: left;
-      margin-bottom: 16px;
-      display: none;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .report-header-title {
-      margin-top: 0;
-      font-size: 18px;
-      border-bottom: 2px solid var(--accent-blue);
-      padding-bottom: 10px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-
-    .diagnostic-section {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border-blue);
-    }
-
-    .diagnostic-title {
-      font-size: 15px;
-      font-weight: bold;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    /* AGGRESSIVE TEXT WRAPPING */
-    .diagnostic-text, 
-    .diagnostic-text p, 
-    .diagnostic-text pre, 
-    .diagnostic-text code {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 0;
-      white-space: pre-wrap !important;
-      word-break: break-word !important;
-      overflow-wrap: break-word !important;
-      max-width: 100% !important;
-      overflow-x: hidden !important; 
-    }
-
-    #box-val-copyblock {
-      background: #090a12;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid var(--border-indigo);
-      font-size: 13px;
-    }
-
-    .matrix-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-      font-size: 14px;
-      background: #090e1a;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--border-blue);
-    }
-
-    .matrix-table th {
-      background: #162245;
-      color: var(--accent-blue);
-      padding: 10px 12px;
-      text-align: left;
-      font-weight: 700;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .matrix-table td {
-      padding: 12px;
-      border-bottom: 1px solid #111a36;
-      color: #e2e8f0;
-      word-break: break-word; 
-    }
-
-    .matrix-table tr:last-child td {
-      border-bottom: none;
-    }
-    
-    /* Cross-Listing Buttons Grid Layout */
-    .marketplace-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .btn-reverb { background-color: var(--reverb-orange); color: #ffffff; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2); }
-    .btn-reverb:hover { background-color: #d94e06; }
-    .btn-mercari { background-color: #e60012; color: #ffffff; }
-    .btn-ebay { background-color: #0064d2; color: #ffffff; }
-    .btn-facebook { background-color: #1877f2; color: #ffffff; }
-    .btn-offerup { background-color: #00b6aa; color: #ffffff; }
-    .btn-poshmark { background-color: #8b1e3f; color: #ffffff; }
-
-    footer {
-      margin-top: auto;
-      padding-top: 48px;
-      padding-bottom: 12px;
-      text-align: center;
-      font-size: 0.75rem;
-      color: #475569;
-      width: 100%;
-    }
-    
-    footer p { margin: 0; }
-    footer p:first-child { margin-bottom: 4px; }
-    #fileInput { display: none; }
-  </style>
-
-  <!-- Embedded Markdown Client Parser Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  
-  <!-- PDF Engine -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .preview-thumbnail { width: 100%; padding-top: 100%; border-radius: 8px; border: 1px solid #00f0ff; background-size: cover; background-position: center; }
+        
+        .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
+        .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 30px 0 14px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.5); padding-bottom: 8px; }
+        
+        .proposal-item { background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(30, 41, 59, 0.7); padding: 16px 18px; border-radius: 12px; margin-bottom: 12px; font-size: 17px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; cursor: pointer; user-select: none; }
+        .proposal-item:hover { border-color: #00f0ff; background: rgba(15, 23, 42, 0.8); }
+        .proposal-item:active { transform: scale(0.99); }
+        .proposal-item.disabled-card { opacity: 0.2; background-color: rgba(2, 6, 23, 0.3); border-color: transparent; transform: none !important; box-shadow: none; }
+        .proposal-item.disabled-card .price-badge { background-color: #020617; color: #475569; border-color: #1e293b; text-decoration: line-through; }
+        
+        .price-badge { background-color: #0f172a; color: #38bdf8; padding: 8px 14px; border-radius: 8px; font-weight: 800; border: 1px solid #0077b6; }
+        .proposal-total-card { background: linear-gradient(135deg, #0f172a, #020617); border: 2px solid #22c55e; border-radius: 14px; padding: 22px; margin-top: 20px; text-align: center; }
+        .proposal-total-amount { font-size: 36px; font-weight: 900; color: #22c55e; text-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+        .footer { width: 100%; margin-top: 40px; margin-bottom: 20px; font-size: 11px; color: #64748b; text-align: center; opacity: 0.65; line-height: 1.6; letter-spacing: 0.5px; }
+        
+        .monetize-container { margin-top: 25px; text-align: center; border-top: 1px dashed rgba(58, 80, 107, 0.4); padding-top: 20px; }
+        .purchase-options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .btn-pay-single { background: rgba(56, 189, 248, 0.05); color: #38bdf8; font-size: 13px; padding: 14px 8px; border: 1px solid rgba(56, 189, 248, 0.25); }
+        .btn-lifetime { background: rgba(74, 222, 128, 0.05); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.25); padding: 14px 8px; font-size: 13px; }
+        
+        .utility-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+        .btn-utility { padding: 14px; font-size: 15px; border-radius: 8px; }
+        .btn-email { background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; }
+        .copy-btn { background-color: #020617; color: #00f0ff; border: 1px solid #1e293b; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .result-title { font-size: 15px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: bold; }
+        
+        .hidden-input { display: none !important; opacity: 0 !important; position: absolute !important; width: 0 !important; height: 0 !important; overflow: hidden !important; }
+        .item-text { padding-right: 15px; flex-grow: 1; font-weight: 500; word-break: break-word; white-space: normal; text-align: left; }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="header">
-      <img src="logo1.jpg" alt="MachZero Logo" class="logo" id="brandLogo">
-      <h1 class="title">MACH<span>ZERO</span></h1>
-      <p class="description">
-        Add multiple pictures to your batch to get a precise appraisal. Capture different details, close-ups of signatures, or angles of your item before analyzing.
-      </p>
-    </div>
+    <div class="wrapper-container">
+        <div class="main-content">
+            <div class="logo-container">
+                <!-- 🌐 Integrated custom asset file pointer context -->
+                <img src="noproblemmatrix.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
+            </div>
 
-    <div class="button-group">
-      <button class="btn btn-camera" id="cameraBtn">TAKE A PHOTO</button>
-      <button class="btn btn-upload" id="uploadBtn">CHOOSE IMAGES</button>
-      <button class="btn btn-submit" id="submitBtn" style="display: none;">ANALYZE PHOTO/IMAGE (0)</button>
-      <input type="file" id="fileInput" accept="image/*" multiple>
-    </div>
+            <div class="tagline">Snap photos of any residential or commercial site for an instant quote scan.</div>
 
-    <div class="status-area" id="statusArea">
-      <div id="loadingState" class="loading-card" style="display: none; margin-bottom: 20px;">
-        <div class="spinner"></div>
-        <p>Analyzing Images...</p>
-      </div>
+            <div class="token-wrapper">
+                <div class="token-diagnostic-bar"><span id="tokenStatusDisplay">Tokens Remaining: 7 / 7 Active</span></div>
+            </div>
 
-      <div id="errorState" class="error-card" style="display: none;">
-        <h4>Network Fault</h4>
-        <p id="errorText"></p>
-      </div>
+            <div class="action-card">
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
+                <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
 
-      <div id="previewGrid" class="preview-grid"></div>
+                <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
+                
+                <div class="preview-grid" id="imagePreviewGrid"></div>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Analyze Project</button>
+                
+                <div class="monetize-container">
+                    <div class="purchase-options-grid">
+                        <a href="https://buy.stripe.com/test_cNi14n70ngqz5cB5tTdnW02" class="btn btn-pay-single">Buy 1 Scan Credit</a>
+                        <a href="https://buy.stripe.com/test_3cI14n2K76PZbAZf4tdnW00" class="btn btn-lifetime">Lifetime Access ($99)</a>
+                    </div>
+                </div>
+            </div>
 
-      <!-- CONSOLIDATED SEGMENTED BRANDING LAYOUT MODULES -->
-      <div id="masterReportWrapper" class="master-report-wrapper">
-        
-        <!-- Primary Snapshot Dashboard Card -->
-        <div class="report-box-primary">
-          <h3 class="report-header-title" style="color: var(--accent-blue); border-color: var(--accent-blue);">📊 Core Inventory Valuation Matrix</h3>
-          <table class="matrix-table">
-            <thead>
-              <tr>
-                <th>Evaluation Parameter</th>
-                <th>Target Properties</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Estimated Range</td>
-                <td id="table-val-range" style="color: var(--accent-green); font-weight: bold; font-size: 15px;">Pending</td>
-              </tr>
-              <tr>
-                <td>Asset Identity</td>
-                <td id="table-val-title">Pending</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <div class="result-card" id="outputCard" style="display: none;">
+                <div class="result-title-row">
+                    <p class="result-title">Scan Matrix Report</p>
+                    <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
+                </div>
+                
+                <div class="tier-selection-matrix" id="matrixTierRow">
+                    <div class="matrix-tier-tab" id="tabGood" onclick="switchActiveTier('good')">Good</div>
+                    <div class="matrix-tier-tab" id="tabBetter" onclick="switchActiveTier('better')">Better</div>
+                    <div class="matrix-tier-tab" id="tabBest" onclick="switchActiveTier('best')">Best</div>
+                </div>
 
-        <!-- Secondary Analytical Context Card -->
-        <div class="report-box-secondary">
-          <h3 class="report-header-title" style="color: var(--accent-indigo); border-color: var(--accent-indigo);">🔍 Structural Evaluation & Factors</h3>
-          <div class="diagnostic-section" style="border-top: none; margin-top: 0; padding-top: 0;">
-            <div class="diagnostic-title">📋 Strategic Appraisal Insights</div>
-            <div class="diagnostic-text" id="box-val-factors">Processing insights...</div>
-          </div>
-          <div class="diagnostic-section">
-            <div class="diagnostic-title">🌐 Recommended Marketplace Allocation</div>
-            <div class="diagnostic-text" id="box-val-channels">Processing channels...</div>
-          </div>
-        </div>
+                <div class="interactive-tooltip">
+                    💡 Tap individual scope items below to toggle them on or off and update the contract total instantly.
+                </div>
 
-        <!-- Deep Listing Automation Production Card -->
-        <div class="report-box-deep">
-          <h3 class="report-header-title" style="color: #a855f7; border-color: var(--border-indigo);">🏆 Optimized Marketplace Copy Engine</h3>
-          <div class="diagnostic-section" style="border-top: none; margin-top: 0; padding-top: 0;">
-            <div class="diagnostic-title">📝 Ready-to-Publish Structural Output</div>
-            <div class="diagnostic-text" id="box-val-copyblock">Processing content copy...</div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Consolidated Multi-Marketplace Hub Panel (Kept outside PDF wrapper) -->
-      <div id="marketplace-hub-container">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 24px;">🚀</span>
-          <div>
-            <h3 style="color: var(--accent-blue); margin: 0; font-size: 15px; font-weight: bold;">Marketplace Cross-Listing Hub</h3>
-            <p style="margin: 2px 0 0 0; font-size: 13px; color: var(--text-muted);">Instantly push automated data arrays or stage listings onto multiple channels.</p>
-          </div>
+                <div id="analysisResult"></div>
+                
+                <div class="proposal-total-card">
+                    <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:700; margin-bottom:4px;">Project Active Contract Price</div>
+                    <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
+                </div>
+
+                <div class="utility-row" id="actionPanel" style="display: none !important;">
+                    <button class="btn btn-secondary btn-utility" onclick="window.print()">Export PDF</button>
+                    <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
+                </div>
+            </div>
         </div>
         
-        <div class="marketplace-grid">
-          <button class="btn" id="savePdfBtn" style="background-color: #8b5cf6; color: #ffffff; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);">💾 SAVE REPORT AS PDF</button>
-          
-          <button class="btn btn-reverb" id="postReverbBtn" style="display: none;">SEND DRAFT TO REVERB.COM</button>
-          <button class="btn btn-mercari" id="crossMercariBtn">LIST DRAFT ON MERCARI</button>
-          <button class="btn btn-ebay" id="crossEbayBtn">LIST DRAFT ON EBAY</button>
-          <button class="btn btn-facebook" id="crossFacebookBtn">LIST DRAFT ON FACEBOOK MARKETPLACE</button>
-          <button class="btn btn-offerup" id="crossOfferUpBtn">LIST DRAFT ON OFFERUP</button>
-          <button class="btn btn-poshmark" id="crossPoshmarkBtn">LIST DRAFT ON POSHMARK</button>
+        <div class="footer">
+            &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
+            Powered by Cactus wash&trade; Studio &bull; Cactus&🌵Byte Studios&trade;<br>
+            All Rights Reserved
         </div>
-      </div>
-
     </div>
 
-    <footer>
-      <p>&copy; 2026 MachZero&trade;</p>
-      <p>Powered by CactusByte Studios &bull; All Rights Reserved</p>
-    </footer>
-  </div>
+    <script>
+        let stagedBase64Images = [];
+        let priceItemsRegistry = [];
+        let currentSelectedTier = 'better';
 
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const cameraBtn = document.getElementById('cameraBtn');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    
-    const loadingState = document.getElementById('loadingState');
-    const errorState = document.getElementById('errorState');
-    const errorText = document.getElementById('errorText');
-    const previewGrid = document.getElementById('previewGrid');
-    const brandLogo = document.getElementById('brandLogo');
+        document.getElementById('cameraInput').addEventListener('change', function() { stageFiles(this.files); });
+        document.getElementById('fileInput').addEventListener('change', function() { stageFiles(this.files); });
 
-    const masterReportWrapper = document.getElementById('masterReportWrapper');
-    const tableValRange = document.getElementById('table-val-range');
-    const tableValTitle = document.getElementById('table-val-title');
-    const boxValFactors = document.getElementById('box-val-factors');
-    const boxValChannels = document.getElementById('box-val-channels');
-    const boxValCopyblock = document.getElementById('box-val-copyblock');
-    
-    const marketplaceHubContainer = document.getElementById('marketplace-hub-container');
-    const postReverbBtn = document.getElementById('postReverbBtn');
-
-    const savePdfBtn = document.getElementById('savePdfBtn');
-    const crossMercariBtn = document.getElementById('crossMercariBtn');
-    const crossEbayBtn = document.getElementById('crossEbayBtn');
-    const crossFacebookBtn = document.getElementById('crossFacebookBtn');
-    const crossOfferUpBtn = document.getElementById('crossOfferUpBtn');
-    const crossPoshmarkBtn = document.getElementById('crossPoshmarkBtn');
-
-    brandLogo.onerror = () => { console.error("Logo asset acelynnpro.png could not be loaded."); };
-
-    window.imageQueue = [];
-    window.structuredStagedItem = null;
-
-    cameraBtn.addEventListener('click', () => {
-      errorState.style.display = 'none';
-      fileInput.setAttribute('capture', 'environment');
-      fileInput.click();
-    });
-
-    uploadBtn.addEventListener('click', () => {
-      errorState.style.display = 'none';
-      fileInput.removeAttribute('capture');
-      fileInput.click();
-    });
-
-    fileInput.addEventListener('change', async (e) => {
-      const files = Array.from(e.target.files);
-      if (files.length === 0) return;
-
-      for (const file of files) {
-        try {
-          const blobUrl = URL.createObjectURL(file);
-          
-          const queueItem = {
-            id: Date.now() + Math.random().toString(36).substr(2, 5),
-            blobUrl: blobUrl,
-            base64: null 
-          };
-
-          const gridItem = document.createElement('div');
-          gridItem.className = 'preview-item';
-          gridItem.dataset.id = queueItem.id;
-          
-          const imgNode = document.createElement('img');
-          imgNode.src = blobUrl;
-          
-          const removeBtn = document.createElement('button');
-          removeBtn.className = 'remove-btn';
-          removeBtn.innerText = '×';
-          removeBtn.onclick = () => removeImageFromBatch(queueItem.id);
-
-          gridItem.appendChild(imgNode);
-          gridItem.appendChild(removeBtn);
-          previewGrid.appendChild(gridItem);
-
-          window.imageQueue.push(queueItem);
-
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            try {
-              compressAndPrepImage(reader.result, (cleanBase64) => {
-                queueItem.base64 = cleanBase64;
-              });
-            } catch (innerErr) {
-              console.error("Compression processing error:", innerErr);
+        async function stageFiles(files) {
+            if (!files || files.length === 0) return;
+            const previewGrid = document.getElementById('imagePreviewGrid');
+            const processTrigger = document.getElementById('processTrigger');
+            
+            for (let i = 0; i < files.length; i++) {
+                const base64Str = await resizeAndCompressImage(files[i]);
+                stagedBase64Images.push(base64Str.replace(/^data:image\/\w+;base64,/, ""));
+                const thumb = document.createElement('div');
+                thumb.className = 'preview-thumbnail';
+                thumb.style.backgroundImage = `url(${base64Str})`;
+                previewGrid.appendChild(thumb);
             }
-          };
-          reader.readAsDataURL(file);
-        } catch (fileErr) {
-          console.error("File loading registration fault:", fileErr);
-        }
-      }
-
-      updateSubmitButtonState();
-      fileInput.value = ''; 
-    });
-
-    function compressAndPrepImage(base64Str, callback) {
-      const img = new Image();
-      img.src = base64Str;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max_size = 800; 
-
-        if (width > height) {
-          if (width > max_size) {
-            height *= max_size / width;
-            width = max_size;
-          }
-        } else {
-          if (height > max_size) {
-            width *= max_size / height;
-            height = max_size;
-          }
+            if (stagedBase64Images.length > 0) {
+                processTrigger.setAttribute('style', 'display: block !important;');
+            }
         }
 
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const optimizedBase64 = canvas.toDataURL('image/jpeg', 0.78);
-        const splitData = optimizedBase64.split(',');
-        
-        callback(splitData[1]);
-      };
-    }
-
-    function removeImageFromBatch(id) {
-      const index = window.imageQueue.findIndex(item => item.id === id);
-      if (index !== -1) {
-        URL.revokeObjectURL(window.imageQueue[index].blobUrl);
-        window.imageQueue.splice(index, 1);
-      }
-      const element = previewGrid.querySelector(`[data-id="${id}"]`);
-      if (element) element.remove();
-      updateSubmitButtonState();
-    }
-
-    function updateSubmitButtonState() {
-      if (window.imageQueue.length > 0) {
-        submitBtn.style.display = 'block';
-        submitBtn.innerText = `ANALYZE PHOTO/IMAGE (${window.imageQueue.length})`;
-      } else {
-        submitBtn.style.display = 'none';
-      }
-    }
-
-    submitBtn.addEventListener('click', async () => {
-      const uncompleted = window.imageQueue.some(item => !item.base64);
-      if (uncompleted) {
-        showError("Images are still processing. Please press analyze again.");
-        return;
-      }
-
-      setLoading(true);
-      errorState.style.display = 'none';
-      masterReportWrapper.style.display = 'none';
-      marketplaceHubContainer.style.display = 'none';
-
-      const base64Array = window.imageQueue.map(item => item.base64);
-      await sendDirectToBackend(base64Array);
-    });
-
-    async function sendDirectToBackend(base64ImagesArray) {
-      try {
-        const responseFetch = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ images: base64ImagesArray })
-        });
-        
-        if (!responseFetch.ok) {
-          const rawErrText = await responseFetch.text().catch(() => "");
-          throw new Error(`Server status fault ${responseFetch.status}. ${rawErrText}`);
-        }
-        
-        const serverData = await responseFetch.json();
-        const text = serverData.analysis;
-
-        const sections = {
-          range: text.split('[PART_1]')[1]?.split('[PART_2]')[0]?.trim() || "Evaluation Staging Error",
-          title: text.split('[PART_2]')[1]?.split('[PART_3]')[0]?.trim() || "Evaluation Staging Error",
-          factors: text.split('[PART_3]')[1]?.split('[PART_4]')[0]?.trim() || "",
-          channels: text.split('[PART_4]')[1]?.split('[PART_5]')[0]?.trim() || "",
-          copyblock: text.split('[PART_5]')[1]?.trim() || ""
-        };
-
-        window.structuredStagedItem = {
-          title: sections.title,
-          price: sections.range,
-          description: sections.copyblock
-        };
-
-        tableValRange.innerText = sections.range;
-        tableValTitle.innerText = sections.title;
-        boxValFactors.innerHTML = marked.parse(sections.factors);
-        boxValChannels.innerHTML = marked.parse(sections.channels);
-        boxValCopyblock.innerHTML = marked.parse(sections.copyblock);
-
-        masterReportWrapper.style.display = 'block';
-        marketplaceHubContainer.style.display = 'block';
-
-        const verifiedKeywords = ['guitar', 'bass', 'amplifier', 'pedal', 'synth', 'keyboard', 'pickup', 'audio', 'gear', 'drum', 'ibanez', 'fender', 'gibson'];
-        const cleanTitle = sections.title.toLowerCase();
-        const cleanRawText = text.toLowerCase();
-
-        const matchedInstrument = verifiedKeywords.some(keyword => 
-          cleanTitle.includes(keyword) || cleanRawText.includes(keyword)
-        );
-
-        if (matchedInstrument) {
-          postReverbBtn.style.display = 'block';
-        } else {
-          postReverbBtn.style.display = 'none';
+        function calculateTargetTierPrice(basePrice, tier) {
+            if (basePrice === 0) return 0;
+            if (tier === 'good') return basePrice * 0.85; 
+            if (tier === 'best') return basePrice * 1.35; 
+            return basePrice; 
         }
 
-        masterReportWrapper.scrollIntoView({ behavior: 'smooth' });
-      } catch (err) {
-        console.error(err);
-        showError(`Analysis Error: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function executeClipboardHandoff(platformName, redirectUrl) {
-      if (!window.structuredStagedItem) return;
-      
-      const cleanDescText = boxValCopyblock.innerText || window.structuredStagedItem.description;
-      const clipboardContent = `TITLE: ${window.structuredStagedItem.title}\nPRICE SEGMENT: ${window.structuredStagedItem.price}\n\n${cleanDescText}`;
-      
-      try {
-        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-          await navigator.clipboard.writeText(clipboardContent);
-          alert(`Copied to Clipboard!\n\nMachZero has copied your item title, pricing estimation, and detailed description. We are now opening ${platformName} so you can paste it right in.`);
+        function togglePriceCard(index) {
+            const cardElement = document.getElementById(`priceCard_${index}`);
+            if (!cardElement || !priceItemsRegistry[index]) return;
+            
+            priceItemsRegistry[index].disabled = !priceItemsRegistry[index].disabled;
+            
+            if (priceItemsRegistry[index].disabled) {
+                cardElement.classList.add('disabled-card');
+            } else {
+                cardElement.classList.remove('disabled-card');
+            }
+            
+            recalculateGrandTotal();
         }
-      } catch (err) {
-        console.warn("Mobile browser context copy routine blocked:", err);
-      } finally {
-        window.open(redirectUrl, "_blank");
-      }
-    }
 
-    crossMercariBtn.addEventListener('click', () => {
-      executeClipboardHandoff("Mercari", "https://www.mercari.com/sell/");
-    });
-
-    crossEbayBtn.addEventListener('click', () => {
-      executeClipboardHandoff("eBay", "https://www.ebay.com/sl/sell");
-    });
-
-    crossFacebookBtn.addEventListener('click', () => {
-      executeClipboardHandoff("Facebook Marketplace", "https://www.facebook.com/marketplace/create");
-    });
-
-    crossOfferUpBtn.addEventListener('click', () => {
-      executeClipboardHandoff("OfferUp", "https://offerup.com/post");
-    });
-
-    crossPoshmarkBtn.addEventListener('click', () => {
-      executeClipboardHandoff("Poshmark", "https://poshmark.com/listing");
-    });
-
-    postReverbBtn.addEventListener('click', async () => {
-      if (!window.structuredStagedItem) return;
-
-      postReverbBtn.disabled = true;
-      postReverbBtn.innerText = "PUBLISHING UNPUBLISHED DRAFT...";
-
-      const rawImagePayloads = window.imageQueue.map(item => item.base64).filter(Boolean);
-
-      try {
-        const response = await fetch('/api/reverb-draft', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: window.structuredStagedItem.title,
-            description: window.structuredStagedItem.description,
-            price: window.structuredStagedItem.price, 
-            images: rawImagePayloads 
-          })
-        });
-
-        if (response.ok) {
-          const userChoice = confirm("Okay, I made the draft in your Reverb. Would you like to go there now or would you like to stay on this app?\n\nClick 'OK' to view your Reverb drafts page, or 'Cancel' to stay right here.");
-          if (userChoice) {
-            window.open("https://reverb.com/my/listings?state=draft", "_blank");
-          }
-        } else {
-          const rawErrorPayload = await response.json().catch(() => ({}));
-          const specificDetails = rawErrorPayload.details ? JSON.stringify(rawErrorPayload.details) : rawErrorPayload.error || "Unknown server response code";
-          alert("Reverb Rejection Feedback:\n" + specificDetails);
+        function switchActiveTier(targetTier) {
+            currentSelectedTier = targetTier;
+            document.getElementById('tabGood').className = 'matrix-tier-tab' + (targetTier === 'good' ? ' active-good' : '');
+            document.getElementById('tabBetter').className = 'matrix-tier-tab' + (targetTier === 'better' ? ' active-better' : '');
+            document.getElementById('tabBest').className = 'matrix-tier-tab' + (targetTier === 'best' ? ' active-best' : '');
+            
+            priceItemsRegistry.forEach(item => {
+                const badge = document.getElementById(`priceBadge_${item.id}`);
+                if (badge) {
+                    let updatedPrice = calculateTargetTierPrice(item.value, targetTier);
+                    badge.innerText = `$${updatedPrice.toFixed(2)}`;
+                }
+            });
+            recalculateGrandTotal();
         }
-      } catch (err) {
-        console.error("Endpoint execution block error:", err);
-        alert("Connectivity error during API execution: " + err.message);
-      } finally {
-        postReverbBtn.disabled = false;
-        postReverbBtn.innerText = "SEND DRAFT TO REVERB.COM";
-      }
-    });
 
-    // PDF Generation Logic
-    savePdfBtn.addEventListener('click', () => {
-      const originalText = savePdfBtn.innerText;
-      savePdfBtn.innerText = "GENERATING PDF...";
-      savePdfBtn.disabled = true;
+        function recalculateGrandTotal() {
+            let runningSum = 0;
+            priceItemsRegistry.forEach(item => {
+                if (!item.disabled) {
+                    runningSum += calculateTargetTierPrice(item.value, currentSelectedTier);
+                }
+            });
+            document.getElementById('grandTotalDisplay').innerText = `$${runningSum.toFixed(2)}`;
+        }
 
-      const element = document.getElementById('masterReportWrapper');
-      
-      const opt = {
-        margin:       0.5,
-        filename:     `MachZero_Appraisal_${Date.now()}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#070b19' },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
+        function parseInteractiveHTML(rawText) {
+            const lines = rawText.split('\n');
+            let htmlOutput = "";
+            let currentSectionName = "Details";
+            let globalCardIndex = 0;
+            priceItemsRegistry = []; 
 
-      html2pdf().set(opt).from(element).save().then(() => {
-        savePdfBtn.innerText = originalText;
-        savePdfBtn.disabled = false;
-      });
-    });
+            lines.forEach(line => {
+                const cleanLine = line.trim();
+                if (!cleanLine) return;
 
-    function setLoading(isLoading) {
-      if (isLoading) {
-        loadingState.style.display = 'flex';
-        cameraBtn.disabled = true;
-        uploadBtn.disabled = true;
-        submitBtn.disabled = true;
-      } else {
-        loadingState.style.display = 'none';
-        cameraBtn.disabled = false;
-        uploadBtn.disabled = false;
-        submitBtn.disabled = false;
-      }
-    }
+                if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
+                    currentSectionName = cleanLine.replace(':', '').trim();
+                    htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
+                } else {
+                    let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
+                    const segmentPriceMatch = textContent.match(/\$[0-9,.]+/);
+                    let parsedNumericValue = 0;
+                    
+                    if (segmentPriceMatch) {
+                        parsedNumericValue = parseFloat(segmentPriceMatch[0].replace('$', '').replace(/,/g, '')) || 0;
+                        textContent = textContent.replace(segmentPriceMatch[0], "").trim();
+                    }
 
-    function showError(message) {
-      errorText.textContent = message;
-      errorState.style.display = 'block';
-    }
-  </script>
-  <script defer src="https://va.vercel.clerk.com/script.js"></script>
+                    priceItemsRegistry.push({ id: globalCardIndex, section: currentSectionName, cleanText: textContent, value: parsedNumericValue, disabled: false });
 
+                    if (parsedNumericValue > 0) {
+                        htmlOutput += `
+                            <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
+                                <div class="item-text">${textContent}</div>
+                                <span class="price-badge" id="priceBadge_${globalCardIndex}">$${parsedNumericValue.toFixed(2)}</span>
+                            </div>`;
+                    }
+                    globalCardIndex++;
+                }
+            });
+            return htmlOutput;
+        }
+
+        function generateActiveProposalText() {
+            let proposalText = `NO PROBLEM PRESSURE WASHING PROPOSAL - ${currentSelectedTier.toUpperCase()} TIER\n\n`;
+            priceItemsRegistry.forEach(item => {
+                if (item.disabled) return;
+                let tierPrice = calculateTargetTierPrice(item.value, currentSelectedTier);
+                if (tierPrice > 0) proposalText += `- ${item.cleanText}: $${tierPrice.toFixed(2)}\n`;
+            });
+            proposalText += `\nTOTAL ACTIVE CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+            return proposalText;
+        }
+
+        function copyToClipboard() {
+            navigator.clipboard.writeText(generateActiveProposalText());
+            const btn = document.getElementById('copyButton');
+            btn.innerText = "Copied!";
+            setTimeout(() => { btn.innerText = "Copy Text"; }, 2000);
+        }
+
+        function sendProposalEmail() {
+            window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
+        }
+
+        async function submitJobForAnalysis() {
+            const processTrigger = document.getElementById('processTrigger');
+            processTrigger.className = "btn btn-trigger btn-loading";
+            processTrigger.innerHTML = `<span class="btn-spinner"></span> RUNNING MATRIX SCAN ENGINE...`;
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ images: stagedBase64Images })
+                });
+                const data = await response.json();
+                
+                document.getElementById('outputCard').style.display = 'block';
+                document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
+                document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
+                
+                switchActiveTier('better');
+                processTrigger.setAttribute('style', 'display: none !important;');
+            } catch (err) {
+                alert('Analysis fault: ' + err.message);
+                processTrigger.className = "btn btn-trigger";
+                processTrigger.innerText = "Analyze Project";
+            }
+        }
+
+        function resizeAndCompressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 600; canvas.height = 450;
+                        ctx.drawImage(img, 0, 0, 600, 450);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+                    };
+                    img.onerror = (err) => reject(err);
+                };
+                reader.onerror = (err) => reject(err);
+            });
+        }
+    </script>
 </body>
 </html>
