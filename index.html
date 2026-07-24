@@ -657,7 +657,7 @@
                     let errStr = `Server Fault ${response.status}`;
                     try {
                         const errData = await response.json();
-                        errStr = errData.details || errData.error || errStr;
+                        errStr = errData.details || errData.error || (typeof errData === 'object' ? JSON.stringify(errData) : errData) || errStr;
                     } catch (parseEx) {
                         errStr += " (Vercel Edge Drop or Timeout)";
                     }
@@ -668,7 +668,7 @@
                 document.getElementById('hudLaserBeam').style.display = 'none';
 
                 if (data.error) {
-                    throw new Error(data.details || data.error);
+                    throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
                 
                 document.getElementById('outputCard').style.display = 'block';
@@ -681,8 +681,13 @@
             } catch (err) {
                 document.getElementById('hudLaserBeam').style.display = 'none';
                 
-                let feedback = (typeof err === 'object' && err !== null) ? (err.message || JSON.stringify(err)) : String(err);
-                if (feedback === 'Failed to fetch') {
+                let feedback = err;
+                if (typeof err === 'object' && err !== null) {
+                    feedback = err.message || JSON.stringify(err);
+                }
+                feedback = String(feedback);
+
+                if (feedback.includes('Failed to fetch')) {
                     feedback = 'Failed to fetch. The Vercel edge connection dropped. Ensure your API Key is valid and scan 1 image at a time to stay under server limits.';
                 }
                 
