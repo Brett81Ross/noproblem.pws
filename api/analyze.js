@@ -174,7 +174,6 @@ async function handler(req, res) {
             throw new Error('Telemetry failure: Gemini engine returned empty property results.');
         }
         
-        // Clean and parse JSON safely
         let scanData;
         try {
             const firstBrace = rawResultText.indexOf('{');
@@ -184,7 +183,6 @@ async function handler(req, res) {
             }
             scanData = JSON.parse(rawResultText);
         } catch (parseErr) {
-            // Fallback: strip markdown blocks and try again
             const cleaned = rawResultText.replace(/```json/gi, '').replace(/```/g, '').trim();
             const fBrace = cleaned.indexOf('{');
             const lBrace = cleaned.lastIndexOf('}');
