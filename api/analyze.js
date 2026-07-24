@@ -7,6 +7,7 @@ const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
     services: {
         house_wash: { label: 'House Soft Wash', unit: 'sq_ft', rate: 0.22 },
+        post_construction_rinse: { label: 'Post-Construction Final Rinse (No Chem)', unit: 'sq_ft', rate: 0.14 },
         driveway_cleaning: { label: 'Driveway Surface Cleaning', unit: 'sq_ft', rate: 0.18 },
         sidewalk_cleaning: { label: 'Sidewalk Surface Cleaning', unit: 'sq_ft', rate: 0.16 },
         patio_cleaning: { label: 'Patio Cleaning', unit: 'sq_ft', rate: 0.18 },
@@ -103,10 +104,12 @@ async function handler(req, res) {
         Identify dirty architectural structures across ALL photos, estimate surface area dimensions, and match requirements to your provided rate card dataset.
         
         STRICT OPERATIONAL RULES (THE LEAN PROTOCOL):
-        1. PAver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, you MUST flag it. High-pressure surface cleaners will destroy poly sand. Recommend "Soft Wash / Low-Pressure Chemical Treatment" only.
+        1. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, you MUST flag it. High-pressure surface cleaners will destroy poly sand. Recommend "Soft Wash / Low-Pressure Chemical Treatment" only.
         2. Furniture Relocation: If you detect patio furniture, grills, or potted plants in the cleaning zone, automatically add the "furniture_moving" service ID to the quote.
         3. Electrical Utilities: AC units, electric meters, and telecom boxes are waterproof. DO NOT recommend taping or bagging them. Recommend "Rinse around utilities; avoid direct high-pressure spray."
         4. Aggressive Upselling: Look in the background of the photos. If you see a dirty vinyl fence, a retaining wall, or slimy wooden stairs, automatically generate a service line item for them as a recommended upsell.
+        5. New Construction Mode: Look for signs of a new build (mud tracks from equipment, hydro-seed overspray on foundations, lack of established landscaping, or construction dust). If detected, DO NOT recommend a chemical house wash. Replace it with the "post_construction_rinse" service ID. 
+        6. Equipment Saver (Hot Water Warning): If you detect minor oil spots on a standard residential driveway, add a hazard/operational note explicitly stating: "Do not deploy hot-water skid or heavy degreaser for minor residential spots. Spot treat and cold-water surface clean to save operational overhead."
         
         RATE CARD RULES CONFIGURATION:
         - Minimum Service Order: $${rateCard.minimumJob}
