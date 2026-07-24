@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const MODEL = 'gemini-3.6-flash';
+const MODEL = 'gemini-3.1-pro-preview';
 const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
