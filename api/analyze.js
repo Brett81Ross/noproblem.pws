@@ -66,6 +66,22 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
+async function callModelWithRetry(modelInstance, contents, retries = 3, delay = 1000) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            const result = await modelInstance.generateContent(contents);
+            return result;
+        } catch (error) {
+            const is503 = error.message && (error.message.includes('503') || error.message.includes('Service Unavailable') || error.message.includes('high demand'));
+            if (is503 && attempt < retries) {
+                await new Promise(res => setTimeout(res, delay * attempt));
+                continue;
+            }
+            throw error;
+        }
+    }
+}
+
 async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed - POST requirements active.' });
@@ -144,7 +160,7 @@ async function handler(req, res) {
             }
         }));
 
-        const result = await model.generateContent([promptText, ...imageParts]);
+        const result = await callModelWithRetry(model, [promptText, ...imageParts]);
         const aiResponse = await result.response;
         
         let rawResultText = aiResponse.text();
