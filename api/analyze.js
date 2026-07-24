@@ -118,11 +118,12 @@ async function handler(req, res) {
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property. You MUST scan and analyze EVERY SINGLE IMAGE provided.
         
-        STRICT OPERATIONAL & FIELD EXECUTION PROTOCOLS (AUSTIN DAVIS & JUSTIN METHODS):
-        1. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. High-pressure surface cleaners destroy poly sand. Mandate low-pressure chemical soft washing only.
-        2. Concrete Anti-Streaking (Cross-Hit Method): For any concrete surfaces (driveways, sidewalks, patios, pool decks), mandate the 2-pass perpendicular cross-hit method (first pass vertical, second pass horizontal) or post-treatment with bleach to eliminate surface cleaner lines.
-        3. Austin Davis Batch-Mixing Formulas: For chemical treatments, calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        4. Timeline Estimation: Provide realistic field completion durations for each task.
+        STRICT OPERATIONAL & FIELD SAFETY PROTOCOLS:
+        1. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
+        2. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
+        3. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
+        4. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
+        5. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders (safety glasses, rubber boots, gloves), and step-by-step instructions.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
@@ -141,13 +142,13 @@ async function handler(req, res) {
                     "waterUsageGallons": 350,
                     "chemicalPrescription": "1.5% Target Mix",
                     "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
+                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet surrounding plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Outdoor Electrical Outlet",
-                    "action": "Rinse around utilities; avoid direct high-pressure spray."
+                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
+                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
                 }
             ],
             "fieldPlan": {
@@ -197,7 +198,7 @@ async function handler(req, res) {
                 if (item.estimatedTimeMinutes) {
                     outputProposalString += `⏱️ Timeline: ${item.estimatedTimeMinutes} Mins | 💧 Water: ~${item.waterUsageGallons || 200} Gal\n`;
                     outputProposalString += `🧪 Chemical & Batch Math: ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}\n`;
-                    outputProposalString += `📋 Field Execution: ${item.executionInstructions || 'Standard operating procedure.'}\n\n`;
+                    outputProposalString += `📋 Field Execution & PPE: ${item.executionInstructions || 'Wear safety glasses, rubber boots, and gloves. Standard operating procedure.'}\n\n`;
                 } else {
                     outputProposalString += `\n`;
                 }
@@ -217,9 +218,9 @@ async function handler(req, res) {
         }
 
         if (scanData.hazards && scanData.hazards.length > 0) {
-            outputProposalString += "SITE NOTES & SAFETY:\n\n";
+            outputProposalString += "SITE SAFETY & PRE-INSPECTION PROTOCOL:\n\n";
             scanData.hazards.forEach(hazard => {
-                outputProposalString += `- ${hazard.hazard} - ${hazard.action}\n`;
+                outputProposalString += `- ${hazard.hazard} -> Action: ${hazard.action}\n`;
             });
         }
 
