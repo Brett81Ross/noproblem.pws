@@ -115,20 +115,16 @@ async function handler(req, res) {
 
         const rateCard = buildRateCard(settings);
 
-        const promptText = `You are the master scanning brain of a commercial and residential pressure washing estimator system.
+        const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property. You MUST scan and analyze EVERY SINGLE IMAGE provided.
-        Identify dirty architectural structures across ALL photos, estimate surface area dimensions, and match requirements to your provided rate card dataset.
         
-        STRICT OPERATIONAL RULES (THE LEAN PROTOCOL & FIELD EXECUTION PROTOCOLS):
-        1. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, you MUST flag it. High-pressure surface cleaners will destroy poly sand. Recommend "Soft Wash / Low-Pressure Chemical Treatment" only.
-        2. Furniture Relocation: If you detect patio furniture, grills, or potted plants in the cleaning zone, automatically add the "furniture_moving" service ID to the quote.
-        3. Electrical Utilities: AC units, electric meters, and telecom boxes are waterproof. DO NOT recommend taping or bagging them. Recommend "Rinse around utilities; avoid direct high-pressure spray."
-        4. Aggressive Upselling: Look in the background of the photos. If you see a dirty vinyl fence, a retaining wall, or slimy wooden stairs, automatically generate a service line item for them as a recommended upsell.
-        5. New Construction Mode: Look for signs of a new build (mud tracks from equipment, hydro-seed overspray on foundations, lack of established landscaping, or construction dust). If detected, DO NOT recommend a chemical house wash. Replace it with the "post_construction_rinse" service ID. 
-        6. Equipment Saver (Hot Water Warning): If you detect minor oil spots on a standard residential driveway, add a hazard/operational note explicitly stating: "Do not deploy hot-water skid or heavy degreaser for minor residential spots. Spot treat and cold-water surface clean to save operational overhead."
-        7. Concrete Anti-Streaking Protocol: Whenever you recommend concrete cleaning (driveways, sidewalks, pool decks, patios), you MUST include a technician field instruction enforcing the "Cross-Hit Method" (pass over twice in perpendicular directions: vertical first, then horizontal) or post-treatment with bleach to eliminate surface cleaner lines.
+        STRICT OPERATIONAL & FIELD EXECUTION PROTOCOLS (AUSTIN DAVIS & JUSTIN METHODS):
+        1. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. High-pressure surface cleaners destroy poly sand. Mandate low-pressure chemical soft washing only.
+        2. Concrete Anti-Streaking (Cross-Hit Method): For any concrete surfaces (driveways, sidewalks, patios, pool decks), mandate the 2-pass perpendicular cross-hit method (first pass vertical, second pass horizontal) or post-treatment with bleach to eliminate surface cleaner lines.
+        3. Austin Davis Batch-Mixing Formulas: For chemical treatments, calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
+        4. Timeline Estimation: Provide realistic field completion durations for each task.
         
-        RATE CARD RULES CONFIGURATION:
+        RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
         
@@ -137,20 +133,27 @@ async function handler(req, res) {
             "services": [
                 {
                     "serviceId": "house_wash",
-                    "reason": "Visible dirt and algae on siding.",
-                    "evidence": "Green discoloration on the north wall.",
+                    "reason": "Visible green algae and organic mildew on vinyl siding.",
+                    "evidence": "Discoloration on north-facing wall panels.",
                     "quantity": 2500,
-                    "quantityUnit": "sq_ft"
+                    "quantityUnit": "sq_ft",
+                    "estimatedTimeMinutes": 90,
+                    "waterUsageGallons": 350,
+                    "chemicalPrescription": "1.5% Target Mix",
+                    "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
+                    "executionInstructions": "Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Exposed Outlet",
-                    "action": "Tape and cover before washing."
+                    "hazard": "Outdoor Electrical Outlet",
+                    "action": "Rinse around utilities; avoid direct high-pressure spray."
                 }
             ],
             "fieldPlan": {
-                "difficulty": "moderate"
+                "difficulty": "moderate",
+                "totalEstimatedHours": "2.5 Hours",
+                "crewSizeRecommended": 2
             }
         }`;
 
@@ -189,10 +192,15 @@ async function handler(req, res) {
 
                 const diagnosticText = item.evidence || item.reason || `Visible buildup detected requiring treatment.`;
                 outputProposalString += `- ${diagnosticText}\n`;
-                if (item.serviceId.includes('cleaning') && (item.serviceId.includes('driveway') || item.serviceId.includes('sidewalk') || item.serviceId.includes('patio') || item.serviceId.includes('pool_deck'))) {
-                    outputProposalString += `- Field Technique: Execute Cross-Hit Method (vertical pass followed by horizontal pass) to eliminate surface cleaner lines. Apply post-treatment bleach if stubborn organic streaks remain.\n`;
+                outputProposalString += `- ${spec.label} (${item.quantity} ${spec.unit}): $${itemTotal.toFixed(2)}\n`;
+                
+                if (item.estimatedTimeMinutes) {
+                    outputProposalString += `⏱️ Timeline: ${item.estimatedTimeMinutes} Mins | 💧 Water: ~${item.waterUsageGallons || 200} Gal\n`;
+                    outputProposalString += `🧪 Chemical & Batch Math: ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}\n`;
+                    outputProposalString += `📋 Field Execution: ${item.executionInstructions || 'Standard operating procedure.'}\n\n`;
+                } else {
+                    outputProposalString += `\n`;
                 }
-                outputProposalString += `- ${spec.label} (${item.quantity} ${spec.unit}): $${itemTotal.toFixed(2)}\n\n`;
             });
         }
 
@@ -202,8 +210,14 @@ async function handler(req, res) {
             outputProposalString += `- Base Minimum Mobilization: $${subtotal.toFixed(2)}\n\n`;
         }
 
+        if (scanData.fieldPlan && scanData.fieldPlan.totalEstimatedHours) {
+            outputProposalString += `JOB SITE SUMMARY:\n`;
+            outputProposalString += `- Total Estimated Window: ${scanData.fieldPlan.totalEstimatedHours}\n`;
+            outputProposalString += `- Recommended Crew: ${scanData.fieldPlan.crewSizeRecommended || 1} Technician(s)\n\n`;
+        }
+
         if (scanData.hazards && scanData.hazards.length > 0) {
-            outputProposalString += "SITE NOTES:\n\n";
+            outputProposalString += "SITE NOTES & SAFETY:\n\n";
             scanData.hazards.forEach(hazard => {
                 outputProposalString += `- ${hazard.hazard} - ${hazard.action}\n`;
             });
