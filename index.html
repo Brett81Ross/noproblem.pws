@@ -114,13 +114,12 @@
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
         }
 
+        /* Technician Mode UI Overrides */
         body.tech-mode .price-badge { display: none !important; }
         body.tech-mode .proposal-total-card { display: none !important; }
         body.tech-mode .interactive-tooltip { display: none !important; }
         body.tech-mode .btn-email { display: none !important; }
-        body.tech-mode .proposal-item { cursor: default; }
-        body.tech-mode .proposal-item:hover { transform: none; border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
-        body.tech-mode .item-text { padding-right: 0; }
+        body.tech-mode .admin-only-utility { display: none !important; }
 
         .action-card {
             background: rgba(9, 13, 22, 0.85);
@@ -338,6 +337,28 @@
         .result-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .result-title { font-size: 16px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: 800; }
         .hidden-input { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0,0,0,0) !important; border: 0 !important; opacity: 0 !important; z-index: -1 !important; }
+        
+        /* Tech Card Specifics */
+        .tech-execution-card {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #00f0ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .tech-card-title {
+            font-size: 15px;
+            font-weight: 900;
+            color: #00f0ff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .tech-metric-row {
+            font-size: 13.5px;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -374,18 +395,18 @@
                     <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
 
-                <div class="interactive-tooltip">
+                <div class="interactive-tooltip" id="adminTooltip">
                     💡 <strong>Tap individual scope items</strong> below to toggle them on or off to adjust the contract total instantly based on customer preference.
                 </div>
 
                 <div id="analysisResult"></div>
                 
-                <div class="proposal-total-card">
+                <div class="proposal-total-card" id="adminTotalCard">
                     <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;">Total Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
 
-                <div class="utility-row" id="actionPanel" style="display: none !important;">
+                <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
                     <button class="btn btn-secondary btn-utility" onclick="window.print()">Export PDF</button>
                     <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
                 </div>
@@ -402,6 +423,7 @@
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
+        let techMatrixData = null;
         let currentTotalValue = 0;
         let isTechMode = false;
         const ADMIN_PIN = "1234";
@@ -413,10 +435,14 @@
 
             if (isTechMode) {
                 document.body.classList.add('tech-mode');
-                document.getElementById('reportTitleText').innerText = "Field Execution Plan";
+                document.getElementById('reportTitleText').innerText = "Field Execution Matrix";
+                document.getElementById('copyButton').innerText = "Copy Tech Plan";
+                if (techMatrixData) renderTechModeView(techMatrixData);
             } else {
                 document.body.classList.remove('tech-mode');
                 document.getElementById('reportTitleText').innerText = "Itemized Diagnostic Report";
+                document.getElementById('copyButton').innerText = "Copy Text";
+                if (techMatrixData) renderAdminModeView(techMatrixData);
             }
         }
 
@@ -498,7 +524,7 @@
             if (stagedBase64Images.length > 0) {
                 processTrigger.setAttribute('style', 'display: block !important;');
             } else {
-                processTrigger.setAttribute('style', 'display: none !important;');
+                processTrigger.setAttribute('style', 'display: none !important;`');
             }
         }
 
@@ -552,84 +578,118 @@
             animatePriceRollup(runningSum);
         }
 
-        function parseInteractiveHTML(rawText) {
-            if (!rawText || typeof rawText !== 'string') return '<div style="color:#ef4444; font-style:italic; padding:10px;">Invalid or empty response data.</div>';
-            
-            const lines = rawText.split('\n');
+        function renderAdminModeView(scanData) {
             let htmlOutput = "";
-            let currentSectionName = "Property Diagnosis";
+            priceItemsRegistry = [];
             let globalCardIndex = 0;
-            priceItemsRegistry = []; 
 
-            lines.forEach(line => {
-                const cleanLine = line.trim();
-                if (!cleanLine) return;
-
-                if (cleanLine.endsWith(':') && !cleanLine.startsWith('-') && !cleanLine.includes('$')) {
-                    currentSectionName = cleanLine.replace(':', '').trim();
-                    htmlOutput += `<div class="proposal-section-title">${currentSectionName}</div>`;
-                } else if (cleanLine.includes('$')) {
-                    const segmentPriceMatch = cleanLine.match(/\$[0-9,.]+/);
-                    let parsedNumericValue = 0;
-                    let textContent = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
+            if (scanData.services && Array.isArray(scanData.services)) {
+                htmlOutput += `<div class="proposal-section-title">Property Diagnosis & Pricing</div>`;
+                scanData.services.forEach(item => {
+                    const itemTotal = item.calculatedPrice || 0;
+                    const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${item.reason || 'Surface treatment required.'}`;
                     
-                    if (segmentPriceMatch) {
-                        parsedNumericValue = parseFloat(segmentPriceMatch[0].replace('$', '').replace(/,/g, '')) || 0;
-                        textContent = textContent.replace(segmentPriceMatch[0], "").replace(/\s+/g, ' ').trim();
-                    }
+                    priceItemsRegistry.push({ id: globalCardIndex, cleanText: textContent, value: itemTotal, disabled: false });
 
-                    priceItemsRegistry.push({ id: globalCardIndex, section: currentSectionName, cleanText: textContent, value: parsedNumericValue, disabled: false });
-
-                    if (parsedNumericValue > 0) {
-                        htmlOutput += `
-                            <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
-                                <div class="item-text">${textContent}</div>
-                                <span class="price-badge" id="priceBadge_${globalCardIndex}">$${parsedNumericValue.toFixed(2)}</span>
-                            </div>`;
-                    }
+                    htmlOutput += `
+                        <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
+                            <div class="item-text">${textContent}</div>
+                            <span class="price-badge" id="priceBadge_${globalCardIndex}">$${itemTotal.toFixed(2)}</span>
+                        </div>`;
                     globalCardIndex++;
-                } else {
-                    let infoText = cleanLine.startsWith('-') ? cleanLine.substring(1).trim() : cleanLine;
-                    infoText = infoText.replace('⚠️', '').trim();
-                    htmlOutput += `<div class="diagnostic-note">🔍 ${infoText}</div>`;
-                }
-            });
-            return htmlOutput;
+                });
+            }
+
+            if (scanData.hazards && scanData.hazards.length > 0) {
+                htmlOutput += `<div class="proposal-section-title">Site Hazards & Safety</div>`;
+                scanData.hazards.forEach(hazard => {
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard} - ${hazard.action}</div>`;
+                });
+            }
+
+            document.getElementById('analysisResult').innerHTML = htmlOutput;
+            currentTotalValue = 0;
+            recalculateGrandTotal();
+        }
+
+        function renderTechModeView(scanData) {
+            let htmlOutput = "";
+
+            if (scanData.fieldPlan) {
+                htmlOutput += `
+                    <div class="tech-execution-card" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.08);">
+                        <div class="tech-card-title" style="color: #22c55e;">🚀 Job Summary & Crew Plan</div>
+                        <div class="tech-metric-row"><strong>⏱️ Total Window:</strong> ${scanData.fieldPlan.totalEstimatedHours || '2 Hours'}</div>
+                        <div class="tech-metric-row"><strong>👥 Recommended Crew:</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
+                        <div class="tech-metric-row"><strong>📊 Site Difficulty:</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
+                    </div>`;
+            }
+
+            if (scanData.services && Array.isArray(scanData.services)) {
+                htmlOutput += `<div class="proposal-section-title">Crew Execution Matrix</div>`;
+                scanData.services.forEach(item => {
+                    htmlOutput += `
+                        <div class="tech-execution-card">
+                            <div class="tech-card-title">📌 ${item.label || item.serviceId}</div>
+                            <div class="tech-metric-row"><strong>📏 Scope:</strong> ${item.quantity} ${item.quantityUnit}</div>
+                            <div class="tech-metric-row"><strong>⏱️ Timeline:</strong> ${item.estimatedTimeMinutes || 60} Minutes</div>
+                            <div class="tech-metric-row"><strong>💧 Water:</strong> ~${item.waterUsageGallons || 200} Gallons</div>
+                            <div class="tech-metric-row"><strong>🧪 Chemical & Batch Math:</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
+                            <div class="tech-metric-row"><strong>📋 Field Steps:</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
+                        </div>`;
+                });
+            }
+
+            if (scanData.hazards && scanData.hazards.length > 0) {
+                htmlOutput += `<div class="proposal-section-title">Critical Safety Protocols</div>`;
+                scanData.hazards.forEach(hazard => {
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard}: ${hazard.action}</div>`;
+                });
+            }
+
+            document.getElementById('analysisResult').innerHTML = htmlOutput;
         }
 
         function generateActiveProposalText() {
-            let proposalText = isTechMode 
-                ? `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION PLAN\n\n`
-                : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
-
-            priceItemsRegistry.forEach(item => {
-                if (item.disabled) return;
-                if (item.value > 0) {
-                    proposalText += isTechMode 
-                        ? `- ${item.cleanText}\n` 
-                        : `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+            if (isTechMode) {
+                let techText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n\n`;
+                if (techMatrixData && techMatrixData.fieldPlan) {
+                    techText += `JOB SUMMARY:\n`;
+                    techText += `- Total Window: ${techMatrixData.fieldPlan.totalEstimatedHours || '2 Hours'}\n`;
+                    techText += `- Crew Size: ${techMatrixData.fieldPlan.crewSizeRecommended || 1} Tech(s)\n\n`;
                 }
-            });
-            
-            if (!isTechMode) {
+                if (techMatrixData && techMatrixData.services) {
+                    techMatrixData.services.forEach(item => {
+                        techText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
+                        techText += `  - Timeline: ${item.estimatedTimeMinutes || 60} Mins | Water: ~${item.waterUsageGallons || 200} Gal\n`;
+                        techText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
+                        techText += `  - Execution: ${item.executionInstructions}\n\n`;
+                    });
+                }
+                return techText;
+            } else {
+                let proposalText = `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+                priceItemsRegistry.forEach(item => {
+                    if (item.disabled) return;
+                    if (item.value > 0) {
+                        proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+                    }
+                });
                 proposalText += `\nTOTAL CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+                proposalText += `\n----------------------------------------\n`;
+                proposalText += `TERMS & CONDITIONS:\n`;
+                proposalText += `- Estimate valid for 30 days from issuance.\n`;
+                proposalText += `- Client guarantees access to water source and operational exterior electrical outlets.\n`;
+                proposalText += `- No Problem Pressure Washing Solutions LLC is not responsible for pre-existing unnoted damage, loose siding, or oxidation wear.\n`;
+                return proposalText;
             }
-
-            proposalText += `\n----------------------------------------\n`;
-            proposalText += `TERMS & CONDITIONS:\n`;
-            proposalText += `- Estimate valid for 30 days from issuance.\n`;
-            proposalText += `- Client guarantees access to water source and operational exterior electrical outlets.\n`;
-            proposalText += `- No Problem Pressure Washing Solutions LLC is not responsible for pre-existing unnoted damage, loose siding, or oxidation wear.\n`;
-            proposalText += `- Instant quote generated via Matrix Autonomous Engine.\n`;
-
-            return proposalText;
         }
 
         function copyToClipboard() {
             navigator.clipboard.writeText(generateActiveProposalText());
             const btn = document.getElementById('copyButton');
             btn.innerText = "Copied!";
-            setTimeout(() => { btn.innerText = "Copy Text"; }, 2000);
+            setTimeout(() => { btn.innerText = isTechMode ? "Copy Tech Plan" : "Copy Text"; }, 2000);
         }
 
         function sendProposalEmail() {
@@ -671,12 +731,17 @@
                     throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
                 
+                techMatrixData = data.rawMatrixData;
+                
                 document.getElementById('outputCard').style.display = 'block';
                 document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
-                document.getElementById('analysisResult').innerHTML = parseInteractiveHTML(data.result);
                 
-                currentTotalValue = 0; 
-                recalculateGrandTotal();
+                if (isTechMode) {
+                    renderTechModeView(techMatrixData);
+                } else {
+                    renderAdminModeView(techMatrixData);
+                }
+                
                 processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
                 document.getElementById('hudLaserBeam').style.display = 'none';
