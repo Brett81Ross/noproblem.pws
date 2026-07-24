@@ -123,17 +123,18 @@ async function handler(req, res) {
         2. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
         3. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
         4. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        5. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders (safety glasses, rubber boots, gloves), and step-by-step instructions.
+        5. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders, and step-by-step instructions.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
         
-        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting. Use the following exact JSON structure:
+        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting or extra commentary outside the braces. Use the following exact JSON structure:
         {
             "services": [
                 {
                     "serviceId": "house_wash",
+                    "label": "House Soft Wash",
                     "reason": "Visible green algae and organic mildew on vinyl siding.",
                     "evidence": "Discoloration on north-facing wall panels.",
                     "quantity": 2500,
@@ -142,7 +143,7 @@ async function handler(req, res) {
                     "waterUsageGallons": 350,
                     "chemicalPrescription": "1.5% Target Mix",
                     "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet surrounding plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
+                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
                 }
             ],
             "hazards": [
@@ -173,60 +174,42 @@ async function handler(req, res) {
             throw new Error('Telemetry failure: Gemini engine returned empty property results.');
         }
         
-        rawResultText = rawResultText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const scanData = JSON.parse(rawResultText);
+        // Clean and parse JSON safely
+        let scanData;
+        try {
+            const firstBrace = rawResultText.indexOf('{');
+            const lastBrace = rawResultText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                rawResultText = rawResultText.substring(firstBrace, lastBrace + 1);
+            }
+            scanData = JSON.parse(rawResultText);
+        } catch (parseErr) {
+            // Fallback: strip markdown blocks and try again
+            const cleaned = rawResultText.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const fBrace = cleaned.indexOf('{');
+            const lBrace = cleaned.lastIndexOf('}');
+            scanData = JSON.parse(cleaned.substring(fBrace, lBrace + 1));
+        }
         
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
-        let outputProposalString = "RECOMMENDED ACTION PLAN:\n\n";
-        let subtotal = 0;
-
         if (scanData.services && Array.isArray(scanData.services)) {
             scanData.services.forEach((item) => {
                 const spec = rateCard.services[item.serviceId];
-                if (!spec) return;
-
-                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
-                const itemTotal = roundMoney(basePrice * multiplier);
-                subtotal += itemTotal;
-
-                const diagnosticText = item.evidence || item.reason || `Visible buildup detected requiring treatment.`;
-                outputProposalString += `- ${diagnosticText}\n`;
-                outputProposalString += `- ${spec.label} (${item.quantity} ${spec.unit}): $${itemTotal.toFixed(2)}\n`;
-                
-                if (item.estimatedTimeMinutes) {
-                    outputProposalString += `⏱️ Timeline: ${item.estimatedTimeMinutes} Mins | 💧 Water: ~${item.waterUsageGallons || 200} Gal\n`;
-                    outputProposalString += `🧪 Chemical & Batch Math: ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}\n`;
-                    outputProposalString += `📋 Field Execution & PPE: ${item.executionInstructions || 'Wear safety glasses, rubber boots, and gloves. Standard operating procedure.'}\n\n`;
-                } else {
-                    outputProposalString += `\n`;
+                if (!spec) {
+                    item.calculatedPrice = rateCard.minimumJob;
+                    item.label = item.label || 'Custom Service';
+                    return;
                 }
-            });
-        }
-
-        if (subtotal < rateCard.minimumJob && subtotal > 0) {
-            subtotal = rateCard.minimumJob;
-            outputProposalString += `- Operational minimums not met. Adjusting to standard mobilization rate.\n`;
-            outputProposalString += `- Base Minimum Mobilization: $${subtotal.toFixed(2)}\n\n`;
-        }
-
-        if (scanData.fieldPlan && scanData.fieldPlan.totalEstimatedHours) {
-            outputProposalString += `JOB SITE SUMMARY:\n`;
-            outputProposalString += `- Total Estimated Window: ${scanData.fieldPlan.totalEstimatedHours}\n`;
-            outputProposalString += `- Recommended Crew: ${scanData.fieldPlan.crewSizeRecommended || 1} Technician(s)\n\n`;
-        }
-
-        if (scanData.hazards && scanData.hazards.length > 0) {
-            outputProposalString += "SITE SAFETY & PRE-INSPECTION PROTOCOL:\n\n";
-            scanData.hazards.forEach(hazard => {
-                outputProposalString += `- ${hazard.hazard} -> Action: ${hazard.action}\n`;
+                item.label = spec.label;
+                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
+                item.calculatedPrice = roundMoney(basePrice * multiplier);
             });
         }
 
         return res.status(200).json({
             success: true,
-            result: outputProposalString,
             rawMatrixData: scanData
         });
 
