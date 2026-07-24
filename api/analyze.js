@@ -119,13 +119,14 @@ async function handler(req, res) {
         I am providing you with MULTIPLE images of a property. You MUST scan and analyze EVERY SINGLE IMAGE provided.
         Identify dirty architectural structures across ALL photos, estimate surface area dimensions, and match requirements to your provided rate card dataset.
         
-        STRICT OPERATIONAL RULES (THE LEAN PROTOCOL):
+        STRICT OPERATIONAL RULES (THE LEAN PROTOCOL & FIELD EXECUTION PROTOCOLS):
         1. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, you MUST flag it. High-pressure surface cleaners will destroy poly sand. Recommend "Soft Wash / Low-Pressure Chemical Treatment" only.
         2. Furniture Relocation: If you detect patio furniture, grills, or potted plants in the cleaning zone, automatically add the "furniture_moving" service ID to the quote.
         3. Electrical Utilities: AC units, electric meters, and telecom boxes are waterproof. DO NOT recommend taping or bagging them. Recommend "Rinse around utilities; avoid direct high-pressure spray."
         4. Aggressive Upselling: Look in the background of the photos. If you see a dirty vinyl fence, a retaining wall, or slimy wooden stairs, automatically generate a service line item for them as a recommended upsell.
         5. New Construction Mode: Look for signs of a new build (mud tracks from equipment, hydro-seed overspray on foundations, lack of established landscaping, or construction dust). If detected, DO NOT recommend a chemical house wash. Replace it with the "post_construction_rinse" service ID. 
         6. Equipment Saver (Hot Water Warning): If you detect minor oil spots on a standard residential driveway, add a hazard/operational note explicitly stating: "Do not deploy hot-water skid or heavy degreaser for minor residential spots. Spot treat and cold-water surface clean to save operational overhead."
+        7. Concrete Anti-Streaking Protocol: Whenever you recommend concrete cleaning (driveways, sidewalks, pool decks, patios), you MUST include a technician field instruction enforcing the "Cross-Hit Method" (pass over twice in perpendicular directions: vertical first, then horizontal) or post-treatment with bleach to eliminate surface cleaner lines.
         
         RATE CARD RULES CONFIGURATION:
         - Minimum Service Order: $${rateCard.minimumJob}
@@ -188,6 +189,9 @@ async function handler(req, res) {
 
                 const diagnosticText = item.evidence || item.reason || `Visible buildup detected requiring treatment.`;
                 outputProposalString += `- ${diagnosticText}\n`;
+                if (item.serviceId.includes('cleaning') && (item.serviceId.includes('driveway') || item.serviceId.includes('sidewalk') || item.serviceId.includes('patio') || item.serviceId.includes('pool_deck'))) {
+                    outputProposalString += `- Field Technique: Execute Cross-Hit Method (vertical pass followed by horizontal pass) to eliminate surface cleaner lines. Apply post-treatment bleach if stubborn organic streaks remain.\n`;
+                }
                 outputProposalString += `- ${spec.label} (${item.quantity} ${spec.unit}): $${itemTotal.toFixed(2)}\n\n`;
             });
         }
