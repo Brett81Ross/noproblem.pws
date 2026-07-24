@@ -83,6 +83,44 @@
             text-shadow: 0 1px 5px rgba(0,0,0,0.5);
             font-weight: 500;
         }
+        
+        .mode-toggle-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: rgba(2, 6, 23, 0.7);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #475569;
+        }
+        .mode-btn.active {
+            background: rgba(0, 240, 255, 0.15);
+            color: #00f0ff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+        }
+
+        body.tech-mode .price-badge { display: none !important; }
+        body.tech-mode .proposal-total-card { display: none !important; }
+        body.tech-mode .interactive-tooltip { display: none !important; }
+        body.tech-mode .btn-email { display: none !important; }
+        body.tech-mode .proposal-item { cursor: default; }
+        body.tech-mode .proposal-item:hover { transform: none; border-color: rgba(56, 189, 248, 0.4); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+        body.tech-mode .item-text { padding-right: 0; }
 
         .action-card {
             background: rgba(9, 13, 22, 0.85);
@@ -202,7 +240,6 @@
             100% { top: 100%; opacity: 0; }
         }
         
-        /* THE RED X AND THUMBNAIL UI FIXES */
         .preview-thumbnail-wrapper {
             position: relative;
             width: 100%;
@@ -229,7 +266,7 @@
             right: 4px;
             width: 24px;
             height: 24px;
-            background-color: #ef4444; /* Alert Red */
+            background-color: #ef4444; 
             color: #ffffff;
             border: 2px solid #020617;
             border-radius: 50%;
@@ -313,6 +350,11 @@
 
             <div class="tagline">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
 
+            <div class="mode-toggle-container">
+                <div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>
+                <div class="mode-btn" id="btnTechMode" onclick="setAppMode('tech')">Technician Mode</div>
+            </div>
+
             <div class="action-card">
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                 <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
@@ -328,7 +370,7 @@
 
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
-                    <p class="result-title">Itemized Diagnostic Report</p>
+                    <p class="result-title" id="reportTitleText">Itemized Diagnostic Report</p>
                     <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
 
@@ -352,16 +394,41 @@
         
         <div class="footer">
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by Cactus🌵Byte Studios&trade;<br>
+            Powered by Cactus & 🌵 Byte Studios&trade;<br>
             All Rights Reserved
         </div>
     </div>
 
     <script>
-        // NEW CENTRALIZED IMAGE MANAGER
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
         let currentTotalValue = 0;
+        let isTechMode = false;
+        const ADMIN_PIN = "1234";
+
+        function setAppMode(mode) {
+            isTechMode = (mode === 'tech');
+            document.getElementById('btnAdminMode').classList.toggle('active', !isTechMode);
+            document.getElementById('btnTechMode').classList.toggle('active', isTechMode);
+
+            if (isTechMode) {
+                document.body.classList.add('tech-mode');
+                document.getElementById('reportTitleText').innerText = "Field Execution Plan";
+            } else {
+                document.body.classList.remove('tech-mode');
+                document.getElementById('reportTitleText').innerText = "Itemized Diagnostic Report";
+            }
+        }
+
+        function requestAdminMode() {
+            if (!isTechMode) return;
+            const enteredPin = prompt("Enter Admin PIN to switch modes:");
+            if (enteredPin === ADMIN_PIN) {
+                setAppMode('admin');
+            } else if (enteredPin !== null) {
+                alert("Incorrect Admin PIN.");
+            }
+        }
 
         document.getElementById('cameraInput').addEventListener('change', function(e) { 
             stageFiles(e.target.files); 
@@ -379,13 +446,11 @@
                 const laser = document.getElementById('hudLaserBeam');
                 if (laser) laser.style.display = 'block'; 
                 
-                // Add new photos directly to the main array so they stack correctly
                 for (let i = 0; i < files.length; i++) {
                     const base64Str = await resizeAndCompressImage(files[i]);
                     stagedBase64Images.push(base64Str); 
                 }
                 
-                // Rebuild the grid completely with the new array
                 renderPreviewGrid();
                 
                 if (laser) laser.style.display = 'none';
@@ -396,23 +461,19 @@
             }
         }
 
-        // RED X DELETE FUNCTION
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
             renderPreviewGrid();
         }
 
-        // DYNAMIC GRID ENGINE
         function renderPreviewGrid() {
             const previewGrid = document.getElementById('imagePreviewGrid');
             const processTrigger = document.getElementById('processTrigger');
             const laser = document.getElementById('hudLaserBeam');
             
-            // Clear out old thumbnails, but keep the scanner laser
             previewGrid.innerHTML = '';
             if (laser) previewGrid.appendChild(laser);
 
-            // Rebuild all thumbnails from the array, giving each one a red X
             stagedBase64Images.forEach((base64Str, index) => {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'preview-thumbnail-wrapper';
@@ -434,7 +495,6 @@
                 previewGrid.appendChild(wrapper);
             });
 
-            // Only show the big blue Analyze button if there is at least 1 photo uploaded
             if (stagedBase64Images.length > 0) {
                 processTrigger.setAttribute('style', 'display: block !important;');
             } else {
@@ -443,6 +503,8 @@
         }
 
         function togglePriceCard(index) {
+            if (isTechMode) return; 
+            
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
             
@@ -536,12 +598,30 @@
         }
 
         function generateActiveProposalText() {
-            let proposalText = `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+            let proposalText = isTechMode 
+                ? `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION PLAN\n\n`
+                : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+
             priceItemsRegistry.forEach(item => {
                 if (item.disabled) return;
-                if (item.value > 0) proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+                if (item.value > 0) {
+                    proposalText += isTechMode 
+                        ? `- ${item.cleanText}\n` 
+                        : `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
+                }
             });
-            proposalText += `\nTOTAL CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+            
+            if (!isTechMode) {
+                proposalText += `\nTOTAL CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+            }
+
+            proposalText += `\n----------------------------------------\n`;
+            proposalText += `TERMS & CONDITIONS:\n`;
+            proposalText += `- Estimate valid for 30 days from issuance.\n`;
+            proposalText += `- Client guarantees access to water source and operational exterior electrical outlets.\n`;
+            proposalText += `- No Problem Pressure Washing Solutions LLC is not responsible for pre-existing unnoted damage, loose siding, or oxidation wear.\n`;
+            proposalText += `- Instant quote generated via Matrix Autonomous Engine.\n`;
+
             return proposalText;
         }
 
@@ -562,7 +642,6 @@
             processTrigger.innerHTML = `<span class="btn-spinner"></span> SCANNING PROPERTY SURFACES...`;
 
             try {
-                // Strips the visual "data:image" prefix before sending so the backend doesn't crash
                 const payloadImages = stagedBase64Images.slice(0, 12).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
@@ -602,7 +681,7 @@
             } catch (err) {
                 document.getElementById('hudLaserBeam').style.display = 'none';
                 
-                let feedback = err.message;
+                let feedback = (typeof err === 'object' && err !== null) ? (err.message || JSON.stringify(err)) : String(err);
                 if (feedback === 'Failed to fetch') {
                     feedback = 'Failed to fetch. The Vercel edge connection dropped. Ensure your API Key is valid and scan 1 image at a time to stay under server limits.';
                 }
