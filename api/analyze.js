@@ -1,14 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '12mb'
-        }
-    }
-};
-
-const MODEL = 'gemini-3.6-flash'; 
+const MODEL = 'gemini-3.6-flash';
 const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -28,7 +20,8 @@ const DEFAULT_RATE_CARD = Object.freeze({
         dumpster_pad: { label: 'Dumpster Pad Cleaning', unit: 'sq_ft', rate: 0.42 },
         rust_treatment: { label: 'Rust Treatment', unit: 'flat', rate: 125 },
         oil_treatment: { label: 'Oil and Grease Treatment', unit: 'flat', rate: 150 },
-        oxidation_treatment: { label: 'Oxidation Treatment', unit: 'flat', rate: 175 }
+        oxidation_treatment: { label: 'Oxidation Treatment', unit: 'flat', rate: 175 },
+        furniture_moving: { label: 'Site Prep & Furniture Relocation', unit: 'flat', rate: 50 }
     },
     difficultyMultipliers: {
         low: 1,
@@ -37,60 +30,6 @@ const DEFAULT_RATE_CARD = Object.freeze({
         extreme: 1.5
     }
 });
-
-const matrixVisionSchema = {
-    type: 'object',
-    properties: {
-        property: {
-            type: 'object',
-            properties: {
-                propertyType: { type: 'string', enum: ['residential', 'commercial', 'industrial', 'multi_family', 'unknown'] },
-                stories: { type: 'integer' },
-                overallCondition: { type: 'string', enum: ['light', 'moderate', 'heavy', 'extreme', 'unknown'] },
-                visionConfidence: { type: 'integer' },
-                summary: { type: 'string' }
-            },
-            required: ['propertyType', 'stories', 'overallCondition', 'visionConfidence', 'summary']
-        },
-        services: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    serviceId: { type: 'string', enum: Object.keys(DEFAULT_RATE_CARD.services) },
-                    category: { type: 'string', enum: ['required', 'recommended', 'optional'] },
-                    reason: { type: 'string' },
-                    evidence: { type: 'string' },
-                    quantity: { type: 'number' },
-                    quantityUnit: { type: 'string', enum: ['sq_ft', 'linear_ft', 'flat', 'unknown'] },
-                    confidence: { type: 'integer' }
-                },
-                required: ['serviceId', 'category', 'reason', 'evidence', 'quantity', 'quantityUnit', 'confidence']
-            }
-        },
-        hazards: {
-            type: 'array',
-            items: {
-                type: 'object',
-                properties: {
-                    hazard: { type: 'string' },
-                    severity: { type: 'string', enum: ['low', 'moderate', 'high', 'critical'] },
-                    evidence: { type: 'string' },
-                    action: { type: 'string' }
-                },
-                required: ['hazard', 'severity', 'evidence', 'action']
-            }
-        },
-        fieldPlan: {
-            type: 'object',
-            properties: {
-                difficulty: { type: 'string', enum: ['low', 'moderate', 'high', 'extreme'] }
-            },
-            required: ['difficulty']
-        }
-    },
-    required: ['property', 'services', 'hazards', 'fieldPlan']
-};
 
 function cloneDefaultRateCard() {
     return JSON.parse(JSON.stringify(DEFAULT_RATE_CARD));
@@ -126,7 +65,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-export default async function handler(req, res) {
+async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed - POST requirements active.' });
     }
@@ -153,21 +92,47 @@ export default async function handler(req, res) {
         const model = genAI.getGenerativeModel({
             model: MODEL,
             generationConfig: {
-                responseMimeType: 'application/json',
-                responseSchema: matrixVisionSchema
+                responseMimeType: 'application/json'
             }
         });
 
         const rateCard = buildRateCard(settings);
 
-        // ⚠️ THE FIX: Formatted as a flat string/image array that the SDK expects
         const promptText = `You are the master scanning brain of a commercial and residential pressure washing estimator system.
-        Analyze these property fields, identify dirty architectural structures, measure surface area dimensions, and match requirements to your provided rate card dataset.
+        I am providing you with MULTIPLE images of a property. You MUST scan and analyze EVERY SINGLE IMAGE provided.
+        Identify dirty architectural structures across ALL photos, estimate surface area dimensions, and match requirements to your provided rate card dataset.
+        
+        STRICT OPERATIONAL RULES (THE LEAN PROTOCOL):
+        1. PAver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, you MUST flag it. High-pressure surface cleaners will destroy poly sand. Recommend "Soft Wash / Low-Pressure Chemical Treatment" only.
+        2. Furniture Relocation: If you detect patio furniture, grills, or potted plants in the cleaning zone, automatically add the "furniture_moving" service ID to the quote.
+        3. Electrical Utilities: AC units, electric meters, and telecom boxes are waterproof. DO NOT recommend taping or bagging them. Recommend "Rinse around utilities; avoid direct high-pressure spray."
+        4. Aggressive Upselling: Look in the background of the photos. If you see a dirty vinyl fence, a retaining wall, or slimy wooden stairs, automatically generate a service line item for them as a recommended upsell.
         
         RATE CARD RULES CONFIGURATION:
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
-        `;
+        
+        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting. Use the following exact JSON structure:
+        {
+            "services": [
+                {
+                    "serviceId": "house_wash",
+                    "reason": "Visible dirt and algae on siding.",
+                    "evidence": "Green discoloration on the north wall.",
+                    "quantity": 2500,
+                    "quantityUnit": "sq_ft"
+                }
+            ],
+            "hazards": [
+                {
+                    "hazard": "Exposed Outlet",
+                    "action": "Tape and cover before washing."
+                }
+            ],
+            "fieldPlan": {
+                "difficulty": "moderate"
+            }
+        }`;
 
         const imageParts = activeImages.map((base64Data) => ({
             inlineData: {
@@ -235,3 +200,12 @@ export default async function handler(req, res) {
         });
     }
 }
+
+module.exports = handler;
+module.exports.config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '12mb'
+        }
+    }
+};
