@@ -1,6 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Locked into Gemini 3.5 Flash for standard, high-speed execution
+// Standard, high-speed execution model
 const MODEL = 'gemini-3.5-flash'; 
 // Capped at 4 images to ensure the network stays lightning fast
 const MAX_IMAGES = 4;
@@ -69,7 +69,8 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-async function callModelWithRetry(modelInstance, contents, retries = 2, delay = 500) {
+// UPGRADED RETRY LOGIC: Tries up to 5 times, waits progressively longer (2s, 4s, 6s...) if the server is busy
+async function callModelWithRetry(modelInstance, contents, retries = 5, delay = 2000) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             const result = await modelInstance.generateContent(contents);
@@ -77,6 +78,7 @@ async function callModelWithRetry(modelInstance, contents, retries = 2, delay = 
         } catch (error) {
             const is503 = error.message && (error.message.includes('503') || error.message.includes('Service Unavailable') || error.message.includes('high demand'));
             if (is503 && attempt < retries) {
+                console.log(`Server busy. Retrying... Attempt ${attempt} of ${retries}`);
                 await new Promise(res => setTimeout(res, delay * attempt));
                 continue;
             }
