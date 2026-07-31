@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// The clean, standard model alias with no version numbers
-const MODEL = 'gemini-pro'; 
+// Standard high-speed engine specifically built to process images
+const MODEL = 'gemini-2.0-flash'; 
 // Capped at 4 images to ensure the network stays lightning fast
 const MAX_IMAGES = 4;
 
