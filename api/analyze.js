@@ -1,8 +1,8 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Switched to the lightning-fast Flash model for instant results
-const MODEL = 'gemini-3.1-flash'; 
-// Capped at 4 images to ensure network speed stays fast
+// Locked into Gemini 3.5 Flash for standard, high-speed execution
+const MODEL = 'gemini-3.5-flash'; 
+// Capped at 4 images to ensure the network stays lightning fast
 const MAX_IMAGES = 4;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -227,7 +227,7 @@ async function handler(req, res) {
 
 module.exports = handler;
 
-// Keeping the extra time buffer just to be safe so Vercel never abruptly drops it
+// Keeping the maxDuration buffer so Vercel never abruptly drops the connection
 module.exports.config = {
     maxDuration: 60,
     api: {
