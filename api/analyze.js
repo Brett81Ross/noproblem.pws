@@ -22,7 +22,8 @@ const DEFAULT_RATE_CARD = Object.freeze({
         rust_treatment: { label: 'Rust Treatment', unit: 'flat', rate: 125 },
         oil_treatment: { label: 'Oil and Grease Treatment', unit: 'flat', rate: 150 },
         oxidation_treatment: { label: 'Oxidation Treatment', unit: 'flat', rate: 175 },
-        furniture_moving: { label: 'Site Prep & Furniture Relocation', unit: 'flat', rate: 50 }
+        furniture_moving: { label: 'Site Prep & Furniture Relocation', unit: 'flat', rate: 50 },
+        vehicle_wash: { label: 'Commercial / Fleet Vehicle Wash', unit: 'flat', rate: 125 }
     },
     difficultyMultipliers: {
         low: 1,
@@ -116,14 +117,15 @@ async function handler(req, res) {
         const rateCard = buildRateCard(settings);
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
-        I am providing you with MULTIPLE images of a property. You MUST scan and analyze EVERY SINGLE IMAGE provided.
+        I am providing you with MULTIPLE images of a property or site. You MUST scan and analyze EVERY SINGLE IMAGE provided.
         
         STRICT OPERATIONAL & FIELD SAFETY PROTOCOLS:
-        1. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
-        2. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
-        3. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
-        4. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        5. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders, and step-by-step instructions.
+        1. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present in the images, you must automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
+        2. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
+        3. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
+        4. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
+        5. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
+        6. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders, and step-by-step instructions.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
@@ -133,29 +135,29 @@ async function handler(req, res) {
         {
             "services": [
                 {
-                    "serviceId": "house_wash",
-                    "label": "House Soft Wash",
-                    "reason": "Visible green algae and organic mildew on vinyl siding.",
-                    "evidence": "Discoloration on north-facing wall panels.",
-                    "quantity": 2500,
-                    "quantityUnit": "sq_ft",
-                    "estimatedTimeMinutes": 90,
-                    "waterUsageGallons": 350,
-                    "chemicalPrescription": "1.5% Target Mix",
-                    "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
+                    "serviceId": "vehicle_wash",
+                    "label": "Commercial / Fleet Vehicle Wash",
+                    "reason": "Vehicle detected on site requiring exterior wash.",
+                    "evidence": "Commercial vehicle parked in the driveway.",
+                    "quantity": 1,
+                    "quantityUnit": "flat",
+                    "estimatedTimeMinutes": 30,
+                    "waterUsageGallons": 50,
+                    "chemicalPrescription": "Low-pressure soap and rinse",
+                    "batchMixingInstructions": "Standard foam cannon dilution.",
+                    "executionInstructions": "Rinse loose debris, apply safe vehicle soap, brush/wash, and final rinse."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
-                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
+                    "hazard": "Vehicle Proximity",
+                    "action": "Ensure vehicles are moved or protected from overspray."
                 }
             ],
             "fieldPlan": {
-                "difficulty": "moderate",
-                "totalEstimatedHours": "2.5 Hours",
-                "crewSizeRecommended": 2
+                "difficulty": "low",
+                "totalEstimatedHours": "1.0 Hours",
+                "crewSizeRecommended": 1
             }
         }`;
 
