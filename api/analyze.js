@@ -1,7 +1,9 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const MODEL = 'gemini-3.1-pro-preview';
-const MAX_IMAGES = 12;
+// Switched to the lightning-fast Flash model for instant results
+const MODEL = 'gemini-3.1-flash'; 
+// Capped at 4 images to ensure network speed stays fast
+const MAX_IMAGES = 4;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -67,7 +69,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-async function callModelWithRetry(modelInstance, contents, retries = 3, delay = 1000) {
+async function callModelWithRetry(modelInstance, contents, retries = 2, delay = 500) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
             const result = await modelInstance.generateContent(contents);
@@ -131,26 +133,26 @@ async function handler(req, res) {
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
         
-        IMPORTANT INSTRUCTION: Respond ONLY with a raw, perfectly formatted JSON object. NO trailing commas. Do not include markdown formatting or extra commentary. Use the following exact JSON structure:
+        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with '}'. Use the following exact JSON structure:
         {
             "services": [
                 {
                     "serviceId": "house_wash",
-                    "reason": "Visible green algae on vinyl siding.",
-                    "evidence": "Discoloration on wall panels.",
+                    "reason": "Visible green algae and organic mildew on vinyl siding.",
+                    "evidence": "Discoloration on north-facing wall panels.",
                     "quantity": 2500,
                     "quantityUnit": "sq_ft",
                     "estimatedTimeMinutes": 90,
                     "waterUsageGallons": 350,
                     "chemicalPrescription": "1.5% Target Mix",
                     "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Wear PPE. Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom."
+                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Outdoor Electrical Outlet",
-                    "action": "Tape outlets before firing up equipment."
+                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
+                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
                 }
             ],
             "fieldPlan": {
@@ -177,7 +179,6 @@ async function handler(req, res) {
         
         let scanData;
         try {
-            // Aggressively clean markdown and whitespace
             let cleanedText = rawResultText.replace(/```json/gi, '').replace(/```/g, '').trim();
             const firstBrace = cleanedText.indexOf('{');
             const lastBrace = cleanedText.lastIndexOf('}');
@@ -186,14 +187,11 @@ async function handler(req, res) {
                 cleanedText = cleanedText.substring(firstBrace, lastBrace + 1);
             }
             
-            // Remove trailing commas before parsing (common AI formatting error)
             cleanedText = cleanedText.replace(/,\s*([\]}])/g, '$1');
-            
             scanData = JSON.parse(cleanedText);
-        } catch (parseErr) {
-            console.error('JSON Parse Error:', parseErr);
-            console.error('Raw String:', rawResultText);
-            throw new Error('Data matrix parsing failed. Server received malformed data.');
+        } catch (parseError) {
+            console.error('JSON Parse Extraction Failed. Raw text was:', rawResultText);
+            throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
@@ -228,7 +226,10 @@ async function handler(req, res) {
 }
 
 module.exports = handler;
+
+// Keeping the extra time buffer just to be safe so Vercel never abruptly drops it
 module.exports.config = {
+    maxDuration: 60,
     api: {
         bodyParser: {
             sizeLimit: '12mb'
