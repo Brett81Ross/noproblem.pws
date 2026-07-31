@@ -88,7 +88,7 @@
         .mode-toggle-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             background: rgba(2, 6, 23, 0.7);
             border-radius: 12px;
             padding: 4px;
@@ -113,6 +113,28 @@
             background: rgba(0, 240, 255, 0.15);
             color: #00f0ff;
             box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+        }
+
+        .lang-toggle-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        .lang-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            color: #00f0ff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            background: rgba(0, 240, 255, 0.15);
         }
 
         /* Technician Mode UI Overrides */
@@ -356,11 +378,15 @@
 
     <div class="wrapper-container">
         <div class="main-content">
+            <div class="lang-toggle-row">
+                <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">Español</button>
+            </div>
+
             <div class="logo-container">
                 <img src="noproblem.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
 
-            <div class="tagline">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
+            <div class="tagline" id="taglineText">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
 
             <div class="mode-toggle-container">
                 <div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>
@@ -371,8 +397,8 @@
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                 <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
 
-                <button class="btn" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
-                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
+                <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
+                <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
@@ -387,19 +413,19 @@
                 </div>
 
                 <div class="interactive-tooltip" id="adminTooltip">
-                    💡 <strong>Tap individual scope items</strong> below to toggle them on or off to adjust the contract total instantly based on customer preference.
+                    💡 <strong id="tooltipStrong">Tap individual scope items</strong> <span id="tooltipText">below to toggle them on or off to adjust the contract total instantly based on customer preference.</span>
                 </div>
 
                 <div id="analysisResult"></div>
                 
                 <div class="proposal-total-card" id="adminTotalCard">
-                    <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;">Total Contract Price</div>
+                    <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;" id="totalLabelText">Total Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
 
                 <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
-                    <button class="btn btn-secondary btn-utility" onclick="window.print()">Export PDF</button>
-                    <button class="btn btn-utility btn-email" onclick="sendProposalEmail()">Email Client</button>
+                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="window.print()">Export PDF</button>
+                    <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
                 </div>
             </div>
         </div>
@@ -417,33 +443,134 @@
         let techMatrixData = null;
         let currentTotalValue = 0;
         let isTechMode = false;
+        let currentLang = 'en'; // 'en' or 'es'
         const ADMIN_PIN = "1234";
+
+        const translations = {
+            en: {
+                langBtn: "Español",
+                tagline: "Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.",
+                adminMode: "Admin Mode",
+                techMode: "Technician Mode",
+                takePhotos: "Take Field Photos",
+                uploadPhotos: "Upload Saved Photos",
+                scanBtn: "Run Diagnostic Scan",
+                reportTitle: "Itemized Diagnostic Report",
+                techReportTitle: "Field Execution Matrix",
+                copyText: "Copy Text",
+                copyTechPlan: "Copy Tech Plan",
+                copied: "Copied!",
+                tooltipStrong: "Tap individual scope items",
+                tooltipText: "below to toggle them on or off to adjust the contract total instantly based on customer preference.",
+                totalPrice: "Total Contract Price",
+                exportPdf: "Export PDF",
+                emailClient: "Email Client",
+                diagTitle: "Property Diagnosis & Pricing",
+                hazardsTitle: "Site Hazards & Safety",
+                crewPlanTitle: "🚀 Job Summary & Crew Plan",
+                crewMatrixTitle: "Crew Execution Matrix",
+                safetyTitle: "Critical Safety Protocols",
+                totalWindow: "⏱️ Total Window:",
+                recCrew: "👥 Recommended Crew:",
+                siteDiff: "📊 Site Difficulty:",
+                scope: "📏 Scope:",
+                timeline: "⏱️ Timeline:",
+                water: "💧 Water:",
+                chem: "🧪 Chemical & Batch Math:",
+                steps: "📋 Field Steps:"
+            },
+            es: {
+                langBtn: "English",
+                tagline: "Tome fotos de cualquier sitio residencial o comercial para un diagnóstico instantáneo de la propiedad y cotización detallada.",
+                adminMode: "Modo Admin",
+                techMode: "Modo Técnico",
+                takePhotos: "Tomar Fotos de Campo",
+                uploadPhotos: "Subir Fotos Guardadas",
+                scanBtn: "Ejecutar Análisis",
+                reportTitle: "Reporte de Diagnóstico Detallado",
+                techReportTitle: "Matriz de Ejecución de Campo",
+                copyText: "Copiar Texto",
+                copyTechPlan: "Copiar Plan Técnico",
+                copied: "¡Copiado!",
+                tooltipStrong: "Toque los elementos individuales",
+                tooltipText: "abajo para activarlos o desactivarlos y ajustar el total del contrato al instante según la preferencia del cliente.",
+                totalPrice: "Precio Total del Contrato",
+                exportPdf: "Exportar PDF",
+                emailClient: "Enviar por Correo",
+                diagTitle: "Diagnóstico de Propiedad y Precios",
+                hazardsTitle: "Peligros del Sitio y Seguridad",
+                crewPlanTitle: "🚀 Resumen del Trabajo y Equipo",
+                crewMatrixTitle: "Matriz de Ejecución de la Tripulación",
+                safetyTitle: "Protocolos Críticos de Seguridad",
+                totalWindow: "⏱️ Tiempo Total:",
+                recCrew: "👥 Personal Recomendado:",
+                siteDiff: "📊 Dificultad del Sitio:",
+                scope: "📏 Alcance:",
+                timeline: "⏱️ Cronograma:",
+                water: "💧 Agua:",
+                chem: "🧪 Químicos y Mezcla:",
+                steps: "📋 Pasos de Campo:"
+            }
+        };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'es' : 'en';
+            applyTranslations();
+            if (techMatrixData) {
+                if (isTechMode) renderTechModeView(techMatrixData);
+                else renderAdminModeView(techMatrixData);
+            }
+        }
+
+        function applyTranslations() {
+            const t = translations[currentLang];
+            document.getElementById('langToggleBtninnerText') || (document.getElementById('langToggleBtn').innerText = t.langBtn);
+            document.getElementById('taglineText').innerText = t.tagline;
+            document.getElementById('btnAdminMode').innerText = t.adminMode;
+            document.getElementById('btnTechMode').innerText = t.techMode;
+            document.getElementById('btnTakePhoto').innerText = t.takePhotos;
+            document.getElementById('btnUploadPhoto').innerText = t.uploadPhotos;
+            
+            const trigger = document.getElementById('processTrigger');
+            if (!trigger.classList.contains('btn-loading')) {
+                trigger.innerText = t.scanBtn;
+            }
+
+            document.getElementById('reportTitleText').innerText = isTechMode ? t.techReportTitle : t.reportTitle;
+            document.getElementById('copyButton').innerText = isTechMode ? t.copyTechPlan : t.copyText;
+            document.getElementById('tooltipStrong').innerText = t.tooltipStrong;
+            document.getElementById('tooltipText').innerText = t.tooltipText;
+            document.getElementById('totalLabelText').innerText = t.totalPrice;
+            document.getElementById('btnExportPDF').innerText = t.exportPdf;
+            document.getElementById('btnEmailClient').innerText = t.emailClient;
+        }
 
         function setAppMode(mode) {
             isTechMode = (mode === 'tech');
             document.getElementById('btnAdminMode').classList.toggle('active', !isTechMode);
             document.getElementById('btnTechMode').classList.toggle('active', isTechMode);
 
+            const t = translations[currentLang];
             if (isTechMode) {
                 document.body.classList.add('tech-mode');
-                document.getElementById('reportTitleText').innerText = "Field Execution Matrix";
-                document.getElementById('copyButton').innerText = "Copy Tech Plan";
+                document.getElementById('reportTitleText').innerText = t.techReportTitle;
+                document.getElementById('copyButton').innerText = t.copyTechPlan;
                 if (techMatrixData) renderTechModeView(techMatrixData);
             } else {
                 document.body.classList.remove('tech-mode');
-                document.getElementById('reportTitleText').innerText = "Itemized Diagnostic Report";
-                document.getElementById('copyButton').innerText = "Copy Text";
+                document.getElementById('reportTitleText').innerText = t.reportTitle;
+                document.getElementById('copyButton').innerText = t.copyText;
                 if (techMatrixData) renderAdminModeView(techMatrixData);
             }
         }
 
         function requestAdminMode() {
             if (!isTechMode) return;
-            const enteredPin = prompt("Enter Admin PIN to switch modes:");
+            const enteredPin = prompt(currentLang === 'es' ? "Ingrese el PIN de Administrador:" : "Enter Admin PIN to switch modes:");
             if (enteredPin === ADMIN_PIN) {
                 setAppMode('admin');
             } else if (enteredPin !== null) {
-                alert("Incorrect Admin PIN.");
+                alert(currentLang === 'es' ? "PIN de Administrador incorrecto." : "Incorrect Admin PIN.");
             }
         }
 
@@ -515,7 +642,7 @@
             if (stagedBase64Images.length > 0) {
                 processTrigger.setAttribute('style', 'display: block !important;');
             } else {
-                processTrigger.setAttribute('style', 'display: none !important;`');
+                processTrigger.setAttribute('style', 'display: none !important;');
             }
         }
 
@@ -573,12 +700,14 @@
             let htmlOutput = "";
             priceItemsRegistry = [];
             let globalCardIndex = 0;
+            const t = translations[currentLang];
 
             if (scanData.services && Array.isArray(scanData.services)) {
-                htmlOutput += `<div class="proposal-section-title">Property Diagnosis & Pricing</div>`;
+                htmlOutput += `<div class="proposal-section-title">${t.diagTitle}</div>`;
                 scanData.services.forEach(item => {
                     const itemTotal = item.calculatedPrice || 0;
-                    const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${item.reason || 'Surface treatment required.'}`;
+                    const desc = currentLang === 'es' && item.spanishReason ? item.spanishReason : (item.reason || 'Surface treatment required.');
+                    const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${desc}`;
                     
                     priceItemsRegistry.push({ id: globalCardIndex, cleanText: textContent, value: itemTotal, disabled: false });
 
@@ -592,9 +721,10 @@
             }
 
             if (scanData.hazards && scanData.hazards.length > 0) {
-                htmlOutput += `<div class="proposal-section-title">Site Hazards & Safety</div>`;
+                htmlOutput += `<div class="proposal-section-title">${t.hazardsTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
-                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard} - ${hazard.action}</div>`;
+                    const hazText = currentLang === 'es' && hazard.spanishAction ? `${hazard.spanishHazard} - ${hazard.spanishAction}` : `${hazard.hazard} - ${hazard.action}`;
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazText}</div>`;
                 });
             }
 
@@ -605,34 +735,35 @@
 
         function renderTechModeView(scanData) {
             let htmlOutput = "";
+            const t = translations[currentLang];
 
             if (scanData.fieldPlan) {
                 htmlOutput += `
                     <div class="tech-execution-card" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.08);">
-                        <div class="tech-card-title" style="color: #22c55e;">🚀 Job Summary & Crew Plan</div>
-                        <div class="tech-metric-row"><strong>⏱️ Total Window:</strong> ${scanData.fieldPlan.totalEstimatedHours || '2 Hours'}</div>
-                        <div class="tech-metric-row"><strong>👥 Recommended Crew:</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
-                        <div class="tech-metric-row"><strong>📊 Site Difficulty:</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
+                        <div class="tech-card-title" style="color: #22c55e;">${t.crewPlanTitle}</div>
+                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${scanData.fieldPlan.totalEstimatedHours || '2 Hours'}</div>
+                        <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
+                        <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
                     </div>`;
             }
 
             if (scanData.services && Array.isArray(scanData.services)) {
-                htmlOutput += `<div class="proposal-section-title">Crew Execution Matrix</div>`;
+                htmlOutput += `<div class="proposal-section-title">${t.crewMatrixTitle}</div>`;
                 scanData.services.forEach(item => {
                     htmlOutput += `
                         <div class="tech-execution-card">
                             <div class="tech-card-title">📌 ${item.label || item.serviceId}</div>
-                            <div class="tech-metric-row"><strong>📏 Scope:</strong> ${item.quantity} ${item.quantityUnit}</div>
-                            <div class="tech-metric-row"><strong>⏱️ Timeline:</strong> ${item.estimatedTimeMinutes || 60} Minutes</div>
-                            <div class="tech-metric-row"><strong>💧 Water:</strong> ~${item.waterUsageGallons || 200} Gallons</div>
-                            <div class="tech-metric-row"><strong>🧪 Chemical & Batch Math:</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
-                            <div class="tech-metric-row"><strong>📋 Field Steps:</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
+                            <div class="tech-metric-row"><strong>${t.scope}</strong> ${item.quantity} ${item.quantityUnit}</div>
+                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${item.estimatedTimeMinutes || 60} Minutes</div>
+                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${item.waterUsageGallons || 200} Gallons</div>
+                            <div class="tech-metric-row"><strong>${t.chem}</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
+                            <div class="tech-metric-row"><strong>${t.steps}</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
                         </div>`;
                 });
             }
 
             if (scanData.hazards && scanData.hazards.length > 0) {
-                htmlOutput += `<div class="proposal-section-title">Critical Safety Protocols</div>`;
+                htmlOutput += `<div class="proposal-section-title">${t.safetyTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
                     htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard}: ${hazard.action}</div>`;
                 });
@@ -659,19 +790,19 @@
                 }
                 return techText;
             } else {
-                let proposalText = `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+                let proposalText = currentLang === 'es' 
+                    ? `NO PROBLEM PRESSURE WASHING - PROPUESTA DE DIAGNÓSTICO DETALLADA\n\n`
+                    : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+                
                 priceItemsRegistry.forEach(item => {
                     if (item.disabled) return;
                     if (item.value > 0) {
                         proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
                     }
                 });
-                proposalText += `\nTOTAL CONTRACT PRICE: ${document.getElementById('grandTotalDisplay').innerText}\n`;
+                proposalText += `\nTOTAL: ${document.getElementById('grandTotalDisplay').innerText}\n`;
                 proposalText += `\n----------------------------------------\n`;
-                proposalText += `TERMS & CONDITIONS:\n`;
-                proposalText += `- Estimate valid for 30 days from issuance.\n`;
-                proposalText += `- Client guarantees access to water source and operational exterior electrical outlets.\n`;
-                proposalText += `- No Problem Pressure Washing Solutions LLC is not responsible for pre-existing unnoted damage, loose siding, or oxidation wear.\n`;
+                proposalText += currentLang === 'es' ? `TÉRMINOS Y CONDICIONES:\n- Estimación válida por 30 días.\n- El cliente garantiza acceso a fuente de agua y electricidad.` : `TERMS & CONDITIONS:\n- Estimate valid for 30 days.\n- Client guarantees access to water and power.`;
                 return proposalText;
             }
         }
@@ -679,8 +810,9 @@
         function copyToClipboard() {
             navigator.clipboard.writeText(generateActiveProposalText());
             const btn = document.getElementById('copyButton');
-            btn.innerText = "Copied!";
-            setTimeout(() => { btn.innerText = isTechMode ? "Copy Tech Plan" : "Copy Text"; }, 2000);
+            const originalText = btn.innerText;
+            btn.innerText = translations[currentLang].copied;
+            setTimeout(() => { btn.innerText = originalText; }, 2000);
         }
 
         function sendProposalEmail() {
@@ -691,7 +823,14 @@
             const processTrigger = document.getElementById('processTrigger');
             processTrigger.className = "btn btn-trigger btn-loading";
 
-            const loadingPhrases = [
+            const loadingPhrases = currentLang === 'es' ? [
+                "Analizando matriz de propiedad...",
+                "Ejecutando diagnóstico del sitio...",
+                "Generando presupuesto de campo...",
+                "Escaneando superficies...",
+                "Procesando datos del sitio...",
+                "Iniciando análisis de superficie..."
+            ] : [
                 "Analyzing Property Matrix...",
                 "Executing Site Diagnosis...",
                 "Generating Field Estimate...",
@@ -703,14 +842,16 @@
             let phraseIndex = 0;
             processTrigger.innerHTML = `<span class="btn-spinner"></span> ${loadingPhrases[phraseIndex]}`;
 
-            // Slower phrase rotation (every 3.5 seconds) so it doesn't jump or cause page jitter
             const phraseInterval = setInterval(() => {
                 phraseIndex = (phraseIndex + 1) % loadingPhrases.length;
                 processTrigger.innerHTML = `<span class="btn-spinner"></span> ${loadingPhrases[phraseIndex]}`;
             }, 3500);
 
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
+
             try {
-                const payloadImages = stagedBase64Images.slice(0, 12).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
+                const payloadImages = stagedBase64Images.slice(0, 4).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -718,9 +859,11 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json' 
                     },
-                    body: JSON.stringify({ images: payloadImages, settings: {} })
+                    body: JSON.stringify({ images: payloadImages, settings: {} }),
+                    signal: controller.signal
                 });
 
+                clearTimeout(timeoutId);
                 clearInterval(phraseInterval);
                 
                 if (!response.ok) {
@@ -754,28 +897,22 @@
                 
                 processTrigger.setAttribute('style', 'display: none !important;');
 
-                // Smoothly scroll down to the results card after rendering
                 setTimeout(() => {
                     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
 
             } catch (err) {
+                clearTimeout(timeoutId);
                 clearInterval(phraseInterval);
                 document.getElementById('hudLaserBeam').style.display = 'none';
                 
-                let feedback = err;
-                if (typeof err === 'object' && err !== null) {
-                    feedback = err.message || JSON.stringify(err);
-                }
-                feedback = String(feedback);
-
-                if (feedback.includes('Failed to fetch')) {
-                    feedback = 'Failed to fetch. The Vercel edge connection dropped. Ensure your API Key is valid and scan 1 image at a time to stay under server limits.';
-                }
+                let feedback = err.name === 'AbortError' 
+                    ? (currentLang === 'es' ? "Tiempo de espera agotado." : "Connection timed out.") 
+                    : (err.message || JSON.stringify(err));
                 
                 alert('Analysis connection fault: ' + feedback);
                 processTrigger.className = "btn btn-trigger";
-                processTrigger.innerText = "Run Diagnostic Scan";
+                processTrigger.innerText = translations[currentLang].scanBtn;
             }
         }
 
