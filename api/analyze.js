@@ -120,7 +120,7 @@ async function handler(req, res) {
         I am providing you with MULTIPLE images of a property or site. You MUST scan and analyze EVERY SINGLE IMAGE provided.
         
         STRICT OPERATIONAL & FIELD SAFETY PROTOCOLS:
-        1. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present in the images, you must automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
+        1. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present in the images, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
         2. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
         3. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
         4. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
@@ -131,33 +131,32 @@ async function handler(req, res) {
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
         
-        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not include markdown formatting or extra commentary outside the braces. Use the following exact JSON structure:
+        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with '}'. Use the following exact JSON structure:
         {
             "services": [
                 {
-                    "serviceId": "vehicle_wash",
-                    "label": "Commercial / Fleet Vehicle Wash",
-                    "reason": "Vehicle detected on site requiring exterior wash.",
-                    "evidence": "Commercial vehicle parked in the driveway.",
-                    "quantity": 1,
-                    "quantityUnit": "flat",
-                    "estimatedTimeMinutes": 30,
-                    "waterUsageGallons": 50,
-                    "chemicalPrescription": "Low-pressure soap and rinse",
-                    "batchMixingInstructions": "Standard foam cannon dilution.",
-                    "executionInstructions": "Rinse loose debris, apply safe vehicle soap, brush/wash, and final rinse."
+                    "serviceId": "house_wash",
+                    "reason": "Visible green algae and organic mildew on vinyl siding.",
+                    "evidence": "Discoloration on north-facing wall panels.",
+                    "quantity": 2500,
+                    "quantityUnit": "sq_ft",
+                    "estimatedTimeMinutes": 90,
+                    "waterUsageGallons": 350,
+                    "chemicalPrescription": "1.5% Target Mix",
+                    "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
+                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Vehicle Proximity",
-                    "action": "Ensure vehicles are moved or protected from overspray."
+                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
+                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
                 }
             ],
             "fieldPlan": {
-                "difficulty": "low",
-                "totalEstimatedHours": "1.0 Hours",
-                "crewSizeRecommended": 1
+                "difficulty": "moderate",
+                "totalEstimatedHours": "2.5 Hours",
+                "crewSizeRecommended": 2
             }
         }`;
 
@@ -176,19 +175,19 @@ async function handler(req, res) {
             throw new Error('Telemetry failure: Gemini engine returned empty property results.');
         }
         
+        // Robust JSON Extraction: Extract everything from the first '{' to the last '}'
         let scanData;
         try {
             const firstBrace = rawResultText.indexOf('{');
             const lastBrace = rawResultText.lastIndexOf('}');
-            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-                rawResultText = rawResultText.substring(firstBrace, lastBrace + 1);
+            if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+                throw new Error('No valid JSON object bounds found in model response.');
             }
-            scanData = JSON.parse(rawResultText);
-        } catch (parseErr) {
-            const cleaned = rawResultText.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const fBrace = cleaned.indexOf('{');
-            const lBrace = cleaned.lastIndexOf('}');
-            scanData = JSON.parse(cleaned.substring(fBrace, lBrace + 1));
+            const jsonString = rawResultText.substring(firstBrace, lastBrace + 1);
+            scanData = JSON.parse(jsonString);
+        } catch (parseError) {
+            console.error('JSON Parse Extraction Failed. Raw text was:', rawResultText);
+            throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
