@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI, SchemaType } = require('@google/generative-ai');
 
 const MODEL = 'gemini-3.1-pro-preview';
 const MAX_IMAGES = 12;
@@ -83,6 +83,53 @@ async function callModelWithRetry(modelInstance, contents, retries = 3, delay = 
     }
 }
 
+// Strict JSON Schema Enforcement
+const responseSchema = {
+    type: SchemaType.OBJECT,
+    properties: {
+        services: {
+            type: SchemaType.ARRAY,
+            items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                    serviceId: { type: SchemaType.STRING },
+                    reason: { type: SchemaType.STRING },
+                    evidence: { type: SchemaType.STRING },
+                    quantity: { type: SchemaType.NUMBER },
+                    quantityUnit: { type: SchemaType.STRING },
+                    estimatedTimeMinutes: { type: SchemaType.NUMBER },
+                    waterUsageGallons: { type: SchemaType.NUMBER },
+                    chemicalPrescription: { type: SchemaType.STRING },
+                    batchMixingInstructions: { type: SchemaType.STRING },
+                    executionInstructions: { type: SchemaType.STRING }
+                },
+                required: ["serviceId", "reason", "evidence", "quantity", "quantityUnit", "estimatedTimeMinutes", "waterUsageGallons", "chemicalPrescription", "batchMixingInstructions", "executionInstructions"]
+            }
+        },
+        hazards: {
+            type: SchemaType.ARRAY,
+            items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                    hazard: { type: SchemaType.STRING },
+                    action: { type: SchemaType.STRING }
+                },
+                required: ["hazard", "action"]
+            }
+        },
+        fieldPlan: {
+            type: SchemaType.OBJECT,
+            properties: {
+                difficulty: { type: SchemaType.STRING },
+                totalEstimatedHours: { type: SchemaType.STRING },
+                crewSizeRecommended: { type: SchemaType.NUMBER }
+            },
+            required: ["difficulty", "totalEstimatedHours", "crewSizeRecommended"]
+        }
+    },
+    required: ["services", "hazards", "fieldPlan"]
+};
+
 async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed - POST requirements active.' });
@@ -110,55 +157,28 @@ async function handler(req, res) {
         const model = genAI.getGenerativeModel({
             model: MODEL,
             generationConfig: {
-                responseMimeType: 'application/json'
+                responseMimeType: 'application/json',
+                responseSchema: responseSchema,
+                maxOutputTokens: 2500
             }
         });
 
         const rateCard = buildRateCard(settings);
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
-        I am providing you with MULTIPLE images of a property or site. You MUST scan and analyze EVERY SINGLE IMAGE provided.
+        Scan and analyze EVERY image provided.
         
-        STRICT OPERATIONAL & FIELD SAFETY PROTOCOLS:
-        1. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present in the images, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
-        2. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
-        3. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
-        4. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
-        5. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        6. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders, and step-by-step instructions.
+        OPERATIONAL & FIELD SAFETY RULES:
+        1. Vehicles: If cars/trucks/vans/fleet vehicles are visible, include serviceId "vehicle_wash" (quantity 1, flat).
+        2. Pre-Job Inspection: Techs must execute a 10-min perimeter check to document pre-existing damage, close vents/windows, and tape electrical outlets.
+        3. Pavers & Poly Sand: Use low-pressure soft wash only on pavers to preserve joint sand.
+        4. Concrete Anti-Streaking: Mandate 2-pass perpendicular cross-hit method (vertical then horizontal) or post-treat bleach.
+        5. Batch Mixing: Use formula (Tank Size / 12.5) * Target % = Gallons of 12.5% SH bleach (assumes 30 or 60 gal batch tank).
+        6. Keep text descriptions concise, direct, and under 2 sentences per property.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
-        ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
-        
-        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with '}'. Use the following exact JSON structure:
-        {
-            "services": [
-                {
-                    "serviceId": "house_wash",
-                    "reason": "Visible green algae and organic mildew on vinyl siding.",
-                    "evidence": "Discoloration on north-facing wall panels.",
-                    "quantity": 2500,
-                    "quantityUnit": "sq_ft",
-                    "estimatedTimeMinutes": 90,
-                    "waterUsageGallons": 350,
-                    "chemicalPrescription": "1.5% Target Mix",
-                    "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
-                }
-            ],
-            "hazards": [
-                {
-                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
-                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
-                }
-            ],
-            "fieldPlan": {
-                "difficulty": "moderate",
-                "totalEstimatedHours": "2.5 Hours",
-                "crewSizeRecommended": 2
-            }
-        }`;
+        ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}`;
 
         const imageParts = activeImages.map((base64Data) => ({
             inlineData: {
@@ -170,25 +190,12 @@ async function handler(req, res) {
         const result = await callModelWithRetry(model, [promptText, ...imageParts]);
         const aiResponse = await result.response;
         
-        let rawResultText = aiResponse.text();
+        const rawResultText = aiResponse.text();
         if (!rawResultText) {
             throw new Error('Telemetry failure: Gemini engine returned empty property results.');
         }
-        
-        // Robust JSON Extraction: Extract everything from the first '{' to the last '}'
-        let scanData;
-        try {
-            const firstBrace = rawResultText.indexOf('{');
-            const lastBrace = rawResultText.lastIndexOf('}');
-            if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
-                throw new Error('No valid JSON object bounds found in model response.');
-            }
-            const jsonString = rawResultText.substring(firstBrace, lastBrace + 1);
-            scanData = JSON.parse(jsonString);
-        } catch (parseError) {
-            console.error('JSON Parse Extraction Failed. Raw text was:', rawResultText);
-            throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
-        }
+
+        const scanData = JSON.parse(rawResultText);
         
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
