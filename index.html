@@ -415,7 +415,7 @@
         
         <div class="footer">
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by Cactus🌵Byte Studios&trade;<br>
+            Powered by Cactus & 🌵 Byte Studios&trade;<br>
             All Rights Reserved
         </div>
     </div>
@@ -699,7 +699,23 @@
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
             processTrigger.className = "btn btn-trigger btn-loading";
-            processTrigger.innerHTML = `<span class="btn-spinner"></span> SCANNING PROPERTY SURFACES...`;
+
+            const loadingPhrases = [
+                "Analyzing Property Matrix...",
+                "Executing Site Diagnosis...",
+                "Generating Field Estimate...",
+                "Scanning Property Surfaces...",
+                "Processing Site Data...",
+                "Initiating Surface Analysis..."
+            ];
+
+            let phraseIndex = 0;
+            processTrigger.innerHTML = `<span class="btn-spinner"></span> ${loadingPhrases[phraseIndex]}`;
+
+            const phraseInterval = setInterval(() => {
+                phraseIndex = (phraseIndex + 1) % loadingPhrases.length;
+                processTrigger.innerHTML = `<span class="btn-spinner"></span> ${loadingPhrases[phraseIndex]}`;
+            }, 800);
 
             try {
                 const payloadImages = stagedBase64Images.slice(0, 12).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
@@ -712,6 +728,8 @@
                     },
                     body: JSON.stringify({ images: payloadImages, settings: {} })
                 });
+
+                clearInterval(phraseInterval);
                 
                 if (!response.ok) {
                     let errStr = `Server Fault ${response.status}`;
@@ -744,6 +762,7 @@
                 
                 processTrigger.setAttribute('style', 'display: none !important;');
             } catch (err) {
+                clearInterval(phraseInterval);
                 document.getElementById('hudLaserBeam').style.display = 'none';
                 
                 let feedback = err;
