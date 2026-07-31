@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Standard, high-speed execution model
-const MODEL = 'gemini-3.5-flash'; 
+// The clean, standard model alias with no version numbers
+const MODEL = 'gemini-pro'; 
 // Capped at 4 images to ensure the network stays lightning fast
 const MAX_IMAGES = 4;
 
@@ -69,7 +69,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-// UPGRADED RETRY LOGIC: Tries up to 5 times, waits progressively longer (2s, 4s, 6s...) if the server is busy
+// Retries up to 5 times, waits progressively longer (2s, 4s, 6s...) if the server is busy
 async function callModelWithRetry(modelInstance, contents, retries = 5, delay = 2000) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
