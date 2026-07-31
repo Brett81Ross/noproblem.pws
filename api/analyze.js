@@ -1,8 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Standard high-speed engine specifically built to process images
-const MODEL = 'gemini-2.0-flash'; 
-// Capped at 4 images to ensure the network stays lightning fast
+// Back to the correct, working model
+const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 4;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -69,7 +68,7 @@ function buildRateCard(ownerSettings) {
     return rateCard;
 }
 
-// Retries up to 5 times, waits progressively longer (2s, 4s, 6s...) if the server is busy
+// Robust retry loop: Pushes through 503 traffic spikes instead of crashing
 async function callModelWithRetry(modelInstance, contents, retries = 5, delay = 2000) {
     for (let attempt = 1; attempt <= retries; attempt++) {
         try {
