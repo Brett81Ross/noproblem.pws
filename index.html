@@ -328,7 +328,7 @@
             color: #cbd5e1;
         }
 
-        /* Ultra High-Res Satellite Modal Styling */
+        /* Premium Satellite Portal Modal Styling */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -378,59 +378,32 @@
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
         }
 
-        .satellite-frame {
-            width: 100%;
-            height: 260px;
-            border-radius: 16px;
+        .satellite-portal-card {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(15, 23, 42, 0.9));
             border: 2px solid rgba(0, 240, 255, 0.4);
-            background: #000000;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
             margin-bottom: 16px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        .satellite-img-bg {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: contrast(125%) brightness(100%);
-            position: relative;
+        .satellite-portal-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #00f0ff, #0096c7);
+            color: #020617;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+            transition: transform 0.2s;
         }
-
-        .map-hud-reticle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            border: 2px dashed #00f0ff;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: radarSpin 6s linear infinite;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
-            z-index: 5;
-        }
-
-        .map-hud-center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #22c55e;
-            z-index: 6;
-        }
-
-        @keyframes radarSpin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
+        .satellite-portal-btn:hover { transform: scale(1.03); }
 
         .satellite-notes-input {
             width: 100%;
@@ -442,7 +415,7 @@
             font-size: 14px;
             box-sizing: border-box;
             resize: none;
-            height: 85px;
+            height: 90px;
             margin-bottom: 16px;
             font-family: inherit;
             transition: all 0.2s ease;
@@ -594,18 +567,20 @@
         </div>
     </div>
 
-    <!-- Ultra High-Res Satellite Inspector Modal -->
+    <!-- Professional Satellite Map Portal Modal -->
     <div class="modal-overlay" id="satelliteModal">
         <div class="modal-card">
             <div class="modal-title">
                 <span id="modalHeaderTitle">🛰️ Satellite Site Inspector</span>
                 <span style="cursor: pointer; color: #ef4444; font-size: 18px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="closeSatelliteModal()">✕</span>
             </div>
-            <div class="satellite-frame" id="satelliteFrameContainer">
-                <div class="map-hud-reticle"></div>
-                <div class="map-hud-center-dot"></div>
-                <div class="satellite-img-bg" id="satelliteImgBg" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/122399/74210');"></div>
+            
+            <div class="satellite-portal-card">
+                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;" id="portalStatusText">Current GPS Location Acquired</div>
+                <div style="font-size: 15px; font-weight: 800; color: #00f0ff;" id="coordsReadout">Detecting coordinates...</div>
+                <a id="satelliteExternalLink" href="#" target="_blank" class="satellite-portal-btn">🌐 Open HD Satellite View</a>
             </div>
+
             <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
             <textarea class="satellite-notes-input" id="satelliteNotesInput" placeholder="e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back..."></textarea>
             <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save & Contribute to Scan</button>
@@ -660,7 +635,9 @@
                 modalTitle: "🛰️ Satellite Site Inspector",
                 modalInstruction: "Add property notes or custom instructions for the AI scan:",
                 modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
-                modalSave: "Save & Contribute to Scan"
+                modalSave: "Save & Contribute to Scan",
+                portalStatus: "Current GPS Location Acquired",
+                openMapBtn: "🌐 Open HD Satellite View"
             },
             es: {
                 langBtn: "English",
@@ -698,7 +675,9 @@
                 modalTitle: "🛰️ Inspector Satelital del Sitio",
                 modalInstruction: "Agregue notas de la propiedad o instrucciones personalizadas para el escaneo:",
                 modalPlaceholder: "ej., Entrada de concreto grande con manchas de aceite, lavado de casa de vinilo de 2 pisos...",
-                modalSave: "Guardar y Contribuir al Análisis"
+                modalSave: "Guardar y Contribuir al Análisis",
+                portalStatus: "Ubicación GPS Actual Adquirida",
+                openMapBtn: "🌐 Abrir Vista Satelital HD"
             }
         };
 
@@ -741,6 +720,8 @@
             document.getElementById('btnEmailClient').innerText = t.emailClient;
 
             document.getElementById('modalHeaderTitle').innerText = t.modalTitle;
+            document.getElementById('portalStatusText').innerText = t.portalStatus;
+            document.getElementById('satelliteExternalLink').innerText = t.openMapBtn;
             document.getElementById('modalInstruction').innerText = t.modalInstruction;
             document.getElementById('satelliteNotesInput').placeholder = t.modalPlaceholder;
             document.getElementById('modalSaveBtn').innerText = t.modalSave;
@@ -750,11 +731,15 @@
             const modal = document.getElementById('satelliteModal');
             modal.style.display = 'flex';
             
+            const readout = document.getElementById('coordsReadout');
+            const link = document.getElementById('satelliteExternalLink');
+
             if (!currentJobLocation) {
                 if (!navigator.geolocation) {
-                    alert(currentLang === 'es' ? "La geolocalización no es compatible." : "Geolocation is not supported.");
+                    readout.innerText = "Geolocation not supported";
                     return;
                 }
+                readout.innerText = "Acquiring GPS fix...";
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         currentJobLocation = {
@@ -762,33 +747,24 @@
                             lon: position.coords.longitude,
                             accuracy: position.coords.accuracy
                         };
-                        updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
+                        readout.innerText = `${currentJobLocation.lat.toFixed(5)}, ${currentJobLocation.lon.toFixed(5)}`;
+                        link.href = `https://maps.google.com/?q=${currentJobLocation.lat},${currentJobLocation.lon}&t=k`;
                     },
                     (error) => {
-                        // Fallback to OKC center if geolocation blocked
                         currentJobLocation = { lat: 35.4676, lon: -97.5164, accuracy: 0 };
-                        updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
+                        readout.innerText = "Oklahoma City Center (Fallback)";
+                        link.href = `https://maps.google.com/?q=35.4676,-97.5164&t=k`;
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
-                updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
+                readout.innerText = `${currentJobLocation.lat.toFixed(5)}, ${currentJobLocation.lon.toFixed(5)}`;
+                link.href = `https://maps.google.com/?q=${currentJobLocation.lat},${currentJobLocation.lon}&t=k`;
             }
         }
 
         function closeSatelliteModal() {
             document.getElementById('satelliteModal').style.display = 'none';
-        }
-
-        function updateSatelliteImageCoords(lat, lon) {
-            // High zoom level 19 for ultra-sharp property & rooftop clarity
-            const zoom = 19;
-            const n = Math.pow(2, zoom);
-            const xtile = Math.floor((lon + 180) / 360 * n);
-            const ytile = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
-
-            const bgElement = document.getElementById('satelliteImgBg');
-            bgElement.style.backgroundImage = `url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${ytile}/${xtile}')`;
         }
 
         function saveSatelliteNotes() {
