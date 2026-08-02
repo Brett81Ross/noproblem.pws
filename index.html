@@ -328,7 +328,7 @@
             color: #cbd5e1;
         }
 
-        /* Premium Satellite Portal Modal Styling */
+        /* Clean Streamlined Modal Style */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -370,40 +370,13 @@
             font-weight: 900;
             color: #00f0ff;
             text-transform: uppercase;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             letter-spacing: 1.5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
         }
-
-        .satellite-portal-card {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(15, 23, 42, 0.9));
-            border: 2px solid rgba(0, 240, 255, 0.4);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        .satellite-portal-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #00f0ff, #0096c7);
-            color: #020617;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            font-size: 14px;
-            letter-spacing: 1px;
-            margin-top: 12px;
-            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
-            transition: transform 0.2s;
-        }
-        .satellite-portal-btn:hover { transform: scale(1.03); }
 
         .satellite-notes-input {
             width: 100%;
@@ -415,8 +388,8 @@
             font-size: 14px;
             box-sizing: border-box;
             resize: none;
-            height: 90px;
-            margin-bottom: 16px;
+            height: 110px;
+            margin-bottom: 20px;
             font-family: inherit;
             transition: all 0.2s ease;
         }
@@ -527,7 +500,7 @@
 
                 <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
-                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
+                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Add Site Notes & GPS</button>
                 <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
@@ -567,22 +540,17 @@
         </div>
     </div>
 
-    <!-- Professional Satellite Map Portal Modal -->
+    <!-- Clean, Streamlined Site Notes & GPS Modal -->
     <div class="modal-overlay" id="satelliteModal">
         <div class="modal-card">
             <div class="modal-title">
-                <span id="modalHeaderTitle">🛰️ Satellite Site Inspector</span>
+                <span id="modalHeaderTitle">🛰️ Site Notes & GPS Matrix</span>
                 <span style="cursor: pointer; color: #ef4444; font-size: 18px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="closeSatelliteModal()">✕</span>
             </div>
             
-            <div class="satellite-portal-card">
-                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 4px;" id="portalStatusText">Current GPS Location Acquired</div>
-                <div style="font-size: 15px; font-weight: 800; color: #00f0ff;" id="coordsReadout">Detecting coordinates...</div>
-                <a id="satelliteExternalLink" href="#" target="_blank" class="satellite-portal-btn">🌐 Open HD Satellite View</a>
-            </div>
-
             <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
             <textarea class="satellite-notes-input" id="satelliteNotesInput" placeholder="e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back..."></textarea>
+            
             <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save & Contribute to Scan</button>
         </div>
     </div>
@@ -606,8 +574,8 @@
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
                 uploadPhotos: "Upload Saved Photos",
-                gpsTag: "🛰️ Satellite Site & Notes",
-                gpsUpdate: "🛰️ Update Satellite & Notes",
+                gpsTag: "🛰️ Add Site Notes & GPS",
+                gpsUpdate: "🛰️ Update Site Notes & GPS",
                 scanBtn: "Run Diagnostic Scan",
                 reportTitle: "Itemized Diagnostic Report",
                 techReportTitle: "Field Execution Matrix",
@@ -632,12 +600,10 @@
                 water: "💧 Water:",
                 chem: "🧪 Chemical & Batch Math:",
                 steps: "📋 Field Steps:",
-                modalTitle: "🛰️ Satellite Site Inspector",
+                modalTitle: "🛰️ Site Notes & GPS Matrix",
                 modalInstruction: "Add property notes or custom instructions for the AI scan:",
                 modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
-                modalSave: "Save & Contribute to Scan",
-                portalStatus: "Current GPS Location Acquired",
-                openMapBtn: "🌐 Open HD Satellite View"
+                modalSave: "Save & Contribute to Scan"
             },
             es: {
                 langBtn: "English",
@@ -646,8 +612,8 @@
                 techMode: "Modo Técnico",
                 takePhotos: "Tomar Fotos de Campo",
                 uploadPhotos: "Subir Fotos Guardadas",
-                gpsTag: "🛰️ Sitio Satelital y Notas",
-                gpsUpdate: "🛰️ Actualizar Satélite y Notas",
+                gpsTag: "🛰️ Notas y GPS del Sitio",
+                gpsUpdate: "🛰️ Actualizar Notas y GPS",
                 scanBtn: "Ejecutar Análisis",
                 reportTitle: "Reporte de Diagnóstico Detallado",
                 techReportTitle: "Matriz de Ejecución de Campo",
@@ -672,12 +638,10 @@
                 water: "💧 Agua:",
                 chem: "🧪 Químicos y Mezcla:",
                 steps: "📋 Pasos de Campo:",
-                modalTitle: "🛰️ Inspector Satelital del Sitio",
+                modalTitle: "🛰️ Matriz de Notas y GPS del Sitio",
                 modalInstruction: "Agregue notas de la propiedad o instrucciones personalizadas para el escaneo:",
                 modalPlaceholder: "ej., Entrada de concreto grande con manchas de aceite, lavado de casa de vinilo de 2 pisos...",
-                modalSave: "Guardar y Contribuir al Análisis",
-                portalStatus: "Ubicación GPS Actual Adquirida",
-                openMapBtn: "🌐 Abrir Vista Satelital HD"
+                modalSave: "Guardar y Contribuir al Análisis"
             }
         };
 
@@ -720,8 +684,6 @@
             document.getElementById('btnEmailClient').innerText = t.emailClient;
 
             document.getElementById('modalHeaderTitle').innerText = t.modalTitle;
-            document.getElementById('portalStatusText').innerText = t.portalStatus;
-            document.getElementById('satelliteExternalLink').innerText = t.openMapBtn;
             document.getElementById('modalInstruction').innerText = t.modalInstruction;
             document.getElementById('satelliteNotesInput').placeholder = t.modalPlaceholder;
             document.getElementById('modalSaveBtn').innerText = t.modalSave;
@@ -731,15 +693,8 @@
             const modal = document.getElementById('satelliteModal');
             modal.style.display = 'flex';
             
-            const readout = document.getElementById('coordsReadout');
-            const link = document.getElementById('satelliteExternalLink');
-
-            if (!currentJobLocation) {
-                if (!navigator.geolocation) {
-                    readout.innerText = "Geolocation not supported";
-                    return;
-                }
-                readout.innerText = "Acquiring GPS fix...";
+            // Automatically capture GPS behind the scenes when opening notes
+            if (!currentJobLocation && navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         currentJobLocation = {
@@ -747,19 +702,12 @@
                             lon: position.coords.longitude,
                             accuracy: position.coords.accuracy
                         };
-                        readout.innerText = `${currentJobLocation.lat.toFixed(5)}, ${currentJobLocation.lon.toFixed(5)}`;
-                        link.href = `https://maps.google.com/?q=${currentJobLocation.lat},${currentJobLocation.lon}&t=k`;
                     },
                     (error) => {
                         currentJobLocation = { lat: 35.4676, lon: -97.5164, accuracy: 0 };
-                        readout.innerText = "Oklahoma City Center (Fallback)";
-                        link.href = `https://maps.google.com/?q=35.4676,-97.5164&t=k`;
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
-            } else {
-                readout.innerText = `${currentJobLocation.lat.toFixed(5)}, ${currentJobLocation.lon.toFixed(5)}`;
-                link.href = `https://maps.google.com/?q=${currentJobLocation.lat},${currentJobLocation.lon}&t=k`;
             }
         }
 
