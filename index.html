@@ -328,7 +328,7 @@
             color: #cbd5e1;
         }
 
-        /* High-End Satellite Inspection Modal */
+        /* Stunning High-Tech Satellite & Notes Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -395,7 +395,7 @@
             height: 100%;
             background-size: cover;
             background-position: center;
-            filter: contrast(120%) brightness(100%);
+            filter: contrast(125%) brightness(105%);
         }
 
         .map-hud-reticle {
@@ -593,8 +593,8 @@
         </div>
     </div>
 
-    <!-- High-Resolution Live Satellite Inspector Modal -->
-    <div class="modal-overlay" id="satelliteModal">
+    <!-- High-Resolution Satellite Inspector Modal with Guaranteed Live Feed -->
+    <div class="modal-overlay" id="satelliteModal" style="display: flex;">
         <div class="modal-card">
             <div class="modal-title">
                 <span id="modalHeaderTitle">🛰️ Satellite Site Inspector</span>
@@ -604,7 +604,7 @@
             <div class="satellite-frame" id="satelliteFrameContainer">
                 <div class="map-hud-reticle"></div>
                 <div class="map-hud-center-dot"></div>
-                <div class="satellite-img-bg" id="satelliteImgBg" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/19/122400/74210');"></div>
+                <div class="satellite-img-bg" id="satelliteImgBg" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/61199/37105');"></div>
             </div>
             
             <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
@@ -703,6 +703,11 @@
             }
         };
 
+        // Ensure modal starts closed on initial page load
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('satelliteModal').style.display = 'none';
+        });
+
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'es' : 'en';
             applyTranslations();
@@ -781,7 +786,7 @@
         }
 
         function updateSatelliteImageCoords(lat, lon) {
-            const zoom = 19;
+            const zoom = 18;
             const n = Math.pow(2, zoom);
             const xtile = Math.floor((lon + 180) / 360 * n);
             const ytile = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
@@ -1227,8 +1232,8 @@
                         try {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            canvas.width = 600; 
-                            canvas.height = 450;
+                            canvas.width = `600`;
+                            canvas.height = `450`;
                             ctx.drawImage(img, 0, 0, 600, 450);
                             resolve(canvas.toDataURL('image/jpeg', 0.5)); 
                         } catch (e) {
