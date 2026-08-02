@@ -1,7 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Updated to gemini-3.6-flash for high-availability and frontier speed
-const MODEL = 'gemini-3.6-flash'; 
+const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 4;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -19,7 +18,7 @@ const DEFAULT_RATE_CARD = Object.freeze({
         gutter_brightening: { label: 'Gutter Brightening', unit: 'linear_ft', rate: 2.25 },
         retaining_wall: { label: 'Retaining Wall Cleaning', unit: 'sq_ft', rate: 0.32 },
         pool_deck: { label: 'Pool Deck Cleaning', unit: 'sq_ft', rate: 0.24 },
-        dumpster_pad: { label: 'Dumpster Pad Cleaning', unit: 'sq_ft', rate: 0.42 },
+        dumpster_pad: { label: 'Dumpster Pad Cleaning / Trash Bin Pad', unit: 'sq_ft', rate: 0.42 },
         rust_treatment: { label: 'Rust Treatment', unit: 'flat', rate: 125 },
         oil_treatment: { label: 'Oil and Grease Treatment', unit: 'flat', rate: 150 },
         oxidation_treatment: { label: 'Oxidation Treatment', unit: 'flat', rate: 175 },
@@ -90,7 +89,7 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings } = req.body;
+        const { images, settings, location, siteNotes } = req.body;
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
@@ -117,41 +116,51 @@ async function handler(req, res) {
 
         const rateCard = buildRateCard(settings);
 
+        let contextBlock = "";
+        if (location) {
+            contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
+        }
+        if (siteNotes) {
+            contextBlock += `\n- User/Tech Site Notes & Custom Instructions: "${siteNotes}"`;
+        }
+
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
-        I am providing you with MULTIPLE images of a property or site. You MUST scan and analyze EVERY SINGLE IMAGE provided.
+        I am providing you with MULTIPLE images of a property or site, plus optional satellite metadata and site notes. You MUST scan and analyze EVERY SINGLE IMAGE and text note provided.
+        ${contextBlock}
         
-        STRICT OPERATIONAL & FIELD SAFETY PROTOCOLS:
-        1. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present in the images, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
-        2. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
-        3. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, flag it immediately. Mandate low-pressure chemical soft washing only to protect joint sand.
-        4. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
-        5. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        6. Timeline & Water Metrics: Provide completion timelines, water volume estimates, PPE reminders, and step-by-step instructions.
+        STRICT OPERATIONAL, PRICING & FIELD SAFETY PROTOCOLS:
+        1. MANDATORY CONCRETE & FLATWORK SCANNERS: Look closely at all images and site notes. If you see concrete, driveways, sidewalks, walkways, aprons, or parking slabs, you MUST include serviceId "driveway_cleaning" or "sidewalk_cleaning" with estimated square footage. Do not skip flatwork.
+        2. TRASH PADS & DUMPSTERS: If you see trash bins, garbage cans, dumpster pads, or waste collection bins, you MUST include serviceId "dumpster_pad".
+        3. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
+        4. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
+        5. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, mandate low-pressure chemical soft washing only to protect joint sand.
+        6. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
+        7. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
         ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
         
-        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with '}'. Use the following exact JSON structure:
+        IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with ''. Use the following exact JSON structure:
         {
             "services": [
                 {
-                    "serviceId": "house_wash",
-                    "reason": "Visible green algae and organic mildew on vinyl siding.",
-                    "evidence": "Discoloration on north-facing wall panels.",
-                    "quantity": 2500,
+                    "serviceId": "driveway_cleaning",
+                    "reason": "Visible tire marks and organic staining on concrete driveway slab.",
+                    "evidence": "Discoloration across concrete surface.",
+                    "quantity": 800,
                     "quantityUnit": "sq_ft",
-                    "estimatedTimeMinutes": 90,
-                    "waterUsageGallons": 350,
-                    "chemicalPrescription": "1.5% Target Mix",
-                    "batchMixingInstructions": "For a 30-gal tank: 30 / 12.5 * 1.5 = 3.6 gallons of 12.5% SH + 26.4 gallons H2O.",
-                    "executionInstructions": "Wear PPE (goggles, gloves, boots). Pre-wet plants. Apply mix bottom-to-top. Dwell 10 mins. Rinse top-to-bottom with low-pressure tip."
+                    "estimatedTimeMinutes": 60,
+                    "waterUsageGallons": 250,
+                    "chemicalPrescription": "Surface Pre-Treat with 2% SH",
+                    "batchMixingInstructions": "For 30-gal tank: 30 / 12.5 * 2 = 4.8 gallons 12.5% SH + 25.2 gal H2O.",
+                    "executionInstructions": "Apply pre-treat, run surface cleaner with perpendicular cross-hit method, post-treat."
                 }
             ],
             "hazards": [
                 {
-                    "hazard": "Outdoor Electrical Outlet & Unsealed Vents",
-                    "action": "Tape outlets, close all windows/vents, and document pre-existing cracks before firing up equipment."
+                    "hazard": "Outdoor Electrical Outlet",
+                    "action": "Tape outlets before cleaning."
                 }
             ],
             "fieldPlan": {
