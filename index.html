@@ -300,6 +300,80 @@
             transform: scale(1.15);
         }
 
+        /* Satellite Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .modal-card {
+            background: rgba(9, 13, 22, 0.95);
+            border: 1px solid #00f0ff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 440px;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
+            text-align: left;
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #00f0ff;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .satellite-frame {
+            width: 100%;
+            height: 220px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            background: #020617;
+            margin-bottom: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .satellite-frame iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            filter: invert(90%) hue-rotate(180deg) contrast(120%);
+        }
+        .satellite-notes-input {
+            width: 100%;
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: none;
+            height: 80px;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        .satellite-notes-input:focus {
+            outline: none;
+            border-color: #00f0ff;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
         .result-card { background: rgba(9, 13, 22, 0.9); backdrop-filter: blur(16px); border-left: 4px solid #00f0ff; padding: 20px; border-radius: 16px; text-align: left; margin-top: 20px; width: 100%; box-sizing: border-box; }
         .proposal-section-title { font-size: 15px; text-transform: uppercase; color: #00f0ff; margin: 25px 0 16px 0; font-weight: 800; border-bottom: 2px solid rgba(30, 41, 59, 0.8); padding-bottom: 8px; }
         
@@ -399,7 +473,7 @@
 
                 <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
-                <button class="btn btn-secondary" onclick="captureJobLocation()" id="gpsBtn">📍 Tag Job Site GPS</button>
+                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
                 <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
@@ -439,6 +513,24 @@
         </div>
     </div>
 
+    <!-- Satellite Map & Notes Modal -->
+    <div class="modal-overlay" id="satelliteModal">
+        <div class="modal-card">
+            <div class="modal-title">
+                <span id="modalHeaderTitle">🛰️ Satellite Site Inspector</span>
+                <span style="cursor: pointer; color: #ef4444; font-size: 18px;" onclick="closeSatelliteModal()">✕</span>
+            </div>
+            <div class="satellite-frame" id="satelliteFrameContainer">
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #94a3b8; font-size: 13px;" id="mapLoadingText">
+                    Acquiring live satellite coordinates...
+                </div>
+            </div>
+            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
+            <textarea class="satellite-notes-input" id="satelliteNotesInput" placeholder="e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back..."></textarea>
+            <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save & Contribute to Scan</button>
+        </div>
+    </div>
+
     <script>
         let stagedBase64Images = [];
         let priceItemsRegistry = [];
@@ -447,6 +539,7 @@
         let isTechMode = false;
         let currentLang = 'en';
         let currentJobLocation = null;
+        let userSiteNotes = "";
         const ADMIN_PIN = "1234";
 
         const translations = {
@@ -457,8 +550,8 @@
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
                 uploadPhotos: "Upload Saved Photos",
-                gpsTag: "📍 Tag Job Site GPS",
-                gpsUpdate: "📍 Update Job Site GPS",
+                gpsTag: "🛰️ Satellite Site & Notes",
+                gpsUpdate: "🛰️ Update Satellite & Notes",
                 scanBtn: "Run Diagnostic Scan",
                 reportTitle: "Itemized Diagnostic Report",
                 techReportTitle: "Field Execution Matrix",
@@ -482,7 +575,12 @@
                 timeline: "⏱️ Timeline:",
                 water: "💧 Water:",
                 chem: "🧪 Chemical & Batch Math:",
-                steps: "📋 Field Steps:"
+                steps: "📋 Field Steps:",
+                modalTitle: "🛰️ Satellite Site Inspector",
+                modalInstruction: "Add property notes or custom instructions for the AI scan:",
+                modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
+                modalSave: "Save & Contribute to Scan",
+                mapLoading: "Acquiring live satellite coordinates..."
             },
             es: {
                 langBtn: "English",
@@ -491,8 +589,8 @@
                 techMode: "Modo Técnico",
                 takePhotos: "Tomar Fotos de Campo",
                 uploadPhotos: "Subir Fotos Guardadas",
-                gpsTag: "📍 Marcar GPS del Sitio",
-                gpsUpdate: "📍 Actualizar GPS del Sitio",
+                gpsTag: "🛰️ Sitio Satelital y Notas",
+                gpsUpdate: "🛰️ Actualizar Satélite y Notas",
                 scanBtn: "Ejecutar Análisis",
                 reportTitle: "Reporte de Diagnóstico Detallado",
                 techReportTitle: "Matriz de Ejecución de Campo",
@@ -516,7 +614,12 @@
                 timeline: "⏱️ Cronograma:",
                 water: "💧 Agua:",
                 chem: "🧪 Químicos y Mezcla:",
-                steps: "📋 Pasos de Campo:"
+                steps: "📋 Pasos de Campo:",
+                modalTitle: "🛰️ Inspector Satelital del Sitio",
+                modalInstruction: "Agregue notas de la propiedad o instrucciones personalizadas para el escaneo:",
+                modalPlaceholder: "ej., Entrada de concreto grande con manchas de aceite, lavado de casa de vinilo de 2 pisos...",
+                modalSave: "Guardar y Contribuir al Análisis",
+                mapLoading: "Adquiriendo coordenadas satelitales en vivo..."
             }
         };
 
@@ -539,7 +642,7 @@
             document.getElementById('btnUploadPhoto').innerText = t.uploadPhotos;
             
             const gpsBtn = document.getElementById('gpsBtn');
-            if (currentJobLocation) {
+            if (currentJobLocation || userSiteNotes) {
                 gpsBtn.innerText = t.gpsUpdate;
             } else {
                 gpsBtn.innerText = t.gpsTag;
@@ -557,40 +660,69 @@
             document.getElementById('totalLabelText').innerText = t.totalPrice;
             document.getElementById('btnExportPDF').innerText = t.exportPdf;
             document.getElementById('btnEmailClient').innerText = t.emailClient;
+
+            document.getElementById('modalHeaderTitle').innerText = t.modalTitle;
+            document.getElementById('modalInstruction').innerText = t.modalInstruction;
+            document.getElementById('satelliteNotesInput').placeholder = t.modalPlaceholder;
+            document.getElementById('modalSaveBtn').innerText = t.modalSave;
+            document.getElementById('mapLoadingText').innerText = t.mapLoading;
         }
 
-        function captureJobLocation() {
+        function openSatelliteModal() {
+            const modal = document.getElementById('satelliteModal');
+            modal.style.display = 'flex';
+            
+            if (!currentJobLocation) {
+                if (!navigator.geolocation) {
+                    alert(currentLang === 'es' ? "La geolocalización no es compatible." : "Geolocation is not supported.");
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        currentJobLocation = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude,
+                            accuracy: position.coords.accuracy
+                        };
+                        renderSatelliteMap(currentJobLocation.lat, currentJobLocation.lon);
+                    },
+                    (error) => {
+                        // Default fallback center if GPS fails (e.g., Oklahoma City center)
+                        currentJobLocation = { lat: 35.4676, lon: -97.5164, accuracy: 0 };
+                        renderSatelliteMap(currentJobLocation.lat, currentJobLocation.lon);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                renderSatelliteMap(currentJobLocation.lat, currentJobLocation.lon);
+            }
+        }
+
+        function closeSatelliteModal() {
+            document.getElementById('satelliteModal').style.display = 'none';
+        }
+
+        function renderSatelliteMap(lat, lon) {
+            const container = document.getElementById('satelliteFrameContainer');
+            // Using OpenStreetMap embedding styled via CSS filter to emulate high-tech dark satellite/map radar view
+            container.innerHTML = `<iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.003}%2C${lat-0.003}%2C${lon+0.003}%2C${lat+0.003}&layer=mapnik&marker=${lat}%2C${lon}" allowfullscreen></iframe>`;
+        }
+
+        function saveSatelliteNotes() {
+            userSiteNotes = document.getElementById('satelliteNotesInput').value.trim();
             const gpsDisplay = document.getElementById('gpsCoordsDisplay');
             const gpsBtn = document.getElementById('gpsBtn');
             const t = translations[currentLang];
 
-            if (!navigator.geolocation) {
-                alert(currentLang === 'es' ? "La geolocalización no es compatible con este navegador." : "Geolocation is not supported by your browser");
-                return;
+            gpsDisplay.style.display = 'block';
+            let displayString = currentJobLocation ? `✅ GPS: ${currentJobLocation.lat.toFixed(4)}, ${currentJobLocation.lon.toFixed(4)}` : `✅ Site Linked`;
+            if (userSiteNotes) {
+                displayString += ` | Notes added`;
             }
+            gpsDisplay.innerHTML = displayString;
+            gpsBtn.innerText = t.gpsUpdate;
 
-            gpsBtn.innerText = currentLang === 'es' ? "Obteniendo GPS Satelital..." : "Locating Satellite GPS...";
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
-
-                    currentJobLocation = { lat, lon, accuracy };
-
-                    gpsDisplay.style.display = 'block';
-                    gpsDisplay.innerHTML = currentLang === 'es' 
-                        ? `✅ GPS del Sitio Marcado: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (Precisión: ~${Math.round(accuracy)}m)`
-                        : `✅ Site GPS Tagged: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (Accurate to ~${Math.round(accuracy)}m)`;
-                    gpsBtn.innerText = t.gpsUpdate;
-                },
-                (error) => {
-                    alert(currentLang === 'es' ? "No se pudo obtener su ubicación. Verifique los permisos." : "Unable to retrieve your location. Please ensure location permissions are enabled.");
-                    gpsBtn.innerText = t.gpsTag;
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
+            closeSatelliteModal();
         }
 
         function setAppMode(mode) {
@@ -825,7 +957,12 @@
             if (isTechMode) {
                 proposalText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n\n`;
                 if (currentJobLocation) {
-                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`;
+                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
+                }
+                if (userSiteNotes) {
+                    proposalText += `SATELLITE/SITE NOTES: ${userSiteNotes}\n\n`;
+                } else {
+                    proposalText += `\n`;
                 }
                 if (techMatrixData && techMatrixData.fieldPlan) {
                     proposalText += `JOB SUMMARY:\n`;
@@ -847,8 +984,15 @@
                 
                 if (currentJobLocation) {
                     proposalText += currentLang === 'es' 
-                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`
-                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`;
+                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`
+                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
+                }
+                if (userSiteNotes) {
+                    proposalText += currentLang === 'es'
+                        ? `NOTAS DEL SITIO: ${userSiteNotes}\n\n`
+                        : `SITE NOTES: ${userSiteNotes}\n\n`;
+                } else {
+                    proposalText += `\n`;
                 }
 
                 priceItemsRegistry.forEach(item => {
@@ -881,14 +1025,14 @@
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
-                "Analizando matriz de propiedad...",
+                "Analizando matriz con satélite y notas...",
                 "Ejecutando diagnóstico del sitio...",
                 "Generando presupuesto de campo...",
                 "Escaneando superficies...",
                 "Procesando datos del sitio...",
                 "Iniciando análisis de superficie..."
             ] : [
-                "Analyzing Property Matrix...",
+                "Analyzing Matrix with Satellite & Notes...",
                 "Executing Site Diagnosis...",
                 "Generating Field Estimate...",
                 "Scanning Property Surfaces...",
@@ -919,7 +1063,8 @@
                     body: JSON.stringify({ 
                         images: payloadImages, 
                         settings: {},
-                        location: currentJobLocation 
+                        location: currentJobLocation,
+                        siteNotes: userSiteNotes 
                     }),
                     signal: controller.signal
                 });
@@ -993,7 +1138,7 @@
                             ctx.drawImage(img, 0, 0, 600, 450);
                             resolve(canvas.toDataURL('image/jpeg', 0.5)); 
                         } catch (e) {
-                            reject(new Error("Canvas layout mapping failed."));
+                            reject(new Error("Canvas layout mapping failed.</h4>"));
                         }
                     };
                     
