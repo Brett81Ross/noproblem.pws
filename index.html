@@ -328,7 +328,7 @@
             color: #cbd5e1;
         }
 
-        /* Stunning High-Tech Satellite & Notes Modal */
+        /* Clean Streamlined Modal Style */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -370,7 +370,7 @@
             font-weight: 900;
             color: #00f0ff;
             text-transform: uppercase;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             letter-spacing: 1.5px;
             display: flex;
             justify-content: space-between;
@@ -378,71 +378,18 @@
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
         }
 
-        .satellite-frame {
-            width: 100%;
-            height: 220px;
-            border-radius: 16px;
-            border: 2px solid rgba(0, 240, 255, 0.4);
-            background: #000000;
-            margin-bottom: 15px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9), 0 0 20px rgba(0, 240, 255, 0.2);
-        }
-
-        .satellite-img-bg {
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: contrast(125%) brightness(105%);
-        }
-
-        .map-hud-reticle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 45px;
-            height: 45px;
-            border: 2px dashed #00f0ff;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: radarSpin 6s linear infinite;
-            box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
-            z-index: 5;
-        }
-
-        .map-hud-center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #22c55e;
-            z-index: 6;
-        }
-
-        @keyframes radarSpin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
         .satellite-notes-input {
             width: 100%;
             background: rgba(2, 6, 23, 0.9);
             border: 1px solid rgba(0, 240, 255, 0.3);
             border-radius: 12px;
-            padding: 12px;
+            padding: 14px;
             color: #ffffff;
             font-size: 14px;
             box-sizing: border-box;
             resize: none;
-            height: 75px;
-            margin-bottom: 15px;
+            height: 110px;
+            margin-bottom: 20px;
             font-family: inherit;
             transition: all 0.2s ease;
         }
@@ -553,7 +500,7 @@
 
                 <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
-                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
+                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">📝 Add Site Notes</button>
                 <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
@@ -593,18 +540,12 @@
         </div>
     </div>
 
-    <!-- High-Resolution Satellite Inspector Modal with Guaranteed Live Feed -->
-    <div class="modal-overlay" id="satelliteModal" style="display: flex;">
+    <!-- Clean Site Notes Modal (GPS Removed) -->
+    <div class="modal-overlay" id="satelliteModal">
         <div class="modal-card">
             <div class="modal-title">
-                <span id="modalHeaderTitle">🛰️ Satellite Site Inspector</span>
+                <span id="modalHeaderTitle">📝 Job Site Notes & Instructions</span>
                 <span style="cursor: pointer; color: #ef4444; font-size: 18px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="closeSatelliteModal()">✕</span>
-            </div>
-            
-            <div class="satellite-frame" id="satelliteFrameContainer">
-                <div class="map-hud-reticle"></div>
-                <div class="map-hud-center-dot"></div>
-                <div class="satellite-img-bg" id="satelliteImgBg" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/61199/37105');"></div>
             </div>
             
             <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
@@ -620,7 +561,6 @@
         let currentTotalValue = 0;
         let isTechMode = false;
         let currentLang = 'en';
-        let currentJobLocation = null;
         let userSiteNotes = "";
         const ADMIN_PIN = "1234";
 
@@ -632,8 +572,8 @@
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
                 uploadPhotos: "Upload Saved Photos",
-                gpsTag: "🛰️ Satellite Site & Notes",
-                gpsUpdate: "🛰️ Update Satellite & Notes",
+                gpsTag: "📝 Add Site Notes",
+                gpsUpdate: "📝 Update Site Notes",
                 scanBtn: "Run Diagnostic Scan",
                 reportTitle: "Itemized Diagnostic Report",
                 techReportTitle: "Field Execution Matrix",
@@ -658,7 +598,7 @@
                 water: "💧 Water:",
                 chem: "🧪 Chemical & Batch Math:",
                 steps: "📋 Field Steps:",
-                modalTitle: "🛰️ Satellite Site Inspector",
+                modalTitle: "📝 Job Site Notes & Instructions",
                 modalInstruction: "Add property notes or custom instructions for the AI scan:",
                 modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
                 modalSave: "Save & Contribute to Scan"
@@ -670,8 +610,8 @@
                 techMode: "Modo Técnico",
                 takePhotos: "Tomar Fotos de Campo",
                 uploadPhotos: "Subir Fotos Guardadas",
-                gpsTag: "🛰️ Sitio Satelital y Notas",
-                gpsUpdate: "🛰️ Actualizar Satélite y Notas",
+                gpsTag: "📝 Agregar Notas del Sitio",
+                gpsUpdate: "📝 Actualizar Notas",
                 scanBtn: "Ejecutar Análisis",
                 reportTitle: "Reporte de Diagnóstico Detallado",
                 techReportTitle: "Matriz de Ejecución de Campo",
@@ -687,7 +627,7 @@
                 hazardsTitle: "Peligros del Sitio y Seguridad",
                 crewPlanTitle: "🚀 Resumen del Trabajo y Equipo",
                 crewMatrixTitle: "Matriz de Ejecución de la Tripulación",
-                safetyTitle: "Protocolos Críticos de Seguridad",
+                safetyTitle: "Critical Safety Protocols",
                 totalWindow: "⏱️ Tiempo Total:",
                 recCrew: "👥 Personal Recomendado:",
                 siteDiff: "📊 Dificultad del Sitio:",
@@ -696,14 +636,13 @@
                 water: "💧 Agua:",
                 chem: "🧪 Químicos y Mezcla:",
                 steps: "📋 Pasos de Campo:",
-                modalTitle: "🛰️ Inspector Satelital del Sitio",
+                modalTitle: "📝 Notas e Instrucciones del Sitio",
                 modalInstruction: "Agregue notas de la propiedad o instrucciones personalizadas para el escaneo:",
                 modalPlaceholder: "ej., Entrada de concreto grande con manchas de aceite, lavado de casa de vinilo de 2 pisos...",
                 modalSave: "Guardar y Contribuir al Análisis"
             }
         };
 
-        // Ensure modal starts closed on initial page load
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('satelliteModal').style.display = 'none';
         });
@@ -727,7 +666,7 @@
             document.getElementById('btnUploadPhoto').innerText = t.uploadPhotos;
             
             const gpsBtn = document.getElementById('gpsBtn');
-            if (currentJobLocation || userSiteNotes) {
+            if (userSiteNotes) {
                 gpsBtn.innerText = t.gpsUpdate;
             } else {
                 gpsBtn.innerText = t.gpsTag;
@@ -753,46 +692,11 @@
         }
 
         function openSatelliteModal() {
-            const modal = document.getElementById('satelliteModal');
-            modal.style.display = 'flex';
-            
-            if (!currentJobLocation) {
-                if (!navigator.geolocation) {
-                    updateSatelliteImageCoords(35.4676, -97.5164);
-                    return;
-                }
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        currentJobLocation = {
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude,
-                            accuracy: position.coords.accuracy
-                        };
-                        updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
-                    },
-                    (error) => {
-                        currentJobLocation = { lat: 35.4676, lon: -97.5164, accuracy: 0 };
-                        updateSatelliteImageCoords(35.4676, -97.5164);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
-            }
+            document.getElementById('satelliteModal').style.display = 'flex';
         }
 
         function closeSatelliteModal() {
             document.getElementById('satelliteModal').style.display = 'none';
-        }
-
-        function updateSatelliteImageCoords(lat, lon) {
-            const zoom = 18;
-            const n = Math.pow(2, zoom);
-            const xtile = Math.floor((lon + 180) / 360 * n);
-            const ytile = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
-
-            const bgElement = document.getElementById('satelliteImgBg');
-            bgElement.style.backgroundImage = `url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${ytile}/${xtile}')`;
         }
 
         function saveSatelliteNotes() {
@@ -801,13 +705,14 @@
             const gpsBtn = document.getElementById('gpsBtn');
             const t = translations[currentLang];
 
-            gpsDisplay.style.display = 'block';
-            let displayString = currentJobLocation ? `✅ GPS: ${currentJobLocation.lat.toFixed(4)}, ${currentJobLocation.lon.toFixed(4)}` : `✅ Site Linked`;
             if (userSiteNotes) {
-                displayString += ` | Notes added`;
+                gpsDisplay.style.display = 'block';
+                gpsDisplay.innerHTML = `✅ Site Notes Added to Scan`;
+                gpsBtn.innerText = t.gpsUpdate;
+            } else {
+                gpsDisplay.style.display = 'none';
+                gpsBtn.innerText = t.gpsTag;
             }
-            gpsDisplay.innerHTML = displayString;
-            gpsBtn.innerText = t.gpsUpdate;
 
             closeSatelliteModal();
         }
@@ -1055,11 +960,8 @@
             if (isTechMode) {
                 proposalText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n`;
                 proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
-                if (currentJobLocation) {
-                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
                 if (userSiteNotes) {
-                    proposalText += `SATELLITE/SITE NOTES: ${userSiteNotes}\n\n`;
+                    proposalText += `SITE NOTES: ${userSiteNotes}\n\n`;
                 } else {
                     proposalText += `\n`;
                 }
@@ -1081,11 +983,6 @@
                     ? `NO PROBLEM PRESSURE WASHING - PROPUESTA DE DIAGNÓSTICO DETALLADA\n\n`
                     : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
                 
-                if (currentJobLocation) {
-                    proposalText += currentLang === 'es' 
-                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`
-                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
                 if (userSiteNotes) {
                     proposalText += currentLang === 'es'
                         ? `NOTAS DEL SITIO: ${userSiteNotes}\n\n`
@@ -1124,14 +1021,14 @@
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
-                "Analizando matriz con satélite y notas...",
+                "Analizando matriz con notas del sitio...",
                 "Ejecutando diagnóstico del sitio...",
                 "Generando presupuesto de campo...",
                 "Escaneando superficies...",
                 "Procesando datos del sitio...",
                 "Iniciando análisis de superficie..."
             ] : [
-                "Analyzing Matrix with Satellite & Notes...",
+                "Analyzing Matrix with Site Notes...",
                 "Executing Site Diagnosis...",
                 "Generating Field Estimate...",
                 "Scanning Property Surfaces...",
@@ -1162,7 +1059,6 @@
                     body: JSON.stringify({ 
                         images: payloadImages, 
                         settings: {},
-                        location: currentJobLocation,
                         siteNotes: userSiteNotes 
                     }),
                     signal: controller.signal
@@ -1232,8 +1128,8 @@
                         try {
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
-                            canvas.width = `600`;
-                            canvas.height = `450`;
+                            canvas.width = 600; 
+                            canvas.height = 450;
                             ctx.drawImage(img, 0, 0, 600, 450);
                             resolve(canvas.toDataURL('image/jpeg', 0.5)); 
                         } catch (e) {
