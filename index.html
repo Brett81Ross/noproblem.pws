@@ -399,6 +399,8 @@
 
                 <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
+                <button class="btn btn-secondary" onclick="captureJobLocation()" id="gpsBtn">📍 Tag Job Site GPS</button>
+                <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
                 
                 <div class="preview-grid" id="imagePreviewGrid">
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
@@ -432,7 +434,7 @@
         
         <div class="footer">
             &copy; 2026 No Problem Pressure Washing Solutions, LLC&trade;<br>
-            Powered by Cactus & 🌵 Byte Studios&trade;<br>
+            Powered by Cactus🌵Byte Studios&trade;<br>
             All Rights Reserved
         </div>
     </div>
@@ -443,7 +445,8 @@
         let techMatrixData = null;
         let currentTotalValue = 0;
         let isTechMode = false;
-        let currentLang = 'en'; // 'en' or 'es'
+        let currentLang = 'en';
+        let currentJobLocation = null;
         const ADMIN_PIN = "1234";
 
         const translations = {
@@ -454,6 +457,8 @@
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
                 uploadPhotos: "Upload Saved Photos",
+                gpsTag: "📍 Tag Job Site GPS",
+                gpsUpdate: "📍 Update Job Site GPS",
                 scanBtn: "Run Diagnostic Scan",
                 reportTitle: "Itemized Diagnostic Report",
                 techReportTitle: "Field Execution Matrix",
@@ -486,6 +491,8 @@
                 techMode: "Modo Técnico",
                 takePhotos: "Tomar Fotos de Campo",
                 uploadPhotos: "Subir Fotos Guardadas",
+                gpsTag: "📍 Marcar GPS del Sitio",
+                gpsUpdate: "📍 Actualizar GPS del Sitio",
                 scanBtn: "Ejecutar Análisis",
                 reportTitle: "Reporte de Diagnóstico Detallado",
                 techReportTitle: "Matriz de Ejecución de Campo",
@@ -524,12 +531,19 @@
 
         function applyTranslations() {
             const t = translations[currentLang];
-            document.getElementById('langToggleBtninnerText') || (document.getElementById('langToggleBtn').innerText = t.langBtn);
+            document.getElementById('langToggleBtn').innerText = t.langBtn;
             document.getElementById('taglineText').innerText = t.tagline;
             document.getElementById('btnAdminMode').innerText = t.adminMode;
             document.getElementById('btnTechMode').innerText = t.techMode;
             document.getElementById('btnTakePhoto').innerText = t.takePhotos;
             document.getElementById('btnUploadPhoto').innerText = t.uploadPhotos;
+            
+            const gpsBtn = document.getElementById('gpsBtn');
+            if (currentJobLocation) {
+                gpsBtn.innerText = t.gpsUpdate;
+            } else {
+                gpsBtn.innerText = t.gpsTag;
+            }
             
             const trigger = document.getElementById('processTrigger');
             if (!trigger.classList.contains('btn-loading')) {
@@ -543,6 +557,40 @@
             document.getElementById('totalLabelText').innerText = t.totalPrice;
             document.getElementById('btnExportPDF').innerText = t.exportPdf;
             document.getElementById('btnEmailClient').innerText = t.emailClient;
+        }
+
+        function captureJobLocation() {
+            const gpsDisplay = document.getElementById('gpsCoordsDisplay');
+            const gpsBtn = document.getElementById('gpsBtn');
+            const t = translations[currentLang];
+
+            if (!navigator.geolocation) {
+                alert(currentLang === 'es' ? "La geolocalización no es compatible con este navegador." : "Geolocation is not supported by your browser");
+                return;
+            }
+
+            gpsBtn.innerText = currentLang === 'es' ? "Obteniendo GPS Satelital..." : "Locating Satellite GPS...";
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+
+                    currentJobLocation = { lat, lon, accuracy };
+
+                    gpsDisplay.style.display = 'block';
+                    gpsDisplay.innerHTML = currentLang === 'es' 
+                        ? `✅ GPS del Sitio Marcado: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (Precisión: ~${Math.round(accuracy)}m)`
+                        : `✅ Site GPS Tagged: Lat ${lat.toFixed(5)}, Lon ${lon.toFixed(5)} (Accurate to ~${Math.round(accuracy)}m)`;
+                    gpsBtn.innerText = t.gpsUpdate;
+                },
+                (error) => {
+                    alert(currentLang === 'es' ? "No se pudo obtener su ubicación. Verifique los permisos." : "Unable to retrieve your location. Please ensure location permissions are enabled.");
+                    gpsBtn.innerText = t.gpsTag;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
         }
 
         function setAppMode(mode) {
@@ -773,27 +821,36 @@
         }
 
         function generateActiveProposalText() {
+            let proposalText = "";
             if (isTechMode) {
-                let techText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n\n`;
+                proposalText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n\n`;
+                if (currentJobLocation) {
+                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`;
+                }
                 if (techMatrixData && techMatrixData.fieldPlan) {
-                    techText += `JOB SUMMARY:\n`;
-                    techText += `- Total Window: ${techMatrixData.fieldPlan.totalEstimatedHours || '2 Hours'}\n`;
-                    techText += `- Crew Size: ${techMatrixData.fieldPlan.crewSizeRecommended || 1} Tech(s)\n\n`;
+                    proposalText += `JOB SUMMARY:\n`;
+                    proposalText += `- Total Window: ${techMatrixData.fieldPlan.totalEstimatedHours || '2 Hours'}\n`;
+                    proposalText += `- Crew Size: ${techMatrixData.fieldPlan.crewSizeRecommended || 1} Tech(s)\n\n`;
                 }
                 if (techMatrixData && techMatrixData.services) {
                     techMatrixData.services.forEach(item => {
-                        techText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
-                        techText += `  - Timeline: ${item.estimatedTimeMinutes || 60} Mins | Water: ~${item.waterUsageGallons || 200} Gal\n`;
-                        techText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
-                        techText += `  - Execution: ${item.executionInstructions}\n\n`;
+                        proposalText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
+                        proposalText += `  - Timeline: ${item.estimatedTimeMinutes || 60} Mins | Water: ~${item.waterUsageGallons || 200} Gal\n`;
+                        proposalText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
+                        proposalText += `  - Execution: ${item.executionInstructions}\n\n`;
                     });
                 }
-                return techText;
             } else {
-                let proposalText = currentLang === 'es' 
+                proposalText = currentLang === 'es' 
                     ? `NO PROBLEM PRESSURE WASHING - PROPUESTA DE DIAGNÓSTICO DETALLADA\n\n`
                     : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
                 
+                if (currentJobLocation) {
+                    proposalText += currentLang === 'es' 
+                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`
+                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n\n`;
+                }
+
                 priceItemsRegistry.forEach(item => {
                     if (item.disabled) return;
                     if (item.value > 0) {
@@ -803,8 +860,8 @@
                 proposalText += `\nTOTAL: ${document.getElementById('grandTotalDisplay').innerText}\n`;
                 proposalText += `\n----------------------------------------\n`;
                 proposalText += currentLang === 'es' ? `TÉRMINOS Y CONDICIONES:\n- Estimación válida por 30 días.\n- El cliente garantiza acceso a fuente de agua y electricidad.` : `TERMS & CONDITIONS:\n- Estimate valid for 30 days.\n- Client guarantees access to water and power.`;
-                return proposalText;
             }
+            return proposalText;
         }
 
         function copyToClipboard() {
@@ -859,7 +916,11 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json' 
                     },
-                    body: JSON.stringify({ images: payloadImages, settings: {} }),
+                    body: JSON.stringify({ 
+                        images: payloadImages, 
+                        settings: {},
+                        location: currentJobLocation 
+                    }),
                     signal: controller.signal
                 });
 
