@@ -1,0 +1,54 @@
+name: Standardize footer
+
+on:
+  push:
+    paths:
+      - '.github/workflows/standardize-footer.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  standardize-footer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply standard footer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          old_css = ".footer { width: 100%; margin-top: auto; margin-bottom: 10px; padding-top: 40px; font-size: 11px; color: #64748b; text-align: center; opacity: 0.65; line-height: 1.6; letter-spacing: 0.5px; }"
+          new_css = ".footer { width: 100%; margin-top: auto; margin-bottom: 10px; padding: 18px 8px 4px; border-top: 1px solid rgba(0, 240, 255, 0.18); font-size: 11px; color: #64748b; text-align: center; opacity: 0.9; line-height: 1.65; box-sizing: border-box; } .footer strong { color: #00f0ff; font-weight: 800; }"
+          if old_css in s:
+              s = s.replace(old_css, new_css, 1)
+
+          old_footer = '''        <div class="footer">
+            &copy; 2026 No Problem Pressure Washing Matrix&trade;<br>
+            Powered by Cactus🌵Byte Studios&trade;<br>
+            All Rights Reserved
+        </div>'''
+          new_footer = '''        <div class="footer" id="cactusbyte-standard-footer">
+            <div>© 2026 No Problem Pressure Washing Matrix™</div>
+            <div>Powered by <strong>Cactus🌵Byte Studios™</strong> · All Rights Reserved</div>
+        </div>'''
+          if old_footer not in s:
+              raise SystemExit('Expected footer block not found; refusing to alter unrelated code.')
+          s = s.replace(old_footer, new_footer, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit footer only
+        run: |
+          git config user.name "CactusByte Footer Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Standardize CactusByte footer"
+          git push
