@@ -67,7 +67,7 @@
     document.body.setAttribute('data-building-level', normalized);
     saveLevel(normalized);
 
-    Array.prototype.forEach.call(document.querySelectorAll('[data-building-level]'), function (button) {
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
       button.setAttribute('aria-pressed', String(button.getAttribute('data-building-level') === normalized));
     });
 
@@ -85,7 +85,7 @@
   }
 
   function addSelectorEvents() {
-    Array.prototype.forEach.call(document.querySelectorAll('[data-building-level]'), function (button) {
+    Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
       button.addEventListener('click', function () {
         applyLevel(button.getAttribute('data-building-level'));
       });

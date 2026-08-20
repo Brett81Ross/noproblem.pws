@@ -395,6 +395,16 @@ module.exports = async function handler(req, res) {
       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
     );
 
+    html = html.replace(
+      'house_wash: "One-Story House Soft Wash"',
+      'house_wash: "House Soft Wash"'
+    );
+
+    html = html.replace(
+      'lines.push("No roofs, ladders, gutters, or two-story work are included.");',
+      'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing is included with safe professional access equipment. Roof cleaning is not included." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
+    );
+
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
