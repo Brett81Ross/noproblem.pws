@@ -8,6 +8,27 @@
   var activeGuide = 'property_overview';
   var pendingSavedGuide = null;
 
+  var STANDARD_GUIDES = [
+    'property_overview',
+    'house_wash',
+    'driveway_cleaning',
+    'sidewalk_cleaning',
+    'patio_cleaning',
+    'deck_cleaning',
+    'fence_cleaning',
+    'retaining_wall',
+    'dumpster_pad',
+    'oil_treatment',
+    'roof_soft_wash'
+  ];
+
+  var SPECIALTY_GUIDES = [
+    'memorial_cleaning',
+    'vehicle_wash',
+    'aircraft_exterior_wash',
+    'custom_area'
+  ];
+
   var GUIDES = {
     property_overview: {
       title: 'Property overview',
@@ -230,6 +251,7 @@
       '.np-back-button{min-width:72px;min-height:42px;border:1px solid rgba(111,231,244,.3);border-radius:12px;color:#c9f8ff;background:#06141d;font-weight:900;cursor:pointer}',
       '.np-capture-title{flex:1}.np-capture-title small{display:block;color:#ffc857;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.np-capture-title h2{margin:4px 0 0;color:#f7fbff;font-size:22px}',
       '.np-capture-copy{margin:0 0 12px;color:#92acb7;font-size:13px;line-height:1.5}.np-capture-warning{margin:0 0 12px;padding:11px;border:1px solid rgba(255,170,88,.3);border-radius:11px;color:#ffd9a1;background:rgba(255,142,76,.09);font-size:11px;line-height:1.45}',
+      '.np-guide-switch{display:grid;gap:8px;margin:0 0 14px;padding:11px;border:1px solid rgba(255,200,87,.27);border-radius:12px;background:linear-gradient(135deg,rgba(255,200,87,.09),rgba(155,124,255,.08))}.np-guide-switch>span{color:#ffe2a2;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.np-guide-switch select{width:100%;min-height:48px;box-sizing:border-box;border:1px solid rgba(112,229,241,.32);border-radius:10px;padding:9px 38px 9px 12px;color:#effcff;background:#04141e;font-size:16px;font-weight:800}.np-guide-switch option,.np-guide-switch optgroup{color:#effcff;background:#04141e}.np-guide-levels{display:grid;grid-template-columns:1fr 1fr;gap:7px}.np-guide-levels button{min-height:42px;border:1px solid rgba(112,229,241,.25);border-radius:9px;color:#9ab6c1;background:#061722;font-size:11px;font-weight:900}.np-guide-levels button[aria-pressed="true"]{color:#071019;border-color:transparent;background:linear-gradient(135deg,#9cf8ff,#66dfe9 65%,#ad94ff)}',
       '.np-measurements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}.np-measure-field{display:grid;gap:5px;color:#acc6cf;font-size:10px;font-weight:800}.np-measure-field input{width:100%;min-height:44px;box-sizing:border-box;border:1px solid rgba(108,222,235,.2);border-radius:10px;padding:10px;color:#f4fbff;background:#031018;font-size:16px}',
       '.np-prompt-list{display:grid;gap:9px}.np-prompt{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px;border:1px solid rgba(155,124,255,.22);border-radius:14px;background:linear-gradient(135deg,rgba(11,35,44,.9),rgba(13,13,31,.9))}',
       '.np-prompt.is-captured{border-color:rgba(171,255,79,.4)}.np-prompt.is-skipped{opacity:.62}.np-prompt strong{display:block;color:#e9fbff;font-size:13px}.np-prompt p{margin:4px 0 0;color:#84a2ad;font-size:10px;line-height:1.4}.np-prompt-status{margin-top:5px!important;color:#baff77!important;font-weight:900!important}',
@@ -258,12 +280,13 @@
     screen.setAttribute('role', 'dialog');
     screen.setAttribute('aria-modal', 'true');
     screen.setAttribute('aria-label', 'Guided photo capture');
-    screen.innerHTML = '<div class="np-capture-shell"><div class="np-capture-top"><button class="np-back-button" type="button" data-np-close>← Back</button><div class="np-capture-title"><small id="npGuideCategory"></small><h2 id="npGuideTitle"></h2></div></div><p class="np-capture-copy" id="npGuideCopy"></p><div id="npGuideWarning"></div><div class="np-measurements" id="npGuideFields"></div><div class="np-prompt-list" id="npPromptList"></div><div class="np-capture-footer"><button type="button" data-np-saved>↥ Add saved photos</button><button type="button" data-np-extra>◎ Add extra photo</button><button class="np-done" type="button" data-np-close>Done with this area</button></div></div>';
+    screen.innerHTML = '<div class="np-capture-shell"><div class="np-capture-top"><button class="np-back-button" type="button" data-np-close>← Back</button><div class="np-capture-title"><small id="npGuideCategory"></small><h2 id="npGuideTitle"></h2></div></div><p class="np-capture-copy" id="npGuideCopy"></p><div class="np-guide-switch"><span>All quote areas</span><select id="npGuideSwitch" aria-label="Switch quote area"></select><div class="np-guide-levels" role="group" aria-label="Building height"><button type="button" data-np-level="one">One story</button><button type="button" data-np-level="multiple">Multiple levels</button></div></div><div id="npGuideWarning"></div><div class="np-measurements" id="npGuideFields"></div><div class="np-prompt-list" id="npPromptList"></div><div class="np-capture-footer"><button type="button" data-np-saved>↥ Add saved photos</button><button type="button" data-np-extra>◎ Add extra photo</button><button class="np-done" type="button" data-np-close>Done with this area</button></div></div>';
     document.body.appendChild(screen);
 
     planner.addEventListener('click', handlePlannerClick);
     screen.addEventListener('click', handleCaptureClick);
     screen.addEventListener('input', handleMeasurementInput);
+    screen.addEventListener('change', handleGuideChange);
   }
 
   function createSpecialtyGroup() {
@@ -330,6 +353,7 @@
     document.getElementById('npGuideCategory').textContent = guide.category;
     document.getElementById('npGuideTitle').textContent = guide.title;
     document.getElementById('npGuideCopy').textContent = guide.copy;
+    renderGuideSwitch();
     document.getElementById('npGuideWarning').innerHTML = guide.warning ? '<p class="np-capture-warning">' + escapeHtml(guide.warning) + '</p>' : '';
 
     var values = measurements[activeGuide] || {};
@@ -343,6 +367,23 @@
       var skipped = skippedViews[skipKey] === true;
       return '<article class="np-prompt' + (captured ? ' is-captured' : '') + (skipped ? ' is-skipped' : '') + '"><div><strong>' + escapeHtml(prompt[0]) + '</strong><p>' + escapeHtml(prompt[1]) + '</p>' + (captured ? '<p class="np-prompt-status">✓ Photo added</p>' : skipped ? '<p class="np-prompt-status">Skipped — optional</p>' : '') + '</div><div class="np-prompt-actions"><button class="np-capture-button" type="button" data-np-take="' + index + '">' + (captured ? 'Replace' : 'Take photo') + '</button><button class="np-skip-button" type="button" data-np-skip="' + index + '">' + (skipped ? 'Undo skip' : 'Skip') + '</button></div></article>';
     }).join('');
+  }
+
+  function renderGuideSwitch() {
+    var select = document.getElementById('npGuideSwitch');
+    if (!select) return;
+    var multiLevel = document.body.getAttribute('data-building-level') === 'multiple';
+    function optionsFor(ids) {
+      return ids.map(function (id) {
+        var isRoofLocked = id === 'roof_soft_wash' && !multiLevel;
+        var label = GUIDES[id].title + (isRoofLocked ? ' — select Multiple levels first' : '');
+        return '<option value="' + escapeHtml(id) + '"' + (id === activeGuide ? ' selected' : '') + (isRoofLocked ? ' disabled' : '') + '>' + escapeHtml(label) + '</option>';
+      }).join('');
+    }
+    select.innerHTML = '<optgroup label="Home and property">' + optionsFor(STANDARD_GUIDES) + '</optgroup><optgroup label="Specialty and commercial">' + optionsFor(SPECIALTY_GUIDES) + '</optgroup>';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-np-level]'), function (button) {
+      button.setAttribute('aria-pressed', String(button.getAttribute('data-np-level') === (multiLevel ? 'multiple' : 'one')));
+    });
   }
 
   function openGuide(id) {
@@ -418,6 +459,13 @@
   }
 
   function handleCaptureClick(event) {
+    var level = event.target.closest('[data-np-level]');
+    if (level) {
+      var buildingButton = document.querySelector('[data-building-level="' + level.getAttribute('data-np-level') + '"]');
+      if (buildingButton && buildingButton.getAttribute('aria-pressed') !== 'true') buildingButton.click();
+      renderGuideSwitch();
+      return;
+    }
     if (event.target.closest('[data-np-close]')) {
       closeGuide();
       return;
@@ -450,6 +498,23 @@
     if (!field) return;
     measurements[activeGuide] = measurements[activeGuide] || {};
     measurements[activeGuide][field.getAttribute('data-np-field')] = field.value;
+  }
+
+  function handleGuideChange(event) {
+    var select = event.target.closest('#npGuideSwitch');
+    if (!select) return;
+    var id = select.value;
+    if (id === 'property_overview') {
+      openGuide(id);
+      return;
+    }
+    var button = document.querySelector('[data-service="' + id + '"]');
+    if (!button) return;
+    if (button.getAttribute('aria-pressed') !== 'true') {
+      button.click();
+    } else {
+      openGuide(id);
+    }
   }
 
   function updateSlotBadges() {
