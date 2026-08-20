@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const MODEL = 'gemini-3.5-flash'; 
-const MAX_IMAGES = 4;
+const MAX_IMAGES = 12;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -89,7 +89,7 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings, location, siteNotes } = req.body;
+        const { images, settings, location, siteNotes, requestedServices, buildingScope, job } = req.body;
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
@@ -123,12 +123,23 @@ async function handler(req, res) {
         if (siteNotes) {
             contextBlock += `\n- User/Tech Site Notes & Custom Instructions: "${siteNotes}"`;
         }
+        if (job?.name || job?.address) {
+            contextBlock += `\n- Job: ${job.name || 'Unnamed job'}${job.address ? ` at ${job.address}` : ''}`;
+        }
+        if (Array.isArray(requestedServices) && requestedServices.length) {
+            contextBlock += `\n- Customer-requested services to evaluate against the photos: ${requestedServices.join(', ')}`;
+        }
+        if (buildingScope?.label) {
+            contextBlock += `\n- Building scope selected in the app: ${buildingScope.label}`;
+        }
+        contextBlock += `\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property or site, plus optional satellite metadata and site notes. You MUST scan and analyze EVERY SINGLE IMAGE and text note provided.
         ${contextBlock}
         
         STRICT OPERATIONAL, PRICING & FIELD SAFETY PROTOCOLS:
+        0. WHOLE-PROPERTY SYNTHESIS: Treat every image as a different view of the same job. Cross-check overlapping walls and surfaces, avoid double-counting areas shown in more than one photo, and base the final quantities on the combined property evidence rather than one image at a time.
         1. MANDATORY CONCRETE & FLATWORK SCANNERS: Look closely at all images and site notes. If you see concrete, driveways, sidewalks, walkways, aprons, or parking slabs, you MUST include serviceId "driveway_cleaning" or "sidewalk_cleaning" with estimated square footage. Do not skip flatwork.
         2. TRASH PADS & DUMPSTERS: If you see trash bins, garbage cans, dumpster pads, or waste collection bins, you MUST include serviceId "dumpster_pad".
         3. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).

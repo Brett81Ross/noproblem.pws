@@ -132,6 +132,31 @@
     }
   }
 
+  function updateEvidenceGuidance(level) {
+    var multiple = level === MULTIPLE_LEVELS;
+    var guidance = multiple ? [
+      { index: 8, title: 'Front roofline', hint: 'Front roof pitch, gutters, and upper-level access' },
+      { index: 9, title: 'Rear roofline', hint: 'Rear roof pitch, valleys, and upper-level access' },
+      { index: 10, title: 'Upper-level detail', hint: 'Dormers, peaks, staining, or difficult access' },
+      { index: 11, title: 'Optional detail', hint: 'Additional roof, exterior, or service-area view' }
+    ] : [
+      { index: 8, title: 'Optional detail 1', hint: 'Additional angle or service area' },
+      { index: 9, title: 'Optional detail 2', hint: 'Additional angle or service area' },
+      { index: 10, title: 'Optional detail 3', hint: 'Additional angle or service area' },
+      { index: 11, title: 'Optional detail 4', hint: 'Additional angle or service area' }
+    ];
+
+    guidance.forEach(function (item) {
+      var slot = document.querySelector('[data-slot="' + item.index + '"]');
+      if (!slot) return;
+      var title = slot.querySelector('.slot-title');
+      var hint = slot.querySelector('.slot-hint');
+      if (title && title.textContent !== item.title) title.textContent = item.title;
+      if (hint && !slot.classList.contains('has-photo') && hint.textContent !== item.hint) hint.textContent = item.hint;
+      slot.setAttribute('aria-label', (slot.classList.contains('has-photo') ? 'Replace ' : 'Add ') + item.title + ' photo');
+    });
+  }
+
   function createHeightSelector() {
     var scopeGrid = document.getElementById('scopeGrid');
     if (!scopeGrid || document.getElementById('buildingHeightField')) return null;
@@ -177,6 +202,7 @@
       if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> one-story mode is selected. Ground-level and one-story exterior washing are included. Roof cleaning remains excluded.';
     }
 
+    updateEvidenceGuidance(normalized);
     updateHouseWashLabels(normalized, document.getElementById('resultsMount') || document);
   }
 
@@ -445,6 +471,17 @@
     ensurePdfButton();
   }
 
+  function observeEvidenceGrid() {
+    var evidenceGrid = document.getElementById('evidenceGrid');
+    if (!evidenceGrid || typeof MutationObserver !== 'function') return;
+
+    var observer = new MutationObserver(function () {
+      updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+    });
+    observer.observe(evidenceGrid, { childList: true });
+    updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+  }
+
   function init() {
     createCustomerFields();
     restoreCustomerContact();
@@ -453,6 +490,7 @@
     addSelectorEvents();
     applyLevel(readSavedLevel());
     patchAnalysisRequest();
+    observeEvidenceGrid();
     observeResults();
   }
 

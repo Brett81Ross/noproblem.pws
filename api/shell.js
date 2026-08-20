@@ -411,6 +411,7 @@ module.exports = async function handler(req, res) {
         .mission-fields { grid-template-columns: 1fr 1.35fr; }
         .customer-fields { grid-template-columns: 1fr 1fr; }
         .scope-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .evidence-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       }
 
       @media (max-width: 699px) {
@@ -445,6 +446,73 @@ module.exports = async function handler(req, res) {
       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
       '</head>',
       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+    );
+
+    html = html.replace(
+      'Four purposeful photos beat twenty random ones. Use the angles below to build a scan the customer and your crew can both understand.',
+      'Eight guided house photos build a quote-ready property scan. Add up to four optional detail photos when the job needs a closer look.'
+    );
+
+    html = html.replace(
+      '<strong id="photoCount">0 / 4</strong>',
+      '<strong id="photoCount">0 / 12</strong>'
+    );
+
+    html = html.replace(
+      /var PHOTO_SLOTS = \[[\s\S]*?\n\s*\];\n\n\s*var SERVICE_LABELS/,
+      [
+        'var PHOTO_SLOTS = [',
+        '                { title: "Front exterior", hint: "Full front wall, entry, and nearby surfaces" },',
+        '                { title: "Rear exterior", hint: "Full rear wall, patio, and attached features" },',
+        '                { title: "Left side", hint: "Complete left elevation from corner to corner" },',
+        '                { title: "Right side", hint: "Complete right elevation from corner to corner" },',
+        '                { title: "Primary surface", hint: "Driveway, walkway, patio, or main work area" },',
+        '                { title: "Problem close-up", hint: "Growth, stains, oxidation, or damaged areas" },',
+        '                { title: "Access & obstacles", hint: "Gates, equipment path, outlets, and tight access" },',
+        '                { title: "Landscaping & protection", hint: "Plants, furniture, vehicles, and sensitive areas" },',
+        '                { title: "Optional detail 1", hint: "Additional angle or service area" },',
+        '                { title: "Optional detail 2", hint: "Additional angle or service area" },',
+        '                { title: "Optional detail 3", hint: "Additional angle or service area" },',
+        '                { title: "Optional detail 4", hint: "Additional angle or service area" }',
+        '            ];',
+        '',
+        '            var SERVICE_LABELS'
+      ].join('\n')
+    );
+
+    html = html.replace(
+      'photos: [null, null, null, null],',
+      'photos: [null, null, null, null, null, null, null, null, null, null, null, null],'
+    );
+
+    html = html.replace(
+      'elements.photoCount.textContent = count + " / 4";',
+      'elements.photoCount.textContent = count + " / 12";'
+    );
+
+    html = html.replace(
+      'elements.evidenceStatus.textContent = count === 0 ? "Ready for scan" : count === 4 ? "Full evidence set" : count + " view" + (count === 1 ? "" : "s") + " loaded";',
+      'elements.evidenceStatus.textContent = count === 0 ? "Add house views" : count === 12 ? "Full evidence set" : count >= 8 ? "Quote-ready evidence set" : count + " / 8 guided views";'
+    );
+
+    html = html.replace(
+      'var files = Array.prototype.slice.call(fileList || []).slice(0, 4);',
+      'var files = Array.prototype.slice.call(fileList || []).slice(0, 12);'
+    );
+
+    html = html.replace(
+      'findAvailableSlot((state.photoTarget + fileIndex) % 4)',
+      'findAvailableSlot((state.photoTarget + fileIndex) % state.photos.length)'
+    );
+
+    html = html.replace(
+      'Math.min(1, 1100 / longestSide)',
+      'Math.min(1, 960 / longestSide)'
+    );
+
+    html = html.replace(
+      'canvas.toDataURL("image/jpeg", 0.68)',
+      'canvas.toDataURL("image/jpeg", 0.62)'
     );
 
     html = html.replace(
