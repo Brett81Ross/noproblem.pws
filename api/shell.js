@@ -40,8 +40,8 @@ module.exports = async function handler(req, res) {
       .brand-stage { background: transparent !important; }
       .brand-logo {
         background: transparent !important;
-        mix-blend-mode: screen !important;
-        filter: contrast(1.55) brightness(1.08) drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important;
+        mix-blend-mode: normal !important;
+        filter: drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important;
       }
     </style>
     `;
@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
-      '<img class="brand-logo" src="/brand-logo.webp" alt="No Problem Pressure Washing Matrix™">',
+      '<img class="brand-logo" src="/brand-logo-transparent.webp" alt="No Problem Pressure Washing Matrix™">',
       '</head>',
       ''
     );
@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
     if (!html.includes('/manifest.webmanifest')) {
       html = html.replace('</head>', headAdditions + '\n</head>');
     } else if (!html.includes('matrixBrandPolish')) {
-      html = html.replace('</head>', `\n    <style id="matrixBrandPolish">\n      .brand-stage { background: transparent !important; }\n      .brand-logo { background: transparent !important; mix-blend-mode: screen !important; filter: contrast(1.55) brightness(1.08) drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important; }\n    </style>\n</head>`);
+      html = html.replace('</head>', `\n    <style id="matrixBrandPolish">\n      .brand-stage { background: transparent !important; }\n      .brand-logo { background: transparent !important; mix-blend-mode: normal !important; filter: drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important; }\n    </style>\n</head>`);
     }
 
     if (!html.includes('/settings.js')) {
