@@ -1,8 +1,7 @@
 {
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/$1"
-    }
+  "rewrites": [
+    { "source": "/", "destination": "/api/shell" },
+    { "source": "/index.html", "destination": "/api/shell" },
+    { "source": "/api/analyze", "destination": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/api/analyze" }
   ]
 }

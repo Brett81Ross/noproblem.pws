@@ -1,0 +1,14 @@
+{
+  "name": "No Problem Pressure Washing Matrix",
+  "short_name": "No Problem Matrix",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050a0e",
+  "theme_color": "#07131b",
+  "description": "No Problem Pressure Washing Matrix",
+  "icons": [
+    { "src": "/app-icon-192.webp", "sizes": "192x192", "type": "image/webp", "purpose": "any" },
+    { "src": "/app-icon-512.webp", "sizes": "512x512", "type": "image/webp", "purpose": "any" }
+  ]
+}
