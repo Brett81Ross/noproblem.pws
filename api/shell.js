@@ -250,6 +250,39 @@ module.exports = async function handler(req, res) {
         box-shadow: 0 12px 30px rgba(117, 138, 255, .2) !important;
       }
 
+      .customer-fields {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 14px;
+        border: 1px solid rgba(255, 200, 87, .2);
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(255, 200, 87, .06), rgba(255, 111, 181, .055));
+      }
+
+      .customer-fields .field-label { color: #f3dfb2; }
+
+      .customer-fields .text-field:focus {
+        border-color: var(--gold) !important;
+        box-shadow: 0 0 0 4px rgba(255, 200, 87, .09) !important;
+      }
+
+      .customer-contact-note {
+        grid-column: 1 / -1;
+        margin: 0;
+        color: #829eaa;
+        font-size: 10px;
+        line-height: 1.45;
+      }
+
+      .pdf-download-button {
+        border-color: rgba(255, 200, 87, .34) !important;
+        color: #1e0c00 !important;
+        background: linear-gradient(135deg, #ffe39a, #ffc857 52%, #ff8e9f) !important;
+        box-shadow: 0 10px 24px rgba(255, 150, 90, .18) !important;
+      }
+
       .building-height-field {
         margin-top: 18px;
         padding: 14px;
@@ -343,6 +376,8 @@ module.exports = async function handler(req, res) {
         .section-copy, .supply-copy { font-size: 16px; }
         .field-label { font-size: 13px; }
         .text-field { height: 58px; font-size: 16px; }
+        .customer-fields { grid-template-columns: 1fr 1fr; padding: 18px; }
+        .customer-contact-note { font-size: 12px; }
         .service-chip { min-height: 64px; padding: 14px 16px; font-size: 14px; }
         .building-height-label { font-size: 13px; }
         .building-height-option { min-height: 56px; font-size: 14px; }
@@ -358,6 +393,7 @@ module.exports = async function handler(req, res) {
       @media (min-width: 1200px) {
         .app-shell { padding-left: 34px !important; padding-right: 34px !important; }
         .mission-fields { grid-template-columns: 1fr 1.35fr; }
+        .customer-fields { grid-template-columns: 1fr 1fr; }
         .scope-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       }
 
@@ -375,7 +411,7 @@ module.exports = async function handler(req, res) {
       }
 
       @media (max-width: 370px) {
-        .scope-grid, .photo-actions { grid-template-columns: 1fr !important; }
+        .scope-grid, .photo-actions, .customer-fields { grid-template-columns: 1fr !important; }
         .building-height-option { padding: 8px 5px; font-size: 11px; }
       }
 
@@ -403,6 +439,21 @@ module.exports = async function handler(req, res) {
     html = html.replace(
       'lines.push("No roofs, ladders, gutters, or two-story work are included.");',
       'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing is included with safe professional access equipment. Roof cleaning is not included." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
+    );
+
+    html = html.replace(
+      'state.jobAddress.value.trim() ? "PROPERTY: " + state.jobAddress.value.trim() : "",',
+      'state.jobAddress.value.trim() ? "PROPERTY: " + state.jobAddress.value.trim() : "",\n                    document.getElementById("customerEmail") && document.getElementById("customerEmail").value.trim() ? "CUSTOMER EMAIL: " + document.getElementById("customerEmail").value.trim() : "",\n                    document.getElementById("customerPhone") && document.getElementById("customerPhone").value.trim() ? "CUSTOMER PHONE: " + document.getElementById("customerPhone").value.trim() : "",'
+    );
+
+    html = html.replace(
+      'window.location.href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());',
+      'var customerEmailInput = document.getElementById("customerEmail");\n                var recipient = customerEmailInput ? customerEmailInput.value.trim() : "";\n                window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());'
+    );
+
+    html = html.replace(
+      'jobAddress: state.jobAddress.value.trim(),\n                    siteNotes:',
+      'jobAddress: state.jobAddress.value.trim(),\n                    customerEmail: document.getElementById("customerEmail") ? document.getElementById("customerEmail").value.trim() : "",\n                    customerPhone: document.getElementById("customerPhone") ? document.getElementById("customerPhone").value.trim() : "",\n                    siteNotes:'
     );
 
     html = replaceOrInject(
