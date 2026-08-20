@@ -1,8 +1,8 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/:path*",
-      "destination": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/:path*"
+      "src": "/(.*)",
+      "dest": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/$1"
     }
   ]
 }
