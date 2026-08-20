@@ -38,6 +38,7 @@ module.exports = async function handler(req, res) {
     <meta name="twitter:image" content="https://noproblem-pws.vercel.app/brand-logo.webp">
     <style id="matrixBrandPolish">
       .brand-stage { background: transparent !important; }
+      .brand-stage::before { display: none !important; content: none !important; background: none !important; }
       .brand-logo {
         background: transparent !important;
         mix-blend-mode: normal !important;
@@ -65,7 +66,7 @@ module.exports = async function handler(req, res) {
     if (!html.includes('/manifest.webmanifest')) {
       html = html.replace('</head>', headAdditions + '\n</head>');
     } else if (!html.includes('matrixBrandPolish')) {
-      html = html.replace('</head>', `\n    <style id="matrixBrandPolish">\n      .brand-stage { background: transparent !important; }\n      .brand-logo { background: transparent !important; mix-blend-mode: normal !important; filter: drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important; }\n    </style>\n</head>`);
+      html = html.replace('</head>', `\n    <style id="matrixBrandPolish">\n      .brand-stage { background: transparent !important; }\n      .brand-stage::before { display: none !important; content: none !important; background: none !important; }\n      .brand-logo { background: transparent !important; mix-blend-mode: normal !important; filter: drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important; }\n    </style>\n</head>`);
     }
 
     if (!html.includes('/settings.js')) {
