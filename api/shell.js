@@ -49,7 +49,7 @@ module.exports = async function handler(req, res) {
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
-      '<img class="brand-logo" src="/brand-logo-transparent.webp" alt="No Problem Pressure Washing Matrix™">',
+      '<img class="brand-logo" src="/brand-logo-clean.webp" alt="No Problem Pressure Washing Matrix™">',
       '</head>',
       ''
     );
