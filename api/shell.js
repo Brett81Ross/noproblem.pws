@@ -261,6 +261,14 @@ module.exports = async function handler(req, res) {
         background: linear-gradient(135deg, rgba(255, 200, 87, .27), rgba(255, 111, 181, .2)) !important;
       }
 
+      .service-chip[data-service="memorial_cleaning"],
+      .service-chip[data-service="vehicle_wash"],
+      .service-chip[data-service="aircraft_exterior_wash"],
+      .service-chip[data-service="custom_area"] {
+        border-color: rgba(255, 200, 87, .28);
+        background: linear-gradient(135deg, rgba(255, 200, 87, .09), rgba(155, 124, 255, .08));
+      }
+
       .scan-button {
         background: linear-gradient(120deg, #9af9ff, #56dbe9 45%, #9b7cff) !important;
         box-shadow: 0 12px 30px rgba(117, 138, 255, .2) !important;
@@ -450,12 +458,12 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'Four purposeful photos beat twenty random ones. Use the angles below to build a scan the customer and your crew can both understand.',
-      'Eight guided house photos build a quote-ready property scan. Add up to four optional detail photos when the job needs a closer look.'
+      'Choose a service, follow its fast photo guide, and add extra views only when the job needs them. Every photo stays organized for one accurate quote.'
     );
 
     html = html.replace(
       '<strong id="photoCount">0 / 4</strong>',
-      '<strong id="photoCount">0 / 12</strong>'
+      '<strong id="photoCount">0 / 24</strong>'
     );
 
     html = html.replace(
@@ -473,7 +481,19 @@ module.exports = async function handler(req, res) {
         '                { title: "Optional detail 1", hint: "Additional angle or service area" },',
         '                { title: "Optional detail 2", hint: "Additional angle or service area" },',
         '                { title: "Optional detail 3", hint: "Additional angle or service area" },',
-        '                { title: "Optional detail 4", hint: "Additional angle or service area" }',
+        '                { title: "Optional detail 4", hint: "Additional angle or service area" },',
+        '                { title: "Additional photo 13", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 14", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 15", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 16", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 17", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 18", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 19", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 20", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 21", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 22", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 23", hint: "Additional guided service photo" },',
+        '                { title: "Additional photo 24", hint: "Additional guided service photo" }',
         '            ];',
         '',
         '            var SERVICE_LABELS'
@@ -482,22 +502,22 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'photos: [null, null, null, null],',
-      'photos: [null, null, null, null, null, null, null, null, null, null, null, null],'
+      'photos: Array(24).fill(null),'
     );
 
     html = html.replace(
       'elements.photoCount.textContent = count + " / 4";',
-      'elements.photoCount.textContent = count + " / 12";'
+      'elements.photoCount.textContent = count + " / 24";'
     );
 
     html = html.replace(
       'elements.evidenceStatus.textContent = count === 0 ? "Ready for scan" : count === 4 ? "Full evidence set" : count + " view" + (count === 1 ? "" : "s") + " loaded";',
-      'elements.evidenceStatus.textContent = count === 0 ? "Add house views" : count === 12 ? "Full evidence set" : count >= 8 ? "Quote-ready evidence set" : count + " / 8 guided views";'
+      'elements.evidenceStatus.textContent = count === 0 ? "Start a photo guide" : count === 24 ? "Maximum evidence set" : count + " photo" + (count === 1 ? "" : "s") + " organized";'
     );
 
     html = html.replace(
       'var files = Array.prototype.slice.call(fileList || []).slice(0, 4);',
-      'var files = Array.prototype.slice.call(fileList || []).slice(0, 12);'
+      'var remainingSlots = state.photos.filter(function (photo) { return !photo; }).length;\n                var files = Array.prototype.slice.call(fileList || []).slice(0, Math.min(24, remainingSlots));'
     );
 
     html = html.replace(
@@ -507,12 +527,12 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'Math.min(1, 1100 / longestSide)',
-      'Math.min(1, 960 / longestSide)'
+      'Math.min(1, 900 / longestSide)'
     );
 
     html = html.replace(
       'canvas.toDataURL("image/jpeg", 0.68)',
-      'canvas.toDataURL("image/jpeg", 0.62)'
+      'canvas.toDataURL("image/jpeg", 0.58)'
     );
 
     html = html.replace(
@@ -525,10 +545,34 @@ module.exports = async function handler(req, res) {
       'house_wash: "House Soft Wash",\n                roof_soft_wash: "Roof Soft Wash",'
     );
 
+    html = html.replace(
+      'roof_soft_wash: "Roof Soft Wash",',
+      'roof_soft_wash: "Roof Soft Wash",\n                fence_cleaning: "Fence Cleaning",\n                memorial_cleaning: "Tombstone / Memorial Cleaning",\n                vehicle_wash: "Vehicle / Fleet Washing",\n                aircraft_exterior_wash: "Aircraft Exterior Washing",\n                custom_area: "Custom Cleaning Area",'
+    );
+
+    html = html.replace(
+      /(<button\s+class=["']service-chip["'][^>]*data-service=["']deck_cleaning["'][^>]*>)[\s\S]*?(<\/button>)/i,
+      '$1Deck$2'
+    );
+
+    if (!/data-service=["']fence_cleaning["']/i.test(html)) {
+      html = html.replace(
+        /(<button\s+class=["']service-chip["'][^>]*data-service=["']deck_cleaning["'][^>]*>[\s\S]*?<\/button>)/i,
+        '$1\n                    <button class="service-chip" type="button" data-service="fence_cleaning" aria-pressed="false">Fencing</button>'
+      );
+    }
+
     if (!/data-service=["']roof_soft_wash["']/i.test(html)) {
       html = html.replace(
         /(<button\s+class=["']service-chip["'][^>]*data-service=["']oil_treatment["'][^>]*>[\s\S]*?<\/button>)/i,
         '$1\n                    <button class="service-chip" type="button" data-service="roof_soft_wash" aria-pressed="false">Roof cleaning / soft wash</button>'
+      );
+    }
+
+    if (!/data-service=["']memorial_cleaning["']/i.test(html)) {
+      html = html.replace(
+        /(<button\s+class=["']service-chip["'][^>]*data-service=["']roof_soft_wash["'][^>]*>[\s\S]*?<\/button>)/i,
+        '$1\n                    <button class="service-chip" type="button" data-service="memorial_cleaning" aria-pressed="false">Tombstones / memorials</button>\n                    <button class="service-chip" type="button" data-service="vehicle_wash" aria-pressed="false">Vehicles / fleets</button>\n                    <button class="service-chip" type="button" data-service="aircraft_exterior_wash" aria-pressed="false">Aircraft exterior</button>\n                    <button class="service-chip" type="button" data-service="custom_area" aria-pressed="false">Custom area</button>'
       );
     }
 
@@ -591,6 +635,9 @@ module.exports = async function handler(req, res) {
 
     if (!html.includes('/enhancements.js')) {
       html = html.replace('</body>', '    <script src="/enhancements.js" defer></script>\n</body>');
+    }
+    if (!html.includes('/quick-quote.js')) {
+      html = html.replace('</body>', '    <script src="/quick-quote.js" defer></script>\n</body>');
     }
 
     res.statusCode = 200;

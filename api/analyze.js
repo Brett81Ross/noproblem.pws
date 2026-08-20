@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const MODEL = 'gemini-3.5-flash'; 
-const MAX_IMAGES = 12;
+const MAX_IMAGES = 24;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -23,7 +23,10 @@ const DEFAULT_RATE_CARD = Object.freeze({
         oil_treatment: { label: 'Oil and Grease Treatment', unit: 'flat', rate: 150 },
         oxidation_treatment: { label: 'Oxidation Treatment', unit: 'flat', rate: 175 },
         furniture_moving: { label: 'Site Prep & Furniture Relocation', unit: 'flat', rate: 50 },
-        vehicle_wash: { label: 'Commercial / Fleet Vehicle Wash', unit: 'flat', rate: 125 }
+        vehicle_wash: { label: 'Commercial / Fleet Vehicle Wash', unit: 'vehicle', rate: 125 },
+        memorial_cleaning: { label: 'Tombstone / Memorial Cleaning', unit: 'marker', rate: 85 },
+        aircraft_exterior_wash: { label: 'Aircraft Exterior Washing', unit: 'aircraft', rate: 650 },
+        custom_area: { label: 'Custom Cleaning Area', unit: 'flat', rate: 199 }
     },
     difficultyMultipliers: {
         low: 1,
@@ -61,7 +64,7 @@ function buildRateCard(ownerSettings) {
 
     for (const [serviceId, definition] of Object.entries(rateCard.services)) {
         const submittedRate = submitted.services?.[serviceId]?.rate;
-        const maximum = definition.unit === 'flat' ? 10000 : 100;
+        const maximum = ['flat', 'vehicle', 'aircraft'].includes(definition.unit) ? 10000 : 100;
         definition.rate = sanitizeRate(submittedRate, definition.rate, 0, maximum);
     }
     return rateCard;
@@ -142,11 +145,14 @@ async function handler(req, res) {
         0. WHOLE-PROPERTY SYNTHESIS: Treat every image as a different view of the same job. Cross-check overlapping walls and surfaces, avoid double-counting areas shown in more than one photo, and base the final quantities on the combined property evidence rather than one image at a time.
         1. MANDATORY CONCRETE & FLATWORK SCANNERS: Look closely at all images and site notes. If you see concrete, driveways, sidewalks, walkways, aprons, or parking slabs, you MUST include serviceId "driveway_cleaning" or "sidewalk_cleaning" with estimated square footage. Do not skip flatwork.
         2. TRASH PADS & DUMPSTERS: If you see trash bins, garbage cans, dumpster pads, or waste collection bins, you MUST include serviceId "dumpster_pad".
-        3. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
+        3. VEHICLES & FLEETS: Add serviceId "vehicle_wash" only when vehicle washing was requested or the site notes clearly identify a fleet-washing job. Price by the number and type of vehicles; do not add parked customer vehicles automatically.
         4. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
         5. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, mandate low-pressure chemical soft washing only to protect joint sand.
         6. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
         7. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
+        8. MEMORIAL CLEANING: For tombstones, headstones, cemetery markers, or monuments, use serviceId "memorial_cleaning" and quantityUnit "marker". Identify visible material and condition. Require a material-safe low-pressure method, a small test area, cemetery authorization, and protection of lettering and fragile stone. Never recommend high pressure, acids, or an assumed chemical mix on a memorial.
+        9. AIRCRAFT EXTERIORS: For aircraft washing, use serviceId "aircraft_exterior_wash" and quantityUnit "aircraft" only when explicitly requested. Limit the estimate to exterior washing. Require operator authorization, airport or facility compliance, approved aviation-safe products, protection of openings/sensors/static ports, and on-site verification. Exclude engines, interiors, maintenance, and deicing systems.
+        10. PHOTO GUIDE DATA: Use the service tags, optional measurements, counts, and skipped-view notes supplied in the site notes. Recommended views are guidance, not a requirement. Do not reduce confidence merely because an irrelevant view was skipped.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
