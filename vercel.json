@@ -1,7 +1,19 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/api/shell" },
-    { "source": "/index.html", "destination": "/api/shell" },
-    { "source": "/api/analyze", "destination": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/api/analyze" }
+  "routes": [
+    {
+      "src": "/api/analyze",
+      "dest": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/api/analyze"
+    },
+    {
+      "src": "/",
+      "dest": "/api/shell"
+    },
+    {
+      "src": "/index.html",
+      "dest": "/api/shell"
+    },
+    {
+      "handle": "filesystem"
+    }
   ]
 }
