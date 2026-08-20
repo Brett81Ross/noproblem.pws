@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/analyze",
-      "destination": "/api/limited-analyze"
+      "source": "/:path*",
+      "destination": "https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/:path*"
     }
   ]
 }
