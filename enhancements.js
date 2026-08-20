@@ -157,6 +157,7 @@
     var note = document.getElementById('buildingHeightNote');
     var boundary = document.querySelector('.scope-boundary span:last-child');
     var houseWash = document.querySelector('[data-service="house_wash"]');
+    var roofWash = document.querySelector('[data-service="roof_soft_wash"]');
 
     document.body.setAttribute('data-building-level', normalized);
     saveLevel(normalized);
@@ -168,9 +169,10 @@
     if (houseWash) houseWash.textContent = 'House wash';
 
     if (normalized === MULTIPLE_LEVELS) {
-      if (note) note.textContent = 'Plans and quotes include multi-level exterior washing and the access equipment needed for the job.';
-      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multi-level exterior washing is enabled. Use professional extension equipment, lifts, or approved access methods. Roof cleaning remains excluded.';
+      if (note) note.textContent = 'Plans and quotes include multi-level exterior washing, roof soft washing, and the access equipment needed for the job.';
+      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multi-level exterior and roof soft washing are enabled. Use professional extension equipment, lifts, or approved access methods.';
     } else {
+      if (roofWash && roofWash.getAttribute('aria-pressed') === 'true') roofWash.click();
       if (note) note.textContent = 'Plans and quotes are limited to ground-level and one-story exterior washing.';
       if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> one-story mode is selected. Ground-level and one-story exterior washing are included. Roof cleaning remains excluded.';
     }
@@ -200,13 +202,13 @@
           var payload = JSON.parse(options.body);
           var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
           var scopeInstruction = level === MULTIPLE_LEVELS
-            ? 'BUILDING HEIGHT: Multiple levels. Include upper-level exterior washing, safe access equipment, setup time, labor, and height-related difficulty in the plan and quote. Do not include roof cleaning.'
+            ? 'BUILDING HEIGHT: Multiple levels. Roof soft washing is available in this mode. Include roof cleaning when requested or clearly supported by the photos, plus safe access equipment, setup time, labor, chemical treatment, and height-related difficulty in the plan and quote. Never use high pressure on roofing materials.'
             : 'BUILDING HEIGHT: One story. Keep the plan and quote to ground-level and one-story exterior washing. Do not include roof cleaning.';
 
           payload.buildingScope = {
             level: level,
             label: levelLabel(level),
-            roofCleaningIncluded: false
+            roofCleaningIncluded: level === MULTIPLE_LEVELS
           };
           payload.settings = Object.assign({}, payload.settings || {}, { buildingLevel: level });
           payload.job = Object.assign({}, payload.job || {}, { buildingLevel: level });
@@ -383,7 +385,7 @@
     lines.push('');
     lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
     lines.push(level === 'Multiple levels'
-      ? 'Multi-level exterior washing is included with safe professional access equipment. Roof cleaning is not included.'
+      ? 'Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment.'
       : 'Ground-level and one-story exterior washing are included. Roof cleaning is not included.');
     lines.push('');
     lines.push('No Problem Pressure Washing Matrix(TM)');

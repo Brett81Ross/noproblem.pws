@@ -245,6 +245,22 @@ module.exports = async function handler(req, res) {
         background: linear-gradient(135deg, var(--aqua), var(--violet)) !important;
       }
 
+      .service-chip[data-service="roof_soft_wash"] {
+        display: none;
+        border-color: rgba(255, 200, 87, .28);
+        color: #ffe0a2;
+        background: linear-gradient(135deg, rgba(255, 200, 87, .1), rgba(255, 111, 181, .08));
+      }
+
+      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"] {
+        display: block;
+      }
+
+      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"].is-selected {
+        border-color: rgba(255, 200, 87, .78) !important;
+        background: linear-gradient(135deg, rgba(255, 200, 87, .27), rgba(255, 111, 181, .2)) !important;
+      }
+
       .scan-button {
         background: linear-gradient(120deg, #9af9ff, #56dbe9 45%, #9b7cff) !important;
         box-shadow: 0 12px 30px rgba(117, 138, 255, .2) !important;
@@ -437,8 +453,20 @@ module.exports = async function handler(req, res) {
     );
 
     html = html.replace(
+      'house_wash: "House Soft Wash",',
+      'house_wash: "House Soft Wash",\n                roof_soft_wash: "Roof Soft Wash",'
+    );
+
+    if (!/data-service=["']roof_soft_wash["']/i.test(html)) {
+      html = html.replace(
+        /(<button\s+class=["']service-chip["'][^>]*data-service=["']oil_treatment["'][^>]*>[\s\S]*?<\/button>)/i,
+        '$1\n                    <button class="service-chip" type="button" data-service="roof_soft_wash" aria-pressed="false">Roof cleaning / soft wash</button>'
+      );
+    }
+
+    html = html.replace(
       'lines.push("No roofs, ladders, gutters, or two-story work are included.");',
-      'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing is included with safe professional access equipment. Roof cleaning is not included." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
+      'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
     );
 
     html = html.replace(
