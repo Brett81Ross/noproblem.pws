@@ -166,6 +166,235 @@ module.exports = async function handler(req, res) {
     </style>
     `;
 
+    const responsiveColorStyles = `
+    <style id="matrixResponsiveColor">
+      :root {
+        --violet: #9b7cff;
+        --pink: #ff6fb5;
+        --gold: #ffc857;
+      }
+
+      html {
+        width: 100%;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        width: 100%;
+        min-width: 0 !important;
+        background:
+          radial-gradient(circle at 8% 0%, rgba(0, 214, 255, .2), transparent 30rem),
+          radial-gradient(circle at 94% 12%, rgba(155, 124, 255, .16), transparent 28rem),
+          radial-gradient(circle at 50% 88%, rgba(255, 111, 181, .08), transparent 30rem),
+          linear-gradient(145deg, #030609 0%, #07151e 48%, #060711 100%) !important;
+      }
+
+      .app-shell {
+        width: min(100%, 1120px) !important;
+        max-width: none !important;
+        padding-left: max(16px, env(safe-area-inset-left)) !important;
+        padding-right: max(16px, env(safe-area-inset-right)) !important;
+        padding-bottom: max(38px, env(safe-area-inset-bottom)) !important;
+      }
+
+      .matrix-card,
+      .supply-card {
+        border-color: rgba(155, 124, 255, .22) !important;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(155, 124, 255, .11), transparent 34%),
+          radial-gradient(circle at 0% 100%, rgba(0, 214, 255, .08), transparent 36%),
+          linear-gradient(145deg, rgba(18, 42, 53, .96), rgba(7, 14, 25, .97)) !important;
+      }
+
+      #missionCard::before {
+        background: linear-gradient(90deg, var(--aqua), var(--violet)) !important;
+        box-shadow: 0 0 18px var(--violet) !important;
+      }
+
+      #evidenceCard::before {
+        background: linear-gradient(90deg, var(--gold), var(--pink)) !important;
+        box-shadow: 0 0 18px rgba(255, 111, 181, .7) !important;
+      }
+
+      #evidenceCard .section-kicker { color: var(--gold) !important; }
+
+      #quoteModeButton.is-active {
+        background: linear-gradient(135deg, #8bf6ff, #42cedf) !important;
+      }
+
+      #crewModeButton.is-active {
+        color: #0b0716 !important;
+        background: linear-gradient(135deg, #c6b7ff, var(--violet)) !important;
+        box-shadow: 0 6px 20px rgba(155, 124, 255, .28) !important;
+      }
+
+      #inventoryModeButton.is-active {
+        color: #1d0c00 !important;
+        background: linear-gradient(135deg, #ffd98a, #ff8e5d) !important;
+        box-shadow: 0 6px 20px rgba(255, 142, 93, .25) !important;
+      }
+
+      .service-chip.is-selected {
+        border-color: rgba(178, 156, 255, .82) !important;
+        background: linear-gradient(135deg, rgba(155, 124, 255, .26), rgba(0, 190, 222, .2)) !important;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05), 0 8px 24px rgba(0, 0, 0, .22) !important;
+      }
+
+      .service-chip.is-selected::before {
+        background: linear-gradient(135deg, var(--aqua), var(--violet)) !important;
+      }
+
+      .scan-button {
+        background: linear-gradient(120deg, #9af9ff, #56dbe9 45%, #9b7cff) !important;
+        box-shadow: 0 12px 30px rgba(117, 138, 255, .2) !important;
+      }
+
+      .building-height-field {
+        margin-top: 18px;
+        padding: 14px;
+        border: 1px solid rgba(155, 124, 255, .22);
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(155, 124, 255, .08), rgba(3, 18, 25, .62));
+      }
+
+      .building-height-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #d8d0ff;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+      }
+
+      .building-height-switch {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 4px;
+        border: 1px solid rgba(126, 239, 255, .14);
+        border-radius: 13px;
+        background: rgba(1, 10, 16, .62);
+      }
+
+      .building-height-option {
+        min-height: 46px;
+        padding: 10px;
+        border: 0;
+        border-radius: 10px;
+        color: #7897a3;
+        background: transparent;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: .04em;
+        transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
+      }
+
+      .building-height-option[aria-pressed="true"] {
+        color: #071018;
+        background: linear-gradient(135deg, #9af9ff, #70e0ec);
+        box-shadow: 0 7px 20px rgba(0, 190, 222, .2);
+      }
+
+      .building-height-option[data-building-level="multiple"][aria-pressed="true"] {
+        color: #13091d;
+        background: linear-gradient(135deg, #d2c7ff, #9b7cff 58%, #ff8ec5);
+        box-shadow: 0 7px 22px rgba(155, 124, 255, .28);
+      }
+
+      .building-height-option:active { transform: scale(.97); }
+
+      .building-height-note {
+        margin: 9px 2px 0;
+        color: #8ca8b6;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      body[data-building-level="multiple"] .scope-boundary {
+        border-color: rgba(155, 124, 255, .3) !important;
+        color: #d8d0ff !important;
+        background: rgba(155, 124, 255, .09) !important;
+      }
+
+      body[data-building-level="multiple"] .scope-boundary strong {
+        color: #f0ebff !important;
+      }
+
+      @media (min-width: 700px) and (max-width: 1199px) {
+        .app-shell {
+          width: 100% !important;
+          padding-top: 24px !important;
+          padding-left: max(clamp(28px, 5vw, 64px), env(safe-area-inset-left)) !important;
+          padding-right: max(clamp(28px, 5vw, 64px), env(safe-area-inset-right)) !important;
+        }
+
+        .status-rail { min-height: 44px; font-size: 12px; }
+        .matrix-settings-gear { width: 44px; height: 44px; font-size: 22px; }
+        .brand-logo { width: min(100%, 760px) !important; max-height: none !important; }
+        .product-mark { padding: 10px 16px; font-size: 12px; }
+        .hero-copy { max-width: 820px; margin: 16px auto 30px; font-size: 18px; }
+        .mode-button { min-height: 58px; font-size: 14px; }
+        .card-inner, .supply-inner { padding: 30px !important; }
+        .section-kicker, .supply-kicker { font-size: 12px; }
+        .section-heading, .supply-title { font-size: clamp(30px, 4vw, 42px); }
+        .section-copy, .supply-copy { font-size: 16px; }
+        .field-label { font-size: 13px; }
+        .text-field { height: 58px; font-size: 16px; }
+        .service-chip { min-height: 64px; padding: 14px 16px; font-size: 14px; }
+        .building-height-label { font-size: 13px; }
+        .building-height-option { min-height: 56px; font-size: 14px; }
+        .building-height-note, .scope-boundary { font-size: 14px; }
+        .protocol-stat { font-size: 14px; }
+        .scan-pill { font-size: 12px; }
+        .slot-title { font-size: 14px; }
+        .slot-hint { font-size: 12px; }
+        .button, .scan-button { min-height: 58px; font-size: 14px; }
+        .notes-field { min-height: 120px; font-size: 16px; }
+      }
+
+      @media (min-width: 1200px) {
+        .app-shell { padding-left: 34px !important; padding-right: 34px !important; }
+        .mission-fields { grid-template-columns: 1fr 1.35fr; }
+        .scope-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 699px) {
+        .app-shell {
+          padding-top: max(12px, env(safe-area-inset-top)) !important;
+          padding-left: max(12px, env(safe-area-inset-left)) !important;
+          padding-right: max(12px, env(safe-area-inset-right)) !important;
+        }
+
+        input, textarea, select { font-size: 16px !important; }
+        .brand-logo { width: 100% !important; height: auto !important; }
+        .product-mark { max-width: 100%; flex-wrap: wrap; justify-content: center; }
+        .mode-switch.supply-enabled .mode-button { min-width: 0; padding: 10px 4px; font-size: clamp(9px, 2.7vw, 11px); }
+      }
+
+      @media (max-width: 370px) {
+        .scope-grid, .photo-actions { grid-template-columns: 1fr !important; }
+        .building-height-option { padding: 8px 5px; font-size: 11px; }
+      }
+
+      @media (orientation: landscape) and (max-height: 520px) {
+        .brand-stage { padding-top: 0; }
+        .brand-logo { max-height: 150px !important; }
+        .hero-copy { margin-bottom: 14px; }
+      }
+    </style>
+    `;
+
+    html = replaceOrInject(
+      html,
+      /<meta\s+name=["']viewport["'][^>]*>/i,
+      '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+      '</head>',
+      '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+    );
+
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
@@ -197,6 +426,14 @@ module.exports = async function handler(req, res) {
 
     if (!html.includes('matrixMotion')) {
       html = html.replace('</head>', motionStyles + '\n</head>');
+    }
+
+    if (!html.includes('matrixResponsiveColor')) {
+      html = html.replace('</head>', responsiveColorStyles + '\n</head>');
+    }
+
+    if (!html.includes('/enhancements.js')) {
+      html = html.replace('</body>', '    <script src="/enhancements.js" defer></script>\n</body>');
     }
 
     res.statusCode = 200;
