@@ -47,6 +47,125 @@ module.exports = async function handler(req, res) {
     </style>
     `;
 
+    const motionStyles = `
+    <style id="matrixMotion">
+      @keyframes matrix-rise {
+        from { opacity: 0; transform: translate3d(0, 18px, 0) scale(.985); }
+        to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      }
+
+      @keyframes matrix-logo-in {
+        from { opacity: 0; transform: translate3d(0, 14px, 0) scale(.94); }
+        to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      }
+
+      @keyframes matrix-logo-float {
+        0%, 100% { transform: translate3d(0, 0, 0); }
+        50% { transform: translate3d(0, -6px, 0); }
+      }
+
+      @keyframes matrix-tab-pop {
+        0% { transform: scale(.97); }
+        70% { transform: scale(1.015); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes matrix-signal-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(174, 255, 78, .42); }
+        50% { box-shadow: 0 0 0 7px rgba(174, 255, 78, 0); }
+      }
+
+      .status-rail,
+      .brand-stage,
+      .product-mark,
+      .hero-copy,
+      .mode-switch,
+      .matrix-card {
+        animation: matrix-rise .72s cubic-bezier(.2, .75, .25, 1) both;
+      }
+
+      .status-rail { animation-delay: .04s; }
+      .brand-stage { animation-delay: .1s; }
+      .product-mark { animation-delay: .2s; }
+      .hero-copy { animation-delay: .28s; }
+      .mode-switch { animation-delay: .36s; }
+      .matrix-card { animation-delay: .44s; }
+
+      .brand-logo {
+        animation: matrix-logo-in .8s cubic-bezier(.2, .8, .25, 1) .12s both,
+                   matrix-logo-float 5s ease-in-out 1.15s infinite;
+        transform-origin: center;
+        will-change: transform, opacity;
+      }
+
+      .live-signal::before {
+        animation: matrix-signal-pulse 2.2s ease-out infinite;
+      }
+
+      .mode-button,
+      .button,
+      .button-secondary,
+      .scan-button,
+      .location-button,
+      .matrix-settings-button,
+      .matrix-settings-close,
+      .service-chip,
+      .evidence-slot,
+      .supply-card,
+      .supply-item {
+        transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease,
+                    background-color .22s ease, color .22s ease, opacity .22s ease;
+      }
+
+      .mode-button.is-active {
+        animation: matrix-tab-pop .3s cubic-bezier(.2, .8, .25, 1);
+      }
+
+      .button:hover,
+      .scan-button:hover,
+      .location-button:hover,
+      .service-chip:hover,
+      .evidence-slot:hover,
+      .supply-card:hover {
+        transform: translate3d(0, -2px, 0);
+      }
+
+      .mode-button:active,
+      .button:active,
+      .button-secondary:active,
+      .scan-button:active,
+      .location-button:active,
+      .matrix-settings-button:active,
+      .matrix-settings-close:active,
+      .service-chip:active,
+      .evidence-slot:active,
+      .supply-item:active {
+        transform: scale(.97);
+      }
+
+      .matrix-settings-gear {
+        transition: transform .32s cubic-bezier(.2, .8, .25, 1);
+      }
+
+      .matrix-settings-button:hover .matrix-settings-gear {
+        transform: rotate(14deg);
+      }
+
+      .matrix-settings-button:active .matrix-settings-gear {
+        transform: rotate(-10deg) scale(.94);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          scroll-behavior: auto !important;
+          animation-duration: .01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: .01ms !important;
+        }
+      }
+    </style>
+    `;
+
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
@@ -74,6 +193,10 @@ module.exports = async function handler(req, res) {
     }
     if (!html.includes('/inventory.js')) {
       html = html.replace('</body>', '    <script src="/inventory.js" defer></script>\n</body>');
+    }
+
+    if (!html.includes('matrixMotion')) {
+      html = html.replace('</head>', motionStyles + '\n</head>');
     }
 
     res.statusCode = 200;
