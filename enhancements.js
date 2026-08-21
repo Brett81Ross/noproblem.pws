@@ -372,6 +372,7 @@
     var resultSummary = document.querySelector('.result-summary');
     var total = document.querySelector('.quote-total strong');
     var selectedServices = document.querySelectorAll('.quoted-service[aria-pressed="true"]');
+    var editState = window.NPMatrixQuote && typeof window.NPMatrixQuote.getState === 'function' ? window.NPMatrixQuote.getState() : { discountPercent: 0, quoteNotes: '' };
     var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
     var lines = [
       'NO PROBLEM PRESSURE WASHING SOLUTIONS LLC',
@@ -407,7 +408,9 @@
     if (!selectedServices.length) lines.push('No services selected.');
 
     lines.push('');
+    if (Number(editState.discountPercent)) lines.push('DISCOUNT: ' + Number(editState.discountPercent) + '%');
     lines.push('SELECTED PLAN TOTAL: ' + (total ? total.textContent.trim() : 'To be confirmed'));
+    if (editState.quoteNotes) lines.push('QUOTE NOTES: ' + editState.quoteNotes);
     lines.push('');
     lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
     lines.push(level === 'Multiple levels'

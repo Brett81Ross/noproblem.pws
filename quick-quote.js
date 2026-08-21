@@ -344,6 +344,7 @@
     }).join('');
 
     planner.innerHTML = '<div class="np-plan-head"><div><h3>Quick Quote Photo Plan</h3><p>Select a service above, take the useful views, skip what does not apply, and scan when ready.</p></div><span class="np-plan-count">' + capturedSlots().length + ' / ' + MAX_PHOTOS + ' photos</span></div><div class="np-plan-list">' + rows + '</div>' + (ids.length ? '' : '<p class="np-capture-copy">No service selected yet. Start with the property overview or choose a service above.</p>') + '<button class="np-review-button" type="button" data-np-review>' + (document.body.classList.contains('np-photo-review-open') ? 'Hide all photos' : 'Review all photos') + '</button>';
+    document.dispatchEvent(new CustomEvent('np:quote-evidence-changed'));
   }
 
   function renderGuide() {
@@ -498,6 +499,27 @@
     if (!field) return;
     measurements[activeGuide] = measurements[activeGuide] || {};
     measurements[activeGuide][field.getAttribute('data-np-field')] = field.value;
+    document.dispatchEvent(new CustomEvent('np:quote-evidence-changed'));
+  }
+
+  function quickQuoteSnapshot() {
+    var counts = {};
+    capturedSlots().forEach(function (slot) {
+      var tag = photoTags[slot.getAttribute('data-slot')];
+      var guideId = tag && tag.guideId ? tag.guideId : 'unassigned';
+      counts[guideId] = (counts[guideId] || 0) + 1;
+    });
+    var titles = {};
+    Object.keys(GUIDES).forEach(function (id) { titles[id] = GUIDES[id].title; });
+    return {
+      selectedServiceIds: selectedServiceIds(),
+      photoCount: capturedSlots().length,
+      photoCounts: counts,
+      measurements: JSON.parse(JSON.stringify(measurements)),
+      skippedViews: JSON.parse(JSON.stringify(skippedViews)),
+      guideTitles: titles,
+      buildingLevel: document.body.getAttribute('data-building-level') === 'multiple' ? 'multiple' : 'one'
+    };
   }
 
   function handleGuideChange(event) {
@@ -619,6 +641,10 @@
     patchAnalysisRequest();
     var uploadInput = document.getElementById('uploadInput');
     if (uploadInput) uploadInput.addEventListener('change', handleSavedInput);
+    window.NPQuickQuote = {
+      getState: quickQuoteSnapshot,
+      openGuide: openGuide
+    };
     updateSlotBadges();
     renderPlanner();
   }

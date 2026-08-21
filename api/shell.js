@@ -536,6 +536,74 @@ module.exports = async function handler(req, res) {
     );
 
     html = html.replace(
+      'photoTarget: 0,\n                loading: false\n            };',
+      'photoTarget: 0,\n                loading: false,\n                quoteDiscountPercent: 0,\n                quoteNotes: ""\n            };'
+    );
+
+    html = html.replace(
+      'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                return Math.max(minimum, subtotal);',
+      'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                var discount = Math.max(0, Math.min(100, Number(state.quoteDiscountPercent) || 0));\n                return Math.max(minimum, subtotal * (1 - (discount / 100)));'
+    );
+
+    html = html.replace(
+      '            function proposalText() {',
+      [
+        '            window.NPMatrixQuote = {',
+        '                getState: function () {',
+        '                    return {',
+        '                        services: state.report ? JSON.parse(JSON.stringify(state.report.services)) : [],',
+        '                        activeServiceIds: Array.from(state.activeServices),',
+        '                        discountPercent: Number(state.quoteDiscountPercent) || 0,',
+        '                        quoteNotes: state.quoteNotes || "",',
+        '                        total: getTotal()',
+        '                    };',
+        '                },',
+        '                updateService: function (id, patch) {',
+        '                    if (!state.report) return;',
+        '                    var service = state.report.services.find(function (item) { return item.id === id; });',
+        '                    if (!service || !patch) return;',
+        '                    if (patch.quantity !== undefined && Number.isFinite(Number(patch.quantity))) service.quantity = Math.max(0, Number(patch.quantity));',
+        '                    if (patch.calculatedPrice !== undefined && Number.isFinite(Number(patch.calculatedPrice))) service.calculatedPrice = Math.max(0, Number(patch.calculatedPrice));',
+        '                    if (patch.estimatedTimeMinutes !== undefined && Number.isFinite(Number(patch.estimatedTimeMinutes))) service.estimatedTimeMinutes = Math.max(0, Number(patch.estimatedTimeMinutes));',
+        '                    if (patch.quantityUnit !== undefined) service.quantityUnit = String(patch.quantityUnit).trim().slice(0, 40) || "unit";',
+        '                    if (patch.label !== undefined) service.label = String(patch.label).trim().slice(0, 100) || service.label;',
+        '                    if (patch.reason !== undefined) service.reason = String(patch.reason).trim().slice(0, 320) || service.reason;',
+        '                    renderResults();',
+        '                },',
+        '                setDiscount: function (value) {',
+        '                    state.quoteDiscountPercent = Math.max(0, Math.min(100, Number(value) || 0));',
+        '                    renderResults();',
+        '                },',
+        '                setNotes: function (value) {',
+        '                    state.quoteNotes = String(value || "").trim().slice(0, 700);',
+        '                }',
+        '            };',
+        '',
+        '            function proposalText() {'
+      ].join('\n')
+    );
+
+    html = html.replace(
+      'completedProof: Array.from(state.completedProof)\n                };',
+      'completedProof: Array.from(state.completedProof),\n                    quoteDiscountPercent: Number(state.quoteDiscountPercent) || 0,\n                    quoteNotes: state.quoteNotes || ""\n                };'
+    );
+
+    html = html.replace(
+      'state.completedProof = new Set(saved.completedProof || []);',
+      'state.completedProof = new Set(saved.completedProof || []);\n                    state.quoteDiscountPercent = Number(saved.quoteDiscountPercent) || 0;\n                    state.quoteNotes = saved.quoteNotes || "";'
+    );
+
+    html = html.replace(
+      'state.completedProof = new Set();\n                    elements.resultsSection.classList.add("is-visible");',
+      'state.completedProof = new Set();\n                    state.quoteDiscountPercent = 0;\n                    state.quoteNotes = "";\n                    elements.resultsSection.classList.add("is-visible");'
+    );
+
+    html = html.replace(
+      'lines.push("SELECTED PLAN TOTAL: " + money(getTotal()));',
+      'if (state.quoteDiscountPercent) lines.push("DISCOUNT: " + state.quoteDiscountPercent + "%");\n                lines.push("SELECTED PLAN TOTAL: " + money(getTotal()));\n                if (state.quoteNotes) lines.push("QUOTE NOTES: " + state.quoteNotes);'
+    );
+
+    html = html.replace(
       'house_wash: "One-Story House Soft Wash"',
       'house_wash: "House Soft Wash"'
     );
@@ -638,6 +706,9 @@ module.exports = async function handler(req, res) {
     }
     if (!html.includes('/quick-quote.js')) {
       html = html.replace('</body>', '    <script src="/quick-quote.js" defer></script>\n</body>');
+    }
+    if (!html.includes('/quote-review.js')) {
+      html = html.replace('</body>', '    <script src="/quote-review.js" defer></script>\n</body>');
     }
 
     res.statusCode = 200;
