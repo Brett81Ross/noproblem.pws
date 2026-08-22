@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>No Problem Pressure Washing Matrix™</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/webp" href="/app-icon-192.webp">
+  <link rel="apple-touch-icon" href="/app-icon-192.webp">
+  <style>
+    :root {
+      color-scheme: dark;
+      --cyan: #00f0ff;
+      --green: #22c55e;
+      --ink: #020617;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #020617;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(0, 240, 255, .13), transparent 34%),
+        radial-gradient(circle at 50% 82%, rgba(34, 197, 94, .10), transparent 34%),
+        linear-gradient(145deg, #020617 0%, #07111c 45%, #000 100%);
+    }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+      isolation: isolate;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .42s ease, transform .42s ease;
+    }
+
+    .splash::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      z-index: -2;
+      background: conic-gradient(from 0deg, transparent, rgba(0,240,255,.08), transparent 28%, rgba(34,197,94,.07), transparent 60%);
+      animation: orbit 10s linear infinite;
+    }
+
+    .splash::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 28%, transparent 72%, rgba(255,255,255,.015));
+      pointer-events: none;
+    }
+
+    .studio-wrap {
+      width: min(92vw, 560px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: clamp(18px, 3.7vh, 36px);
+      animation: studioIn .85s cubic-bezier(.2,.75,.25,1) both;
+    }
+
+    .studio-logo {
+      width: 100%;
+      max-height: 34vh;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 34px rgba(0,0,0,.65)) drop-shadow(0 0 24px rgba(0,240,255,.12));
+    }
+
+    .app-lockup {
+      position: relative;
+      width: clamp(162px, 46vw, 230px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 36px;
+      background: radial-gradient(circle, rgba(0,240,255,.12), rgba(2,6,23,.86) 64%, rgba(0,0,0,.96));
+      border: 1px solid rgba(0,240,255,.34);
+      box-shadow: 0 20px 58px rgba(0,0,0,.62), 0 0 42px rgba(0,240,255,.11);
+      animation: appIn .95s .16s cubic-bezier(.2,.75,.25,1) both, breathe 3.2s 1.15s ease-in-out infinite;
+    }
+
+    .app-lockup::before,
+    .app-lockup::after {
+      content: "";
+      position: absolute;
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    .app-lockup::before {
+      inset: -10px;
+      border: 1px solid rgba(34,197,94,.18);
+      box-shadow: 0 0 36px rgba(34,197,94,.08);
+    }
+
+    .app-lockup::after {
+      inset: 9px;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .app-logo {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(0,240,255,.18));
+    }
+
+    .app-name {
+      margin-top: clamp(20px, 3.8vh, 34px);
+      text-align: center;
+      font-size: clamp(15px, 4vw, 19px);
+      line-height: 1.35;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #eafcff;
+      text-shadow: 0 0 18px rgba(0,240,255,.22);
+      animation: textIn .8s .36s ease both;
+    }
+
+    .studio-credit {
+      margin-top: 9px;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #64748b;
+      animation: textIn .8s .48s ease both;
+    }
+
+    .loader {
+      width: min(220px, 58vw);
+      height: 2px;
+      margin-top: clamp(25px, 5vh, 45px);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148,163,184,.12);
+      animation: textIn .8s .55s ease both;
+    }
+
+    .loader::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      box-shadow: 0 0 12px rgba(0,240,255,.55);
+      animation: load 2.05s .55s cubic-bezier(.2,.7,.25,1) forwards;
+    }
+
+    .skip {
+      position: absolute;
+      bottom: max(15px, env(safe-area-inset-bottom));
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(148,163,184,.46);
+      animation: textIn .8s .75s ease both;
+    }
+
+    .splash.exit {
+      opacity: 0;
+      transform: scale(1.025);
+    }
+
+    @keyframes studioIn {
+      from { opacity: 0; transform: translateY(-18px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes appIn {
+      from { opacity: 0; transform: translateY(18px) scale(.86); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes textIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes orbit { to { transform: rotate(360deg); } }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.018); }
+    }
+
+    @keyframes load { to { width: 100%; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="splash" class="splash" role="button" tabindex="0" aria-label="Open No Problem Pressure Washing Matrix">
+    <div class="studio-wrap">
+      <img
+        class="studio-logo"
+        src="https://raw.githubusercontent.com/Brett81Ross/cactusbyte-studios/main/public/logo2.png"
+        alt="Cactus Byte Studios">
+    </div>
+
+    <div class="app-lockup">
+      <img class="app-logo" src="/brand-logo-transparent.webp" alt="No Problem Pressure Washing Matrix logo">
+    </div>
+
+    <div class="app-name">No Problem Pressure Washing Matrix™</div>
+    <div class="studio-credit">Cactus🌵Byte Studios™</div>
+    <div class="loader" aria-hidden="true"></div>
+    <div class="skip">Tap to enter</div>
+  </main>
+
+  <script>
+    (() => {
+      const target = '/index.html';
+      const key = 'np_matrix_splash_seen';
+      const splash = document.getElementById('splash');
+      let leaving = false;
+
+      const enterApp = () => {
+        if (leaving) return;
+        leaving = true;
+        try { sessionStorage.setItem(key, '1'); } catch (_) {}
+        splash.classList.add('exit');
+        setTimeout(() => window.location.replace(target), 390);
+      };
+
+      try {
+        if (sessionStorage.getItem(key) === '1') {
+          window.location.replace(target);
+          return;
+        }
+      } catch (_) {}
+
+      splash.addEventListener('click', enterApp);
+      splash.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') enterApp();
+      });
+
+      setTimeout(enterApp, 2800);
+    })();
+  </script>
+</body>
+</html>
