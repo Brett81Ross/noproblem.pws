@@ -1,0 +1,50 @@
+name: Footer version update
+
+on:
+  push:
+    branches:
+      - footer-version-v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  update-footer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          ref: footer-version-v1.0.0
+          fetch-depth: 0
+
+      - name: Add version to footer only
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          old = '<div>© 2026 No Problem Pressure Washing Matrix™</div>'
+          new = '<div>© 2026 No Problem Pressure Washing Matrix™ · v1.0.0</div>'
+          if new in text:
+              print('Footer version already present; no change needed.')
+          elif old in text:
+              path.write_text(text.replace(old, new, 1), encoding='utf-8')
+              print('Footer updated to v1.0.0.')
+          else:
+              raise SystemExit('Expected footer text not found; refusing to modify anything.')
+          PY
+
+      - name: Commit footer change if needed
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No footer change to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Add v1.0.0 to app footer'
+          git push origin HEAD:footer-version-v1.0.0
