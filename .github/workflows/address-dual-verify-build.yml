@@ -1,0 +1,486 @@
+name: Build Address Quote Matrix v1.1.0
+
+on:
+  push:
+    branches:
+      - address-dual-verify-v1.1.0
+
+permissions:
+  contents: write
+
+jobs:
+  build-address-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: address-dual-verify-v1.1.0
+          fetch-depth: 0
+
+      - name: Apply atomic address and verification update
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+
+          index_path = Path('index.html')
+          analyze_path = Path('api/analyze.js')
+          package_path = Path('package.json')
+
+          index = index_path.read_text(encoding='utf-8')
+          analyze = analyze_path.read_text(encoding='utf-8')
+
+          def replace_once(text, old, new, label):
+              if new in text:
+                  print(f'{label}: already applied')
+                  return text
+              if old not in text:
+                  raise SystemExit(f'{label}: expected marker not found; refusing broad rewrite')
+              print(f'{label}: applied')
+              return text.replace(old, new, 1)
+
+          address_css = r'''
+        /* Address Quote Matrix + Dual Verification */
+        .address-matrix-card {
+            background: linear-gradient(145deg, rgba(5, 20, 32, 0.96), rgba(2, 6, 23, 0.96));
+            border: 1px solid rgba(0, 240, 255, 0.38);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 18px;
+            text-align: left;
+            box-shadow: 0 16px 38px rgba(0,0,0,.55), 0 0 24px rgba(0,240,255,.08);
+        }
+        .address-matrix-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #00f0ff;
+            font-size: 15px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+        .address-matrix-badge {
+            font-size: 10px;
+            color: #020617;
+            background: #22c55e;
+            border-radius: 999px;
+            padding: 4px 8px;
+            letter-spacing: .8px;
+            white-space: nowrap;
+        }
+        .address-matrix-subtitle {
+            color: #94a3b8;
+            font-size: 12.5px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .address-input-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 8px;
+        }
+        .address-input {
+            width: 100%;
+            min-width: 0;
+            border-radius: 11px;
+            border: 1px solid rgba(0,240,255,.3);
+            background: rgba(2,6,23,.92);
+            color: #fff;
+            padding: 12px 13px;
+            box-sizing: border-box;
+            font: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+        .address-input:focus {
+            border-color: #00f0ff;
+            box-shadow: 0 0 0 3px rgba(0,240,255,.08);
+        }
+        .address-scan-btn {
+            border: 0;
+            border-radius: 11px;
+            padding: 0 15px;
+            min-height: 46px;
+            background: linear-gradient(135deg, #00f0ff, #16a34a);
+            color: #020617;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            cursor: pointer;
+        }
+        .address-scan-btn:disabled { opacity: .55; cursor: wait; }
+        .address-status {
+            min-height: 18px;
+            margin-top: 9px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .address-result { margin-top: 12px; }
+        .address-summary {
+            border: 1px solid rgba(34,197,94,.28);
+            background: rgba(34,197,94,.07);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .confidence-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0 7px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        .confidence-track {
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(148,163,184,.16);
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #22c55e, #00f0ff);
+            border-radius: inherit;
+        }
+        .address-service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(148,163,184,.10);
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+        .address-service-row:last-child { border-bottom: 0; }
+        .address-total {
+            margin-top: 10px;
+            font-size: 19px;
+            font-weight: 900;
+            color: #22c55e;
+        }
+        .verification-card {
+            background: linear-gradient(135deg, rgba(0,240,255,.09), rgba(34,197,94,.07));
+            border: 1px solid rgba(0,240,255,.35);
+            border-radius: 13px;
+            padding: 14px;
+            margin-bottom: 18px;
+        }
+        .verification-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            color: #00f0ff;
+            font-size: 13px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+        .verification-score {
+            color: #22c55e;
+            font-size: 21px;
+            font-weight: 900;
+        }
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 7px;
+            margin-top: 10px;
+            font-size: 11.5px;
+            color: #cbd5e1;
+        }
+        .verification-next {
+            margin-top: 10px;
+            padding-top: 9px;
+            border-top: 1px solid rgba(148,163,184,.12);
+            color: #fbbf24;
+            font-size: 11.5px;
+            line-height: 1.45;
+        }
+        @media (max-width: 430px) {
+            .address-input-row { grid-template-columns: 1fr; }
+            .address-scan-btn { min-height: 48px; }
+            .verification-grid { grid-template-columns: 1fr; }
+        }
+'''
+          index = replace_once(
+              index,
+              '        /* Equipment Spec Card for Tech Mode */',
+              address_css + '\n        /* Equipment Spec Card for Tech Mode */',
+              'index css'
+          )
+
+          address_html = r'''
+            <div class="address-matrix-card" id="addressMatrixCard">
+                <div class="address-matrix-title">
+                    <span>🛰️ Address Quote Matrix</span>
+                    <span class="address-matrix-badge">AI + SATELLITE</span>
+                </div>
+                <div class="address-matrix-subtitle">Enter the job address for a fast preliminary property scan. Add field photos afterward and the Matrix will cross-check both evidence sources before finalizing the quote.</div>
+                <div class="address-input-row">
+                    <input class="address-input" id="propertyAddressInput" type="text" autocomplete="street-address" inputmode="text" placeholder="123 Main St, Oklahoma City, OK 73102">
+                    <button class="address-scan-btn" id="addressScanBtn" type="button" onclick="runAddressQuote()">Scan Address</button>
+                </div>
+                <div class="address-status" id="addressQuoteStatus"></div>
+                <div class="address-result" id="addressQuoteResult"></div>
+            </div>
+
+'''
+          index = replace_once(
+              index,
+              '            <div class="action-card">\n                <input type="file" id="cameraInput"',
+              address_html + '            <div class="action-card">\n                <input type="file" id="cameraInput"',
+              'address matrix html'
+          )
+
+          index = replace_once(
+              index,
+              '        let userSiteNotes = "";\n        const ADMIN_PIN = "1234";',
+              '        let userSiteNotes = "";\n        let addressMatrix = null;\n        let addressQuoteTotal = 0;\n        const ADMIN_PIN = "1234";',
+              'address state'
+          )
+
+          address_js = r'''
+        async function runAddressQuote() {
+            const input = document.getElementById('propertyAddressInput');
+            const button = document.getElementById('addressScanBtn');
+            const status = document.getElementById('addressQuoteStatus');
+            const resultBox = document.getElementById('addressQuoteResult');
+            const address = (input.value || '').trim();
+
+            if (address.length < 8) {
+                alert('Enter a complete street address first.');
+                input.focus();
+                return;
+            }
+
+            button.disabled = true;
+            button.innerText = 'Scanning…';
+            status.innerText = 'Locating property and scanning satellite evidence…';
+            resultBox.innerHTML = '';
+
+            try {
+                const response = await fetch(window.location.origin + '/api/address-quote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({ address, settings: {} })
+                });
+
+                const data = await response.json();
+                if (!response.ok || !data.success) {
+                    throw new Error(data.details || data.error || 'Address scan failed.');
+                }
+
+                addressMatrix = data.addressMatrix;
+                addressQuoteTotal = Number(data.preliminaryTotal) || 0;
+                currentJobLocation = {
+                    lat: addressMatrix.latitude,
+                    lon: addressMatrix.longitude,
+                    accuracy: 0
+                };
+
+                const gpsDisplay = document.getElementById('gpsCoordsDisplay');
+                gpsDisplay.style.display = 'block';
+                gpsDisplay.innerText = `✅ Address linked: ${addressMatrix.normalizedAddress}`;
+
+                if (addressMatrix.centerTileUrl) {
+                    document.getElementById('satelliteImgBg').style.backgroundImage = `url('${addressMatrix.centerTileUrl}')`;
+                }
+
+                renderAddressQuote();
+                status.innerText = 'Preliminary address quote ready. Add photos to dual-verify it.';
+            } catch (error) {
+                addressMatrix = null;
+                addressQuoteTotal = 0;
+                status.innerText = 'Address scan failed.';
+                resultBox.innerHTML = `<div class="diagnostic-note">⚠️ ${error.message || error}</div>`;
+            } finally {
+                button.disabled = false;
+                button.innerText = 'Scan Address';
+            }
+        }
+
+        function renderAddressQuote() {
+            const box = document.getElementById('addressQuoteResult');
+            if (!addressMatrix) {
+                box.innerHTML = '';
+                return;
+            }
+
+            const confidence = Math.max(0, Math.min(100, Number(addressMatrix.confidenceScore) || 0));
+            const services = Array.isArray(addressMatrix.services) ? addressMatrix.services : [];
+            const serviceHtml = services.map(service => {
+                const quantity = Number(service.quantity) || 0;
+                const price = Number(service.calculatedPrice) || 0;
+                return `<div class="address-service-row"><span><strong>${service.label || service.serviceId}</strong><br>${quantity.toLocaleString()} ${service.quantityUnit || ''}</span><strong>$${price.toFixed(2)}</strong></div>`;
+            }).join('');
+
+            const nextPhotos = Array.isArray(addressMatrix.recommendedPhotos) && addressMatrix.recommendedPhotos.length
+                ? `<div style="margin-top:10px;font-size:11.5px;color:#94a3b8;"><strong style="color:#fbbf24;">Best verification photos:</strong> ${addressMatrix.recommendedPhotos.slice(0, 3).join(' · ')}</div>`
+                : '';
+
+            box.innerHTML = `
+                <div class="address-summary">
+                    <div style="font-size:12px;color:#f8fafc;line-height:1.45;">${addressMatrix.propertySummary || 'Satellite property scan complete.'}</div>
+                    <div class="confidence-row"><span>Address-only confidence</span><strong>${Math.round(confidence)}%</strong></div>
+                    <div class="confidence-track"><div class="confidence-fill" style="width:${confidence}%"></div></div>
+                    <div style="margin-top:10px;">${serviceHtml || '<div style="font-size:12px;color:#94a3b8;">No clearly measurable cleaning surfaces were identified from overhead imagery.</div>'}</div>
+                    <div class="address-total">Preliminary: $${addressQuoteTotal.toFixed(2)}</div>
+                    ${nextPhotos}
+                </div>`;
+        }
+
+        function renderVerificationPanel(scanData) {
+            const verification = scanData && scanData.verification;
+            if (!verification) return '';
+            const score = Math.max(0, Math.min(100, Number(verification.confidenceScore) || 0));
+            const next = verification.recommendedNextPhoto
+                ? `<div class="verification-next">📸 <strong>Fastest confidence boost:</strong> ${verification.recommendedNextPhoto}</div>`
+                : '';
+            return `
+                <div class="verification-card">
+                    <div class="verification-title"><span>🛡️ Dual-Verification Matrix</span><span class="verification-score">${Math.round(score)}%</span></div>
+                    <div class="confidence-track" style="margin-top:9px;"><div class="confidence-fill" style="width:${score}%"></div></div>
+                    <div class="verification-grid">
+                        <div>${verification.satelliteVerified ? '✅' : '○'} Satellite evidence ${verification.satelliteVerified ? 'checked' : 'not supplied'}</div>
+                        <div>${verification.photoVerified ? '✅' : '○'} Photo evidence ${verification.photoVerified ? 'checked' : 'limited'}</div>
+                        <div>Agreement score: <strong>${Number(verification.agreementScore) || 0}%</strong></div>
+                        <div>Matched services: <strong>${Number(verification.servicesMatched) || 0}</strong></div>
+                    </div>
+                    ${next}
+                </div>`;
+        }
+
+'''
+          index = replace_once(
+              index,
+              '        function openSatelliteModal() {',
+              address_js + '        function openSatelliteModal() {',
+              'address matrix javascript'
+          )
+
+          index = replace_once(
+              index,
+              '            let htmlOutput = "";\n            priceItemsRegistry = [];',
+              '            let htmlOutput = "";\n            htmlOutput += renderVerificationPanel(scanData);\n            priceItemsRegistry = [];',
+              'admin verification panel'
+          )
+
+          # There are two render functions with this initialization. Patch tech mode separately using its unique nearby text.
+          index = replace_once(
+              index,
+              '        function renderTechModeView(scanData) {\n            let htmlOutput = "";\n            const t = translations[currentLang];',
+              '        function renderTechModeView(scanData) {\n            let htmlOutput = "";\n            htmlOutput += renderVerificationPanel(scanData);\n            const t = translations[currentLang];',
+              'tech verification panel'
+          )
+
+          index = replace_once(
+              index,
+              '                    body: JSON.stringify({ \n                        images: payloadImages, \n                        settings: {},\n                        location: currentJobLocation,\n                        siteNotes: userSiteNotes \n                    }),',
+              "                    body: JSON.stringify({ \n                        images: payloadImages, \n                        settings: {},\n                        location: currentJobLocation,\n                        siteNotes: userSiteNotes,\n                        addressMatrix: addressMatrix,\n                        job: { address: addressMatrix?.normalizedAddress || document.getElementById('propertyAddressInput')?.value || '' }\n                    }),",
+              'submit dual evidence'
+          )
+
+          index = replace_once(
+              index,
+              '<div>© 2026 No Problem Pressure Washing Matrix™ · v1.0.0</div>',
+              '<div>© 2026 No Problem Pressure Washing Matrix™ · v1.1.0</div>',
+              'footer version'
+          )
+
+          analyze = replace_once(
+              analyze,
+              '        const { images, settings, location, siteNotes, requestedServices, buildingScope, job } = req.body;',
+              '        const { images, settings, location, siteNotes, requestedServices, buildingScope, job, addressMatrix } = req.body;',
+              'analyze request address matrix'
+          )
+
+          analyze = replace_once(
+              analyze,
+              "        if (buildingScope?.label) {\n            contextBlock += `\\n- Building scope selected in the app: ${buildingScope.label}`;\n        }\n        contextBlock += `\\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;",
+              "        if (buildingScope?.label) {\n            contextBlock += `\\n- Building scope selected in the app: ${buildingScope.label}`;\n        }\n        if (addressMatrix) {\n            const satelliteServiceSummary = Array.isArray(addressMatrix.services)\n                ? addressMatrix.services.map(service => `${service.serviceId}: ${service.quantity} ${service.quantityUnit}`).join('; ')\n                : 'No satellite services supplied';\n            contextBlock += `\\n- ADDRESS QUOTE MATRIX: ${addressMatrix.normalizedAddress || addressMatrix.address || 'Address supplied'}`;\n            contextBlock += `\\n- Satellite preliminary confidence: ${addressMatrix.confidenceScore || 0}%`;\n            contextBlock += `\\n- Satellite-estimated surfaces: ${satelliteServiceSummary}`;\n            contextBlock += `\\n- IMPORTANT: Treat satellite quantities as independent evidence. Reconcile them with the field photos rather than blindly copying them.`;\n        }\n        contextBlock += `\\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;",
+              'analyze satellite context'
+          )
+
+          analyze = replace_once(
+              analyze,
+              '        0. WHOLE-PROPERTY SYNTHESIS: Treat every image as a different view of the same job. Cross-check overlapping walls and surfaces, avoid double-counting areas shown in more than one photo, and base the final quantities on the combined property evidence rather than one image at a time.\n',
+              '        0. WHOLE-PROPERTY SYNTHESIS: Treat every image as a different view of the same job. Cross-check overlapping walls and surfaces, avoid double-counting areas shown in more than one photo, and base the final quantities on the combined property evidence rather than one image at a time.\n        0A. DUAL-VERIFICATION: When ADDRESS QUOTE MATRIX evidence is supplied, independently compare its satellite quantities with what the field photos support. Use satellite evidence strongly for visible horizontal footprints such as driveways, sidewalks, patios, pool decks, roof footprint, and large site geometry. Use field photos strongly for vertical surfaces, stories, materials, staining severity, obstructions, fragile areas, and treatment selection. Resolve disagreements conservatively and do not create false precision.\n',
+              'analyze dual verification protocol'
+          )
+
+          verification_js = r'''
+
+        const satelliteServices = Array.isArray(addressMatrix?.services) ? addressMatrix.services : [];
+        const photoServices = Array.isArray(scanData.services) ? scanData.services : [];
+        const agreementScores = [];
+        let servicesMatched = 0;
+
+        for (const satelliteService of satelliteServices) {
+            const photoService = photoServices.find(service => service.serviceId === satelliteService.serviceId);
+            if (!photoService) continue;
+            servicesMatched += 1;
+            const satelliteQuantity = Number(satelliteService.quantity) || 0;
+            const photoQuantity = Number(photoService.quantity) || 0;
+            if (satelliteQuantity > 0 && photoQuantity > 0) {
+                const variance = Math.abs(photoQuantity - satelliteQuantity) / Math.max(photoQuantity, satelliteQuantity);
+                agreementScores.push(Math.max(0, 1 - variance));
+            }
+        }
+
+        const satelliteConfidence = addressMatrix ? clamp(addressMatrix.confidenceScore || 50, 30, 78) : 0;
+        const photoEvidenceConfidence = clamp(52 + (activeImages.length * 7), 55, 96);
+        const agreementConfidence = agreementScores.length
+            ? (agreementScores.reduce((sum, value) => sum + value, 0) / agreementScores.length) * 100
+            : (addressMatrix ? 50 : photoEvidenceConfidence);
+
+        const confidenceScore = addressMatrix
+            ? Math.round(clamp((satelliteConfidence * 0.35) + (photoEvidenceConfidence * 0.4) + (agreementConfidence * 0.25), 35, 98))
+            : Math.round(photoEvidenceConfidence);
+
+        scanData.verification = {
+            mode: addressMatrix ? 'satellite_plus_photos' : 'photos_only',
+            confidenceScore,
+            satelliteVerified: Boolean(addressMatrix),
+            photoVerified: activeImages.length >= 2,
+            satelliteConfidence: Math.round(satelliteConfidence),
+            photoEvidenceConfidence: Math.round(photoEvidenceConfidence),
+            agreementScore: Math.round(clamp(agreementConfidence, 0, 100)),
+            servicesMatched,
+            recommendedNextPhoto: confidenceScore < 85
+                ? (addressMatrix?.recommendedPhotos?.[0] || 'Add one clear wide-angle photo showing the largest quoted surface and its edges.')
+                : ''
+        };
+'''
+          analyze = replace_once(
+              analyze,
+              '        return res.status(200).json({\n            success: true,\n            rawMatrixData: scanData\n        });',
+              verification_js + '\n        return res.status(200).json({\n            success: true,\n            rawMatrixData: scanData\n        });',
+              'analyze verification scoring'
+          )
+
+          index_path.write_text(index, encoding='utf-8')
+          analyze_path.write_text(analyze, encoding='utf-8')
+
+          package = json.loads(package_path.read_text(encoding='utf-8'))
+          package['version'] = '1.1.0'
+          package_path.write_text(json.dumps(package, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Commit atomic update
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html api/analyze.js api/address-quote.js package.json; then
+            echo 'No feature changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html api/analyze.js api/address-quote.js package.json
+          git commit -m 'Add Address Quote Matrix and dual verification v1.1.0'
+          git push origin HEAD:address-dual-verify-v1.1.0
