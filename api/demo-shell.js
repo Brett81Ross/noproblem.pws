@@ -1,5 +1,4 @@
-/* No Problem Pressure Washing Matrix™ — Demo/Help shell wrapper
-   Preserves the existing /api/shell output and injects the CactusByte Demo Standard. */
+/* No Problem Pressure Washing Matrix™ — optional 60-second live demo wrapper */
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.statusCode = 405;
@@ -22,15 +21,12 @@ module.exports = async function handler(req, res) {
     if (!upstream.ok) throw new Error(`Base shell returned ${upstream.status}`);
     let html = await upstream.text();
 
-    const demoScripts = [
-      '    <script src="/demo-config.js" defer></script>',
-      '    <script src="/cactusbyte-demo.js" defer></script>'
-    ].join('\n');
+    const demoScript = '    <script src="/demo-config.js" defer></script>';
 
-    if (!html.includes('/cactusbyte-demo.js')) {
+    if (!html.includes('/demo-config.js')) {
       html = html.includes('</body>')
-        ? html.replace('</body>', `${demoScripts}\n</body>`)
-        : `${html}\n${demoScripts}`;
+        ? html.replace('</body>', `${demoScript}\n</body>`)
+        : `${html}\n${demoScript}`;
     }
 
     res.statusCode = 200;
