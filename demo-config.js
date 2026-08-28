@@ -2,7 +2,7 @@ window.CACTUSBYTE_DEMO={
   appId:'no-problem-pressure-washing-matrix',
   appName:'No Problem Pressure Washing Matrix™',
   demoVersion:'2026-08-v2',
-  firstLaunch:true,
+  firstLaunch:false,
   autoDelayMs:1100,
   triggerContainer:'.status-rail',
   logoUrl:'/noproblem.webp',
@@ -26,4 +26,4 @@ window.CACTUSBYTE_DEMO={
     {title:'Prepare the crew',text:'Carry the approved scope, safety boundaries, proof photos, and supplies into the field.'}
   ]
 };
-(function(){var s=document.createElement('script');s.src='/demo-60s-addon.js';s.defer=true;document.head.appendChild(s);})();
+(()=>{const s=document.createElement('script');s.src='https://cactusbyte-studios.vercel.app/demo-embed.js';s.dataset.cactusbyteDemo='no-problem-pressure-washing-matrix';s.defer=true;document.body.appendChild(s)})();
