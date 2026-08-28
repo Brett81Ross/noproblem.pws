@@ -26,3 +26,4 @@ window.CACTUSBYTE_DEMO={
     {title:'Prepare the crew',text:'Carry the approved scope, safety boundaries, proof photos, and supplies into the field.'}
   ]
 };
+(function(){var s=document.createElement('script');s.src='/demo-60s-addon.js';s.defer=true;document.head.appendChild(s);})();
