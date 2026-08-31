@@ -21,12 +21,17 @@ module.exports = async function handler(req, res) {
     if (!upstream.ok) throw new Error(`Base shell returned ${upstream.status}`);
     let html = await upstream.text();
 
-    const demoScript = '    <script src="/demo-config.js" defer></script>';
+    const scripts = [
+      '    <script src="/demo-config.js" defer></script>',
+      '    <script src="/native-install.js" defer></script>'
+    ];
 
-    if (!html.includes('/demo-config.js')) {
+    for (const script of scripts) {
+      const src = script.match(/src="([^"]+)/)?.[1];
+      if (!src || html.includes(src)) continue;
       html = html.includes('</body>')
-        ? html.replace('</body>', `${demoScript}\n</body>`)
-        : `${html}\n${demoScript}`;
+        ? html.replace('</body>', `${script}\n</body>`)
+        : `${html}\n${script}`;
     }
 
     res.statusCode = 200;
