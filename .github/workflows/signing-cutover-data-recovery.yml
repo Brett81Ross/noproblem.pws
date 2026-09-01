@@ -10,6 +10,7 @@ on:
       - 'inventory.js'
       - 'matrix-backup.js'
       - 'api/shell.js'
+      - 'tools/reconcile-production-access-tail.py'
       - 'tools/apply-signing-cutover-data-recovery.py'
       - 'tools/qa-signing-cutover-data-recovery.mjs'
       - 'tools/qa-signing-cutover-source.mjs'
@@ -35,6 +36,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
+
+      - name: Reconcile secondary production access references
+        run: python tools/reconcile-production-access-tail.py
 
       - name: Apply deterministic recovery and production-parity patch
         run: python tools/apply-signing-cutover-data-recovery.py
