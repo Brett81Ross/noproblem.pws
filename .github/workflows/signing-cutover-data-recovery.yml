@@ -11,6 +11,7 @@ on:
       - 'matrix-backup.js'
       - 'api/shell.js'
       - 'tools/reconcile-production-access-tail.py'
+      - 'tools/reconcile-production-settings-tail.py'
       - 'tools/apply-signing-cutover-data-recovery.py'
       - 'tools/qa-signing-cutover-data-recovery.mjs'
       - 'tools/qa-signing-cutover-source.mjs'
@@ -39,6 +40,9 @@ jobs:
 
       - name: Reconcile secondary production access references
         run: python tools/reconcile-production-access-tail.py
+
+      - name: Reconcile live service-worker removal behavior
+        run: python tools/reconcile-production-settings-tail.py
 
       - name: Apply deterministic recovery and production-parity patch
         run: python tools/apply-signing-cutover-data-recovery.py
