@@ -1,31 +1,8 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEY = 'np_matrix_building_level';
   var CONTACT_STORAGE_KEY = 'np_matrix_customer_contact';
-  var ONE_STORY = 'one';
-  var MULTIPLE_LEVELS = 'multiple';
   var noticeTimer = null;
-
-  function readSavedLevel() {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
-    } catch (error) {
-      return ONE_STORY;
-    }
-  }
-
-  function saveLevel(level) {
-    try {
-      localStorage.setItem(STORAGE_KEY, level);
-    } catch (error) {
-      // The selector still works when private browsing blocks storage.
-    }
-  }
-
-  function levelLabel(level) {
-    return level === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
-  }
 
   function createCustomerFields() {
     var missionFields = document.querySelector('.mission-fields');
@@ -119,12 +96,11 @@
     }, 2800);
   }
 
-  function updateHouseWashLabels(level, root) {
+  function updateHouseWashLabels(root) {
     var scope = root || document;
     var walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
     var node;
-    var replacement = level === MULTIPLE_LEVELS ? 'Multi-Level House Soft Wash' : 'One-Story House Soft Wash';
-
+    var replacement = 'One-Story House Soft Wash';
     while ((node = walker.nextNode())) {
       if (/One-Story House Soft Wash|Multi-Level House Soft Wash/i.test(node.nodeValue || '')) {
         node.nodeValue = node.nodeValue.replace(/One-Story House Soft Wash|Multi-Level House Soft Wash/gi, replacement);
@@ -132,20 +108,13 @@
     }
   }
 
-  function updateEvidenceGuidance(level) {
-    var multiple = level === MULTIPLE_LEVELS;
-    var guidance = multiple ? [
-      { index: 8, title: 'Front roofline', hint: 'Front roof pitch, gutters, and upper-level access' },
-      { index: 9, title: 'Rear roofline', hint: 'Rear roof pitch, valleys, and upper-level access' },
-      { index: 10, title: 'Upper-level detail', hint: 'Dormers, peaks, staining, or difficult access' },
-      { index: 11, title: 'Optional detail', hint: 'Additional roof, exterior, or service-area view' }
-    ] : [
+  function updateEvidenceGuidance() {
+    var guidance = [
       { index: 8, title: 'Optional detail 1', hint: 'Additional angle or service area' },
       { index: 9, title: 'Optional detail 2', hint: 'Additional angle or service area' },
       { index: 10, title: 'Optional detail 3', hint: 'Additional angle or service area' },
       { index: 11, title: 'Optional detail 4', hint: 'Additional angle or service area' }
     ];
-
     guidance.forEach(function (item) {
       var slot = document.querySelector('[data-slot="' + item.index + '"]');
       if (!slot) return;
@@ -157,94 +126,31 @@
     });
   }
 
-  function createHeightSelector() {
-    var scopeGrid = document.getElementById('scopeGrid');
-    if (!scopeGrid || document.getElementById('buildingHeightField')) return null;
-
-    var field = document.createElement('div');
-    field.className = 'building-height-field';
-    field.id = 'buildingHeightField';
-    field.innerHTML = [
-      '<span class="building-height-label" id="buildingHeightLabel">Building height</span>',
-      '<div class="building-height-switch" role="group" aria-labelledby="buildingHeightLabel">',
-      '  <button class="building-height-option" type="button" data-building-level="one" aria-pressed="true">One story</button>',
-      '  <button class="building-height-option" type="button" data-building-level="multiple" aria-pressed="false">Multiple levels</button>',
-      '</div>',
-      '<p class="building-height-note" id="buildingHeightNote"></p>'
-    ].join('');
-
-    scopeGrid.parentNode.insertBefore(field, scopeGrid);
-    return field;
-  }
-
-  function applyLevel(level) {
-    var normalized = level === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
-    var note = document.getElementById('buildingHeightNote');
+  function applyAutomaticAccessBoundary() {
     var boundary = document.querySelector('.scope-boundary span:last-child');
     var houseWash = document.querySelector('[data-service="house_wash"]');
-    var roofWash = document.querySelector('[data-service="roof_soft_wash"]');
-
-    document.body.setAttribute('data-building-level', normalized);
-    saveLevel(normalized);
-
-    Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
-      button.setAttribute('aria-pressed', String(button.getAttribute('data-building-level') === normalized));
-    });
-
     if (houseWash) houseWash.textContent = 'House wash';
-
-    if (normalized === MULTIPLE_LEVELS) {
-      if (note) note.textContent = 'Plans and quotes include multi-level exterior washing, roof soft washing, and the access equipment needed for the job.';
-      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multi-level exterior and roof soft washing are enabled. Use professional extension equipment, lifts, or approved access methods.';
-    } else {
-      if (roofWash && roofWash.getAttribute('aria-pressed') === 'true') roofWash.click();
-      if (note) note.textContent = 'Plans and quotes are limited to ground-level and one-story exterior washing.';
-      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> one-story mode is selected. Ground-level and one-story exterior washing are included. Roof cleaning remains excluded.';
-    }
-
-    updateEvidenceGuidance(normalized);
-    updateHouseWashLabels(normalized, document.getElementById('resultsMount') || document);
-  }
-
-  function addSelectorEvents() {
-    Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
-      button.addEventListener('click', function () {
-        applyLevel(button.getAttribute('data-building-level'));
-      });
-    });
+    if (boundary) boundary.innerHTML = '<strong>Automatic access check:</strong> the Matrix reviews photos for upper-story, roof, ladder, lift, and other elevated-access requirements before deciding whether the job fits the approved scope.';
+    updateEvidenceGuidance();
+    updateHouseWashLabels(document.getElementById('resultsMount') || document);
   }
 
   function patchAnalysisRequest() {
     if (window.__npBuildingFetchPatched || typeof window.fetch !== 'function') return;
-
     var originalFetch = window.fetch.bind(window);
     window.__npBuildingFetchPatched = true;
     window.fetch = function (resource, options) {
       var url = typeof resource === 'string' ? resource : resource && resource.url;
       var requestOptions = options;
-
       if (url && /\/api\/analyze(?:\?|$)/.test(url) && options && typeof options.body === 'string') {
         try {
           var payload = JSON.parse(options.body);
-          var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
-          var scopeInstruction = level === MULTIPLE_LEVELS
-            ? 'BUILDING HEIGHT: Multiple levels. Roof soft washing is available in this mode. Include roof cleaning when requested or clearly supported by the photos, plus safe access equipment, setup time, labor, chemical treatment, and height-related difficulty in the plan and quote. Never use high pressure on roofing materials.'
-            : 'BUILDING HEIGHT: One story. Keep the plan and quote to ground-level and one-story exterior washing. Do not include roof cleaning.';
-
-          payload.buildingScope = {
-            level: level,
-            label: levelLabel(level),
-            roofCleaningIncluded: level === MULTIPLE_LEVELS
-          };
-          payload.settings = Object.assign({}, payload.settings || {}, { buildingLevel: level });
-          payload.job = Object.assign({}, payload.job || {}, { buildingLevel: level });
+          var scopeInstruction = 'ACCESS DETECTION: Determine building height and whether any requested surface needs roof access, ladders, lifts, scaffolding, extension equipment, or other elevated access. Flag those needs visibly and make a serviceability decision. Do not price roof, gutter, two-story, ladder, or elevated-access work as an approved service.';
+          payload.buildingScope = { detection: 'automatic', elevatedAccessIncluded: false };
           payload.siteNotes = scopeInstruction + (payload.siteNotes ? '\n\n' + payload.siteNotes : '');
           requestOptions = Object.assign({}, options, { body: JSON.stringify(payload) });
-        } catch (error) {
-          requestOptions = options;
-        }
+        } catch (error) { requestOptions = options; }
       }
-
       return originalFetch(resource, requestOptions);
     };
   }
@@ -373,7 +279,6 @@
     var total = document.querySelector('.quote-total strong');
     var selectedServices = document.querySelectorAll('.quoted-service[aria-pressed="true"]');
     var editState = window.NPMatrixQuote && typeof window.NPMatrixQuote.getState === 'function' ? window.NPMatrixQuote.getState() : { discountPercent: 0, quoteNotes: '' };
-    var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
     var lines = [
       'NO PROBLEM PRESSURE WASHING SOLUTIONS LLC',
       'NO PROBLEM PRESSURE WASHING MATRIX(TM)',
@@ -384,7 +289,7 @@
       jobAddress && jobAddress.value.trim() ? 'Property: ' + jobAddress.value.trim() : '',
       customerEmail && customerEmail.value.trim() ? 'Customer email: ' + customerEmail.value.trim() : '',
       customerPhone && customerPhone.value.trim() ? 'Customer phone: ' + customerPhone.value.trim() : '',
-      'Building height: ' + level,
+      'Access assessment: Automatic photo analysis',
       '',
       'QUOTE SUMMARY',
       resultTitle ? resultTitle.textContent.trim() : '',
@@ -413,9 +318,7 @@
     if (editState.quoteNotes) lines.push('QUOTE NOTES: ' + editState.quoteNotes);
     lines.push('');
     lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
-    lines.push(level === 'Multiple levels'
-      ? 'Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment.'
-      : 'Ground-level and one-story exterior washing are included. Roof cleaning is not included.');
+    lines.push('The Matrix automatically checks for upper-story, roof, ladder, lift, and other elevated-access requirements. Out-of-scope access is flagged for owner review or referral and is not included in the quoted services.');
     lines.push('');
     lines.push('No Problem Pressure Washing Matrix(TM)');
     lines.push('Cactus Byte Studios(TM) | All Rights Reserved');
@@ -467,7 +370,7 @@
     if (!resultsMount || typeof MutationObserver !== 'function') return;
 
     var observer = new MutationObserver(function () {
-      updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
+      updateHouseWashLabels(resultsMount);
       ensurePdfButton();
     });
     observer.observe(resultsMount, { childList: true, subtree: true });
@@ -479,19 +382,17 @@
     if (!evidenceGrid || typeof MutationObserver !== 'function') return;
 
     var observer = new MutationObserver(function () {
-      updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+      updateEvidenceGuidance();
     });
     observer.observe(evidenceGrid, { childList: true });
-    updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+    updateEvidenceGuidance();
   }
 
   function init() {
     createCustomerFields();
     restoreCustomerContact();
     addCustomerContactEvents();
-    createHeightSelector();
-    addSelectorEvents();
-    applyLevel(readSavedLevel());
+    applyAutomaticAccessBoundary();
     patchAnalysisRequest();
     observeEvidenceGrid();
     observeResults();

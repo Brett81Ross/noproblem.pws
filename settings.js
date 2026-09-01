@@ -77,6 +77,7 @@
       '.matrix-settings-button.danger{border-color:rgba(255,115,115,.24);color:#ffd1d1;background:rgba(96,28,34,.18)}',
       '.matrix-settings-button[hidden]{display:none}',
       '.matrix-settings-privacy{margin-top:10px;padding:10px 11px;border-left:2px solid #58efff;color:#86a7b0;background:rgba(88,239,255,.04);font-size:10px;line-height:1.5}',
+      '.matrix-settings-backup-warning{margin-top:10px;padding:10px 11px;border:1px solid rgba(255,200,87,.2);border-radius:11px;color:#d8c79e;background:rgba(255,200,87,.05);font-size:10px;line-height:1.5}',
       '.matrix-settings-footer{padding:5px 10px 2px;color:#65818a;font-size:9px;font-weight:750;line-height:1.6;text-align:center}',
       '.matrix-settings-toast{position:fixed;z-index:1100;right:14px;bottom:max(14px,env(safe-area-inset-bottom));max-width:calc(100vw - 28px);padding:11px 13px;border:1px solid rgba(88,239,255,.3);border-radius:12px;color:#e8fdff;background:rgba(4,20,27,.97);box-shadow:0 14px 38px rgba(0,0,0,.45);font-size:11px;font-weight:800;opacity:0;pointer-events:none;transform:translateY(10px);transition:180ms ease}',
       '.matrix-settings-toast.is-visible{opacity:1;transform:translateY(0)}',
@@ -117,6 +118,9 @@
       '<h2 class="matrix-settings-title">Data on this device</h2>',
       '<p class="matrix-settings-copy">Staged photos stay in memory while the page is open and are sent for analysis only when you run a Matrix scan. Saved projects and Matrix settings use browser storage on this device.</p>',
       '<div class="matrix-settings-actions"><button class="matrix-settings-button danger" id="matrixClearProject" type="button">Clear saved project</button><button class="matrix-settings-button secondary" id="matrixClearSettings" type="button">Clear Matrix settings</button></div>',
+      '<div class="matrix-settings-actions"><button class="matrix-settings-button" id="matrixBackupData" type="button">Back up Matrix data</button><button class="matrix-settings-button secondary" id="matrixRestoreData" type="button">Restore / merge backup</button></div>',
+      '<input id="matrixBackupInput" type="file" accept="application/json,.json" hidden>',
+      '<div class="matrix-settings-backup-warning">Backup files can include customer contact details, job addresses, location tags, quote notes, inventory counts, and saved reports. Keep them private. Access cookies, paid credits, lifetime status, staged photos, caches, and session state are never exported.</div>',
       '<div class="matrix-settings-privacy">Clearing a saved project removes the locally stored project. A report already visible on screen stays visible until you reload or run another scan.</div>',
       '</section>',
       '<section class="matrix-settings-section">',
@@ -137,6 +141,9 @@
     document.getElementById('matrixResetSettings').addEventListener('click', resetSettings);
     document.getElementById('matrixClearProject').addEventListener('click', clearProject);
     document.getElementById('matrixClearSettings').addEventListener('click', clearSettings);
+    document.getElementById('matrixBackupData').addEventListener('click', backupMatrixData);
+    document.getElementById('matrixRestoreData').addEventListener('click', function () { document.getElementById('matrixBackupInput').click(); });
+    document.getElementById('matrixBackupInput').addEventListener('change', handleMatrixBackupFile);
     document.getElementById('matrixInstallButton').addEventListener('click', installApp);
   }
 
@@ -211,6 +218,62 @@
     showToast('Matrix settings cleared. Defaults restored.');
   }
 
+  function backupEngine() {
+    if (!window.NPMatrixBackup) throw new Error('Backup engine is unavailable.');
+    return window.NPMatrixBackup;
+  }
+
+  function timestampForFile(date) {
+    return date.toISOString().replace(/[:.]/g, '-');
+  }
+
+  function downloadJsonFile(filename, text) {
+    var blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function backupMatrixData() {
+    try {
+      var now = new Date();
+      var exported = backupEngine().exportData(localStorage, now);
+      downloadJsonFile('no-problem-matrix-backup-' + timestampForFile(now) + '.json', exported.text);
+      showToast('Matrix backup downloaded. Keep it private.');
+    } catch (error) {
+      showToast(error && error.message ? error.message : 'Matrix backup could not be created.');
+    }
+  }
+
+  async function handleMatrixBackupFile(event) {
+    var input = event.currentTarget;
+    var file = input && input.files && input.files[0];
+    if (!file) return;
+    try {
+      var engine = backupEngine();
+      if (file.size > engine.MAX_BYTES) throw new Error('Backup is larger than the 5 MB safety limit.');
+      var text = await file.text();
+      engine.parseBackup(text);
+      var preImportNow = new Date();
+      var preImport = engine.exportData(localStorage, preImportNow);
+      downloadJsonFile('no-problem-pre-import-' + timestampForFile(preImportNow) + '.json', preImport.text);
+      engine.mergeIntoStorage(localStorage, text);
+      var minimumInput = document.getElementById('matrixMinimumJob');
+      if (minimumInput) minimumInput.value = readSettings().minimumJob.toFixed(2);
+      showToast('Backup merged safely. Reload when ready to load restored project and inventory.');
+    } catch (error) {
+      showToast(error && error.message ? error.message : 'Backup could not be restored.');
+    } finally {
+      input.value = '';
+    }
+  }
+
   async function installApp() {
     if (!deferredInstallPrompt) return;
     try {
@@ -280,12 +343,15 @@
     window.fetch = wrappedFetch;
   }
 
-  function registerServiceWorker() {
+  function removeLegacyServiceWorker() {
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').catch(function () {});
-      });
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        registrations.forEach(function (registration) { registration.unregister(); });
+      }).catch(function () {});
     }
+    if ('caches' in window) caches.keys().then(function (keys) {
+      keys.filter(function (key) { return /^no-problem|^noproblem|^matrix/i.test(key); }).forEach(function (key) { caches.delete(key); });
+    }).catch(function () {});
   }
 
   document.addEventListener('keydown', function (event) {
@@ -297,5 +363,5 @@
   addGear();
   hookInstallPrompt();
   hookAnalyzeSettings();
-  registerServiceWorker();
+  removeLegacyServiceWorker();
 }());

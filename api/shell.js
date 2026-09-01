@@ -686,6 +686,10 @@ module.exports = async function handler(req, res) {
       html = html.replace('</head>', `\n    <style id="matrixBrandPolish">\n      .brand-stage { background: transparent !important; }\n      .brand-stage::before { display: none !important; content: none !important; background: none !important; }\n      .brand-logo { background: transparent !important; mix-blend-mode: normal !important; filter: drop-shadow(0 10px 22px rgba(0,196,230,.24)) !important; }\n    </style>\n</head>`);
     }
 
+    if (!html.includes('/matrix-backup.js')) {
+      html = html.replace('</body>', '    <script src=\"/matrix-backup.js\" defer></script>\
+</body>');
+    }
     if (!html.includes('/settings.js')) {
       html = html.replace('</body>', '    <script src="/settings.js" defer></script>\n</body>');
     }
