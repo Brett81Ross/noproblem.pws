@@ -13,6 +13,7 @@ on:
       - 'tools/reconcile-production-access-tail.py'
       - 'tools/reconcile-production-settings-tail.py'
       - 'tools/apply-signing-cutover-data-recovery.py'
+      - 'tools/normalize-generated-js-escapes.py'
       - 'tools/qa-signing-cutover-data-recovery.mjs'
       - 'tools/qa-signing-cutover-source.mjs'
       - 'SIGNING_CUTOVER_DATA_RECOVERY.md'
@@ -46,6 +47,9 @@ jobs:
 
       - name: Apply deterministic recovery and production-parity patch
         run: python tools/apply-signing-cutover-data-recovery.py
+
+      - name: Normalize generated JavaScript escapes
+        run: python tools/normalize-generated-js-escapes.py
 
       - name: Set up Node
         uses: actions/setup-node@v4
