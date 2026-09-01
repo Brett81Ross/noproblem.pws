@@ -1,0 +1,79 @@
+name: No Problem Signing Cutover Data Recovery QA
+
+on:
+  push:
+    branches:
+      - android-signing-cutover-data-recovery
+    paths:
+      - 'settings.js'
+      - 'enhancements.js'
+      - 'inventory.js'
+      - 'matrix-backup.js'
+      - 'api/shell.js'
+      - 'tools/apply-signing-cutover-data-recovery.py'
+      - 'tools/qa-signing-cutover-data-recovery.mjs'
+      - 'tools/qa-signing-cutover-source.mjs'
+      - 'SIGNING_CUTOVER_DATA_RECOVERY.md'
+      - '.github/workflows/signing-cutover-data-recovery.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recovery-qa:
+    if: github.ref == 'refs/heads/android-signing-cutover-data-recovery'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: android-signing-cutover-data-recovery
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Apply deterministic recovery and production-parity patch
+        run: python tools/apply-signing-cutover-data-recovery.py
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Backup/restore functional QA
+        run: node tools/qa-signing-cutover-data-recovery.mjs
+
+      - name: Source contract QA
+        run: node tools/qa-signing-cutover-source.mjs
+
+      - name: JavaScript syntax checks
+        run: |
+          node --check matrix-backup.js
+          node --check settings.js
+          node --check enhancements.js
+          node --check inventory.js
+          node --check api/shell.js
+
+      - name: Reject deployment side effects
+        run: |
+          if git diff --name-only | grep -E '(^|/)(vercel\.json|package\.json|package-lock\.json)$'; then
+            echo 'Recovery generator unexpectedly changed deployment/package configuration.' >&2
+            exit 1
+          fi
+
+      - name: Commit deterministic generated source if needed
+        shell: bash
+        run: |
+          git add settings.js enhancements.js api/shell.js
+          if git diff --cached --quiet; then
+            echo 'Generated recovery source already settled.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'recovery: apply deterministic No Problem data recovery'
+          git push origin HEAD:android-signing-cutover-data-recovery
