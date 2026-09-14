@@ -2,10 +2,13 @@ const crypto = require('crypto');
 
 const COOKIE_NAME = 'np_matrix_access';
 const RETURN_URL = 'https://noproblem-pws.vercel.app/';
-const ACTIVATION_TOKEN = 'np-matrix-stripe-2026-3free';
 
 function getSecret() {
   return process.env.NP_USAGE_SECRET || process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_3 || process.env.Gemini_API_Key_3;
+}
+
+function getActivationToken() {
+  return String(process.env.NP_ACTIVATION_TOKEN || '');
 }
 
 function currentMonthKey() {
@@ -62,13 +65,20 @@ function writeState(res, state, secret) {
   res.setHeader('Set-Cookie', `${COOKIE_NAME}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=31536000`);
 }
 
+function safeEqual(a, b) {
+  const left = Buffer.from(String(a));
+  const right = Buffer.from(String(b));
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
 module.exports = function handler(req, res) {
   const secret = getSecret();
-  if (!secret) return res.status(500).send('Activation unavailable.');
+  const activationToken = getActivationToken();
+  if (!secret || !activationToken) return res.status(503).send('Activation unavailable.');
 
   const kind = String(req.query.kind || '');
   const token = String(req.query.token || '');
-  if (token !== ACTIVATION_TOKEN || !['credit', 'lifetime'].includes(kind)) {
+  if (!safeEqual(token, activationToken) || !['credit', 'lifetime'].includes(kind)) {
     return res.status(400).send('Invalid activation request.');
   }
 
