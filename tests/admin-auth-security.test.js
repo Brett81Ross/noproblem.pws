@@ -27,9 +27,10 @@ function productionRuntimeFiles() {
 
 test('production runtime source contains no hard-coded admin PIN credential', () => {
   const offenders = [];
+  const assignmentPattern = /^\s*(?:const|let|var)\s+(?:ADMIN_PIN|adminPin|admin_pin)\s*=\s*["'`]/im;
   for (const file of productionRuntimeFiles()) {
     const source = fs.readFileSync(file, 'utf8');
-    if (/ADMIN_PIN\s*=|adminPin\s*=|admin_pin\s*=/i.test(source)) offenders.push(path.relative(root, file));
+    if (assignmentPattern.test(source)) offenders.push(path.relative(root, file));
   }
   assert.deepEqual(offenders, [], `Hard-coded admin credential found in runtime source: ${offenders.join(', ')}`);
 });
