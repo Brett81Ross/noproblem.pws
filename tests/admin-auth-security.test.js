@@ -41,3 +41,15 @@ test('legacy default admin PIN 1234 is not shipped as an authorization credentia
   }
   assert.deepEqual(offenders, [], `Legacy admin PIN credential found in: ${offenders.join(', ')}`);
 });
+
+test('entitlement activation secret is not hard-coded in repository source', () => {
+  const offenders = [];
+  for (const file of filesUnder(root)) {
+    if (file.includes(`${path.sep}tests${path.sep}`)) continue;
+    const source = fs.readFileSync(file, 'utf8');
+    if (/const\s+ACTIVATION_TOKEN\s*=\s*["'`][^"'`]+["'`]/.test(source)) {
+      offenders.push(path.relative(root, file));
+    }
+  }
+  assert.deepEqual(offenders, [], `Hard-coded activation secret found in: ${offenders.join(', ')}`);
+});
