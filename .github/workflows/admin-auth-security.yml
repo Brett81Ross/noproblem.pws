@@ -17,4 +17,11 @@ jobs:
         with:
           node-version: 24
       - run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Syntax-check security handlers
+        run: |
+          node --check api/_auth.js
+          node --check api/admin-auth.js
+          node --check api/secure-analyze.js
+          node --check api/unlock.js
+          node --check api/demo-shell.js
       - run: npm run test:security
