@@ -5,6 +5,10 @@
   },
   "routes": [
     {
+      "src": "/api/analyze",
+      "dest": "/api/secure-analyze"
+    },
+    {
       "src": "/",
       "dest": "/splash.html"
     },
