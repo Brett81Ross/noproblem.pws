@@ -22,6 +22,8 @@ jobs:
           node --check api/_auth.js
           node --check api/admin-auth.js
           node --check api/secure-analyze.js
-          node --check api/unlock.js
+          node --check api/_cactusbyte-id.js
+          node --check api/pro-status.js
+          node --check api/stripe-webhook.js
           node --check api/demo-shell.js
       - run: npm run test:security
