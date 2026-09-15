@@ -21,6 +21,31 @@ module.exports = async function handler(req, res) {
     if (!upstream.ok) throw new Error(`Base shell returned ${upstream.status}`);
     let html = await upstream.text();
 
+    html = html
+      .replace(/\s*const ADMIN_PIN = ["'][^"']+["'];?/, '')
+      .replace('let isTechMode = false;', 'let isTechMode = true;\n        let adminAuthorized = false;')
+      .replace('<div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>\n                <div class="mode-btn" id="btnTechMode" onclick="setAppMode(\'tech\')">Technician Mode</div>', '<div class="mode-btn" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>\n                <div class="mode-btn active" id="btnTechMode" onclick="setAppMode(\'tech\')">Technician Mode</div>')
+      .replace('function setAppMode(mode) {\n            isTechMode = (mode === \'tech\');', 'function setAppMode(mode) {\n            if (mode === \'admin\' && !adminAuthorized) return requestAdminMode();\n            isTechMode = (mode === \'tech\');')
+      .replace(/function requestAdminMode\(\) \{[\s\S]*?\n        \}/, `async function requestAdminMode() {
+            if (!isTechMode && adminAuthorized) return;
+            const enteredPin = prompt(currentLang === 'es' ? "Ingrese el PIN de Administrador:" : "Enter Admin PIN to switch modes:");
+            if (enteredPin === null) return;
+            try {
+                const response = await fetch('/api/admin-auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: enteredPin })
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok || payload.ok !== true) throw new Error('unauthorized');
+                adminAuthorized = true;
+                setAppMode('admin');
+            } catch {
+                alert(currentLang === 'es' ? "PIN de Administrador incorrecto." : "Incorrect Admin PIN.");
+            }
+        }`)
+      .replace("document.getElementById('satelliteModal').style.display = 'none';", "document.getElementById('satelliteModal').style.display = 'none';\n            setAppMode('tech');");
+
     const scripts = [
       '    <script src="/demo-config.js" defer></script>',
       '    <script src="/native-install.js" defer></script>'
