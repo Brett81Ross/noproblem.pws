@@ -58,15 +58,30 @@ test('admin authorization is verified against server environment and signed sess
   assert.match(auth, /timingSafeEqual/);
 });
 
-test('entitlement activation secret is not hard-coded in repository runtime source', () => {
-  const offenders = [];
+test('legacy token-based entitlement activation endpoint is retired', () => {
+  assert.equal(fs.existsSync(path.join(root, 'api', 'unlock.js')), false, 'Legacy /api/unlock must not remain in production runtime');
   for (const file of productionRuntimeFiles()) {
     const source = fs.readFileSync(file, 'utf8');
-    if (/const\s+ACTIVATION_TOKEN\s*=\s*["'`][^"'`]+["'`]/.test(source)) offenders.push(path.relative(root, file));
+    assert.doesNotMatch(source, /NP_ACTIVATION_TOKEN|ACTIVATION_TOKEN|kind=lifetime|kind=credit/);
   }
-  assert.deepEqual(offenders, [], `Hard-coded activation secret found in: ${offenders.join(', ')}`);
-  const unlock = fs.readFileSync(path.join(root, 'api', 'unlock.js'), 'utf8');
-  assert.match(unlock, /process\.env\.NP_ACTIVATION_TOKEN/);
+});
+
+test('Stripe webhook verifies signature before granting subscription entitlement', () => {
+  const source = fs.readFileSync(path.join(root, 'api', 'stripe-webhook.js'), 'utf8');
+  assert.match(source, /STRIPE_WEBHOOK_SECRET/);
+  assert.match(source, /stripe-signature/i);
+  assert.match(source, /constructEvent|verifyStripeSignature/);
+  assert.match(source, /customer\.subscription\.(created|updated|deleted)/);
+  assert.match(source, /cactusbyte_app/);
+  assert.match(source, /noproblem/);
+});
+
+test('Pro status is checked server-side rather than trusted from client input', () => {
+  const source = fs.readFileSync(path.join(root, 'api', 'pro-status.js'), 'utf8');
+  assert.match(source, /STRIPE_SECRET_KEY/);
+  assert.match(source, /subscriptions/i);
+  assert.match(source, /active|trialing/);
+  assert.doesNotMatch(source, /req\.body.*pro|req\.query.*pro/i);
 });
 
 test('analysis route enforces server-side pricing authority', () => {
