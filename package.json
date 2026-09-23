@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "No Problem Pressure Washing AI Matrix",
   "scripts": {
-    "start": "node api/analyze.js"
+    "start": "node api/analyze.js",
+    "test": "node tests/geo-primitives.test.js"
   },
   "dependencies": {
     "@google/generative-ai": "latest"

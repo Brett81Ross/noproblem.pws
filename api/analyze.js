@@ -92,7 +92,7 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings, location, siteNotes, requestedServices, buildingScope, job } = req.body;
+        const { images, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
@@ -122,6 +122,20 @@ async function handler(req, res) {
         let contextBlock = "";
         if (location) {
             contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
+        }
+        if (Array.isArray(satelliteMeasurements) && satelliteMeasurements.length) {
+            const safeMeasurements = satelliteMeasurements.slice(0, 40).map(m => ({
+                label: String(m?.label || 'Measured surface').slice(0, 80),
+                kind: m?.kind === 'line' ? 'line' : 'area',
+                quantity: Math.max(0, Number(m?.quantity) || 0),
+                unit: m?.unit === 'linear_ft' ? 'linear_ft' : 'sq_ft',
+                source: m?.evidence?.source || 'aerial_manual_measurement',
+                method: m?.evidence?.method || 'user_traced',
+                provider: m?.evidence?.provider || 'unknown',
+                capturedAt: m?.evidence?.capturedAt || null
+            }));
+            contextBlock += `\n- Aerial property measurements (user-traced evidence): ${JSON.stringify(safeMeasurements)}`;
+            contextBlock += `\n- Measurement rule: use these quantities as geometry evidence only. Do not infer contamination, material condition, access, hazards, drainage, or cleanability from aerial geometry alone.`;
         }
         if (siteNotes) {
             contextBlock += `\n- User/Tech Site Notes & Custom Instructions: "${siteNotes}"`;
@@ -153,6 +167,7 @@ async function handler(req, res) {
         8. MEMORIAL CLEANING: For tombstones, headstones, cemetery markers, or monuments, use serviceId "memorial_cleaning" and quantityUnit "marker". Identify visible material and condition. Require a material-safe low-pressure method, a small test area, cemetery authorization, and protection of lettering and fragile stone. Never recommend high pressure, acids, or an assumed chemical mix on a memorial.
         9. AIRCRAFT EXTERIORS: For aircraft washing, use serviceId "aircraft_exterior_wash" and quantityUnit "aircraft" only when explicitly requested. Limit the estimate to exterior washing. Require operator authorization, airport or facility compliance, approved aviation-safe products, protection of openings/sensors/static ports, and on-site verification. Exclude engines, interiors, maintenance, and deicing systems.
         10. PHOTO GUIDE DATA: Use the service tags, optional measurements, counts, and skipped-view notes supplied in the site notes. Recommended views are guidance, not a requirement. Do not reduce confidence merely because an irrelevant view was skipped.
+        11. AERIAL MEASUREMENT EVIDENCE: When user-traced aerial measurements are supplied, prefer those quantities over visual size guesses for the corresponding named surface. Treat the geometry as measured quantity evidence only. Photos/site evidence still control surface condition, contamination, hazards, access, drainage, and method. If those facts are not established, record the uncertainty instead of inventing precision.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
