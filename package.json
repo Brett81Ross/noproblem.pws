@@ -4,7 +4,7 @@
   "description": "No Problem Pressure Washing AI Matrix",
   "scripts": {
     "start": "node api/analyze.js",
-    "test": "node tests/geo-primitives.test.js && node tests/matrix-calibration-acceptance.test.js && node tests/matrix-calibration-activation.test.js && node tests/matrix-pricing-calibration.test.js"
+    "test": "node tests/geo-primitives.test.js && node tests/matrix-calibration-acceptance.test.js && node tests/matrix-calibration-activation.test.js && node tests/matrix-pricing-calibration.test.js && node tests/matrix-effective-rate-card.test.js"
   },
   "dependencies": {
     "@google/generative-ai": "latest"
