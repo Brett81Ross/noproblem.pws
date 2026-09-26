@@ -58,17 +58,11 @@ function sanitizeRate(value, fallback, minimum, maximum) {
 }
 
 function buildRateCard(ownerSettings) {
-    const rateCard = cloneDefaultRateCard();
-    const submitted = ownerSettings || {};
-
-    rateCard.minimumJob = sanitizeRate(submitted.minimumJob, rateCard.minimumJob, 0, 10000);
-
-    for (const [serviceId, definition] of Object.entries(rateCard.services)) {
-        const submittedRate = submitted.services?.[serviceId]?.rate;
-        const maximum = ['flat', 'vehicle', 'aircraft'].includes(definition.unit) ? 10000 : 100;
-        definition.rate = sanitizeRate(submittedRate, definition.rate, 0, maximum);
-    }
-    return rateCard;
+    return buildEffectiveRateCard({
+        cloneDefaultRateCard,
+        sanitizeRate,
+        ownerSettings
+    });
 }
 
 async function callModelWithRetry(modelInstance, contents, retries = 5, delay = 2000) {
