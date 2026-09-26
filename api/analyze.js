@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
 
 const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 24;
