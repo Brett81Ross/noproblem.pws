@@ -1523,6 +1523,22 @@
                 }
                 
                 techMatrixData = data.rawMatrixData;
+
+                const evidenceReview = techMatrixData?.evidenceReview;
+                if (evidenceReview && evidenceReview.readyForEstimate === false) {
+                    const requests = Array.isArray(evidenceReview.missingEvidence) ? evidenceReview.missingEvidence : [];
+                    const firstRequest = requests.find(item => item && item.prompt);
+                    const nextPrompt = firstRequest?.prompt || 'Add one more property view before the estimate is ready.';
+                    const addMore = window.confirm('SchismMatrix needs one more look.\n\n' + nextPrompt + '\n\nTap OK to add another photo, or Cancel to review the current evidence and flag it for human review.');
+                    if (addMore) {
+                        processTrigger.className = 'btn btn-trigger';
+                        processTrigger.innerText = translations[currentLang].scanBtn;
+                        document.getElementById('cameraInput').click();
+                        return;
+                    }
+                    techMatrixData.requiresHumanReview = true;
+                    techMatrixData.humanReviewReason = firstRequest?.reason || evidenceReview.summary || 'Property evidence is incomplete.';
+                }
                 
                 document.getElementById('outputCard').style.display = 'block';
                 document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
