@@ -1,0 +1,168 @@
+# ABL-SCHISM-05 — Walk-Around Evidence Capture
+
+Status: BUILD OPEN
+Production authorization: NO
+Source pattern: TerraFlow Matrix™ SiteVision Matrix™ v1.14
+Parent UX doctrine: ABL-SCHISM-04
+
+## Objective
+
+Give an ordinary field operator a guided, phone-first property walk that gathers useful evidence for SchismMatrix without exposing diagnostic complexity.
+
+Operator path:
+
+Start Property Walk → Capture → Follow plain-language evidence requests → Confirm uncertainty → Review Estimate
+
+This feature gathers evidence. It does not independently authorize work, customer acceptance, pricing overrides, calibration, or RIVETEX job creation.
+
+## Reuse decision
+
+### REUSE from TerraFlow SiteVision
+
+- rear-facing `getUserMedia` camera pattern
+- still capture from live video
+- walk-video recording
+- sampled video frames rather than retaining/transmitting full video
+- microphone disabled for ordinary property walkthrough
+- bounded recording duration
+- compressed JPEG evidence
+- capped analysis-frame count/payload
+- object URL cleanup and camera-track shutdown
+- file-upload fallback when live camera is unavailable
+- graceful local/manual fallback when AI analysis is unavailable
+
+### EXTEND for SchismMatrix
+
+- operator evidence remains authoritative when explicitly measured/confirmed
+- compare visual inference against field evidence rather than silently replacing it
+- preserve evidence provenance: live photo, uploaded photo, sampled video frame, operator confirmation
+- attach confidence/review state without exposing raw diagnostic state in the normal operator UI
+- connect accepted evidence to SchismMatrix analysis and estimate context
+- later handoff to RIVETEX remains subject to existing human-authorization boundary
+
+### DO NOT PORT
+
+- TerraFlow landscaping service taxonomy
+- turf/bed/fence-specific fields
+- TerraFlow quote math
+- TerraFlow localStorage keys or branding
+- landscaping AI prompt
+- ProfitGuard coupling
+- assumptions that ordinary imagery yields exact dimensions
+
+## SchismMatrix evidence sequence
+
+The guided walk should seek evidence in this order when relevant:
+
+1. Property/context
+2. Material/surface
+3. Condition
+4. Contamination
+5. Access
+6. Surroundings/property-protection concerns
+7. Runoff/drainage
+8. Hazards
+9. Missing views / uncertainty
+10. Operator confirmation
+
+The engine may skip irrelevant steps. The operator should not have to understand this internal sequence.
+
+## Operator UI
+
+Primary controls should remain minimal:
+
+- Start Property Walk
+- Take Photo
+- Continue Walk / Stop Walk
+- Add Existing Photo or Video
+- Review
+- Retake / Add Evidence
+- Confirm
+
+Normal UI uses prompts such as:
+
+- “Show me the driveway from end to end.”
+- “Move closer to that stained area.”
+- “Show me how we would reach this surface.”
+- “Show me where water would run.”
+- “I’m not sure about this area. Take another photo or mark it for review.”
+
+Do not display raw model payloads, schema fields, internal service IDs, provider names, calibration internals, or raw confidence thresholds to normal operators.
+
+## Evidence contract
+
+Every retained evidence item should be representable with:
+
+- id
+- kind: photo | video-frame | upload
+- source
+- capturedAt
+- optional location context when explicitly available/authorized
+- media dimensions
+- compressed evidence payload or durable reference
+- analysis observations
+- provenance
+- confidence class
+- requiresHumanReview
+- operator confirmation state
+
+Exact storage implementation is deferred until compatibility with the existing SchismMatrix evidence model is inspected.
+
+## Measurement rule
+
+Ordinary phone photos/video are observational evidence, not surveyed measurement.
+
+Without defensible scale/reference:
+- do not invent exact square footage, linear footage, boundaries, heights, or distances
+- return unknown/not estimable
+- request better evidence or operator measurement when the estimate materially depends on it
+
+## Mobile guardrails
+
+Target Samsung Galaxy Z Fold first, while remaining normal Android/iOS friendly.
+
+- rear camera preferred
+- no microphone by default
+- 90-second maximum continuous walkthrough candidate inherited from TerraFlow; validate before final lock
+- compressed evidence frames
+- bounded frame count
+- release camera tracks on close/background/navigation
+- tolerate permission denial
+- upload fallback
+- narrow cover-screen touch targets and text must remain usable
+- unfolded view must not become a diagnostic dashboard
+
+## Authority boundaries
+
+Walk-Around may:
+- gather evidence
+- propose observations
+- identify missing evidence
+- recommend manual review
+- populate estimate context
+
+Walk-Around may not:
+- authorize customer work
+- create a RIVETEX job by itself
+- activate calibration
+- silently override owner pricing
+- turn uncertain evidence into a confident fact
+- bypass MCX/other policy adapters
+
+## Build order
+
+1. Inspect current SchismMatrix capture/evidence functions and identify reusable native pieces.
+2. Create a small media-capture module adapted from TerraFlow rather than copying the monolithic SiteVision UI.
+3. Map captured evidence into the existing SchismMatrix analysis contract.
+4. Add guided operator prompts and missing-evidence loop.
+5. Add manual/local fallback.
+6. Add advanced evidence detail behind progressive disclosure.
+7. Run static/targeted tests without triggering expensive CI.
+8. Fold/mobile visual QA.
+9. One final full QA gate on the candidate SHA before READY.
+
+## Acceptance gate
+
+This ABL is not READY unless a first-day field employee can complete a representative property walk with almost no instruction and without encountering diagnostic terminology.
+
+No deployment is authorized by this ABL.
