@@ -94,7 +94,7 @@
     overlay.innerHTML = [
       '<section class="matrix-settings-panel" role="dialog" aria-modal="true" aria-labelledby="matrixSettingsTitle">',
       '<header class="matrix-settings-head">',
-      '<div><strong id="matrixSettingsTitle">Settings & About</strong><span>No Problem Pressure Washing Matrix™</span></div>',
+      '<div><strong id="matrixSettingsTitle">Settings & About</strong><span>SchismMatrix™ · Property Intelligence</span></div>',
       '<button class="matrix-settings-close" id="matrixSettingsClose" type="button" aria-label="Close settings">×</button>',
       '</header>',
       '<div class="matrix-settings-body">',
@@ -110,7 +110,7 @@
       '<p class="matrix-settings-kicker">App</p>',
       '<h2 class="matrix-settings-title">Matrix on this phone</h2>',
       '<p class="matrix-settings-copy">The square NP mark is used for the Android home-screen app icon.</p>',
-      '<div class="matrix-settings-row"><div class="matrix-settings-meta"><strong>Version ' + VERSION + '</strong>No Problem Pressure Washing Matrix</div><button class="matrix-settings-button" id="matrixInstallButton" type="button" hidden>Install app</button></div>',
+      '<div class="matrix-settings-row"><div class="matrix-settings-meta"><strong>Version ' + VERSION + '</strong>SchismMatrix™ · Property Intelligence</div><button class="matrix-settings-button" id="matrixInstallButton" type="button" hidden>Install app</button></div>',
       '</section>',
       '<section class="matrix-settings-section">',
       '<p class="matrix-settings-kicker">Privacy & data</p>',
@@ -124,7 +124,7 @@
       '<h2 class="matrix-settings-title">Matrix Sight™</h2>',
       '<p class="matrix-settings-copy">A photo-to-plan workflow built for No Problem Pressure Washing. It turns field evidence into a customer-ready scope, pricing plan, safety checks, and crew brief.</p>',
       '</section>',
-      '<div class="matrix-settings-footer">No Problem Pressure Washing Matrix™ · Cactus🌵Byte Studios™ · All Rights Reserved</div>',
+      '<div class="matrix-settings-footer">SchismMatrix™ · Cactus🌵Byte Studios™ · All Rights Reserved</div>',
       '</div></section>'
     ].join('');
     document.body.appendChild(overlay);
