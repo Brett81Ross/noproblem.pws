@@ -168,6 +168,7 @@ async function handler(req, res) {
         9. AIRCRAFT EXTERIORS: For aircraft washing, use serviceId "aircraft_exterior_wash" and quantityUnit "aircraft" only when explicitly requested. Limit the estimate to exterior washing. Require operator authorization, airport or facility compliance, approved aviation-safe products, protection of openings/sensors/static ports, and on-site verification. Exclude engines, interiors, maintenance, and deicing systems.
         10. PHOTO GUIDE DATA: Use the service tags, optional measurements, counts, and skipped-view notes supplied in the site notes. Recommended views are guidance, not a requirement. Do not reduce confidence merely because an irrelevant view was skipped.
         11. AERIAL MEASUREMENT EVIDENCE: When user-traced aerial measurements are supplied, prefer those quantities over visual size guesses for the corresponding named surface. Treat the geometry as measured quantity evidence only. Photos/site evidence still control surface condition, contamination, hazards, access, drainage, and method. If those facts are not established, record the uncertainty instead of inventing precision.
+        12. EVIDENCE REVIEW: Before treating the estimate as field-ready, assess whether the supplied photos/notes establish the relevant material, condition, contamination, access, surroundings/property-protection concerns, runoff/drainage, and hazards. Put that assessment in evidenceReview. Only request evidence that is materially relevant to the observed/requested work. Each missingEvidence prompt must be a short field instruction a first-day employee can follow, such as "Show me the side gate" or "Move closer to that stained area." Never expose model jargon, confidence percentages, schema names, or provider terminology in these prompts. Set readyForEstimate false when a missing or uncertain fact could materially change service qualification, safety, scope, or price. Do not invent facts merely to make readyForEstimate true.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
@@ -195,6 +196,20 @@ async function handler(req, res) {
                     "action": "Tape outlets before cleaning."
                 }
             ],
+            "evidenceReview": {
+                "readyForEstimate": false,
+                "missingEvidence": [
+                    {
+                        "category": "runoff",
+                        "prompt": "Show me where wash water would naturally run.",
+                        "reason": "The current photos do not establish the runoff path.",
+                        "priority": "high"
+                    }
+                ],
+                "uncertainEvidence": [],
+                "confirmedCategories": ["material", "condition"],
+                "summary": "The driveway is visible, but runoff still needs a field view."
+            },
             "fieldPlan": {
                 "difficulty": "moderate",
                 "totalEstimatedHours": "2.5 Hours",
