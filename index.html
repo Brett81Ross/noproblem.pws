@@ -55,17 +55,37 @@
             width: 100%;
         }
         
-        .brand-logo-img {
+        .schism-brand {
             width: 100%;
-            max-width: 440px; 
-            height: auto;
-            display: block;
-            mix-blend-mode: screen; 
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: logoCyberGlowPulse 4s ease-in-out infinite;
+            padding: 18px 12px 12px;
+            box-sizing: border-box;
+            text-align: center;
         }
-        .brand-logo-img:hover {
-            transform: scale(1.03);
+        .schism-wordmark {
+            margin: 0;
+            color: #f8fdff;
+            font-size: clamp(32px, 10vw, 52px);
+            font-weight: 950;
+            letter-spacing: -0.055em;
+            line-height: .95;
+            text-transform: uppercase;
+            text-shadow: 0 0 24px rgba(0,240,255,.28);
+        }
+        .schism-wordmark sup {
+            margin-left: 3px;
+            color: #7eefff;
+            font-size: .28em;
+            font-weight: 800;
+            letter-spacing: 0;
+            vertical-align: top;
+        }
+        .schism-descriptor {
+            margin-top: 9px;
+            color: #58efff;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .24em;
+            text-transform: uppercase;
         }
 
         @keyframes logoCyberGlowPulse {
@@ -562,8 +582,8 @@
                 margin-top: 2px;
             }
 
-            .brand-logo-img {
-                max-width: min(100%, 390px);
+            .schism-wordmark {
+                font-size: clamp(30px, 11vw, 46px);
             }
 
             .tagline {
@@ -816,7 +836,10 @@
             </div>
 
             <div class="logo-container">
-                <img src="noproblem.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
+                <div class="schism-brand" role="img" aria-label="SchismMatrix, Property Intelligence">
+                    <h1 class="schism-wordmark">SchismMatrix<sup>™</sup></h1>
+                    <div class="schism-descriptor">Property Intelligence</div>
+                </div>
             </div>
 
             <div class="tagline" id="taglineText">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
