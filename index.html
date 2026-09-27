@@ -831,6 +831,8 @@
     
         
         
+        
+        .review-lock-note{display:none;margin-top:10px;font-size:12px;line-height:1.4;color:#fde68a;text-align:center}.result-card.review-locked .review-lock-note{display:block}.result-card.review-locked #copyButton,.result-card.review-locked #btnExportPDF,.result-card.review-locked #btnEmailClient{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}.result-card.review-locked .proposal-item{cursor:default;opacity:.82}.result-card.review-locked .interactive-tooltip{display:none}
         .review-required-card{margin:0 0 16px;padding:14px 16px;border:1px solid rgba(245,158,11,.55);border-radius:14px;background:rgba(120,53,15,.18);color:#fef3c7}.review-required-title{font-weight:900;font-size:16px;margin-bottom:5px}.review-required-text{font-size:13px;line-height:1.45;color:#fde68a}
         .evidence-followup{display:none;margin:14px 0;padding:16px;border:1px solid rgba(0,240,255,.32);border-radius:16px;background:rgba(8,47,73,.32)}.evidence-followup.open{display:block}.evidence-followup-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;color:#67e8f9}.evidence-followup h3{margin:5px 0 8px;font-size:19px}.evidence-followup p{margin:0 0 12px;color:#cbd5e1;line-height:1.45}.evidence-followup-actions{display:grid;gap:8px}.evidence-followup-actions .btn{margin:0;min-height:48px}
         /* SchismMatrix guided property walk */
@@ -905,6 +907,8 @@
                     <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;" id="totalLabelText">Total Contract Price</div>
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
+
+                <div class="review-lock-note" id="reviewLockNote">Estimate controls stay locked until required evidence is reviewed.</div>
 
                 <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
                     <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
@@ -1265,7 +1269,7 @@
         }
 
         function togglePriceCard(index) {
-            if (isTechMode) return; 
+            if (isTechMode || techMatrixData?.requiresHumanReview) return; 
             
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -1353,6 +1357,7 @@
             document.getElementById('analysisResult').innerHTML = htmlOutput;
             currentTotalValue = 0;
             recalculateGrandTotal();
+            syncReviewLockState();
         }
 
         function renderTechModeView(scanData) {
@@ -1407,6 +1412,7 @@
             }
 
             document.getElementById('analysisResult').innerHTML = htmlOutput;
+            syncReviewLockState();
         }
 
         function generateActiveProposalText() {
@@ -1467,6 +1473,18 @@
                 proposalText += currentLang === 'es' ? `TÉRMINOS Y CONDICIONES:\n- Estimación válida por 30 días.\n- El cliente garantiza acceso a fuente de agua y electricidad.` : `TERMS & CONDITIONS:\n- Estimate valid for 30 days.\n- Client guarantees access to water and power.`;
             }
             return proposalText;
+        }
+
+        function syncReviewLockState() {
+            const locked = Boolean(techMatrixData?.requiresHumanReview);
+            document.getElementById('outputCard')?.classList.toggle('review-locked', locked);
+            ['copyButton', 'btnExportPDF', 'btnEmailClient'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.disabled = locked;
+                el.setAttribute('aria-disabled', locked ? 'true' : 'false');
+                el.title = locked ? 'Locked until human review is complete.' : '';
+            });
         }
 
         function blockUnreviewedExternalAction(actionName) {
