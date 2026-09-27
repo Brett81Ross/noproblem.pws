@@ -57,9 +57,16 @@
         
         .schism-brand {
             width: 100%;
-            padding: 18px 12px 12px;
+            padding: 12px 12px 12px;
             box-sizing: border-box;
             text-align: center;
+        }
+        .schism-symbol {
+            display: block;
+            width: clamp(82px, 25vw, 118px);
+            height: auto;
+            margin: 0 auto 12px;
+            filter: drop-shadow(0 0 18px rgba(0,209,255,.22));
         }
         .schism-wordmark {
             margin: 0;
@@ -837,6 +844,7 @@
 
             <div class="logo-container">
                 <div class="schism-brand" role="img" aria-label="SchismMatrix, Property Intelligence">
+                    <img class="schism-symbol" src="/assets/schismmatrix-symbol.svg" alt="" aria-hidden="true">
                     <h1 class="schism-wordmark">SchismMatrix<sup>™</sup></h1>
                     <div class="schism-descriptor">Property Intelligence</div>
                 </div>
