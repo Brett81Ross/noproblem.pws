@@ -1,5 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
+const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
+const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
 const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 24;
@@ -58,9 +60,12 @@ function sanitizeRate(value, fallback, minimum, maximum) {
 }
 
 function buildRateCard(ownerSettings) {
+    const compiledCalibration = loadTrustedActivePricingCalibration();
     return buildEffectiveRateCard({
         cloneDefaultRateCard,
         sanitizeRate,
+        compiledCalibration,
+        applyCompiledCalibration,
         ownerSettings
     });
 }
