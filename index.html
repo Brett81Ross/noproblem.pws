@@ -1411,8 +1411,11 @@
 
         function generateActiveProposalText() {
             let proposalText = "";
+            const reviewWarning = techMatrixData?.requiresHumanReview
+                ? `REVIEW REQUIRED: ${techMatrixData.humanReviewReason || 'Important property evidence is still missing.'}\nThis estimate/work plan is not field-ready until reviewed.\n\n`
+                : "";
             if (isTechMode) {
-                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n`;
+                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n` + reviewWarning;
                 proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
                 if (currentJobLocation) {
                     proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
