@@ -1,6 +1,6 @@
 # ABL-SCHISM-05 — Walk-Around Evidence Capture
 
-Status: BUILD OPEN
+Status: BUILD CANDIDATE — TARGETED VALIDATION NEXT
 Production authorization: NO
 Source pattern: TerraFlow Matrix™ SiteVision Matrix™ v1.14
 Parent UX doctrine: ABL-SCHISM-04
@@ -169,4 +169,10 @@ No deployment is authorized by this ABL.
 
 ## Development checkpoint — provenance groundwork
 
-Walk-Around capture now tags each retained frame with development-only provenance metadata before it is staged: capture kind, manual-vs-sampled source, capture timestamp, SchismMatrix walk provenance, and operator-confirmation state. This is groundwork for the evidence contract; request/storage propagation remains intentionally unfinished until the existing staging contract is adapted without destabilizing the estimate flow.
+Walk-Around capture now tags each retained frame with development-only provenance metadata before it is staged: capture kind, manual-vs-sampled source, capture timestamp, SchismMatrix walk provenance, and operator-confirmation state. This is groundwork for the evidence contract; the staging/request contract now carries sanitized provenance alongside the corresponding bounded image set. The analysis layer uses provenance only as evidence context: deliberate captures/selections may establish operator intent, while automatic sampled frames remain observational context and never become operator confirmation merely by existing.
+
+## Large-batch checkpoint
+
+The evidence loop now preserves image-to-metadata alignment when staging and removing photos, sends only metadata for the same bounded image set submitted for analysis, sanitizes provenance server-side, distinguishes manual/operator-selected evidence from automatic sampled frames, and marks photos added through a specific SchismMatrix follow-up request as requested follow-up captures. This does not make an image true, complete, measured, or customer-authorized; it only records how the evidence entered the review.
+
+Remaining gate work is validation rather than feature expansion: targeted static/runtime checks, follow-up state regression checks, narrow-screen/Fold inspection, and one final full QA gate only after the candidate is stable.
