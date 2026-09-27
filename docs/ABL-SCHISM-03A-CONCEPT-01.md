@@ -1,43 +1,66 @@
-# ABL-SCHISM-03A — Concept 01 review candidate
+# ABL-SCHISM-03A — Concept 01 approved direction
 
-Status: CONCEPT REVIEW
-Official logo: NO
+Status: OWNER-APPROVED VISUAL DIRECTION
+Official production asset: NOT YET
 Production integration: NO
+Deployment authorization: NO
 
-## Concept
+## Owner decision
 
-Concept 01 explores a vertically divided geometric **S** symbol with two opposed halves. The center discontinuity is the defining feature: one coherent system separated into two readable data planes.
+Brett approved Concept 01 as the visual direction after reviewing the refined identity board.
 
-The accompanying wordmark uses **SchismMatrix™** with **Property Intelligence** as the subordinate descriptor.
+This approval locks the **direction**, not generated raster artwork or generated typography as production source assets.
 
-## Why it fits
+## Locked direction
 
-- The split directly expresses *schism* without literal broken-house imagery.
-- Two halves can represent evidence vs interpretation, predicted vs actual, or observation vs decision without assigning those meanings permanently.
-- The symbol remains recognizable independently of pressure-washing imagery, supporting SchismMatrix as a standalone property-intelligence product.
-- A compact S-derived mark has a plausible path to app-icon and favicon use.
+- Brand: **SchismMatrix™**
+- Descriptor: **Property Intelligence**
+- Core mark: geometric split **S**
+- Defining device: a controlled central discontinuity dividing one coherent form into two readable planes
+- Primary visual character: precise, technical, high-contrast, dark property-intelligence software
+- Marketing treatment may use cyan + cool metallic/silver dimensional rendering
+- Product/UI treatment must have a clean flat form
+- Monochrome form must remain recognizable
+- Mark must remain legible at app-icon and small-icon sizes
 
-## Current concept-board direction
+## Meaning
 
-The first exploratory board uses a near-black/deep-blue foundation, cool white/silver structure, and cyan signal accent. Those colors are exploratory, not production tokens.
+The split directly expresses *schism* without literal broken-house imagery. The opposed planes can suggest evidence and interpretation, predicted and actual, or observation and decision without permanently assigning one semantic pair.
 
-## Required corrections before lock
+The symbol remains independent of pressure-washing imagery so SchismMatrix can operate as a standalone property-intelligence product.
 
-The concept board is inspiration, not a production asset. Before approval/implementation:
+## Production asset requirements
 
-1. simplify the symbol for 32–48 px legibility;
-2. remove unnecessary 3D/chrome dependency so the mark works flat;
-3. verify monochrome silhouette;
-4. create true dark and light variants;
-5. establish clear space and minimum size;
-6. avoid relying on generated typography as final lettering;
-7. perform a reasonable visual-similarity review before adoption;
-8. prepare deterministic vector/source assets separately after approval.
+The concept board is the visual reference, not the source-of-truth asset. Production implementation requires deterministic assets that:
 
-## Guardrail
+1. preserve the approved split-S silhouette;
+2. remain readable at 32–48 px;
+3. work without gradients, glow, chrome, or 3D rendering;
+4. include dark, light, and monochrome variants;
+5. include symbol-only and horizontal/stacked lockups;
+6. use deterministic typography rather than generated lettering;
+7. define clear space and minimum size;
+8. remain usable on narrow mobile and Fold layouts;
+9. undergo reasonable visual-similarity review before final adoption.
 
-No image generated during exploration becomes the official SchismMatrix logo automatically. Brett must explicitly approve the symbol/direction before implementation assets are created or the temporary CSS wordmark is replaced.
+## Asset hierarchy
 
-## Decision state
+**Master identity:** flat deterministic mark and wordmark.
 
-Concept 01 is **PRESENTED FOR OWNER REVIEW**. It is not locked, merged, deployed, purchased, registered, or published.
+**Product/UI:** flat mark, restrained cyan accent, high-contrast wordmark.
+
+**Marketing/presentation:** dimensional metallic/cyan treatment may be derived from the master identity.
+
+The dimensional treatment never replaces the flat master.
+
+## Compatibility guardrail
+
+Visual rebranding must not rename or break compatibility identifiers during this ABL. Existing API paths, `matrix-*` modules, environment variables, package identifiers, and legacy browser-storage keys remain unchanged until separately migrated and tested.
+
+## Deployment guardrail
+
+Owner approval of the visual direction is **not** authorization to merge or deploy. Production remains untouched until an implementation candidate is built, reviewed, and explicitly authorized.
+
+## Next gate
+
+Create deterministic development assets and integrate them only on the SchismMatrix development branch. Validate small-size, dark/light, monochrome, mobile/Fold presentation, and preservation of application behavior before requesting deployment approval.
