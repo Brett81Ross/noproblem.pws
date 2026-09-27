@@ -873,7 +873,7 @@
                 <div class="preview-grid" id="imagePreviewGrid">
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
                 </div>
-                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Diagnostic Scan</button>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Review Estimate</button>
             </div>
 
             <div class="result-card" id="outputCard" style="display: none;">
@@ -964,7 +964,7 @@
                 uploadPhotos: "Upload Saved Photos",
                 gpsTag: "🛰️ Satellite Site & Notes",
                 gpsUpdate: "🛰️ Update Satellite & Notes",
-                scanBtn: "Run Diagnostic Scan",
+                scanBtn: "Review Estimate",
                 reportTitle: "Itemized Diagnostic Report",
                 techReportTitle: "Field Execution Matrix",
                 copyText: "Copy Text",
@@ -1483,7 +1483,7 @@
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const payloadImages = stagedBase64Images.slice(0, 4).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
+                const payloadImages = stagedBase64Images.slice(0, 8).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
