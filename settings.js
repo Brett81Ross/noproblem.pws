@@ -61,6 +61,7 @@
       '.matrix-settings-close{display:grid;width:34px;height:34px;place-items:center;border:1px solid rgba(255,255,255,.13);border-radius:10px;color:#b8d8df;background:transparent;cursor:pointer;font-size:20px}',
       '.matrix-settings-body{padding:18px}',
       '.matrix-settings-brand{margin:0 auto 18px;padding:14px 12px;text-align:center}',
+      '.matrix-settings-symbol{display:block;width:72px;height:auto;margin:0 auto 10px;filter:drop-shadow(0 0 14px rgba(0,209,255,.2))}',
       '.matrix-settings-brand strong{display:block;color:#f4fdff;font-size:28px;font-weight:950;letter-spacing:-.045em;line-height:1;text-transform:uppercase;text-shadow:0 0 20px rgba(88,239,255,.2)}',
       '.matrix-settings-brand span{display:block;margin-top:7px;color:#58efff;font-size:9px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}',
       '.matrix-settings-section{margin-bottom:14px;padding:16px;border:1px solid rgba(126,239,255,.12);border-radius:16px;background:rgba(1,12,18,.44)}',
@@ -100,7 +101,7 @@
       '<button class="matrix-settings-close" id="matrixSettingsClose" type="button" aria-label="Close settings">×</button>',
       '</header>',
       '<div class="matrix-settings-body">',
-      '<div class="matrix-settings-brand" role="img" aria-label="SchismMatrix, Property Intelligence"><strong>SchismMatrix™</strong><span>Property Intelligence</span></div>',
+      '<div class="matrix-settings-brand" role="img" aria-label="SchismMatrix, Property Intelligence"><img class="matrix-settings-symbol" src="/assets/schismmatrix-symbol.svg" alt="" aria-hidden="true"><strong>SchismMatrix™</strong><span>Property Intelligence</span></div>',
       '<section class="matrix-settings-section">',
       '<p class="matrix-settings-kicker">Estimator preference</p>',
       '<h2 class="matrix-settings-title">Pricing floor</h2>',
@@ -111,7 +112,7 @@
       '<section class="matrix-settings-section">',
       '<p class="matrix-settings-kicker">App</p>',
       '<h2 class="matrix-settings-title">Matrix on this phone</h2>',
-      '<p class="matrix-settings-copy">The square NP mark is used for the Android home-screen app icon.</p>',
+      '<p class="matrix-settings-copy">The SchismMatrix split-S mark is the approved app-icon direction; installed icon assets remain unchanged until the dedicated icon migration is validated.</p>',
       '<div class="matrix-settings-row"><div class="matrix-settings-meta"><strong>Version ' + VERSION + '</strong>SchismMatrix™ · Property Intelligence</div><button class="matrix-settings-button" id="matrixInstallButton" type="button" hidden>Install app</button></div>',
       '</section>',
       '<section class="matrix-settings-section">',
@@ -234,7 +235,7 @@
       deferredInstallPrompt = null;
       var button = document.getElementById('matrixInstallButton');
       if (button) button.hidden = true;
-      showToast('No Problem Matrix installed.');
+      showToast('SchismMatrix installed.');
     });
   }
 
