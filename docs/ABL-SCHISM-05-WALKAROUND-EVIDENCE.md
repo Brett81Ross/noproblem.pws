@@ -166,3 +166,7 @@ Walk-Around may not:
 This ABL is not READY unless a first-day field employee can complete a representative property walk with almost no instruction and without encountering diagnostic terminology.
 
 No deployment is authorized by this ABL.
+
+## Development checkpoint — provenance groundwork
+
+Walk-Around capture now tags each retained frame with development-only provenance metadata before it is staged: capture kind, manual-vs-sampled source, capture timestamp, SchismMatrix walk provenance, and operator-confirmation state. This is groundwork for the evidence contract; request/storage propagation remains intentionally unfinished until the existing staging contract is adapted without destabilizing the estimate flow.
