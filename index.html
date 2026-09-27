@@ -962,6 +962,7 @@
 
     <script>
         let stagedBase64Images = [];
+        let stagedEvidenceMeta = [];
         let priceItemsRegistry = [];
         let techMatrixData = null;
         let currentTotalValue = 0;
@@ -1207,8 +1208,17 @@
                 if (laser) laser.style.display = 'block'; 
                 
                 for (let i = 0; i < files.length; i++) {
-                    const base64Str = await resizeAndCompressImage(files[i]);
-                    stagedBase64Images.push(base64Str); 
+                    const file = files[i];
+                    const base64Str = await resizeAndCompressImage(file);
+                    stagedBase64Images.push(base64Str);
+                    const evidence = file.schismEvidence || {};
+                    stagedEvidenceMeta.push({
+                        kind: evidence.kind || 'photo',
+                        source: evidence.source || 'operator_upload',
+                        capturedAt: evidence.capturedAt || new Date(file.lastModified || Date.now()).toISOString(),
+                        provenance: evidence.provenance || 'operator_selected_media',
+                        operatorConfirmationState: evidence.operatorConfirmationState || 'operator_selected'
+                    });
                 }
                 
                 renderPreviewGrid();
@@ -1229,6 +1239,7 @@
 
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
+            stagedEvidenceMeta.splice(index, 1);
             renderPreviewGrid();
         }
 
@@ -1586,7 +1597,8 @@
                         'Accept': 'application/json' 
                     },
                     body: JSON.stringify({ 
-                        images: payloadImages, 
+                        images: payloadImages,
+                        evidenceMeta: stagedEvidenceMeta.slice(0, 8),
                         settings: {},
                         location: currentJobLocation,
                         satelliteMeasurements: window.MatrixSatelliteMeasurement?.getMeasurements?.() || [],
