@@ -106,7 +106,7 @@ async function handler(req, res) {
                 source: ['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload'].includes(item?.source) ? item.source : 'operator_upload',
                 capturedAt: typeof item?.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
                 provenance: item?.provenance === 'schismmatrix_walkaround' ? 'schismmatrix_walkaround' : 'operator_selected_media',
-                operatorConfirmationState: ['operator_captured', 'not_confirmed', 'operator_selected'].includes(item?.operatorConfirmationState)
+                operatorConfirmationState: ['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture'].includes(item?.operatorConfirmationState)
                     ? item.operatorConfirmationState
                     : 'operator_selected'
             }))
