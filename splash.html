@@ -7,10 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>No Problem Pressure Washing Matrix™</title>
+  <title>SchismMatrix™ — Property Intelligence</title>
   <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" type="image/webp" href="/app-icon-192.webp">
-  <link rel="apple-touch-icon" href="/app-icon-192.webp">
+  <link rel="icon" type="image/svg+xml" href="/assets/schismmatrix-symbol.svg">
+  <link rel="apple-touch-icon" href="/assets/schismmatrix-symbol.svg">
   <style>
     :root {
       color-scheme: dark;
@@ -95,30 +95,7 @@
       aspect-ratio: 1;
       display: grid;
       place-items: center;
-      border-radius: 36px;
-      background: radial-gradient(circle, rgba(0,240,255,.12), rgba(2,6,23,.86) 64%, rgba(0,0,0,.96));
-      border: 1px solid rgba(0,240,255,.34);
-      box-shadow: 0 20px 58px rgba(0,0,0,.62), 0 0 42px rgba(0,240,255,.11);
       animation: appIn .95s .16s cubic-bezier(.2,.75,.25,1) both, breathe 3.2s 1.15s ease-in-out infinite;
-    }
-
-    .app-lockup::before,
-    .app-lockup::after {
-      content: "";
-      position: absolute;
-      border-radius: inherit;
-      pointer-events: none;
-    }
-
-    .app-lockup::before {
-      inset: -10px;
-      border: 1px solid rgba(34,197,94,.18);
-      box-shadow: 0 0 36px rgba(34,197,94,.08);
-    }
-
-    .app-lockup::after {
-      inset: 9px;
-      border: 1px solid rgba(255,255,255,.05);
     }
 
     .app-logo {
@@ -218,7 +195,7 @@
   </style>
 </head>
 <body>
-  <main id="splash" class="splash" role="button" tabindex="0" aria-label="Open No Problem Pressure Washing Matrix">
+  <main id="splash" class="splash" role="button" tabindex="0" aria-label="Open SchismMatrix">
     <div class="studio-wrap">
       <img
         class="studio-logo"
@@ -227,10 +204,10 @@
     </div>
 
     <div class="app-lockup">
-      <img class="app-logo" src="/brand-logo-transparent.webp" alt="No Problem Pressure Washing Matrix logo">
+      <img class="app-logo" src="/assets/schismmatrix-symbol.svg" alt="SchismMatrix logo">
     </div>
 
-    <div class="app-name">No Problem Pressure Washing Matrix™</div>
+    <div class="app-name">SchismMatrix™ <span style="display:block;font-size:.58em;letter-spacing:.2em;color:#58efff;margin-top:6px">Property Intelligence</span></div>
     <div class="studio-credit">Cactus🌵Byte Studios™</div>
     <div class="loader" aria-hidden="true"></div>
     <div class="skip">Tap to enter</div>
