@@ -853,7 +853,7 @@
                 </div>
             </div>
 
-            <div class="tagline" id="taglineText">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
+            <div class="tagline" id="taglineText">Walk the property, capture what matters, and review a clear estimate.</div>
 
             <div class="mode-toggle-container">
                 <div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>
@@ -878,7 +878,7 @@
 
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
-                    <p class="result-title" id="reportTitleText">Itemized Diagnostic Report</p>
+                    <p class="result-title" id="reportTitleText">Estimate Review</p>
                     <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
 
@@ -937,9 +937,9 @@
                 <div id="npMeasurementList"></div>
             </div>
             
-            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
+            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add anything SchismMatrix should know about this property:</div>
             <textarea class="satellite-notes-input" id="satelliteNotesInput" placeholder="e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back..."></textarea>
-            <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save & Contribute to Scan</button>
+            <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save Property Notes</button>
         </div>
     </div>
 
@@ -957,7 +957,7 @@
         const translations = {
             en: {
                 langBtn: "Español",
-                tagline: "Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.",
+                tagline: "Walk the property, capture what matters, and review a clear estimate.",
                 adminMode: "Admin Mode",
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
@@ -965,8 +965,8 @@
                 gpsTag: "🛰️ Satellite Site & Notes",
                 gpsUpdate: "🛰️ Update Satellite & Notes",
                 scanBtn: "Review Estimate",
-                reportTitle: "Itemized Diagnostic Report",
-                techReportTitle: "Field Execution Matrix",
+                reportTitle: "Estimate Review",
+                techReportTitle: "Field Work Plan",
                 copyText: "Copy Text",
                 copyTechPlan: "Copy Tech Plan",
                 copied: "Copied!",
@@ -975,10 +975,10 @@
                 totalPrice: "Total Contract Price",
                 exportPdf: "Export PDF",
                 emailClient: "Email Client",
-                diagTitle: "Property Diagnosis & Pricing",
+                diagTitle: "Recommended Work & Pricing",
                 hazardsTitle: "Site Hazards & Safety",
                 crewPlanTitle: "🚀 Job Summary & Crew Plan",
-                crewMatrixTitle: "Crew Execution Matrix",
+                crewMatrixTitle: "Work Plan",
                 safetyTitle: "Critical Safety Protocols",
                 totalWindow: "⏱️ Total Window:",
                 recCrew: "👥 Recommended Crew:",
@@ -989,9 +989,9 @@
                 chem: "🧪 Chemical & Batch Math:",
                 steps: "📋 Field Steps:",
                 modalTitle: "🛰️ Satellite Site Inspector",
-                modalInstruction: "Add property notes or custom instructions for the AI scan:",
+                modalInstruction: "Add anything SchismMatrix should know about this property:",
                 modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
-                modalSave: "Save & Contribute to Scan"
+                modalSave: "Save Property Notes"
             },
             es: {
                 langBtn: "English",
@@ -1463,12 +1463,12 @@
                 "Procesando datos del sitio...",
                 "Iniciando análisis de superficie..."
             ] : [
-                "Analyzing Matrix with Satellite & Notes...",
-                "Executing Site Diagnosis...",
-                "Generating Field Estimate...",
-                "Scanning Property Surfaces...",
-                "Processing Site Data...",
-                "Initiating Surface Analysis..."
+                "Reviewing property photos and notes...",
+                "Checking the property...",
+                "Building the estimate...",
+                "Reviewing visible surfaces...",
+                "Checking property details...",
+                "Putting the property review together..."
             ];
 
             let phraseIndex = 0;
