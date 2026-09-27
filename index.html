@@ -1385,7 +1385,7 @@
         function generateActiveProposalText() {
             let proposalText = "";
             if (isTechMode) {
-                proposalText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n`;
+                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n`;
                 proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
                 if (currentJobLocation) {
                     proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
@@ -1410,8 +1410,8 @@
                 }
             } else {
                 proposalText = currentLang === 'es' 
-                    ? `NO PROBLEM PRESSURE WASHING - PROPUESTA DE DIAGNÓSTICO DETALLADA\n\n`
-                    : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
+                    ? `SCHISMMATRIX - REVISIÓN DE ESTIMACIÓN\n\n`
+                    : `SCHISMMATRIX - ESTIMATE REVIEW\n\n`;
                 
                 if (currentJobLocation) {
                     proposalText += currentLang === 'es' 
