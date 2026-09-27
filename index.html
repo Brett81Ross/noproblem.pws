@@ -907,7 +907,7 @@
                 </div>
 
                 <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
-                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="window.print()">Export PDF</button>
+                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
                     <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
                 </div>
             </div>
@@ -1469,6 +1469,18 @@
             return proposalText;
         }
 
+        function blockUnreviewedExternalAction(actionName) {
+            if (!techMatrixData?.requiresHumanReview) return false;
+            const reason = techMatrixData.humanReviewReason || 'Important property evidence is still missing.';
+            alert(actionName + ' is locked until human review is complete.\n\n' + reason);
+            return true;
+        }
+
+        function exportProposal() {
+            if (blockUnreviewedExternalAction('Export')) return;
+            window.print();
+        }
+
         function copyToClipboard() {
             navigator.clipboard.writeText(generateActiveProposalText());
             const btn = document.getElementById('copyButton');
@@ -1478,6 +1490,7 @@
         }
 
         function sendProposalEmail() {
+            if (blockUnreviewedExternalAction('Email')) return;
             window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
         }
 
