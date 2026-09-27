@@ -1206,6 +1206,12 @@
                 }
                 
                 renderPreviewGrid();
+                if (document.getElementById('evidenceFollowup')?.classList.contains('open')) {
+                    hideEvidenceFollowup();
+                    const trigger = document.getElementById('processTrigger');
+                    trigger.innerText = currentLang === 'es' ? 'Volver a revisar' : 'Check Again';
+                    trigger.setAttribute('style', 'display: block !important;');
+                }
                 
                 if (laser) laser.style.display = 'none';
             } catch (error) {
