@@ -10,6 +10,7 @@
   let sampler = null;
   let seconds = 0;
   let frames = [];
+  let frameSequence = 0;
 
   function el(id) { return document.getElementById(id); }
 
@@ -80,6 +81,7 @@
       video.srcObject = stream;
       await video.play();
       frames = [];
+      frameSequence = 0;
       seconds = 0;
       el('schismWalkStart').disabled = true;
       el('schismWalkSnap').disabled = false;
@@ -120,7 +122,16 @@
     canvas.getContext('2d', { alpha: false }).drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(blob => {
       if (!blob || frames.length >= MAX_FRAMES) return;
-      frames.push(new File([blob], `property-walk-${Date.now()}.jpg`, { type: 'image/jpeg' }));
+      const capturedAt = new Date().toISOString();
+      const file = new File([blob], `property-walk-${Date.now()}-${++frameSequence}.jpg`, { type: 'image/jpeg' });
+      file.schismEvidence = Object.freeze({
+        kind: 'photo',
+        source: manual ? 'walkaround_manual_capture' : 'walkaround_sampled_frame',
+        capturedAt,
+        provenance: 'schismmatrix_walkaround',
+        operatorConfirmationState: manual ? 'operator_captured' : 'not_confirmed'
+      });
+      frames.push(file);
       updateCount();
       if (manual) el('schismWalkStatus').textContent = 'Photo saved. Keep walking when you’re ready.';
     }, 'image/jpeg', 0.76);
