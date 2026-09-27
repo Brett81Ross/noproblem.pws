@@ -1222,6 +1222,15 @@
                 }
                 
                 renderPreviewGrid();
+                const followupPanel = document.getElementById('evidenceFollowup');
+                if (followupPanel?.dataset.awaitingRequestedEvidence === 'true') {
+                    const addedCount = files.length;
+                    const start = Math.max(0, stagedEvidenceMeta.length - addedCount);
+                    for (let i = start; i < stagedEvidenceMeta.length; i++) {
+                        stagedEvidenceMeta[i].operatorConfirmationState = 'requested_followup_capture';
+                    }
+                    delete followupPanel.dataset.awaitingRequestedEvidence;
+                }
                 if (document.getElementById('evidenceFollowup')?.classList.contains('open')) {
                     hideEvidenceFollowup();
                     const trigger = document.getElementById('processTrigger');
@@ -1531,6 +1540,11 @@
         function showEvidenceFollowup(request, review) {
             const panel = document.getElementById('evidenceFollowup');
             if (!panel) return;
+            panel.dataset.reviewSignature = JSON.stringify({
+                prompt: request?.prompt || '',
+                reason: request?.reason || '',
+                summary: review?.summary || ''
+            });
             document.getElementById('evidenceFollowupPrompt').textContent = request?.prompt || 'Add one more property view.';
             document.getElementById('evidenceFollowupReason').textContent = request?.reason || review?.summary || 'This view could affect the work plan or estimate.';
             panel.classList.add('open');
@@ -1538,6 +1552,8 @@
         }
 
         document.getElementById('evidenceFollowupPhoto')?.addEventListener('click', () => {
+            const panel = document.getElementById('evidenceFollowup');
+            if (panel) panel.dataset.awaitingRequestedEvidence = 'true';
             document.getElementById('cameraInput').click();
         });
 
