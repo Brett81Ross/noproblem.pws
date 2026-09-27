@@ -828,6 +828,9 @@
             }
         }
 
+    
+        /* SchismMatrix guided property walk */
+        .schism-walk-overlay{position:fixed;inset:0;z-index:2200;display:none;align-items:flex-end;justify-content:center;background:rgba(2,6,23,.92);padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));box-sizing:border-box}.schism-walk-overlay.open{display:flex}.schism-walk-card{width:min(100%,480px);max-height:96vh;overflow:auto;background:#07111f;border:1px solid rgba(0,240,255,.35);border-radius:22px;padding:18px;box-sizing:border-box;box-shadow:0 24px 70px rgba(0,0,0,.75)}.schism-walk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.schism-walk-kicker{font-size:10px;font-weight:900;letter-spacing:.16em;color:#58efff}.schism-walk-card h2{margin:5px 0 0;font-size:24px;line-height:1.1}.schism-walk-close{border:0;background:transparent;color:#fff;font-size:34px;line-height:1;min-width:44px;min-height:44px;cursor:pointer}.schism-walk-prompt{font-size:16px;line-height:1.45;color:#e2e8f0;margin:14px 0}.schism-walk-video-wrap{position:relative;overflow:hidden;border-radius:16px;background:#000;aspect-ratio:3/4}.schism-walk-video-wrap video{width:100%;height:100%;object-fit:cover;display:block}.schism-walk-count{position:absolute;left:10px;bottom:10px;padding:7px 10px;border-radius:999px;background:rgba(2,6,23,.8);font-size:12px;font-weight:800}.schism-walk-status{min-height:22px;margin:12px 2px;color:#a5f3fc;font-size:13px;line-height:1.4}.schism-walk-actions{display:grid;gap:8px}.schism-walk-actions .btn{margin:0;min-height:52px}.schism-walk-upload{width:100%;border:0;background:transparent;color:#94a3b8;padding:14px 6px 4px;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}body.schism-walk-open{overflow:hidden}@media(min-width:700px){.schism-walk-overlay{align-items:center}.schism-walk-video-wrap{aspect-ratio:4/3}}
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -861,7 +864,8 @@
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                 <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
 
-                <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
+                <button class="btn" id="btnStartPropertyWalk" onclick="SchismWalkaround.open()">Start Property Walk</button>
+                <button class="btn btn-secondary" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
                 <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
                 <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
@@ -1580,5 +1584,6 @@
         }
     </script>
     <script src="/demo-config.js"></script>
+    <script src="/schism-walkaround.js"></script>
 </body>
 </html>
