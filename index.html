@@ -1482,6 +1482,7 @@
         }
 
         function copyToClipboard() {
+            if (blockUnreviewedExternalAction('Copy')) return;
             navigator.clipboard.writeText(generateActiveProposalText());
             const btn = document.getElementById('copyButton');
             const originalText = btn.innerText;
