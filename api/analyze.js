@@ -92,13 +92,25 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
+        const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
         }
 
         const activeImages = images.slice(0, MAX_IMAGES);
+        const activeEvidenceMeta = Array.isArray(evidenceMeta)
+            ? evidenceMeta.slice(0, activeImages.length).map((item, index) => ({
+                imageIndex: index + 1,
+                kind: item?.kind === 'photo' ? 'photo' : 'photo',
+                source: ['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload'].includes(item?.source) ? item.source : 'operator_upload',
+                capturedAt: typeof item?.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
+                provenance: item?.provenance === 'schismmatrix_walkaround' ? 'schismmatrix_walkaround' : 'operator_selected_media',
+                operatorConfirmationState: ['operator_captured', 'not_confirmed', 'operator_selected'].includes(item?.operatorConfirmationState)
+                    ? item.operatorConfirmationState
+                    : 'operator_selected'
+            }))
+            : [];
         
         const envKeys = Object.keys(process.env);
         const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
@@ -150,6 +162,10 @@ async function handler(req, res) {
             contextBlock += `\n- Building scope selected in the app: ${buildingScope.label}`;
         }
         contextBlock += `\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;
+        if (activeEvidenceMeta.length) {
+            contextBlock += `\n- Evidence provenance by image: ${JSON.stringify(activeEvidenceMeta)}`;
+            contextBlock += `\n- Provenance rule: manual/operator-selected evidence is deliberate field evidence; sampled walk frames are observational context and must not be treated as operator confirmation merely because they exist.`;
+        }
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property or site, plus optional satellite metadata and site notes. You MUST scan and analyze EVERY SINGLE IMAGE and text note provided.
