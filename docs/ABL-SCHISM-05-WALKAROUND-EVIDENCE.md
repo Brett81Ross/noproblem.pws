@@ -196,3 +196,7 @@ Validation found a malformed/legacy-input edge case: if image count exceeded met
 ## Evidence-review fail-closed checkpoint
 
 Validation found an AI-contract edge case: `readyForEstimate: false` could arrive without a usable `missingEvidence` prompt. The UI now checks both missing and uncertain evidence for a field-action prompt; if neither contains one, it does not invent a generic photo request or silently proceed. It marks the result for human review, keeps release controls locked, and uses the review summary (or a conservative fallback reason). This preserves the rule that incomplete evidence cannot become field-ready merely because the model returned an incomplete follow-up structure.
+
+## Server-authoritative readiness checkpoint
+
+Evidence readiness is now fail-closed at the API boundary, not only in browser UI state. The server marks every analysis that is not explicitly `readyForEstimate: true` as requiring human review and supplies a bounded conservative reason. Explicit readiness clears that server review lock. The browser honors the server lock and also clears stale review state only when the new analysis is explicitly ready. This prevents malformed/omitted evidenceReview state or stale client state from silently becoming field-ready.
