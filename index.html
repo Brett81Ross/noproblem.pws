@@ -1534,7 +1534,12 @@
         }
 
         function hideEvidenceFollowup() {
-            document.getElementById('evidenceFollowup')?.classList.remove('open');
+            const panel = document.getElementById('evidenceFollowup');
+            panel?.classList.remove('open');
+            if (panel) {
+                delete panel.dataset.awaitingRequestedEvidence;
+                delete panel.dataset.reviewSignature;
+            }
         }
 
         function showEvidenceFollowup(request, review) {
@@ -1556,6 +1561,15 @@
             if (panel) panel.dataset.awaitingRequestedEvidence = 'true';
             document.getElementById('cameraInput').click();
         });
+        window.addEventListener('focus', () => {
+            const panel = document.getElementById('evidenceFollowup');
+            if (!panel || panel.dataset.awaitingRequestedEvidence !== 'true') return;
+            setTimeout(() => {
+                if (panel.dataset.awaitingRequestedEvidence === 'true') {
+                    delete panel.dataset.awaitingRequestedEvidence;
+                }
+            }, 500);
+        });
 
         document.getElementById('evidenceFollowupReview')?.addEventListener('click', () => {
             const review = techMatrixData?.evidenceReview;
@@ -1574,6 +1588,9 @@
 
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
+            if (!stagedBase64Images.length || processTrigger.dataset.submitting === 'true') return;
+            processTrigger.dataset.submitting = 'true';
+            processTrigger.disabled = true;
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
@@ -1653,6 +1670,8 @@
                     showEvidenceFollowup(firstRequest, evidenceReview);
                     processTrigger.className = 'btn btn-trigger';
                     processTrigger.innerText = translations[currentLang].scanBtn;
+                    processTrigger.disabled = false;
+                    delete processTrigger.dataset.submitting;
                     return;
                 } else {
                     hideEvidenceFollowup();
@@ -1668,6 +1687,8 @@
                 }
                 
                 processTrigger.setAttribute('style', 'display: none !important;');
+                processTrigger.disabled = false;
+                delete processTrigger.dataset.submitting;
 
                 setTimeout(() => {
                     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1685,6 +1706,8 @@
                 alert('Analysis connection fault: ' + feedback);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = translations[currentLang].scanBtn;
+                processTrigger.disabled = false;
+                delete processTrigger.dataset.submitting;
             }
         }
 
