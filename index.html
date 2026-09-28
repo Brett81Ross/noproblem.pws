@@ -1721,7 +1721,7 @@
                 techMatrixData = data.rawMatrixData;
 
                 const evidenceReview = techMatrixData?.evidenceReview;
-                if (evidenceReview && evidenceReview.readyForEstimate === false) {
+                if (techMatrixData?.requiresHumanReview || evidenceReview?.readyForEstimate !== true) {
                     const missing = Array.isArray(evidenceReview.missingEvidence) ? evidenceReview.missingEvidence : [];
                     const uncertain = Array.isArray(evidenceReview.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
                     const firstRequest = [...missing, ...uncertain].find(item => item && item.prompt);
@@ -1745,6 +1745,8 @@
                     delete processTrigger.dataset.submitting;
                     return;
                 } else {
+                    techMatrixData.requiresHumanReview = false;
+                    delete techMatrixData.humanReviewReason;
                     hideEvidenceFollowup();
                 }
                 
