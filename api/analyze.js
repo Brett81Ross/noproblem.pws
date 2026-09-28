@@ -93,6 +93,12 @@ async function handler(req, res) {
 
     try {
         const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
+        const launchExcludedServices = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
+        const safeRequestedServices = Array.isArray(requestedServices)
+            ? requestedServices.filter((serviceId) => typeof serviceId === 'string' && !launchExcludedServices.has(serviceId))
+            : [];
+        const elevatedScopeRequested = buildingScope?.level === 'multiple'
+            || /multi|two[- ]?story|second[- ]?story|roof|ladder|high[- ]?access/i.test(String(buildingScope?.label || ''));
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
@@ -160,12 +166,13 @@ async function handler(req, res) {
         if (job?.name || job?.address) {
             contextBlock += `\n- Job: ${job.name || 'Unnamed job'}${job.address ? ` at ${job.address}` : ''}`;
         }
-        if (Array.isArray(requestedServices) && requestedServices.length) {
-            contextBlock += `\n- Customer-requested services to evaluate against the photos: ${requestedServices.join(', ')}`;
+        if (safeRequestedServices.length) {
+            contextBlock += `\n- Customer-requested launch services to evaluate against the photos: ${safeRequestedServices.join(', ')}`;
         }
         if (buildingScope?.label) {
             contextBlock += `\n- Building scope selected in the app: ${buildingScope.label}`;
         }
+        contextBlock += '\n- LAUNCH SCOPE BOUNDARY: roofs, ladders, gutter work, and high-access/multi-level execution are not authorized launch services. Observing those conditions is allowed, but they require manual review and must not be converted into executable scope.';
         contextBlock += `\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;
         if (activeEvidenceMeta.length) {
             contextBlock += `\n- Evidence provenance by image: ${JSON.stringify(activeEvidenceMeta)}`;
@@ -274,7 +281,17 @@ async function handler(req, res) {
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
         const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
-        const explicitlyReady = evidenceReview?.readyForEstimate === true;
+        if (Array.isArray(scanData.services)) {
+            scanData.services = scanData.services.filter((service) => !launchExcludedServices.has(service?.serviceId));
+        }
+        if (elevatedScopeRequested) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
+            };
+        }
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
             scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
