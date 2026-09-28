@@ -14,6 +14,41 @@
 
   function el(id) { return document.getElementById(id); }
 
+
+  function installStyles() {
+    if (el('schismWalkStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'schismWalkStyles';
+    style.textContent = [
+      '.schism-walk-launch{width:100%;min-height:52px;margin:0 0 14px;padding:13px 16px;border:1px solid rgba(88,239,255,.35);border-radius:14px;color:#061319;background:linear-gradient(135deg,#a7fbff,#58efff 55%,#9b7cff);font:inherit;font-weight:950;letter-spacing:.03em;cursor:pointer}',
+      '.schism-walk-overlay{position:fixed;z-index:1600;inset:0;display:none;align-items:flex-start;justify-content:center;padding:max(14px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));background:rgba(1,7,11,.9);overflow-y:auto}',
+      '.schism-walk-overlay.open{display:flex}.schism-walk-card{width:min(100%,620px);margin:auto;padding:16px;border:1px solid rgba(88,239,255,.3);border-radius:22px;color:#effcff;background:linear-gradient(145deg,#0e2732,#061118 76%);box-shadow:0 28px 90px rgba(0,0,0,.65)}',
+      '.schism-walk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.schism-walk-kicker{color:#58efff;font-size:9px;font-weight:950;letter-spacing:.14em}.schism-walk-top h2{margin:5px 0 0;font-size:22px}.schism-walk-close{width:38px;height:38px;border:1px solid rgba(255,255,255,.14);border-radius:11px;color:#dffaff;background:transparent;font-size:22px}',
+      '.schism-walk-prompt{color:#a9c4cc;line-height:1.5}.schism-walk-video-wrap{position:relative;overflow:hidden;border-radius:16px;background:#02080c;aspect-ratio:4/3}.schism-walk-video-wrap video{width:100%;height:100%;object-fit:cover}.schism-walk-count{position:absolute;right:9px;bottom:9px;padding:6px 9px;border-radius:999px;background:rgba(1,7,11,.78);font-size:10px;font-weight:900}',
+      '.schism-walk-status{min-height:20px;margin:10px 0;color:#8fb0b9;font-size:11px}.schism-walk-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.schism-walk-actions #schismWalkStart{grid-column:1/-1}.schism-walk-upload{width:100%;margin-top:10px;padding:10px;border:0;color:#8fddea;background:transparent;font-weight:850}.schism-walk-open{overflow:hidden}',
+      '@media(max-width:430px){.schism-walk-card{padding:13px;border-radius:18px}.schism-walk-actions{grid-template-columns:1fr}.schism-walk-actions #schismWalkStart{grid-column:auto}}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  function ensureLauncher() {
+    if (el('schismWalkLaunch')) return;
+    const button = document.createElement('button');
+    button.id = 'schismWalkLaunch';
+    button.type = 'button';
+    button.className = 'schism-walk-launch';
+    button.textContent = 'Start Property Walk';
+    button.addEventListener('click', open);
+    const evidence = el('evidenceCard') || el('evidenceGrid') || el('imagePreviewGrid') || el('uploadInput') || el('fileInput');
+    if (evidence) {
+      const host = evidence.closest('.matrix-card,.action-card,section,div') || evidence.parentElement;
+      if (host && host.parentNode) host.parentNode.insertBefore(button, host);
+      else document.body.appendChild(button);
+    } else {
+      document.body.appendChild(button);
+    }
+  }
+
   function ensureUI() {
     if (el('schismWalkOverlay')) return;
     const overlay = document.createElement('div');
@@ -49,7 +84,7 @@
     el('schismWalkFinish').addEventListener('click', finish);
     el('schismWalkUpload').addEventListener('click', () => {
       close();
-      el('fileInput')?.click();
+      (el('uploadInput') || el('fileInput') || el('cameraInput'))?.click();
     });
   }
 
@@ -199,5 +234,7 @@
   });
   window.addEventListener('pagehide', stopMedia);
 
+  installStyles();
+  ensureLauncher();
   window.SchismWalkaround = Object.freeze({ open, close });
 })();
