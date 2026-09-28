@@ -138,14 +138,11 @@
 
   function openPanel() {
     var overlay = document.getElementById('matrixSettingsOverlay');
-    var input = document.getElementById('matrixMinimumJob');
-    var saved = readSettings();
-    input.value = saved.minimumJob.toFixed(2);
+    if (!overlay) return;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.dataset.matrixSettingsOverflow = document.body.style.overflow || '';
     document.body.style.overflow = 'hidden';
-    setTimeout(function () { input.focus(); }, 80);
   }
 
   function closePanel() {
