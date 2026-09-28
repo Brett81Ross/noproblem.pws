@@ -656,7 +656,7 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'window.location.href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());',
-      'var customerEmailInput = document.getElementById("customerEmail");\n                var recipient = customerEmailInput ? customerEmailInput.value.trim() : "";\n                window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());'
+      'if (window.NPMatrixReleaseGuard && window.NPMatrixReleaseGuard.block("Email customer quote")) return;\n                var customerEmailInput = document.getElementById("customerEmail");\n                var recipient = customerEmailInput ? customerEmailInput.value.trim() : "";\n                window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());'
     );
 
     html = html.replace(
