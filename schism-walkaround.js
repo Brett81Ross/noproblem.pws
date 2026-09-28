@@ -190,7 +190,10 @@
     }
     el('schismWalkStatus').textContent = 'Preparing your property photos…';
     try {
-      if (typeof window.stageFiles === 'function') await window.stageFiles(frames);
+      if (typeof window.stageFiles !== 'function') {
+        throw new Error('Property photo staging is unavailable.');
+      }
+      await window.stageFiles(frames);
       el('schismWalkStatus').textContent = 'Walk saved. Review the photos below, then continue.';
       setTimeout(close, 650);
     } catch (error) {
