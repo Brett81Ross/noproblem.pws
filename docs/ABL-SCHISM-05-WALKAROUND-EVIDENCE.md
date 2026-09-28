@@ -192,3 +192,7 @@ The Galaxy Z Fold is a QA target, not the product specification. ABL-05 responsi
 ## Evidence alignment regression checkpoint
 
 Validation found a malformed/legacy-input edge case: if image count exceeded metadata count, the server previously produced a shorter provenance array. The submission boundary and server sanitizer now independently normalize provenance to exactly one metadata record per submitted image, using conservative operator-selected defaults when metadata is absent or malformed. This prevents index drift without granting additional authority to fallback metadata.
+
+## Evidence-review fail-closed checkpoint
+
+Validation found an AI-contract edge case: `readyForEstimate: false` could arrive without a usable `missingEvidence` prompt. The UI now checks both missing and uncertain evidence for a field-action prompt; if neither contains one, it does not invent a generic photo request or silently proceed. It marks the result for human review, keeps release controls locked, and uses the review summary (or a conservative fallback reason). This preserves the rule that incomplete evidence cannot become field-ready merely because the model returned an incomplete follow-up structure.
