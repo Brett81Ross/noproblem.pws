@@ -188,3 +188,7 @@ A source-level responsive pass hardened the Walk-Around sheet for narrow cover-s
 ## Cross-device responsive acceptance matrix
 
 The Galaxy Z Fold is a QA target, not the product specification. ABL-05 responsive acceptance covers representative viewport classes rather than device-specific styling: narrow phones/cover displays (<=380px), standard phones (381-430px), large phones/small foldable layouts (431-699px), tablet/unfolded layouts (>=700px), and short landscape viewports. Android and iOS safe-area behavior must remain usable. Device-specific fixes are permitted only for demonstrated platform/device defects. Physical/browser verification remains outstanding; source breakpoints alone do not constitute cross-device PASS.
+
+## Evidence alignment regression checkpoint
+
+Validation found a malformed/legacy-input edge case: if image count exceeded metadata count, the server previously produced a shorter provenance array. The submission boundary and server sanitizer now independently normalize provenance to exactly one metadata record per submitted image, using conservative operator-selected defaults when metadata is absent or malformed. This prevents index drift without granting additional authority to fallback metadata.
