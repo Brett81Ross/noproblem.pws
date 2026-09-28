@@ -99,18 +99,23 @@ async function handler(req, res) {
         }
 
         const activeImages = images.slice(0, MAX_IMAGES);
-        const activeEvidenceMeta = Array.isArray(evidenceMeta)
-            ? evidenceMeta.slice(0, activeImages.length).map((item, index) => ({
+        const allowedEvidenceSources = new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload']);
+        const allowedConfirmationStates = new Set(['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture']);
+        const activeEvidenceMeta = activeImages.map((_, index) => {
+            const item = Array.isArray(evidenceMeta) && evidenceMeta[index] && typeof evidenceMeta[index] === 'object'
+                ? evidenceMeta[index]
+                : null;
+            return {
                 imageIndex: index + 1,
-                kind: item?.kind === 'photo' ? 'photo' : 'photo',
-                source: ['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload'].includes(item?.source) ? item.source : 'operator_upload',
-                capturedAt: typeof item?.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
+                kind: 'photo',
+                source: item && allowedEvidenceSources.has(item.source) ? item.source : 'operator_upload',
+                capturedAt: item && typeof item.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
                 provenance: item?.provenance === 'schismmatrix_walkaround' ? 'schismmatrix_walkaround' : 'operator_selected_media',
-                operatorConfirmationState: ['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture'].includes(item?.operatorConfirmationState)
+                operatorConfirmationState: item && allowedConfirmationStates.has(item.operatorConfirmationState)
                     ? item.operatorConfirmationState
                     : 'operator_selected'
-            }))
-            : [];
+            };
+        });
         
         const envKeys = Object.keys(process.env);
         const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
