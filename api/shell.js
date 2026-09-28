@@ -1,4 +1,6 @@
-const UPSTREAM = 'https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/';
+const fs = require('fs');
+const path = require('path');
+const BASE_SHELL_PATH = path.join(process.cwd(), 'runtime', 'base-shell.html');
 
 function replaceOrInject(html, pattern, replacement, fallbackMarker, fallbackContent) {
   if (pattern.test(html)) return html.replace(pattern, replacement);
@@ -13,17 +15,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(UPSTREAM, {
-      headers: {
-        'user-agent': req.headers['user-agent'] || 'NoProblemMatrixShell/1.2'
-      }
-    });
-
-    if (!upstream.ok) {
-      throw new Error(`Upstream returned ${upstream.status}`);
-    }
-
-    let html = await upstream.text();
+    let html = fs.readFileSync(BASE_SHELL_PATH, 'utf8');
 
     const headAdditions = `
     <link rel="manifest" href="/manifest.webmanifest">
