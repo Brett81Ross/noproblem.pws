@@ -244,14 +244,6 @@ module.exports = async function handler(req, res) {
         background: linear-gradient(135deg, rgba(255, 200, 87, .1), rgba(255, 111, 181, .08));
       }
 
-      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"] {
-        display: block;
-      }
-
-      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"].is-selected {
-        border-color: rgba(255, 200, 87, .78) !important;
-        background: linear-gradient(135deg, rgba(255, 200, 87, .27), rgba(255, 111, 181, .2)) !important;
-      }
 
       .service-chip[data-service="memorial_cleaning"],
       .service-chip[data-service="vehicle_wash"],
@@ -602,12 +594,7 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'house_wash: "House Soft Wash",',
-      'house_wash: "House Soft Wash",\n                roof_soft_wash: "Roof Soft Wash",'
-    );
-
-    html = html.replace(
-      'roof_soft_wash: "Roof Soft Wash",',
-      'roof_soft_wash: "Roof Soft Wash",\n                fence_cleaning: "Fence Cleaning",\n                memorial_cleaning: "Tombstone / Memorial Cleaning",\n                vehicle_wash: "Vehicle / Fleet Washing",\n                aircraft_exterior_wash: "Aircraft Exterior Washing",\n                custom_area: "Custom Cleaning Area",'
+      'house_wash: "House Soft Wash",\n                fence_cleaning: "Fence Cleaning",\n                memorial_cleaning: "Tombstone / Memorial Cleaning",\n                vehicle_wash: "Vehicle / Fleet Washing",\n                aircraft_exterior_wash: "Aircraft Exterior Washing",\n                custom_area: "Custom Cleaning Area",'
     );
 
     html = html.replace(
@@ -622,23 +609,16 @@ module.exports = async function handler(req, res) {
       );
     }
 
-    if (!/data-service=["']roof_soft_wash["']/i.test(html)) {
-      html = html.replace(
-        /(<button\s+class=["']service-chip["'][^>]*data-service=["']oil_treatment["'][^>]*>[\s\S]*?<\/button>)/i,
-        '$1\n                    <button class="service-chip" type="button" data-service="roof_soft_wash" aria-pressed="false">Roof cleaning / soft wash</button>'
-      );
-    }
-
     if (!/data-service=["']memorial_cleaning["']/i.test(html)) {
       html = html.replace(
-        /(<button\s+class=["']service-chip["'][^>]*data-service=["']roof_soft_wash["'][^>]*>[\s\S]*?<\/button>)/i,
+        /(<button\s+class=["']service-chip["'][^>]*data-service=["']fence_cleaning["'][^>]*>[\s\S]*?<\/button>)/i,
         '$1\n                    <button class="service-chip" type="button" data-service="memorial_cleaning" aria-pressed="false">Tombstones / memorials</button>\n                    <button class="service-chip" type="button" data-service="vehicle_wash" aria-pressed="false">Vehicles / fleets</button>\n                    <button class="service-chip" type="button" data-service="aircraft_exterior_wash" aria-pressed="false">Aircraft exterior</button>\n                    <button class="service-chip" type="button" data-service="custom_area" aria-pressed="false">Custom area</button>'
       );
     }
 
     html = html.replace(
       'lines.push("No roofs, ladders, gutters, or two-story work are included.");',
-      'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
+      'lines.push("Launch scope excludes roofs, ladders, and high-access work. Multi-level observations require manual review and do not authorize elevated work.");'
     );
 
     html = html.replace(
