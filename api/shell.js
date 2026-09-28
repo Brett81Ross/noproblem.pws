@@ -542,7 +542,7 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                return Math.max(minimum, subtotal);',
-      'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                var discount = Math.max(0, Math.min(100, Number(state.quoteDiscountPercent) || 0));\n                return Math.max(minimum, subtotal * (1 - (discount / 100)));'
+      'var minimum = Number(state.report && state.report.quoteMeta && state.report.quoteMeta.minimumJob);\n                var discount = Math.max(0, Math.min(100, Number(state.quoteDiscountPercent) || 0));\n                var discountedSubtotal = subtotal * (1 - (discount / 100));\n                return Number.isFinite(minimum) && minimum >= 0 ? Math.max(minimum, discountedSubtotal) : discountedSubtotal;'
     );
 
     html = html.replace(
@@ -563,7 +563,7 @@ module.exports = async function handler(req, res) {
         '                    var service = state.report.services.find(function (item) { return item.id === id; });',
         '                    if (!service || !patch) return;',
         '                    if (patch.quantity !== undefined && Number.isFinite(Number(patch.quantity))) service.quantity = Math.max(0, Number(patch.quantity));',
-        '                    if (patch.calculatedPrice !== undefined && Number.isFinite(Number(patch.calculatedPrice))) service.calculatedPrice = Math.max(0, Number(patch.calculatedPrice));',
+        '                    if (patch.calculatedPrice !== undefined && Number.isFinite(Number(patch.calculatedPrice))) {\n                        if (!Number.isFinite(Number(service.systemCalculatedPrice))) service.systemCalculatedPrice = Math.max(0, Number(service.calculatedPrice) || 0);\n                        service.estimatorAdjustedPrice = Math.max(0, Number(patch.calculatedPrice));\n                        service.calculatedPrice = service.estimatorAdjustedPrice;\n                    }',
         '                    if (patch.estimatedTimeMinutes !== undefined && Number.isFinite(Number(patch.estimatedTimeMinutes))) service.estimatedTimeMinutes = Math.max(0, Number(patch.estimatedTimeMinutes));',
         '                    if (patch.quantityUnit !== undefined) service.quantityUnit = String(patch.quantityUnit).trim().slice(0, 40) || "unit";',
         '                    if (patch.label !== undefined) service.label = String(patch.label).trim().slice(0, 100) || service.label;',
@@ -709,6 +709,9 @@ module.exports = async function handler(req, res) {
     }
     if (!html.includes('/quote-review.js')) {
       html = html.replace('</body>', '    <script src="/quote-review.js" defer></script>\n</body>');
+    }
+    if (!html.includes('/schism-walkaround.js')) {
+      html = html.replace('</body>', '    <script src="/schism-walkaround.js" defer></script>\n</body>');
     }
 
     res.statusCode = 200;
