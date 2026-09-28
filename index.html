@@ -1668,7 +1668,15 @@
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const payloadImages = stagedBase64Images.slice(0, 8).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
+                const submissionCount = Math.min(8, stagedBase64Images.length);
+                const payloadImages = stagedBase64Images.slice(0, submissionCount).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
+                const payloadEvidenceMeta = Array.from({ length: submissionCount }, (_, index) => stagedEvidenceMeta[index] || {
+                    kind: 'photo',
+                    source: 'operator_upload',
+                    capturedAt: null,
+                    provenance: 'operator_selected_media',
+                    operatorConfirmationState: 'operator_selected'
+                });
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -1678,7 +1686,7 @@
                     },
                     body: JSON.stringify({ 
                         images: payloadImages,
-                        evidenceMeta: stagedEvidenceMeta.slice(0, 8),
+                        evidenceMeta: payloadEvidenceMeta,
                         settings: {},
                         location: currentJobLocation,
                         satelliteMeasurements: window.MatrixSatelliteMeasurement?.getMeasurements?.() || [],
