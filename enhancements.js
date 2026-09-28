@@ -218,6 +218,7 @@
     if (window.__npBuildingFetchPatched || typeof window.fetch !== 'function') return;
 
     var originalFetch = window.fetch.bind(window);
+    var analysisGeneration = 0;
     window.__npBuildingFetchPatched = true;
     window.fetch = function (resource, options) {
       var url = typeof resource === 'string' ? resource : resource && resource.url;
@@ -228,13 +229,13 @@
           var payload = JSON.parse(options.body);
           var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
           var scopeInstruction = level === MULTIPLE_LEVELS
-            ? 'BUILDING HEIGHT: Multiple levels. Roof soft washing is available in this mode. Include roof cleaning when requested or clearly supported by the photos, plus safe access equipment, setup time, labor, chemical treatment, and height-related difficulty in the plan and quote. Never use high pressure on roofing materials.'
+            ? 'BUILDING HEIGHT: Multiple levels observed. MCX launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution. Treat this as evidence requiring manual review; do not add excluded work to the executable plan or quote.'
             : 'BUILDING HEIGHT: One story. Keep the plan and quote to ground-level and one-story exterior washing. Do not include roof cleaning.';
 
           payload.buildingScope = {
             level: level,
             label: levelLabel(level),
-            roofCleaningIncluded: level === MULTIPLE_LEVELS
+            roofCleaningIncluded: false
           };
           payload.settings = Object.assign({}, payload.settings || {}, { buildingLevel: level });
           payload.job = Object.assign({}, payload.job || {}, { buildingLevel: level });
@@ -245,7 +246,9 @@
         }
       }
 
+      var requestGeneration = null;
       if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
+        requestGeneration = ++analysisGeneration;
         window.__schismReleaseState = { locked: true, reason: 'SchismMatrix is checking whether this estimate is field-ready.' };
         document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
       }
@@ -253,6 +256,7 @@
       return originalFetch(resource, requestOptions).then(function (response) {
         if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
           response.clone().json().then(function (payload) {
+            if (requestGeneration !== analysisGeneration) return;
             var matrix = payload && payload.rawMatrixData;
             if (!matrix || typeof matrix !== 'object') {
               window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
@@ -268,6 +272,7 @@
             }
             document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
           }).catch(function () {
+            if (requestGeneration !== analysisGeneration) return;
             window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
             document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
           });
