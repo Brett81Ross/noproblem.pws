@@ -1620,7 +1620,9 @@
 
         document.getElementById('evidenceFollowupReview')?.addEventListener('click', () => {
             const review = techMatrixData?.evidenceReview;
-            const request = Array.isArray(review?.missingEvidence) ? review.missingEvidence.find(item => item?.prompt) : null;
+            const missing = Array.isArray(review?.missingEvidence) ? review.missingEvidence : [];
+            const uncertain = Array.isArray(review?.uncertainEvidence) ? review.uncertainEvidence : [];
+            const request = [...missing, ...uncertain].find(item => item?.prompt) || null;
             if (techMatrixData) {
                 techMatrixData.requiresHumanReview = true;
                 techMatrixData.humanReviewReason = request?.reason || review?.summary || 'Property evidence is incomplete.';
@@ -1720,8 +1722,22 @@
 
                 const evidenceReview = techMatrixData?.evidenceReview;
                 if (evidenceReview && evidenceReview.readyForEstimate === false) {
-                    const requests = Array.isArray(evidenceReview.missingEvidence) ? evidenceReview.missingEvidence : [];
-                    const firstRequest = requests.find(item => item && item.prompt);
+                    const missing = Array.isArray(evidenceReview.missingEvidence) ? evidenceReview.missingEvidence : [];
+                    const uncertain = Array.isArray(evidenceReview.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
+                    const firstRequest = [...missing, ...uncertain].find(item => item && item.prompt);
+                    if (!firstRequest) {
+                        techMatrixData.requiresHumanReview = true;
+                        techMatrixData.humanReviewReason = evidenceReview.summary || 'SchismMatrix could not verify enough property evidence for a field-ready estimate.';
+                        hideEvidenceFollowup();
+                        document.getElementById('outputCard').style.display = 'block';
+                        document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
+                        if (isTechMode) renderTechModeView(techMatrixData);
+                        else renderAdminModeView(techMatrixData);
+                        processTrigger.setAttribute('style', 'display: none !important;');
+                        processTrigger.disabled = false;
+                        delete processTrigger.dataset.submitting;
+                        return;
+                    }
                     showEvidenceFollowup(firstRequest, evidenceReview);
                     processTrigger.className = 'btn btn-trigger';
                     processTrigger.innerText = translations[currentLang].scanBtn;
