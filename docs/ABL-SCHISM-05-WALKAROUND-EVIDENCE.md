@@ -176,3 +176,7 @@ Walk-Around capture now tags each retained frame with development-only provenanc
 The evidence loop now preserves image-to-metadata alignment when staging and removing photos, sends only metadata for the same bounded image set submitted for analysis, sanitizes provenance server-side, distinguishes manual/operator-selected evidence from automatic sampled frames, and marks photos added through a specific SchismMatrix follow-up request as requested follow-up captures. This does not make an image true, complete, measured, or customer-authorized; it only records how the evidence entered the review.
 
 Remaining gate work is validation rather than feature expansion: targeted static/runtime checks, follow-up state regression checks, narrow-screen/Fold inspection, and one final full QA gate only after the candidate is stable.
+
+## Targeted regression checkpoint
+
+Pre-gate source inspection found and hardened two stale/duplicate-action risks: estimate submission now ignores duplicate taps while a request is active and restores its state on success, evidence follow-up, or failure; follow-up camera intent is cleared when the chooser returns without evidence so a later unrelated upload is not mislabeled as requested evidence. Walk-Around camera start and finish actions are also guarded against duplicate activation. These are development hardening changes only; Fold/mobile visual QA and the final full QA gate remain outstanding.
