@@ -68,6 +68,7 @@
   }
 
   async function start() {
+    if (stream) return;
     if (!navigator.mediaDevices?.getUserMedia) {
       el('schismWalkStatus').textContent = 'Live camera is not available here. You can add saved photos instead.';
       return;
@@ -143,10 +144,13 @@
   }
 
   async function finish() {
+    if (el('schismWalkFinish')?.dataset.finishing === 'true') return;
+    if (el('schismWalkFinish')) el('schismWalkFinish').dataset.finishing = 'true';
     stopMedia();
     if (!frames.length) {
       el('schismWalkStatus').textContent = 'No photos were saved yet. Start the walk or add saved photos.';
       el('schismWalkStart').disabled = false;
+      if (el('schismWalkFinish')) delete el('schismWalkFinish').dataset.finishing;
       return;
     }
     el('schismWalkStatus').textContent = 'Preparing your property photos…';
@@ -156,6 +160,8 @@
       setTimeout(close, 650);
     } catch (error) {
       el('schismWalkStatus').textContent = 'I could not add those photos. Try saved photos instead.';
+    } finally {
+      if (el('schismWalkFinish')) delete el('schismWalkFinish').dataset.finishing;
     }
   }
 
@@ -170,7 +176,10 @@
     if (video) video.srcObject = null;
     if (el('schismWalkStart')) el('schismWalkStart').disabled = false;
     if (el('schismWalkSnap')) el('schismWalkSnap').disabled = true;
-    if (el('schismWalkFinish')) el('schismWalkFinish').disabled = true;
+    if (el('schismWalkFinish')) {
+      el('schismWalkFinish').disabled = true;
+      delete el('schismWalkFinish').dataset.finishing;
+    }
   }
 
   function open() {
