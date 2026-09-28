@@ -245,9 +245,79 @@
         }
       }
 
-      return originalFetch(resource, requestOptions);
+      if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
+        window.__schismReleaseState = { locked: true, reason: 'SchismMatrix is checking whether this estimate is field-ready.' };
+        document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+      }
+
+      return originalFetch(resource, requestOptions).then(function (response) {
+        if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
+          response.clone().json().then(function (payload) {
+            var matrix = payload && payload.rawMatrixData;
+            if (!matrix || typeof matrix !== 'object') {
+              window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
+            } else {
+              var review = matrix.evidenceReview && typeof matrix.evidenceReview === 'object' ? matrix.evidenceReview : null;
+              var locked = matrix.requiresHumanReview === true || !review || review.readyForEstimate !== true;
+              window.__schismReleaseState = {
+                locked: locked,
+                reason: locked
+                  ? (matrix.humanReviewReason || (review && review.summary) || 'Important property evidence still needs review.')
+                  : ''
+              };
+            }
+            document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+          }).catch(function () {
+            window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
+            document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+          });
+        }
+        return response;
+      });
     };
   }
+
+  function isQuoteReleaseLocked() {
+    return Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
+  }
+
+  function blockQuoteRelease(actionName) {
+    if (!isQuoteReleaseLocked()) return false;
+    var reason = window.__schismReleaseState.reason || 'Important property evidence still needs review.';
+    showNotice(actionName + ' is locked until human review is complete.');
+    window.alert(actionName + ' is locked until human review is complete.\n\n' + reason);
+    return true;
+  }
+
+  function syncQuoteReleaseControls() {
+    var locked = isQuoteReleaseLocked();
+    ['downloadQuotePdfButton'].forEach(function (id) {
+      var button = document.getElementById(id);
+      if (!button) return;
+      button.disabled = locked;
+      button.setAttribute('aria-disabled', locked ? 'true' : 'false');
+      button.title = locked ? 'Locked until human review is complete.' : '';
+    });
+  }
+
+  window.NPMatrixReleaseGuard = Object.freeze({
+    isLocked: isQuoteReleaseLocked,
+    block: blockQuoteRelease
+  });
+
+  document.addEventListener('schism:release-state-changed', syncQuoteReleaseControls);
+  document.addEventListener('click', function (event) {
+    if (!isQuoteReleaseLocked()) return;
+    var button = event.target && event.target.closest ? event.target.closest('button, a') : null;
+    if (!button) return;
+    var scope = button.closest && button.closest('.quote-actions, #resultsMount, .results-section');
+    if (!scope) return;
+    var label = String(button.textContent || button.getAttribute('aria-label') || '').trim();
+    if (!/(copy|email|send|download|export|save project)/i.test(label)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    blockQuoteRelease(label || 'Quote release');
+  }, true);
 
   function pdfSafeText(value) {
     return String(value === undefined || value === null ? '' : value)
@@ -431,6 +501,7 @@
   }
 
   function downloadQuotePdf() {
+    if (blockQuoteRelease('Download customer PDF')) return;
     if (!document.querySelector('.quote-total')) {
       showNotice('Finish a quote before downloading the customer PDF.');
       return;
@@ -460,6 +531,7 @@
     button.textContent = 'Download customer PDF';
     button.addEventListener('click', downloadQuotePdf);
     quoteActions.appendChild(button);
+    syncQuoteReleaseControls();
   }
 
   function observeResults() {
