@@ -270,6 +270,23 @@ async function handler(req, res) {
             throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
+        const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
+        const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
+        const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
+        const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
+        const explicitlyReady = evidenceReview?.readyForEstimate === true;
+        if (!explicitlyReady) {
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
+                ? evidenceReview.summary.trim().slice(0, 500)
+                : (hasUsableFollowup
+                    ? 'Additional property evidence is required before this estimate is field-ready.'
+                    : 'SchismMatrix could not verify enough property evidence for a field-ready estimate.');
+        } else {
+            scanData.requiresHumanReview = false;
+            delete scanData.humanReviewReason;
+        }
+
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
