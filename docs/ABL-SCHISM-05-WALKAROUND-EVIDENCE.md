@@ -180,3 +180,7 @@ Remaining gate work is validation rather than feature expansion: targeted static
 ## Targeted regression checkpoint
 
 Pre-gate source inspection found and hardened two stale/duplicate-action risks: estimate submission now ignores duplicate taps while a request is active and restores its state on success, evidence follow-up, or failure; follow-up camera intent is cleared when the chooser returns without evidence so a later unrelated upload is not mislabeled as requested evidence. Walk-Around camera start and finish actions are also guarded against duplicate activation. These are development hardening changes only; Fold/mobile visual QA and the final full QA gate remain outstanding.
+
+## Mobile/Fold source-layout checkpoint
+
+A source-level responsive pass hardened the Walk-Around sheet for narrow cover-screen and short-screen conditions: dynamic viewport height is bounded, card padding/type scale tighten below 430px, camera preview height is capped so actions remain reachable, and an additional <=380px/short-height layout reduces preview and control footprint while retaining touch-sized actions. This is not a substitute for physical Galaxy Z Fold visual QA; device verification remains required before READY.
