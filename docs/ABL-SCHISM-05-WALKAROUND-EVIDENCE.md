@@ -184,3 +184,7 @@ Pre-gate source inspection found and hardened two stale/duplicate-action risks: 
 ## Mobile/Fold source-layout checkpoint
 
 A source-level responsive pass hardened the Walk-Around sheet for narrow cover-screen and short-screen conditions: dynamic viewport height is bounded, card padding/type scale tighten below 430px, camera preview height is capped so actions remain reachable, and an additional <=380px/short-height layout reduces preview and control footprint while retaining touch-sized actions. This is not a substitute for physical Galaxy Z Fold visual QA; device verification remains required before READY.
+
+## Cross-device responsive acceptance matrix
+
+The Galaxy Z Fold is a QA target, not the product specification. ABL-05 responsive acceptance covers representative viewport classes rather than device-specific styling: narrow phones/cover displays (<=380px), standard phones (381-430px), large phones/small foldable layouts (431-699px), tablet/unfolded layouts (>=700px), and short landscape viewports. Android and iOS safe-area behavior must remain usable. Device-specific fixes are permitted only for demonstrated platform/device defects. Physical/browser verification remains outstanding; source breakpoints alone do not constitute cross-device PASS.
