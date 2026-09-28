@@ -556,7 +556,7 @@
         }
 
 
-        /* iPhone / narrow-phone optimization — keeps larger screens unchanged */
+        /* Cross-platform narrow-phone optimization — Android, iPhone, foldable cover screens */
         @supports (padding: max(0px)) {
             body {
                 padding-left: max(20px, env(safe-area-inset-left));
@@ -796,6 +796,29 @@
                 padding-left: 6px;
                 padding-right: 6px;
             }
+        }
+
+        @media (min-width: 431px) and (max-width: 699px) {
+            .wrapper-container { max-width: 560px; }
+            .action-card, .result-card { padding: 20px; }
+            .preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .schism-wordmark { font-size: clamp(38px, 9vw, 50px); }
+        }
+
+        @media (min-width: 700px) {
+            .wrapper-container { max-width: 760px; }
+            .main-content { width: 100%; }
+            .action-card, .result-card { padding: 24px; }
+            .preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .utility-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (orientation: landscape) and (max-height: 520px) {
+            .schism-walk-overlay { align-items: stretch; }
+            .schism-walk-card { width: min(100%, 900px); max-height: 100dvh; }
+            .schism-walk-video-wrap { max-height: 42dvh; aspect-ratio: 16/9; }
+            .schism-walk-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .schism-walk-actions .btn { min-width: 0; }
         }
 
         @media (max-width: 380px) {
