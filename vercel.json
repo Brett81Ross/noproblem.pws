@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": {
+      "abl-schismmatrix-05-walkaround-evidence": true,
+      "*": false
+    }
   },
   "routes": [
     {
