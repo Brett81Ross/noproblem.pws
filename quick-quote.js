@@ -363,7 +363,7 @@
     var multiLevel = document.body.getAttribute('data-building-level') === 'multiple';
     function optionsFor(ids) {
       return ids.map(function (id) {
-        var isRoofLocked = id === 'roof_soft_wash' && !multiLevel;
+        var isRoofLocked = false;
         var label = GUIDES[id].title + (isRoofLocked ? ' — select Multiple levels first' : '');
         return '<option value="' + escapeHtml(id) + '"' + (id === activeGuide ? ' selected' : '') + (isRoofLocked ? ' disabled' : '') + '>' + escapeHtml(label) + '</option>';
       }).join('');
