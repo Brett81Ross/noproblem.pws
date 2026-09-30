@@ -1,185 +1,73 @@
+(function () {
+  'use strict';
 
-      '<div class="matrix-settings-actions"><button class="matrix-settings-button" id="matrixSaveSettings" type="button">Save settings</button><button class="matrix-settings-button secondary" id="matrixResetSettings" type="button">Reset to $99.99</button></div>',
-      '</section>',
-      '<section class="matrix-settings-section">',
-      '<p class="matrix-settings-kicker">App</p>',
-      '<h2 class="matrix-settings-title">Matrix on this phone</h2>',
-      '<p class="matrix-settings-copy">The square NP mark is used for the Android home-screen app icon.</p>',
-      '<div class="matrix-settings-row"><div class="matrix-settings-meta"><strong>Version ' + VERSION + '</strong>No Problem Pressure Washing Matrix</div><button class="matrix-settings-button" id="matrixInstallButton" type="button" hidden>Install app</button></div>',
-      '</section>',
-      '<section class="matrix-settings-section">',
-      '<p class="matrix-settings-kicker">Privacy & data</p>',
-      '<h2 class="matrix-settings-title">Data on this device</h2>',
-      '<p class="matrix-settings-copy">Staged photos stay in memory while the page is open and are sent for analysis only when you run a Matrix scan. Saved projects and Matrix settings use browser storage on this device.</p>',
-      '<div class="matrix-settings-actions"><button class="matrix-settings-button danger" id="matrixClearProject" type="button">Clear saved project</button><button class="matrix-settings-button secondary" id="matrixClearSettings" type="button">Clear Matrix settings</button></div>',
-      '<div class="matrix-settings-privacy">Clearing a saved project removes the locally stored project. A report already visible on screen stays visible until you reload or run another scan.</div>',
-      '</section>',
-      '<section class="matrix-settings-section">',
-      '<p class="matrix-settings-kicker">About</p>',
-      '<h2 class="matrix-settings-title">Matrix Sight™</h2>',
-      '<p class="matrix-settings-copy">A photo-to-plan workflow built for No Problem Pressure Washing. It turns field evidence into a customer-ready scope, pricing plan, safety checks, and crew brief.</p>',
-      '</section>',
-      '<div class="matrix-settings-footer">No Problem Pressure Washing Matrix™ · Cactus🌵Byte Studios™ · All Rights Reserved</div>',
-      '</div></section>'
+  var PROJECT_KEY = 'no-problem-matrix-last-project';
+  var VERSION = 'recovery';
+
+  function showToast(message) {
+    var toast = document.getElementById('matrixSettingsToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'matrixSettingsToast';
+      toast.style.cssText = 'position:fixed;left:50%;bottom:24px;z-index:1200;transform:translateX(-50%);max-width:calc(100% - 32px);padding:10px 14px;border:1px solid rgba(126,239,255,.3);border-radius:12px;background:#061118;color:#edfaff;font:700 12px system-ui;box-shadow:0 18px 50px rgba(0,0,0,.45)';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(function () { toast.hidden = true; }, 2400);
+  }
+
+  function createPanel() {
+    if (document.getElementById('matrixSettingsOverlay')) return;
+    var overlay = document.createElement('section');
+    overlay.id = 'matrixSettingsOverlay';
+    overlay.hidden = true;
+    overlay.style.cssText = 'position:fixed;z-index:1100;inset:0;overflow:auto;padding:18px;background:rgba(1,7,11,.88);color:#edfaff';
+    overlay.innerHTML = [
+      '<div style="width:min(100%,560px);margin:8vh auto;padding:20px;border:1px solid rgba(126,239,255,.25);border-radius:22px;background:#07151d">',
+      '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><strong>Matrix Settings & About</strong><div style="margin-top:4px;color:#7fa4af;font-size:10px">RECOVERY BUILD</div></div><button id="matrixSettingsClose" type="button" style="min-width:42px;min-height:42px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:transparent;color:#fff">×</button></div>',
+      '<section style="margin-top:18px;padding:16px;border:1px solid rgba(126,239,255,.12);border-radius:16px"><strong>Matrix Sight™</strong><p style="color:#91afb8;line-height:1.5">Photo-to-plan field evidence, estimating, safety checks, and crew workflow.</p><p style="color:#91afb8;font-size:11px">Pricing authority is intentionally not stored in browser settings in this recovery build.</p></section>',
+      '<section style="margin-top:14px;padding:16px;border:1px solid rgba(126,239,255,.12);border-radius:16px"><strong>Local project data</strong><p style="color:#91afb8;line-height:1.5">Saved project data can be cleared from this device without changing server pricing or authorization.</p><button id="matrixClearProject" type="button" style="min-height:44px;padding:0 14px;border:1px solid rgba(255,255,255,.15);border-radius:10px;background:#0b202b;color:#fff;font-weight:800">Clear saved project</button></section>',
+      '<div style="margin-top:14px;color:#688b96;font-size:10px">Version ' + VERSION + ' · Cactus🌵Byte Studios™</div>',
+      '</div>'
     ].join('');
     document.body.appendChild(overlay);
+    document.getElementById('matrixSettingsClose').onclick = closePanel;
+    document.getElementById('matrixClearProject').onclick = function () {
+      try { localStorage.removeItem(PROJECT_KEY); } catch (error) {}
+      showToast('Saved project removed from this device.');
+    };
+  }
 
-    document.getElementById('matrixSettingsClose').addEventListener('click', closePanel);
-    overlay.addEventListener('click', function (event) {
-      if (event.target === overlay) closePanel();
-    });
-    document.getElementById('matrixSaveSettings').addEventListener('click', saveSettings);
-    document.getElementById('matrixResetSettings').addEventListener('click', resetSettings);
-    document.getElementById('matrixClearProject').addEventListener('click', clearProject);
-    document.getElementById('matrixClearSettings').addEventListener('click', clearSettings);
-    document.getElementById('matrixInstallButton').addEventListener('click', installApp);
+  function openPanel() {
+    var overlay = document.getElementById('matrixSettingsOverlay');
+    if (overlay) overlay.hidden = false;
+  }
+
+  function closePanel() {
+    var overlay = document.getElementById('matrixSettingsOverlay');
+    if (overlay) overlay.hidden = true;
   }
 
   function addGear() {
     if (document.getElementById('matrixSettingsGear')) return;
     var gear = document.createElement('button');
     gear.id = 'matrixSettingsGear';
-    gear.className = 'matrix-settings-gear';
     gear.type = 'button';
     gear.setAttribute('aria-label', 'Open settings and about');
     gear.title = 'Settings & About';
     gear.textContent = '⚙';
-    gear.addEventListener('click', openPanel);
-
+    gear.style.cssText = 'display:grid;place-items:center;min-width:38px;min-height:38px;border:1px solid rgba(126,239,255,.25);border-radius:10px;background:#07151d;color:#bff8ff;font-size:18px';
+    gear.onclick = openPanel;
     var rail = document.querySelector('.status-rail');
-    if (rail) {
-      var oldRight = rail.lastElementChild;
-      if (oldRight && oldRight !== rail.firstElementChild) oldRight.replaceWith(gear);
-      else rail.appendChild(gear);
-      return;
-    }
-
-    gear.style.position = 'fixed';
-    gear.style.zIndex = '900';
-    gear.style.top = 'max(12px, env(safe-area-inset-top))';
-    gear.style.right = '14px';
-    document.body.appendChild(gear);
-  }
-
-  function openPanel() {
-    var overlay = document.getElementById('matrixSettingsOverlay');
-    var input = document.getElementById('matrixMinimumJob');
-    var saved = readSettings();
-    input.value = saved.minimumJob.toFixed(2);
-    overlay.classList.add('is-open');
-    overlay.setAttribute('aria-hidden', 'false');
-    document.body.dataset.matrixSettingsOverflow = document.body.style.overflow || '';
-    document.body.style.overflow = 'hidden';
-    setTimeout(function () { input.focus(); }, 80);
-  }
-
-  function closePanel() {
-    var overlay = document.getElementById('matrixSettingsOverlay');
-    if (!overlay) return;
-    overlay.classList.remove('is-open');
-    overlay.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = document.body.dataset.matrixSettingsOverflow || '';
-  }
-
-  function saveSettings() {
-    var input = document.getElementById('matrixMinimumJob');
-    var minimum = moneyValue(input.value);
-    writeSettings({ minimumJob: minimum });
-    input.value = minimum.toFixed(2);
-    showToast('Settings saved. Pricing floor applies to the next scan.');
-  }
-
-  function resetSettings() {
-    writeSettings({ minimumJob: DEFAULT_MINIMUM });
-    document.getElementById('matrixMinimumJob').value = DEFAULT_MINIMUM.toFixed(2);
-    showToast('Minimum service call reset to $99.99.');
-  }
-
-  function clearProject() {
-    try { localStorage.removeItem(PROJECT_KEY); } catch (error) {}
-    showToast('Saved project removed from this device.');
-  }
-
-  function clearSettings() {
-    try { localStorage.removeItem(SETTINGS_KEY); } catch (error) {}
-    document.getElementById('matrixMinimumJob').value = DEFAULT_MINIMUM.toFixed(2);
-    showToast('Matrix settings cleared. Defaults restored.');
-  }
-
-  async function installApp() {
-    if (!deferredInstallPrompt) return;
-    try {
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-    } catch (error) {}
-    deferredInstallPrompt = null;
-    document.getElementById('matrixInstallButton').hidden = true;
-  }
-
-  function hookInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', function (event) {
-      event.preventDefault();
-      deferredInstallPrompt = event;
-      var button = document.getElementById('matrixInstallButton');
-      if (button) button.hidden = false;
-    });
-    window.addEventListener('appinstalled', function () {
-      deferredInstallPrompt = null;
-      var button = document.getElementById('matrixInstallButton');
-      if (button) button.hidden = true;
-      showToast('No Problem Matrix installed.');
-    });
-  }
-
-  function hookAnalyzeSettings() {
-    if (!window.fetch || window.fetch.__matrixSettingsWrapped) return;
-    var nativeFetch = window.fetch.bind(window);
-
-    var wrappedFetch = async function (input, init) {
-      var url = typeof input === 'string' ? input : (input && input.url) || '';
-      var isAnalyze = /\/api\/analyze(?:\?|$)/.test(url);
-      var requestInit = init;
-
-      if (isAnalyze && init && String(init.method || 'GET').toUpperCase() === 'POST' && typeof init.body === 'string') {
-        try {
-          var payload = JSON.parse(init.body);
-          var saved = readSettings();
-          payload.settings = Object.assign({}, payload.settings || {}, { minimumJob: saved.minimumJob });
-          requestInit = Object.assign({}, init, { body: JSON.stringify(payload) });
-        } catch (error) {}
-      }
-
-      var response = await nativeFetch(input, requestInit);
-      if (!isAnalyze || !response || !response.ok) return response;
-
-      try {
-        var clone = response.clone();
-        var data = await clone.json();
-        var matrix = data && (data.rawMatrixData || data);
-        if (!matrix || typeof matrix !== 'object') return response;
-        matrix.quoteMeta = Object.assign({}, matrix.quoteMeta || {}, { minimumJob: readSettings().minimumJob });
-        var headers = new Headers(response.headers);
-        headers.delete('content-length');
-        headers.delete('content-encoding');
-        return new Response(JSON.stringify(data), {
-          status: response.status,
-          statusText: response.statusText,
-          headers: headers
-        });
-      } catch (error) {
-        return response;
-      }
-    };
-
-    wrappedFetch.__matrixSettingsWrapped = true;
-    window.fetch = wrappedFetch;
-  }
-
-  function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js').catch(function () {});
-      });
+    if (rail) rail.appendChild(gear);
+    else {
+      gear.style.position = 'fixed';
+      gear.style.zIndex = '900';
+      gear.style.top = '14px';
+      gear.style.right = '14px';
+      document.body.appendChild(gear);
     }
   }
 
@@ -187,10 +75,6 @@
     if (event.key === 'Escape') closePanel();
   });
 
-  installStyles();
   createPanel();
   addGear();
-  hookInstallPrompt();
-  hookAnalyzeSettings();
-  registerServiceWorker();
 }());
