@@ -59,3 +59,14 @@ The following structures appear only as later shell-layer work and therefore mus
 - Editable quote accuracy/review (`728eccca57`).
 
 These later features may still be genuine desired Matrix improvements, but recovery must distinguish them from the Aug. 4 baseline.
+
+
+## Recovery candidate runtime hardening
+
+A standalone candidate now exists at `runtime/aug4-recovery-candidate.html`. The protected Aug. 2 `index.html` remains untouched.
+
+The candidate preserves verified Aug. 4-era runtime anchors: four photo slots, four-image upload cap, 1100px image scaling, JPEG quality 0.68, `stageFiles`, `/api/analyze`, proposal generation, property address/site notes, and the historical $199 server-era minimum.
+
+Before any preview, the candidate was hardened so a new analysis clears stale report state, failed or timed-out analysis cannot leave an old estimate presented as current, malformed API responses fail without creating an estimate, zero selected services produce a zero total, and AI-returned labels/reasons are rendered as text rather than injected HTML.
+
+This candidate is evidence-backed reconstruction, not a claim of byte-identical recovery of the unavailable Aug. 4 Vercel artifact.
