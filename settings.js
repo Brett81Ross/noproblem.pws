@@ -3,31 +3,8 @@
 
   var SETTINGS_KEY = 'no-problem-matrix-settings-v1';
   var PROJECT_KEY = 'no-problem-matrix-last-project';
-  var DEFAULT_MINIMUM = 99.99;
   var VERSION = '1.1.0';
   var deferredInstallPrompt = null;
-
-  function readSettings() {
-    try {
-      var saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-      var minimum = Number(saved.minimumJob);
-      return {
-        minimumJob: Number.isFinite(minimum) && minimum >= 0 ? minimum : DEFAULT_MINIMUM
-      };
-    } catch (error) {
-      return { minimumJob: DEFAULT_MINIMUM };
-    }
-  }
-
-  function writeSettings(next) {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
-  }
-
-  function moneyValue(value) {
-    var number = Number(value);
-    if (!Number.isFinite(number) || number < 0) return DEFAULT_MINIMUM;
-    return Math.round((number + Number.EPSILON) * 100) / 100;
-  }
 
   function showToast(message) {
     var existing = document.getElementById('matrixSettingsToast');
@@ -103,13 +80,6 @@
       '<div class="matrix-settings-body">',
       '<div class="matrix-settings-brand" role="img" aria-label="SchismMatrix, Property Intelligence"><img class="matrix-settings-symbol" src="/assets/schismmatrix-symbol.svg" alt="" aria-hidden="true"><strong>SchismMatrix™</strong><span>Property Intelligence</span></div>',
       '<section class="matrix-settings-section">',
-      '<p class="matrix-settings-kicker">Estimator preference</p>',
-      '<h2 class="matrix-settings-title">Pricing floor</h2>',
-      '<p class="matrix-settings-copy">Set the minimum service call used by this device. It applies to the next Matrix scan.</p>',
-      '<label class="matrix-settings-field">Minimum service call ($)<input class="matrix-settings-input" id="matrixMinimumJob" type="number" inputmode="decimal" min="0" step="0.01"></label>',
-      '<div class="matrix-settings-actions"><button class="matrix-settings-button" id="matrixSaveSettings" type="button">Save settings</button><button class="matrix-settings-button secondary" id="matrixResetSettings" type="button">Reset to $99.99</button></div>',
-      '</section>',
-      '<section class="matrix-settings-section">',
       '<p class="matrix-settings-kicker">App</p>',
       '<h2 class="matrix-settings-title">Matrix on this phone</h2>',
       '<p class="matrix-settings-copy">The SchismMatrix split-S mark is the approved app-icon direction; installed icon assets remain unchanged until the dedicated icon migration is validated.</p>',
@@ -119,7 +89,7 @@
       '<p class="matrix-settings-kicker">Privacy & data</p>',
       '<h2 class="matrix-settings-title">Data on this device</h2>',
       '<p class="matrix-settings-copy">Staged photos stay in memory while the page is open and are sent for analysis only when you run a Matrix scan. Saved projects and Matrix settings use browser storage on this device.</p>',
-      '<div class="matrix-settings-actions"><button class="matrix-settings-button danger" id="matrixClearProject" type="button">Clear saved project</button><button class="matrix-settings-button secondary" id="matrixClearSettings" type="button">Clear Matrix settings</button></div>',
+      '<div class="matrix-settings-actions"><button class="matrix-settings-button danger" id="matrixClearProject" type="button">Clear saved project</button></div>',
       '<div class="matrix-settings-privacy">Clearing a saved project removes the locally stored project. A report already visible on screen stays visible until you reload or run another scan.</div>',
       '</section>',
       '<section class="matrix-settings-section">',
@@ -136,10 +106,7 @@
     overlay.addEventListener('click', function (event) {
       if (event.target === overlay) closePanel();
     });
-    document.getElementById('matrixSaveSettings').addEventListener('click', saveSettings);
-    document.getElementById('matrixResetSettings').addEventListener('click', resetSettings);
     document.getElementById('matrixClearProject').addEventListener('click', clearProject);
-    document.getElementById('matrixClearSettings').addEventListener('click', clearSettings);
     document.getElementById('matrixInstallButton').addEventListener('click', installApp);
   }
 
@@ -171,14 +138,11 @@
 
   function openPanel() {
     var overlay = document.getElementById('matrixSettingsOverlay');
-    var input = document.getElementById('matrixMinimumJob');
-    var saved = readSettings();
-    input.value = saved.minimumJob.toFixed(2);
+    if (!overlay) return;
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.dataset.matrixSettingsOverflow = document.body.style.overflow || '';
     document.body.style.overflow = 'hidden';
-    setTimeout(function () { input.focus(); }, 80);
   }
 
   function closePanel() {
@@ -189,29 +153,9 @@
     document.body.style.overflow = document.body.dataset.matrixSettingsOverflow || '';
   }
 
-  function saveSettings() {
-    var input = document.getElementById('matrixMinimumJob');
-    var minimum = moneyValue(input.value);
-    writeSettings({ minimumJob: minimum });
-    input.value = minimum.toFixed(2);
-    showToast('Settings saved. Pricing floor applies to the next scan.');
-  }
-
-  function resetSettings() {
-    writeSettings({ minimumJob: DEFAULT_MINIMUM });
-    document.getElementById('matrixMinimumJob').value = DEFAULT_MINIMUM.toFixed(2);
-    showToast('Minimum service call reset to $99.99.');
-  }
-
   function clearProject() {
     try { localStorage.removeItem(PROJECT_KEY); } catch (error) {}
     showToast('Saved project removed from this device.');
-  }
-
-  function clearSettings() {
-    try { localStorage.removeItem(SETTINGS_KEY); } catch (error) {}
-    document.getElementById('matrixMinimumJob').value = DEFAULT_MINIMUM.toFixed(2);
-    showToast('Matrix settings cleared. Defaults restored.');
   }
 
   async function installApp() {
@@ -239,50 +183,6 @@
     });
   }
 
-  function hookAnalyzeSettings() {
-    if (!window.fetch || window.fetch.__matrixSettingsWrapped) return;
-    var nativeFetch = window.fetch.bind(window);
-
-    var wrappedFetch = async function (input, init) {
-      var url = typeof input === 'string' ? input : (input && input.url) || '';
-      var isAnalyze = /\/api\/analyze(?:\?|$)/.test(url);
-      var requestInit = init;
-
-      if (isAnalyze && init && String(init.method || 'GET').toUpperCase() === 'POST' && typeof init.body === 'string') {
-        try {
-          var payload = JSON.parse(init.body);
-          var saved = readSettings();
-          payload.settings = Object.assign({}, payload.settings || {}, { minimumJob: saved.minimumJob });
-          requestInit = Object.assign({}, init, { body: JSON.stringify(payload) });
-        } catch (error) {}
-      }
-
-      var response = await nativeFetch(input, requestInit);
-      if (!isAnalyze || !response || !response.ok) return response;
-
-      try {
-        var clone = response.clone();
-        var data = await clone.json();
-        var matrix = data && (data.rawMatrixData || data);
-        if (!matrix || typeof matrix !== 'object') return response;
-        matrix.quoteMeta = Object.assign({}, matrix.quoteMeta || {}, { minimumJob: readSettings().minimumJob });
-        var headers = new Headers(response.headers);
-        headers.delete('content-length');
-        headers.delete('content-encoding');
-        return new Response(JSON.stringify(data), {
-          status: response.status,
-          statusText: response.statusText,
-          headers: headers
-        });
-      } catch (error) {
-        return response;
-      }
-    };
-
-    wrappedFetch.__matrixSettingsWrapped = true;
-    window.fetch = wrappedFetch;
-  }
-
   function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
@@ -299,6 +199,5 @@
   createPanel();
   addGear();
   hookInstallPrompt();
-  hookAnalyzeSettings();
   registerServiceWorker();
 }());

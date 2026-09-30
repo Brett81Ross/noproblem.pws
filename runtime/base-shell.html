@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SchismMatrix™ — Property Intelligence</title>
+    <title>No Problem Pressure Washing Matrix</title>
     <style>
         html, body {
             margin: 0;
@@ -55,44 +55,17 @@
             width: 100%;
         }
         
-        .schism-brand {
+        .brand-logo-img {
             width: 100%;
-            padding: 12px 12px 12px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        .schism-symbol {
-            display: block;
-            width: clamp(82px, 25vw, 118px);
+            max-width: 440px; 
             height: auto;
-            margin: 0 auto 12px;
-            filter: drop-shadow(0 0 18px rgba(0,209,255,.22));
+            display: block;
+            mix-blend-mode: screen; 
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: logoCyberGlowPulse 4s ease-in-out infinite;
         }
-        .schism-wordmark {
-            margin: 0;
-            color: #f8fdff;
-            font-size: clamp(32px, 10vw, 52px);
-            font-weight: 950;
-            letter-spacing: -0.055em;
-            line-height: .95;
-            text-transform: uppercase;
-            text-shadow: 0 0 24px rgba(0,240,255,.28);
-        }
-        .schism-wordmark sup {
-            margin-left: 3px;
-            color: #7eefff;
-            font-size: .28em;
-            font-weight: 800;
-            letter-spacing: 0;
-            vertical-align: top;
-        }
-        .schism-descriptor {
-            margin-top: 9px;
-            color: #58efff;
-            font-size: 10px;
-            font-weight: 900;
-            letter-spacing: .24em;
-            text-transform: uppercase;
+        .brand-logo-img:hover {
+            transform: scale(1.03);
         }
 
         @keyframes logoCyberGlowPulse {
@@ -458,7 +431,6 @@
             100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        .np-property-search{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}.np-property-search input,.np-measure-tools input{min-width:0;border:1px solid rgba(0,240,255,.3);border-radius:10px;background:#020617;color:#fff;padding:11px;font:inherit}.np-property-search button,.np-mode-row button{border:1px solid rgba(0,240,255,.35);border-radius:10px;background:#071925;color:#dffbff;padding:10px;font-weight:800}.np-mode-row button[aria-pressed="true"]{background:#00dbe8;color:#021014}.np-sat-status{font-size:10px;color:#94a3b8;margin:0 0 8px}.np-measure-tools{display:grid;gap:8px;margin:0 0 12px}.np-mode-row{display:flex;gap:7px;flex-wrap:wrap}.np-sat-readout{padding:9px;border:1px solid rgba(171,255,79,.25);border-radius:10px;color:#caff8b;background:rgba(171,255,79,.06);font-weight:900}.np-sat-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px}.np-sat-row button{border:0;background:transparent;color:#ef4444;font-size:18px}.np-sat-empty{font-size:10px;color:#64748b}.leaflet-container{background:#020617}
         .satellite-notes-input {
             width: 100%;
             background: rgba(2, 6, 23, 0.9);
@@ -556,7 +528,7 @@
         }
 
 
-        /* Cross-platform narrow-phone optimization — Android, iPhone, foldable cover screens */
+        /* iPhone / narrow-phone optimization — keeps larger screens unchanged */
         @supports (padding: max(0px)) {
             body {
                 padding-left: max(20px, env(safe-area-inset-left));
@@ -589,8 +561,8 @@
                 margin-top: 2px;
             }
 
-            .schism-wordmark {
-                font-size: clamp(30px, 11vw, 46px);
+            .brand-logo-img {
+                max-width: min(100%, 390px);
             }
 
             .tagline {
@@ -798,29 +770,6 @@
             }
         }
 
-        @media (min-width: 431px) and (max-width: 699px) {
-            .wrapper-container { max-width: 560px; }
-            .action-card, .result-card { padding: 20px; }
-            .preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-            .schism-wordmark { font-size: clamp(38px, 9vw, 50px); }
-        }
-
-        @media (min-width: 700px) {
-            .wrapper-container { max-width: 760px; }
-            .main-content { width: 100%; }
-            .action-card, .result-card { padding: 24px; }
-            .preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-            .utility-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-
-        @media (orientation: landscape) and (max-height: 520px) {
-            .schism-walk-overlay { align-items: stretch; }
-            .schism-walk-card { width: min(100%, 900px); max-height: 100dvh; }
-            .schism-walk-video-wrap { max-height: 42dvh; aspect-ratio: 16/9; }
-            .schism-walk-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-            .schism-walk-actions .btn { min-width: 0; }
-        }
-
         @media (max-width: 380px) {
             body {
                 padding-left: max(9px, env(safe-area-inset-left));
@@ -851,44 +800,7 @@
             }
         }
 
-    
-        
-        
-        
-        .review-lock-note{display:none;margin-top:10px;font-size:12px;line-height:1.4;color:#fde68a;text-align:center}.result-card.review-locked .review-lock-note{display:block}.result-card.review-locked #copyButton,.result-card.review-locked #btnExportPDF,.result-card.review-locked #btnEmailClient{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}.result-card.review-locked .proposal-item{cursor:default;opacity:.82}.result-card.review-locked .interactive-tooltip{display:none}
-        .review-required-card{margin:0 0 16px;padding:14px 16px;border:1px solid rgba(245,158,11,.55);border-radius:14px;background:rgba(120,53,15,.18);color:#fef3c7}.review-required-title{font-weight:900;font-size:16px;margin-bottom:5px}.review-required-text{font-size:13px;line-height:1.45;color:#fde68a}
-        .evidence-followup{display:none;margin:14px 0;padding:16px;border:1px solid rgba(0,240,255,.32);border-radius:16px;background:rgba(8,47,73,.32)}.evidence-followup.open{display:block}.evidence-followup-kicker{font-size:10px;font-weight:900;letter-spacing:.14em;color:#67e8f9}.evidence-followup h3{margin:5px 0 8px;font-size:19px}.evidence-followup p{margin:0 0 12px;color:#cbd5e1;line-height:1.45}.evidence-followup-actions{display:grid;gap:8px}.evidence-followup-actions .btn{margin:0;min-height:48px}
-        /* SchismMatrix guided property walk */
-        .schism-walk-overlay{position:fixed;inset:0;z-index:2200;display:none;align-items:flex-end;justify-content:center;background:rgba(2,6,23,.92);padding:max(12px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));box-sizing:border-box}.schism-walk-overlay.open{display:flex}.schism-walk-card{width:min(100%,480px);max-height:96vh;overflow:auto;background:#07111f;border:1px solid rgba(0,240,255,.35);border-radius:22px;padding:18px;box-sizing:border-box;box-shadow:0 24px 70px rgba(0,0,0,.75)}.schism-walk-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.schism-walk-kicker{font-size:10px;font-weight:900;letter-spacing:.16em;color:#58efff}.schism-walk-card h2{margin:5px 0 0;font-size:24px;line-height:1.1}.schism-walk-close{border:0;background:transparent;color:#fff;font-size:34px;line-height:1;min-width:44px;min-height:44px;cursor:pointer}.schism-walk-prompt{font-size:16px;line-height:1.45;color:#e2e8f0;margin:14px 0}.schism-walk-video-wrap{position:relative;overflow:hidden;border-radius:16px;background:#000;aspect-ratio:3/4}.schism-walk-video-wrap video{width:100%;height:100%;object-fit:cover;display:block}.schism-walk-count{position:absolute;left:10px;bottom:10px;padding:7px 10px;border-radius:999px;background:rgba(2,6,23,.8);font-size:12px;font-weight:800}.schism-walk-status{min-height:22px;margin:12px 2px;color:#a5f3fc;font-size:13px;line-height:1.4}.schism-walk-actions{display:grid;gap:8px}.schism-walk-actions .btn{margin:0;min-height:52px}.schism-walk-upload{width:100%;border:0;background:transparent;color:#94a3b8;padding:14px 6px 4px;font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}body.schism-walk-open{overflow:hidden}
-        @media(max-width:430px){
-            .schism-walk-overlay{padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
-            .schism-walk-card{max-height:calc(100dvh - 12px);border-radius:18px;padding:14px}
-            .schism-walk-card h2{font-size:21px}
-            .schism-walk-prompt{font-size:15px;margin:10px 0}
-            .schism-walk-video-wrap{aspect-ratio:4/5;max-height:48dvh}
-            .schism-walk-status{margin:8px 2px}
-            .schism-walk-actions .btn{min-height:50px;margin:0}
-            .schism-walk-upload{padding-top:10px}
-            .evidence-followup{padding:14px}
-            .evidence-followup h3{font-size:18px}
-        }
-        @media(max-width:380px) and (max-height:760px){
-            .schism-walk-card{padding:12px}
-            .schism-walk-kicker{font-size:9px}
-            .schism-walk-card h2{font-size:19px}
-            .schism-walk-prompt{font-size:14px;line-height:1.35;margin:8px 0}
-            .schism-walk-video-wrap{aspect-ratio:1/1;max-height:39dvh}
-            .schism-walk-status{font-size:12px;margin:6px 2px}
-            .schism-walk-actions{gap:6px}
-            .schism-walk-actions .btn{min-height:46px;padding:10px}
-            .schism-walk-upload{padding:8px 4px 2px;font-size:12px}
-        }
-        @media(min-width:700px){.schism-walk-overlay{align-items:center}.schism-walk-video-wrap{aspect-ratio:4/3}}
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="/cactusbyte-geo.js"></script>
-    <script src="/satellite-measure.js"></script>
 </head>
 <body>
 
@@ -899,14 +811,10 @@
             </div>
 
             <div class="logo-container">
-                <div class="schism-brand" role="img" aria-label="SchismMatrix, Property Intelligence">
-                    <img class="schism-symbol" src="/assets/schismmatrix-symbol.svg" alt="" aria-hidden="true">
-                    <h1 class="schism-wordmark">SchismMatrix<sup>™</sup></h1>
-                    <div class="schism-descriptor">Property Intelligence</div>
-                </div>
+                <img src="noproblem.webp" alt="No Problem Pressure Washing Solutions Logo" class="brand-logo-img">
             </div>
 
-            <div class="tagline" id="taglineText">Walk the property, capture what matters, and review a clear estimate.</div>
+            <div class="tagline" id="taglineText">Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.</div>
 
             <div class="mode-toggle-container">
                 <div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>
@@ -917,8 +825,7 @@
                 <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                 <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
 
-                <button class="btn" id="btnStartPropertyWalk" onclick="SchismWalkaround.open()">Start Property Walk</button>
-                <button class="btn btn-secondary" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
+                <button class="btn" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Field Photos</button>
                 <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
                 <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
                 <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
@@ -926,21 +833,12 @@
                 <div class="preview-grid" id="imagePreviewGrid">
                     <div class="hud-scan-overlay" id="hudLaserBeam"></div>
                 </div>
-                <div class="evidence-followup" id="evidenceFollowup" aria-live="polite">
-                    <div class="evidence-followup-kicker">ONE MORE LOOK</div>
-                    <h3 id="evidenceFollowupPrompt">Show me one more area.</h3>
-                    <p id="evidenceFollowupReason">This view could affect the work plan or estimate.</p>
-                    <div class="evidence-followup-actions">
-                        <button class="btn" type="button" id="evidenceFollowupPhoto">Take Requested Photo</button>
-                        <button class="btn btn-secondary" type="button" id="evidenceFollowupReview">Can't Get It — Send for Review</button>
-                    </div>
-                </div>
-                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Review Estimate</button>
+                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Run Diagnostic Scan</button>
             </div>
 
             <div class="result-card" id="outputCard" style="display: none;">
                 <div class="result-title-row">
-                    <p class="result-title" id="reportTitleText">Estimate Review</p>
+                    <p class="result-title" id="reportTitleText">Itemized Diagnostic Report</p>
                     <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
                 </div>
 
@@ -955,17 +853,15 @@
                     <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
                 </div>
 
-                <div class="review-lock-note" id="reviewLockNote">Estimate controls stay locked until required evidence is reviewed.</div>
-
                 <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
-                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
+                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="window.print()">Export PDF</button>
                     <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
                 </div>
             </div>
         </div>
         
         <div class="footer" id="cactusbyte-standard-footer">
-            <div>© 2026 SchismMatrix™</div>
+            <div>© 2026 No Problem Pressure Washing Matrix™</div>
             <div>Powered by <strong>Cactus🌵Byte Studios™</strong> · All Rights Reserved</div>
         </div>
     </div>
@@ -978,38 +874,20 @@
                 <span style="cursor: pointer; color: #ef4444; font-size: 18px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" onclick="closeSatelliteModal()">✕</span>
             </div>
             
-            <div class="np-property-search">
-                <input id="npPropertyAddress" autocomplete="street-address" placeholder="Property address" aria-label="Property address">
-                <button type="button" id="npGeocodeBtn">Find</button>
-            </div>
-            <div id="npGeocodeStatus" class="np-sat-status">Use the job GPS or enter the property address.</div>
             <div class="satellite-frame" id="satelliteFrameContainer">
-                <div id="npSatelliteMap" style="width:100%;height:100%"></div>
-            </div>
-            <div class="np-measure-tools">
-                <input id="npMeasureLabel" value="Driveway" placeholder="Surface name" aria-label="Measurement label">
-                <div class="np-mode-row">
-                    <button type="button" data-np-measure-mode="area" aria-pressed="true">Area</button>
-                    <button type="button" data-np-measure-mode="line" aria-pressed="false">Linear</button>
-                </div>
-                <div id="npMeasureReadout" class="np-sat-readout">Tap the map to start measuring.</div>
-                <div class="np-mode-row">
-                    <button type="button" id="npMeasureUndo">Undo point</button>
-                    <button type="button" id="npMeasureClear">Clear</button>
-                    <button type="button" id="npMeasureSave">Save measurement</button>
-                </div>
-                <div id="npMeasurementList"></div>
+                <div class="map-hud-reticle"></div>
+                <div class="map-hud-center-dot"></div>
+                <div class="satellite-img-bg" id="satelliteImgBg" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/61199/37105');"></div>
             </div>
             
-            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add anything SchismMatrix should know about this property:</div>
+            <div style="font-size: 12px; color: #94a3b8; margin-bottom: 8px;" id="modalInstruction">Add property notes or custom instructions for the AI scan:</div>
             <textarea class="satellite-notes-input" id="satelliteNotesInput" placeholder="e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back..."></textarea>
-            <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save Property Notes</button>
+            <button class="btn" onclick="saveSatelliteNotes()" id="modalSaveBtn">Save & Contribute to Scan</button>
         </div>
     </div>
 
     <script>
         let stagedBase64Images = [];
-        let stagedEvidenceMeta = [];
         let priceItemsRegistry = [];
         let techMatrixData = null;
         let currentTotalValue = 0;
@@ -1022,16 +900,16 @@
         const translations = {
             en: {
                 langBtn: "Español",
-                tagline: "Walk the property, capture what matters, and review a clear estimate.",
+                tagline: "Snap photos of any residential or commercial site for an instant property diagnosis and itemized quote.",
                 adminMode: "Admin Mode",
                 techMode: "Technician Mode",
                 takePhotos: "Take Field Photos",
                 uploadPhotos: "Upload Saved Photos",
                 gpsTag: "🛰️ Satellite Site & Notes",
                 gpsUpdate: "🛰️ Update Satellite & Notes",
-                scanBtn: "Review Estimate",
-                reportTitle: "Estimate Review",
-                techReportTitle: "Field Work Plan",
+                scanBtn: "Run Diagnostic Scan",
+                reportTitle: "Itemized Diagnostic Report",
+                techReportTitle: "Field Execution Matrix",
                 copyText: "Copy Text",
                 copyTechPlan: "Copy Tech Plan",
                 copied: "Copied!",
@@ -1040,10 +918,10 @@
                 totalPrice: "Total Contract Price",
                 exportPdf: "Export PDF",
                 emailClient: "Email Client",
-                diagTitle: "Recommended Work & Pricing",
+                diagTitle: "Property Diagnosis & Pricing",
                 hazardsTitle: "Site Hazards & Safety",
                 crewPlanTitle: "🚀 Job Summary & Crew Plan",
-                crewMatrixTitle: "Work Plan",
+                crewMatrixTitle: "Crew Execution Matrix",
                 safetyTitle: "Critical Safety Protocols",
                 totalWindow: "⏱️ Total Window:",
                 recCrew: "👥 Recommended Crew:",
@@ -1054,9 +932,9 @@
                 chem: "🧪 Chemical & Batch Math:",
                 steps: "📋 Field Steps:",
                 modalTitle: "🛰️ Satellite Site Inspector",
-                modalInstruction: "Add anything SchismMatrix should know about this property:",
+                modalInstruction: "Add property notes or custom instructions for the AI scan:",
                 modalPlaceholder: "e.g., Large concrete driveway with oil stains, 2-story vinyl house wash, delicate landscaping in back...",
-                modalSave: "Save Property Notes"
+                modalSave: "Save & Contribute to Scan"
             },
             es: {
                 langBtn: "English",
@@ -1160,7 +1038,6 @@
                             accuracy: position.coords.accuracy
                         };
                         updateSatelliteImageCoords(currentJobLocation.lat, currentJobLocation.lon);
-                        window.MatrixSatelliteMeasurement?.init(currentJobLocation.lat, currentJobLocation.lon);
                     },
                     (error) => {
                         // Fallback to default coordinates if geolocation fails or is denied
@@ -1168,13 +1045,11 @@
                         const defaultLon = -97.5164;
                         currentJobLocation = { lat: defaultLat, lon: defaultLon, accuracy: 0 };
                         updateSatelliteImageCoords(defaultLat, defaultLon);
-                        window.MatrixSatelliteMeasurement?.init(defaultLat, defaultLon);
                     },
                     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                 );
             } else {
                 updateSatelliteImageCoords(35.4676, -97.5164);
-                window.MatrixSatelliteMeasurement?.init(35.4676, -97.5164);
             }
         }
 
@@ -1255,35 +1130,11 @@
                 if (laser) laser.style.display = 'block'; 
                 
                 for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const base64Str = await resizeAndCompressImage(file);
-                    stagedBase64Images.push(base64Str);
-                    const evidence = file.schismEvidence || {};
-                    stagedEvidenceMeta.push({
-                        kind: evidence.kind || 'photo',
-                        source: evidence.source || 'operator_upload',
-                        capturedAt: evidence.capturedAt || new Date(file.lastModified || Date.now()).toISOString(),
-                        provenance: evidence.provenance || 'operator_selected_media',
-                        operatorConfirmationState: evidence.operatorConfirmationState || 'operator_selected'
-                    });
+                    const base64Str = await resizeAndCompressImage(files[i]);
+                    stagedBase64Images.push(base64Str); 
                 }
                 
                 renderPreviewGrid();
-                const followupPanel = document.getElementById('evidenceFollowup');
-                if (followupPanel?.dataset.awaitingRequestedEvidence === 'true') {
-                    const addedCount = files.length;
-                    const start = Math.max(0, stagedEvidenceMeta.length - addedCount);
-                    for (let i = start; i < stagedEvidenceMeta.length; i++) {
-                        stagedEvidenceMeta[i].operatorConfirmationState = 'requested_followup_capture';
-                    }
-                    delete followupPanel.dataset.awaitingRequestedEvidence;
-                }
-                if (document.getElementById('evidenceFollowup')?.classList.contains('open')) {
-                    hideEvidenceFollowup();
-                    const trigger = document.getElementById('processTrigger');
-                    trigger.innerText = currentLang === 'es' ? 'Volver a revisar' : 'Check Again';
-                    trigger.setAttribute('style', 'display: block !important;');
-                }
                 
                 if (laser) laser.style.display = 'none';
             } catch (error) {
@@ -1295,7 +1146,6 @@
 
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
-            stagedEvidenceMeta.splice(index, 1);
             renderPreviewGrid();
         }
 
@@ -1336,7 +1186,7 @@
         }
 
         function togglePriceCard(index) {
-            if (isTechMode || techMatrixData?.requiresHumanReview) return; 
+            if (isTechMode) return; 
             
             const cardElement = document.getElementById(`priceCard_${index}`);
             if (!cardElement || !priceItemsRegistry[index]) return;
@@ -1387,10 +1237,6 @@
 
         function renderAdminModeView(scanData) {
             let htmlOutput = "";
-            if (scanData.requiresHumanReview) {
-                const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not treat this estimate as field-ready until the missing evidence is reviewed.</strong></div></div>`;
-            }
             priceItemsRegistry = [];
             let globalCardIndex = 0;
             const t = translations[currentLang];
@@ -1424,15 +1270,10 @@
             document.getElementById('analysisResult').innerHTML = htmlOutput;
             currentTotalValue = 0;
             recalculateGrandTotal();
-            syncReviewLockState();
         }
 
         function renderTechModeView(scanData) {
             let htmlOutput = "";
-            if (scanData.requiresHumanReview) {
-                const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not start work from this plan until the missing evidence is reviewed.</strong></div></div>`;
-            }
             const t = translations[currentLang];
 
             htmlOutput += `
@@ -1479,16 +1320,12 @@
             }
 
             document.getElementById('analysisResult').innerHTML = htmlOutput;
-            syncReviewLockState();
         }
 
         function generateActiveProposalText() {
             let proposalText = "";
-            const reviewWarning = techMatrixData?.requiresHumanReview
-                ? `REVIEW REQUIRED: ${techMatrixData.humanReviewReason || 'Important property evidence is still missing.'}\nThis estimate/work plan is not field-ready until reviewed.\n\n`
-                : "";
             if (isTechMode) {
-                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n` + reviewWarning;
+                proposalText = `NO PROBLEM PRESSURE WASHING - FIELD EXECUTION MATRIX\n`;
                 proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
                 if (currentJobLocation) {
                     proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
@@ -1513,8 +1350,8 @@
                 }
             } else {
                 proposalText = currentLang === 'es' 
-                    ? `SCHISMMATRIX - REVISIÓN DE ESTIMACIÓN\n\n`
-                    : `SCHISMMATRIX - ESTIMATE REVIEW\n\n`;
+                    ? `NO PROBLEM PRESSURE WASHING - PROPUESTA DE DIAGNÓSTICO DETALLADA\n\n`
+                    : `NO PROBLEM PRESSURE WASHING - ITEMIZED DIAGNOSTIC PROPOSAL\n\n`;
                 
                 if (currentJobLocation) {
                     proposalText += currentLang === 'es' 
@@ -1542,32 +1379,7 @@
             return proposalText;
         }
 
-        function syncReviewLockState() {
-            const locked = Boolean(techMatrixData?.requiresHumanReview);
-            document.getElementById('outputCard')?.classList.toggle('review-locked', locked);
-            ['copyButton', 'btnExportPDF', 'btnEmailClient'].forEach(id => {
-                const el = document.getElementById(id);
-                if (!el) return;
-                el.disabled = locked;
-                el.setAttribute('aria-disabled', locked ? 'true' : 'false');
-                el.title = locked ? 'Locked until human review is complete.' : '';
-            });
-        }
-
-        function blockUnreviewedExternalAction(actionName) {
-            if (!techMatrixData?.requiresHumanReview) return false;
-            const reason = techMatrixData.humanReviewReason || 'Important property evidence is still missing.';
-            alert(actionName + ' is locked until human review is complete.\n\n' + reason);
-            return true;
-        }
-
-        function exportProposal() {
-            if (blockUnreviewedExternalAction('Export')) return;
-            window.print();
-        }
-
         function copyToClipboard() {
-            if (blockUnreviewedExternalAction('Copy')) return;
             navigator.clipboard.writeText(generateActiveProposalText());
             const btn = document.getElementById('copyButton');
             const originalText = btn.innerText;
@@ -1576,70 +1388,11 @@
         }
 
         function sendProposalEmail() {
-            if (blockUnreviewedExternalAction('Email')) return;
             window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
         }
 
-        function hideEvidenceFollowup() {
-            const panel = document.getElementById('evidenceFollowup');
-            panel?.classList.remove('open');
-            if (panel) {
-                delete panel.dataset.awaitingRequestedEvidence;
-                delete panel.dataset.reviewSignature;
-            }
-        }
-
-        function showEvidenceFollowup(request, review) {
-            const panel = document.getElementById('evidenceFollowup');
-            if (!panel) return;
-            panel.dataset.reviewSignature = JSON.stringify({
-                prompt: request?.prompt || '',
-                reason: request?.reason || '',
-                summary: review?.summary || ''
-            });
-            document.getElementById('evidenceFollowupPrompt').textContent = request?.prompt || 'Add one more property view.';
-            document.getElementById('evidenceFollowupReason').textContent = request?.reason || review?.summary || 'This view could affect the work plan or estimate.';
-            panel.classList.add('open');
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        document.getElementById('evidenceFollowupPhoto')?.addEventListener('click', () => {
-            const panel = document.getElementById('evidenceFollowup');
-            if (panel) panel.dataset.awaitingRequestedEvidence = 'true';
-            document.getElementById('cameraInput').click();
-        });
-        window.addEventListener('focus', () => {
-            const panel = document.getElementById('evidenceFollowup');
-            if (!panel || panel.dataset.awaitingRequestedEvidence !== 'true') return;
-            setTimeout(() => {
-                if (panel.dataset.awaitingRequestedEvidence === 'true') {
-                    delete panel.dataset.awaitingRequestedEvidence;
-                }
-            }, 500);
-        });
-
-        document.getElementById('evidenceFollowupReview')?.addEventListener('click', () => {
-            const review = techMatrixData?.evidenceReview;
-            const missing = Array.isArray(review?.missingEvidence) ? review.missingEvidence : [];
-            const uncertain = Array.isArray(review?.uncertainEvidence) ? review.uncertainEvidence : [];
-            const request = [...missing, ...uncertain].find(item => item?.prompt) || null;
-            if (techMatrixData) {
-                techMatrixData.requiresHumanReview = true;
-                techMatrixData.humanReviewReason = request?.reason || review?.summary || 'Property evidence is incomplete.';
-            }
-            hideEvidenceFollowup();
-            document.getElementById('outputCard').style.display = 'block';
-            document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
-            if (isTechMode) renderTechModeView(techMatrixData);
-            else renderAdminModeView(techMatrixData);
-            document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
-            if (!stagedBase64Images.length || processTrigger.dataset.submitting === 'true') return;
-            processTrigger.dataset.submitting = 'true';
-            processTrigger.disabled = true;
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
@@ -1650,12 +1403,12 @@
                 "Procesando datos del sitio...",
                 "Iniciando análisis de superficie..."
             ] : [
-                "Reviewing property photos and notes...",
-                "Checking the property...",
-                "Building the estimate...",
-                "Reviewing visible surfaces...",
-                "Checking property details...",
-                "Putting the property review together..."
+                "Analyzing Matrix with Satellite & Notes...",
+                "Executing Site Diagnosis...",
+                "Generating Field Estimate...",
+                "Scanning Property Surfaces...",
+                "Processing Site Data...",
+                "Initiating Surface Analysis..."
             ];
 
             let phraseIndex = 0;
@@ -1670,15 +1423,7 @@
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const submissionCount = Math.min(8, stagedBase64Images.length);
-                const payloadImages = stagedBase64Images.slice(0, submissionCount).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
-                const payloadEvidenceMeta = Array.from({ length: submissionCount }, (_, index) => stagedEvidenceMeta[index] || {
-                    kind: 'photo',
-                    source: 'operator_upload',
-                    capturedAt: null,
-                    provenance: 'operator_selected_media',
-                    operatorConfirmationState: 'operator_selected'
-                });
+                const payloadImages = stagedBase64Images.slice(0, 4).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -1687,11 +1432,9 @@
                         'Accept': 'application/json' 
                     },
                     body: JSON.stringify({ 
-                        images: payloadImages,
-                        evidenceMeta: payloadEvidenceMeta,
+                        images: payloadImages, 
                         settings: {},
                         location: currentJobLocation,
-                        satelliteMeasurements: window.MatrixSatelliteMeasurement?.getMeasurements?.() || [],
                         siteNotes: userSiteNotes 
                     }),
                     signal: controller.signal
@@ -1719,36 +1462,6 @@
                 }
                 
                 techMatrixData = data.rawMatrixData;
-
-                const evidenceReview = techMatrixData?.evidenceReview;
-                if (techMatrixData?.requiresHumanReview || evidenceReview?.readyForEstimate !== true) {
-                    const missing = Array.isArray(evidenceReview.missingEvidence) ? evidenceReview.missingEvidence : [];
-                    const uncertain = Array.isArray(evidenceReview.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
-                    const firstRequest = [...missing, ...uncertain].find(item => item && item.prompt);
-                    if (!firstRequest) {
-                        techMatrixData.requiresHumanReview = true;
-                        techMatrixData.humanReviewReason = evidenceReview.summary || 'SchismMatrix could not verify enough property evidence for a field-ready estimate.';
-                        hideEvidenceFollowup();
-                        document.getElementById('outputCard').style.display = 'block';
-                        document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
-                        if (isTechMode) renderTechModeView(techMatrixData);
-                        else renderAdminModeView(techMatrixData);
-                        processTrigger.setAttribute('style', 'display: none !important;');
-                        processTrigger.disabled = false;
-                        delete processTrigger.dataset.submitting;
-                        return;
-                    }
-                    showEvidenceFollowup(firstRequest, evidenceReview);
-                    processTrigger.className = 'btn btn-trigger';
-                    processTrigger.innerText = translations[currentLang].scanBtn;
-                    processTrigger.disabled = false;
-                    delete processTrigger.dataset.submitting;
-                    return;
-                } else {
-                    techMatrixData.requiresHumanReview = false;
-                    delete techMatrixData.humanReviewReason;
-                    hideEvidenceFollowup();
-                }
                 
                 document.getElementById('outputCard').style.display = 'block';
                 document.getElementById('actionPanel').setAttribute('style', 'display: grid !important;');
@@ -1760,8 +1473,6 @@
                 }
                 
                 processTrigger.setAttribute('style', 'display: none !important;');
-                processTrigger.disabled = false;
-                delete processTrigger.dataset.submitting;
 
                 setTimeout(() => {
                     document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1779,8 +1490,6 @@
                 alert('Analysis connection fault: ' + feedback);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = translations[currentLang].scanBtn;
-                processTrigger.disabled = false;
-                delete processTrigger.dataset.submitting;
             }
         }
 
@@ -1814,6 +1523,5 @@
         }
     </script>
     <script src="/demo-config.js"></script>
-    <script src="/schism-walkaround.js"></script>
 </body>
 </html>
