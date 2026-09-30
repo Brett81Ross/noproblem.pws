@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pressure Washing Matrix — Aug. 4 Recovery Candidate</title>
+<style>
+:root{color-scheme:dark;--bg:#03080c;--panel:#07141b;--line:#173440;--cyan:#58efff;--text:#edfaff;--muted:#8caab3;--ok:#aeff4e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#0b2530 0,#03080c 48%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.app-shell{width:min(100%,760px);margin:auto;padding:max(16px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom))}
+.brand-stage{text-align:center;padding:12px 0}.brand-logo{max-width:420px;width:86%;height:auto}.product-mark{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);font-weight:900}.hero-copy{text-align:center;color:var(--muted);line-height:1.5;margin:8px auto 20px;max-width:620px}
+.matrix-card{background:rgba(7,20,27,.94);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 18px 45px rgba(0,0,0,.3)}
+.matrix-card h2{font-size:17px;margin:0 0 6px}.sub{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 14px}.mission-fields{display:grid;grid-template-columns:1fr;gap:10px}
+label{display:grid;gap:6px;color:#b9d6dd;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+input,textarea{width:100%;border:1px solid #1c414e;border-radius:12px;background:#020b10;color:var(--text);padding:13px;font:inherit}textarea{min-height:92px;resize:vertical}
+.scope-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.service-chip{min-height:48px;border:1px solid #1c414e;border-radius:12px;background:#061219;color:#cce9ef;font-weight:800;padding:10px;cursor:pointer}.service-chip.is-selected{border-color:var(--cyan);color:#fff;background:#0b2832}.evidence-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.evidence-slot{border:1px dashed #245361;border-radius:14px;min-height:155px;padding:10px;background:#041017;display:grid;align-content:start;gap:6px;position:relative;overflow:hidden}.evidence-slot strong{font-size:12px}.slot-hint{font-size:11px;color:var(--muted);line-height:1.35}.evidence-slot img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px}.slot-button{border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}.remove{position:absolute;right:7px;top:7px;border:1px solid #4a6570;background:#07141b;color:#fff;border-radius:50%;width:28px;height:28px}
+.photo-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.button,.scan-button{min-height:52px;border:0;border-radius:13px;font-weight:900;cursor:pointer;padding:12px}.button{background:#10242c;color:#dff9ff;border:1px solid #245361}.scan-button{width:100%;margin-top:14px;background:linear-gradient(135deg,#a7fbff,#42ccdd);color:#001215}.scan-button:disabled{opacity:.45;cursor:not-allowed}.status{font-size:12px;color:var(--muted)}.results{display:none}.results.is-visible{display:block}.service-result{padding:12px;border:1px solid #173440;border-radius:12px;margin:8px 0}.money{font-size:24px;font-weight:950;color:var(--ok)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.footer{text-align:center;color:#68848d;font-size:10px;padding:18px}
+@media(min-width:620px){.mission-fields{grid-template-columns:1fr 1.3fr}.scope-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.evidence-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main class="app-shell">
+<section class="brand-stage"><img class="brand-logo" src="/brand-logo.webp" alt="Pressure Washing Matrix"></section>
+<div class="product-mark">Pressure Washing Matrix · Recovery Candidate</div>
+<p class="hero-copy">Property photos in. Field-ready estimate out. This candidate reconstructs the verified four-photo Aug. 4 workflow without later demo, VIP, splash, Supply Matrix, or Quick Quote layers.</p>
+<section class="matrix-card">
+<h2>Property</h2><p class="sub">Identify the job and add field notes before analysis.</p>
+<div class="mission-fields"><label>Property address<input id="jobAddress" autocomplete="street-address"></label><label>Site notes<textarea id="siteNotes" placeholder="Access, stains, obstacles, customer requests, or anything the photos may not show."></textarea></label></div>
+</section>
+<section class="matrix-card">
+<h2>Observed scope</h2><p class="sub">Select what appears relevant. The analysis can refine the estimate; selection does not authorize excluded work.</p>
+<div class="scope-grid" id="scopeGrid">
+<button class="service-chip" type="button" data-service="house_wash">One-Story House Soft Wash</button>
+<button class="service-chip" type="button" data-service="driveway_cleaning">Driveway</button>
+<button class="service-chip" type="button" data-service="sidewalk_cleaning">Sidewalk</button>
+<button class="service-chip" type="button" data-service="patio_cleaning">Patio</button>
+<button class="service-chip" type="button" data-service="deck_cleaning">Deck</button>
+<button class="service-chip" type="button" data-service="fence_cleaning">Fence</button>
+<button class="service-chip" type="button" data-service="retaining_wall">Retaining Wall</button>
+<button class="service-chip" type="button" data-service="dumpster_pad">Dumpster / Bin Pad</button>
+<button class="service-chip" type="button" data-service="rust_treatment">Rust Treatment</button>
+<button class="service-chip" type="button" data-service="oil_treatment">Oil / Grease</button>
+</div>
+</section>
+<section class="matrix-card">
+<div class="evidence-head"><div><h2>Property evidence</h2><p class="sub" style="margin:4px 0 0">Four purposeful photos beat twenty random ones. Use the angles below to build a scan the customer and your crew can both understand.</p></div><strong id="photoCount">0 / 4</strong></div>
+<div class="status" id="evidenceStatus">Ready for scan</div>
+<div class="evidence-grid" id="evidenceGrid"></div>
+<div class="photo-actions"><button class="button" id="cameraButton" type="button">Take photo</button><button class="button" id="uploadButton" type="button">Upload photos</button></div>
+<input id="cameraInput" type="file" accept="image/*" capture="environment" hidden><input id="uploadInput" type="file" accept="image/*" multiple hidden>
+<button class="scan-button" id="analyzeButton" type="button" disabled>Analyze Property</button>
+</section>
+<section class="matrix-card results" id="resultsSection"><h2>Estimate review</h2><div id="resultsMount"></div><div class="actions"><button class="button" id="copyButton" type="button">Copy estimate</button><button class="button" id="emailButton" type="button">Email estimate</button></div></section>
+<footer class="footer">Recovery candidate only · isolated branch · not production</footer>
+</main>
+<script>
+(function(){
+'use strict';
+var PHOTO_SLOTS=[
+ {title:"Front / main view",hint:"Show the primary exterior and nearby work surfaces"},
+ {title:"Work surface",hint:"Driveway, walkway, patio, fence, deck, or main service area"},
+ {title:"Problem close-up",hint:"Growth, staining, oxidation, oil, rust, or damaged area"},
+ {title:"Access & protection",hint:"Gates, outlets, landscaping, vehicles, furniture, or tight access"}
+];
+var SERVICE_LABELS={house_wash:"One-Story House Soft Wash",driveway_cleaning:"Driveway Surface Cleaning",sidewalk_cleaning:"Sidewalk Surface Cleaning",patio_cleaning:"Patio Cleaning",deck_cleaning:"Deck Cleaning",fence_cleaning:"Fence Cleaning",retaining_wall:"Retaining Wall Cleaning",dumpster_pad:"Dumpster / Bin Pad",rust_treatment:"Rust Treatment",oil_treatment:"Oil / Grease Treatment"};
+var state={photos:[null,null,null,null],photoTarget:0,loading:false,report:null,activeServices:new Set()};
+var el={jobAddress:document.getElementById("jobAddress"),siteNotes:document.getElementById("siteNotes"),evidenceGrid:document.getElementById("evidenceGrid"),photoCount:document.getElementById("photoCount"),evidenceStatus:document.getElementById("evidenceStatus"),cameraInput:document.getElementById("cameraInput"),uploadInput:document.getElementById("uploadInput"),analyzeButton:document.getElementById("analyzeButton"),resultsSection:document.getElementById("resultsSection"),resultsMount:document.getElementById("resultsMount")};
+document.querySelectorAll(".service-chip").forEach(function(btn){btn.addEventListener("click",function(){var id=btn.dataset.service;if(state.activeServices.has(id))state.activeServices.delete(id);else state.activeServices.add(id);btn.classList.toggle("is-selected",state.activeServices.has(id));});});
+function renderPhotos(){var count=state.photos.filter(Boolean).length;el.photoCount.textContent=count+" / 4";el.evidenceStatus.textContent=count===0?"Ready for scan":count===4?"Full evidence set":count+" view"+(count===1?"":"s")+" loaded";el.analyzeButton.disabled=count===0||state.loading;el.evidenceGrid.innerHTML="";PHOTO_SLOTS.forEach(function(slot,i){var wrap=document.createElement("div");wrap.className="evidence-slot";if(state.photos[i]){wrap.innerHTML='<img alt="'+slot.title+'"><button class="remove" type="button" aria-label="Remove photo">×</button><strong>'+slot.title+'</strong>';wrap.querySelector("img").src=state.photos[i];wrap.querySelector(".remove").onclick=function(){state.photos[i]=null;renderPhotos();};}else{wrap.innerHTML='<button class="slot-button" type="button"><strong>'+slot.title+'</strong><div class="slot-hint">'+slot.hint+'</div></button>';wrap.querySelector("button").onclick=function(){state.photoTarget=i;el.cameraInput.click();};}el.evidenceGrid.appendChild(wrap);});}
+function findAvailableSlot(start){for(var n=0;n<4;n++){var i=(start+n)%4;if(!state.photos[i])return i;}return -1;}
+function compress(file){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onerror=reject;reader.onload=function(){var img=new Image();img.onerror=reject;img.onload=function(){var longest=Math.max(img.width,img.height);var scale=Math.min(1,1100/longest);var canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",0.68));};img.src=reader.result;};reader.readAsDataURL(file);});}
+async function stageFiles(fileList){var files=Array.prototype.slice.call(fileList||[]).slice(0,4);for(var fileIndex=0;fileIndex<files.length;fileIndex++){var slot=findAvailableSlot((state.photoTarget+fileIndex)%4);if(slot<0)break;state.photos[slot]=await compress(files[fileIndex]);}renderPhotos();}
+window.stageFiles=stageFiles;
+el.cameraInput.addEventListener("change",function(){stageFiles(el.cameraInput.files);el.cameraInput.value="";});el.uploadInput.addEventListener("change",function(){stageFiles(el.uploadInput.files);el.uploadInput.value="";});
+document.getElementById("cameraButton").onclick=function(){state.photoTarget=findAvailableSlot(0);el.cameraInput.click();};document.getElementById("uploadButton").onclick=function(){state.photoTarget=findAvailableSlot(0);el.uploadInput.click();};
+function money(v){return "$"+(Number(v)||0).toFixed(2);}
+function getTotal(){if(!state.report)return 0;var subtotal=(state.report.services||[]).filter(function(s){return state.activeServices.has(s.serviceId||s.id);}).reduce(function(sum,s){return sum+(Number(s.calculatedPrice)||0);},0);var minimum=Number(state.report.quoteMeta&&state.report.quoteMeta.minimumJob)||199;return Math.max(minimum,subtotal);}
+function renderResults(){var report=state.report;if(!report)return;var services=report.services||[];if(!state.activeServices.size)services.forEach(function(s){state.activeServices.add(s.serviceId||s.id);});el.resultsMount.innerHTML="";services.forEach(function(s){var id=s.serviceId||s.id;var card=document.createElement("div");card.className="service-result";card.innerHTML="<strong>"+(s.label||SERVICE_LABELS[id]||"Service")+"</strong><div class='sub'>"+(s.reason||"")+"</div><div>"+money(s.calculatedPrice)+"</div>";el.resultsMount.appendChild(card);});var total=document.createElement("div");total.className="money";total.textContent="Selected plan total: "+money(getTotal());el.resultsMount.appendChild(total);el.resultsSection.classList.add("is-visible");}
+function proposalText(){if(!state.report)return"";var lines=["PRESSURE WASHING MATRIX ESTIMATE",el.jobAddress.value.trim()?"PROPERTY: "+el.jobAddress.value.trim():"",""];(state.report.services||[]).forEach(function(s){var id=s.serviceId||s.id;if(state.activeServices.has(id))lines.push((s.label||SERVICE_LABELS[id]||"Service")+": "+money(s.calculatedPrice));});lines.push("","SELECTED PLAN TOTAL: "+money(getTotal()),"","No roofs, ladders, gutters, or two-story work are included.");if(el.siteNotes.value.trim())lines.push("SITE NOTES: "+el.siteNotes.value.trim());return lines.filter(Boolean).join("\n");}
+el.analyzeButton.onclick=async function(){if(state.loading)return;var images=state.photos.filter(Boolean).map(function(x){return x.split(",")[1]||x;});if(!images.length)return;state.loading=true;renderPhotos();el.analyzeButton.textContent="Analyzing…";try{var response=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({images:images,location:null,siteNotes:el.siteNotes.value.trim()})});var payload=await response.json();if(!response.ok||!payload.success)throw new Error(payload.details||payload.error||"Analysis failed");state.report=payload.rawMatrixData||{};state.report.quoteMeta=state.report.quoteMeta||{minimumJob:199};renderResults();}catch(err){alert("Analysis connection fault: "+err.message);}finally{state.loading=false;el.analyzeButton.textContent="Analyze Property";renderPhotos();}};
+document.getElementById("copyButton").onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(proposalText());};document.getElementById("emailButton").onclick=function(){location.href="mailto:?subject="+encodeURIComponent("Pressure Washing Estimate")+"&body="+encodeURIComponent(proposalText());};
+renderPhotos();
+})();
+</script>
+</body>
+</html>
