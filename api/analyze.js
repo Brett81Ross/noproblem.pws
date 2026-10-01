@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 4;
+const LAUNCH_EXCLUDED_SERVICES = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -89,7 +90,12 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings, location, siteNotes } = req.body;
+        const { images, location, siteNotes, requestedServices, buildingScope } = req.body;
+        const safeRequestedServices = Array.isArray(requestedServices)
+            ? requestedServices.filter((serviceId) => typeof serviceId === 'string' && !LAUNCH_EXCLUDED_SERVICES.has(serviceId))
+            : [];
+        const elevatedScopeRequested = buildingScope?.level === 'multiple'
+            || /multi|two[- ]?story|second[- ]?story|roof|ladder|high[- ]?access/i.test(String(buildingScope?.label || ''));
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
@@ -114,7 +120,7 @@ async function handler(req, res) {
             }
         });
 
-        const rateCard = buildRateCard(settings);
+        const rateCard = buildRateCard();
 
         let contextBlock = "";
         if (location) {
@@ -123,12 +129,21 @@ async function handler(req, res) {
         if (siteNotes) {
             contextBlock += `\n- User/Tech Site Notes & Custom Instructions: "${siteNotes}"`;
         }
+        if (safeRequestedServices.length) {
+            contextBlock += `\n- Customer-requested launch services to evaluate against the photos: ${safeRequestedServices.join(', ')}`;
+        }
+        if (buildingScope?.label) {
+            contextBlock += `\n- Building scope selected in the app: ${buildingScope.label}`;
+        }
+        contextBlock += '\n- LAUNCH SCOPE BOUNDARY: roofs, ladders, gutter work, and high-access/multi-level execution are not authorized launch services. Observing those conditions is allowed, but they require manual review and must not be converted into executable scope.';
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property or site, plus optional satellite metadata and site notes. You MUST scan and analyze EVERY SINGLE IMAGE and text note provided.
         ${contextBlock}
         
         STRICT OPERATIONAL, PRICING & FIELD SAFETY PROTOCOLS:
+        0. EVIDENCE REVIEW: Before treating the estimate as field-ready, assess whether the supplied photos and notes establish material, condition, contamination, access, surroundings/property protection, runoff/drainage, and hazards relevant to the requested work. Do not invent facts merely to make the estimate ready.
+        0.1 READINESS: Include an evidenceReview object with readyForEstimate, missingEvidence, uncertainEvidence, confirmedCategories, and summary. Set readyForEstimate false whenever missing or uncertain evidence could materially change qualification, safety, scope, or price. Missing/uncertain prompts must be short field instructions a first-day employee can follow.
         1. MANDATORY CONCRETE & FLATWORK SCANNERS: Look closely at all images and site notes. If you see concrete, driveways, sidewalks, walkways, aprons, or parking slabs, you MUST include serviceId "driveway_cleaning" or "sidewalk_cleaning" with estimated square footage. Do not skip flatwork.
         2. TRASH PADS & DUMPSTERS: If you see trash bins, garbage cans, dumpster pads, or waste collection bins, you MUST include serviceId "dumpster_pad".
         3. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
@@ -143,6 +158,13 @@ async function handler(req, res) {
         
         IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with ''. Use the following exact JSON structure:
         {
+            "evidenceReview": {
+                "readyForEstimate": false,
+                "missingEvidence": [],
+                "uncertainEvidence": [],
+                "confirmedCategories": [],
+                "summary": ""
+            },
             "services": [
                 {
                     "serviceId": "driveway_cleaning",
@@ -202,6 +224,36 @@ async function handler(req, res) {
             throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
+        const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
+        const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
+        const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
+        const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
+
+        if (Array.isArray(scanData.services)) {
+            scanData.services = scanData.services.filter((service) => !LAUNCH_EXCLUDED_SERVICES.has(service?.serviceId));
+        }
+
+        if (elevatedScopeRequested) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
+            };
+        }
+
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
+        if (!explicitlyReady) {
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
+                ? evidenceReview.summary.trim().slice(0, 500)
+                : (hasUsableFollowup
+                    ? 'Additional property evidence is required before this estimate is field-ready.'
+                    : 'Matrix could not verify enough property evidence for a field-ready estimate.');
+        } else {
+            scanData.requiresHumanReview = false;
+            delete scanData.humanReviewReason;
+        }
+
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
