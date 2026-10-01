@@ -70,3 +70,12 @@ The candidate preserves verified Aug. 4-era runtime anchors: four photo slots, f
 Before any preview, the candidate was hardened so a new analysis clears stale report state, failed or timed-out analysis cannot leave an old estimate presented as current, malformed API responses fail without creating an estimate, zero selected services produce a zero total, and AI-returned labels/reasons are rendered as text rather than injected HTML.
 
 This candidate is evidence-backed reconstruction, not a claim of byte-identical recovery of the unavailable Aug. 4 Vercel artifact.
+
+
+## Backend authority gate
+
+The recovery API was brought forward only for the specific proven authority rules needed by the candidate: launch exclusions for roofs/gutters/high-access, positive readiness semantics requiring literal `evidenceReview.readyForEstimate === true`, human-review state when that condition is not met, and server-returned `quoteMeta.minimumJob`.
+
+The recovery candidate now sends selected service IDs to the server for evaluation, refuses to render an estimate unless the server explicitly reports readiness, and refuses to price if server-authorized quote metadata is absent. The candidate does not carry a browser-editable minimum-job setting.
+
+The recovery API intentionally does not import the later calibration-vault modules because those modules are not present in the historical recovery branch. This keeps the recovery boundary explicit rather than pretending the later calibration architecture existed in the Aug. 4 baseline.
