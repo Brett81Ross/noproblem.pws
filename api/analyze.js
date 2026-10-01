@@ -271,6 +271,8 @@ async function handler(req, res) {
             });
         }
 
+        scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
+
         return res.status(200).json({
             success: true,
             rawMatrixData: scanData
