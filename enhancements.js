@@ -194,8 +194,8 @@
     if (houseWash) houseWash.textContent = 'House wash';
 
     if (normalized === MULTIPLE_LEVELS) {
-      if (note) note.textContent = 'Plans and quotes include multi-level exterior washing, roof soft washing, and the access equipment needed for the job.';
-      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multi-level exterior and roof soft washing are enabled. Use professional extension equipment, lifts, or approved access methods.';
+      if (note) note.textContent = 'Multiple levels were observed. Launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution; manual review is required.';
+      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multiple levels require manual review. Roofs, ladders, gutter work, and high-access/multi-level execution remain excluded at launch.';
     } else {
       if (roofWash && roofWash.getAttribute('aria-pressed') === 'true') roofWash.click();
       if (note) note.textContent = 'Plans and quotes are limited to ground-level and one-story exterior washing.';
