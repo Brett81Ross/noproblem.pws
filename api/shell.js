@@ -648,7 +648,7 @@ module.exports = async function handler(req, res) {
 
     html = replaceOrInject(
       html,
-      /<footer\s+class=["']footer["'][^>]*>[\s\S]*?<\/footer>/i,
+      /<(?:footer|div)\s+class=["']footer["'][^>]*>[\s\S]*?<\/(?:footer|div)>/i,
       '<footer class="footer">SchismMatrix™ · v1.1.0<br><a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none"><strong>Cactus🌵Byte Studios™</strong></a> · All Rights Reserved</footer>',
       '</body>',
       ''
