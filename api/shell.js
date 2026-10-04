@@ -20,12 +20,12 @@ module.exports = async function handler(req, res) {
     const headAdditions = `
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" type="image/webp" sizes="192x192" href="/app-icon-192.webp">
-    <meta property="og:title" content="No Problem Pressure Washing Matrix™">
+    <meta property="og:title" content="SchismMatrix™ — Property Intelligence">
     <meta property="og:description" content="Photo-to-plan estimating, field diagnostics, safety checks, crew workflow, and Supply Matrix inventory for No Problem Pressure Washing.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://noproblem-pws.vercel.app/brand-logo.webp">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="No Problem Pressure Washing Matrix™">
+    <meta name="twitter:title" content="SchismMatrix™ — Property Intelligence">
     <meta name="twitter:description" content="Photo-to-plan estimating, field diagnostics, crew workflow, and Supply Matrix inventory.">
     <meta name="twitter:image" content="https://noproblem-pws.vercel.app/brand-logo.webp">
     <style id="matrixBrandPolish">
@@ -636,6 +636,8 @@ module.exports = async function handler(req, res) {
       'jobAddress: state.jobAddress.value.trim(),\n                    customerEmail: document.getElementById("customerEmail") ? document.getElementById("customerEmail").value.trim() : "",\n                    customerPhone: document.getElementById("customerPhone") ? document.getElementById("customerPhone").value.trim() : "",\n                    siteNotes:'
     );
 
+    html = html.replace(/<title>[\s\S]*?<\/title>/i, '<title>SchismMatrix™ — Property Intelligence</title>');
+
     html = replaceOrInject(
       html,
       /<img\s+class=["']brand-logo["'][^>]*>/i,
@@ -647,7 +649,7 @@ module.exports = async function handler(req, res) {
     html = replaceOrInject(
       html,
       /<footer\s+class=["']footer["'][^>]*>[\s\S]*?<\/footer>/i,
-      '<footer class="footer">© 2026 No Problem Pressure Washing Matrix™<br>Cactus🌵Byte Studios™ · All Rights Reserved</footer>',
+      '<footer class="footer">SchismMatrix™ · v1.1.0<br><a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none"><strong>Cactus🌵Byte Studios™</strong></a> · All Rights Reserved</footer>',
       '</body>',
       ''
     );
