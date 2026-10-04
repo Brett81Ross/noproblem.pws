@@ -30,6 +30,8 @@ assert(!enhancements.includes('multi-level exterior and roof soft washing are en
 assert(read('api/shell.js').includes("<title>SchismMatrix™ — Property Intelligence</title>"), 'generated shell title is not SchismMatrix');
 assert(read('api/shell.js').includes('SchismMatrix™ · v1.1.0'), 'Schism footer/version is missing');
 assert(read('api/shell.js').includes('https://cactusbyte-studios.vercel.app'), 'CactusByte footer destination is missing');
+assert(read('runtime/base-shell.html').includes('SchismMatrix™ · v1.1.0'), 'runtime footer is not SchismMatrix');
+assert(!read('runtime/base-shell.html').includes('© 2026 No Problem Pressure Washing Matrix™'), 'legacy main footer remains in runtime shell');
 assert(enhancements.includes('Multiple levels were observed. Launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution; manual review is required.'), 'multi-level safety copy is missing');
 
 console.log('Schism evidence contract QA passed');
