@@ -19,7 +19,6 @@
     'retaining_wall',
     'dumpster_pad',
     'oil_treatment',
-    'roof_soft_wash'
   ];
 
   var SPECIALTY_GUIDES = [
@@ -307,9 +306,10 @@
   }
 
   function selectedServiceIds() {
+    var launchExcluded = { roof_soft_wash: true, gutter_cleaning: true, gutter_brightening: true };
     return Array.prototype.slice.call(document.querySelectorAll('[data-service][aria-pressed="true"]'))
       .map(function (button) { return button.getAttribute('data-service'); })
-      .filter(function (id) { return Boolean(GUIDES[id]); });
+      .filter(function (id) { return Boolean(GUIDES[id]) && !launchExcluded[id]; });
   }
 
   function capturedSlots() {

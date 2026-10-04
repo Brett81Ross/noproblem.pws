@@ -1,4 +1,6 @@
-const UPSTREAM = 'https://noproblem-366sn8eq2-brett-ross-projects1.vercel.app/';
+const fs = require('fs');
+const path = require('path');
+const BASE_SHELL_PATH = path.join(process.cwd(), 'runtime', 'base-shell.html');
 
 function replaceOrInject(html, pattern, replacement, fallbackMarker, fallbackContent) {
   if (pattern.test(html)) return html.replace(pattern, replacement);
@@ -13,27 +15,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(UPSTREAM, {
-      headers: {
-        'user-agent': req.headers['user-agent'] || 'NoProblemMatrixShell/1.2'
-      }
-    });
-
-    if (!upstream.ok) {
-      throw new Error(`Upstream returned ${upstream.status}`);
-    }
-
-    let html = await upstream.text();
+    let html = fs.readFileSync(BASE_SHELL_PATH, 'utf8');
 
     const headAdditions = `
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" type="image/webp" sizes="192x192" href="/app-icon-192.webp">
-    <meta property="og:title" content="No Problem Pressure Washing Matrix™">
+    <meta property="og:title" content="SchismMatrix™ — Property Intelligence">
     <meta property="og:description" content="Photo-to-plan estimating, field diagnostics, safety checks, crew workflow, and Supply Matrix inventory for No Problem Pressure Washing.">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://noproblem-pws.vercel.app/brand-logo.webp">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="No Problem Pressure Washing Matrix™">
+    <meta name="twitter:title" content="SchismMatrix™ — Property Intelligence">
     <meta name="twitter:description" content="Photo-to-plan estimating, field diagnostics, crew workflow, and Supply Matrix inventory.">
     <meta name="twitter:image" content="https://noproblem-pws.vercel.app/brand-logo.webp">
     <style id="matrixBrandPolish">
@@ -252,14 +244,6 @@ module.exports = async function handler(req, res) {
         background: linear-gradient(135deg, rgba(255, 200, 87, .1), rgba(255, 111, 181, .08));
       }
 
-      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"] {
-        display: block;
-      }
-
-      body[data-building-level="multiple"] .service-chip[data-service="roof_soft_wash"].is-selected {
-        border-color: rgba(255, 200, 87, .78) !important;
-        background: linear-gradient(135deg, rgba(255, 200, 87, .27), rgba(255, 111, 181, .2)) !important;
-      }
 
       .service-chip[data-service="memorial_cleaning"],
       .service-chip[data-service="vehicle_wash"],
@@ -542,7 +526,7 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                return Math.max(minimum, subtotal);',
-      'var minimum = Number(state.report.quoteMeta.minimumJob) || 99.99;\n                var discount = Math.max(0, Math.min(100, Number(state.quoteDiscountPercent) || 0));\n                return Math.max(minimum, subtotal * (1 - (discount / 100)));'
+      'var minimum = Number(state.report && state.report.quoteMeta && state.report.quoteMeta.minimumJob);\n                var discount = Math.max(0, Math.min(100, Number(state.quoteDiscountPercent) || 0));\n                var discountedSubtotal = subtotal * (1 - (discount / 100));\n                return Number.isFinite(minimum) && minimum >= 0 ? Math.max(minimum, discountedSubtotal) : discountedSubtotal;'
     );
 
     html = html.replace(
@@ -563,7 +547,7 @@ module.exports = async function handler(req, res) {
         '                    var service = state.report.services.find(function (item) { return item.id === id; });',
         '                    if (!service || !patch) return;',
         '                    if (patch.quantity !== undefined && Number.isFinite(Number(patch.quantity))) service.quantity = Math.max(0, Number(patch.quantity));',
-        '                    if (patch.calculatedPrice !== undefined && Number.isFinite(Number(patch.calculatedPrice))) service.calculatedPrice = Math.max(0, Number(patch.calculatedPrice));',
+        '                    if (patch.calculatedPrice !== undefined && Number.isFinite(Number(patch.calculatedPrice))) {\n                        if (!Number.isFinite(Number(service.systemCalculatedPrice))) service.systemCalculatedPrice = Math.max(0, Number(service.calculatedPrice) || 0);\n                        service.estimatorAdjustedPrice = Math.max(0, Number(patch.calculatedPrice));\n                        service.calculatedPrice = service.estimatorAdjustedPrice;\n                    }',
         '                    if (patch.estimatedTimeMinutes !== undefined && Number.isFinite(Number(patch.estimatedTimeMinutes))) service.estimatedTimeMinutes = Math.max(0, Number(patch.estimatedTimeMinutes));',
         '                    if (patch.quantityUnit !== undefined) service.quantityUnit = String(patch.quantityUnit).trim().slice(0, 40) || "unit";',
         '                    if (patch.label !== undefined) service.label = String(patch.label).trim().slice(0, 100) || service.label;',
@@ -610,12 +594,7 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'house_wash: "House Soft Wash",',
-      'house_wash: "House Soft Wash",\n                roof_soft_wash: "Roof Soft Wash",'
-    );
-
-    html = html.replace(
-      'roof_soft_wash: "Roof Soft Wash",',
-      'roof_soft_wash: "Roof Soft Wash",\n                fence_cleaning: "Fence Cleaning",\n                memorial_cleaning: "Tombstone / Memorial Cleaning",\n                vehicle_wash: "Vehicle / Fleet Washing",\n                aircraft_exterior_wash: "Aircraft Exterior Washing",\n                custom_area: "Custom Cleaning Area",'
+      'house_wash: "House Soft Wash",\n                fence_cleaning: "Fence Cleaning",\n                memorial_cleaning: "Tombstone / Memorial Cleaning",\n                vehicle_wash: "Vehicle / Fleet Washing",\n                aircraft_exterior_wash: "Aircraft Exterior Washing",\n                custom_area: "Custom Cleaning Area",'
     );
 
     html = html.replace(
@@ -630,23 +609,16 @@ module.exports = async function handler(req, res) {
       );
     }
 
-    if (!/data-service=["']roof_soft_wash["']/i.test(html)) {
-      html = html.replace(
-        /(<button\s+class=["']service-chip["'][^>]*data-service=["']oil_treatment["'][^>]*>[\s\S]*?<\/button>)/i,
-        '$1\n                    <button class="service-chip" type="button" data-service="roof_soft_wash" aria-pressed="false">Roof cleaning / soft wash</button>'
-      );
-    }
-
     if (!/data-service=["']memorial_cleaning["']/i.test(html)) {
       html = html.replace(
-        /(<button\s+class=["']service-chip["'][^>]*data-service=["']roof_soft_wash["'][^>]*>[\s\S]*?<\/button>)/i,
+        /(<button\s+class=["']service-chip["'][^>]*data-service=["']fence_cleaning["'][^>]*>[\s\S]*?<\/button>)/i,
         '$1\n                    <button class="service-chip" type="button" data-service="memorial_cleaning" aria-pressed="false">Tombstones / memorials</button>\n                    <button class="service-chip" type="button" data-service="vehicle_wash" aria-pressed="false">Vehicles / fleets</button>\n                    <button class="service-chip" type="button" data-service="aircraft_exterior_wash" aria-pressed="false">Aircraft exterior</button>\n                    <button class="service-chip" type="button" data-service="custom_area" aria-pressed="false">Custom area</button>'
       );
     }
 
     html = html.replace(
       'lines.push("No roofs, ladders, gutters, or two-story work are included.");',
-      'lines.push(document.body.getAttribute("data-building-level") === "multiple" ? "Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment." : "Ground-level and one-story exterior washing are included. Roof cleaning is not included.");'
+      'lines.push("Launch scope excludes roofs, ladders, and high-access work. Multi-level observations require manual review and do not authorize elevated work.");'
     );
 
     html = html.replace(
@@ -656,13 +628,15 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(
       'window.location.href = "mailto:?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());',
-      'var customerEmailInput = document.getElementById("customerEmail");\n                var recipient = customerEmailInput ? customerEmailInput.value.trim() : "";\n                window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());'
+      'if (window.NPMatrixReleaseGuard && window.NPMatrixReleaseGuard.block("Email customer quote")) return;\n                var customerEmailInput = document.getElementById("customerEmail");\n                var recipient = customerEmailInput ? customerEmailInput.value.trim() : "";\n                window.location.href = "mailto:" + encodeURIComponent(recipient) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(proposalText());'
     );
 
     html = html.replace(
       'jobAddress: state.jobAddress.value.trim(),\n                    siteNotes:',
       'jobAddress: state.jobAddress.value.trim(),\n                    customerEmail: document.getElementById("customerEmail") ? document.getElementById("customerEmail").value.trim() : "",\n                    customerPhone: document.getElementById("customerPhone") ? document.getElementById("customerPhone").value.trim() : "",\n                    siteNotes:'
     );
+
+    html = html.replace(/<title>[\s\S]*?<\/title>/i, '<title>SchismMatrix™ — Property Intelligence</title>');
 
     html = replaceOrInject(
       html,
@@ -675,7 +649,7 @@ module.exports = async function handler(req, res) {
     html = replaceOrInject(
       html,
       /<footer\s+class=["']footer["'][^>]*>[\s\S]*?<\/footer>/i,
-      '<footer class="footer">© 2026 No Problem Pressure Washing Matrix™<br>Cactus🌵Byte Studios™ · All Rights Reserved</footer>',
+      '<footer class="footer">SchismMatrix™ · v1.1.0<br><a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none"><strong>Cactus🌵Byte Studios™</strong></a> · All Rights Reserved</footer>',
       '</body>',
       ''
     );
@@ -709,6 +683,9 @@ module.exports = async function handler(req, res) {
     }
     if (!html.includes('/quote-review.js')) {
       html = html.replace('</body>', '    <script src="/quote-review.js" defer></script>\n</body>');
+    }
+    if (!html.includes('/schism-walkaround.js')) {
+      html = html.replace('</body>', '    <script src="/schism-walkaround.js" defer></script>\n</body>');
     }
 
     res.statusCode = 200;

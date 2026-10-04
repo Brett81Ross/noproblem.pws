@@ -92,13 +92,36 @@ async function handler(req, res) {
     }
 
     try {
-        const { images, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
+        const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
+        const launchExcludedServices = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
+        const safeRequestedServices = Array.isArray(requestedServices)
+            ? requestedServices.filter((serviceId) => typeof serviceId === 'string' && !launchExcludedServices.has(serviceId))
+            : [];
+        const elevatedScopeRequested = buildingScope?.level === 'multiple'
+            || /multi|two[- ]?story|second[- ]?story|roof|ladder|high[- ]?access/i.test(String(buildingScope?.label || ''));
 
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
         }
 
         const activeImages = images.slice(0, MAX_IMAGES);
+        const allowedEvidenceSources = new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload']);
+        const allowedConfirmationStates = new Set(['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture']);
+        const activeEvidenceMeta = activeImages.map((_, index) => {
+            const item = Array.isArray(evidenceMeta) && evidenceMeta[index] && typeof evidenceMeta[index] === 'object'
+                ? evidenceMeta[index]
+                : null;
+            return {
+                imageIndex: index + 1,
+                kind: 'photo',
+                source: item && allowedEvidenceSources.has(item.source) ? item.source : 'operator_upload',
+                capturedAt: item && typeof item.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
+                provenance: item?.provenance === 'schismmatrix_walkaround' ? 'schismmatrix_walkaround' : 'operator_selected_media',
+                operatorConfirmationState: item && allowedConfirmationStates.has(item.operatorConfirmationState)
+                    ? item.operatorConfirmationState
+                    : 'operator_selected'
+            };
+        });
         
         const envKeys = Object.keys(process.env);
         const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
@@ -143,13 +166,18 @@ async function handler(req, res) {
         if (job?.name || job?.address) {
             contextBlock += `\n- Job: ${job.name || 'Unnamed job'}${job.address ? ` at ${job.address}` : ''}`;
         }
-        if (Array.isArray(requestedServices) && requestedServices.length) {
-            contextBlock += `\n- Customer-requested services to evaluate against the photos: ${requestedServices.join(', ')}`;
+        if (safeRequestedServices.length) {
+            contextBlock += `\n- Customer-requested launch services to evaluate against the photos: ${safeRequestedServices.join(', ')}`;
         }
         if (buildingScope?.label) {
             contextBlock += `\n- Building scope selected in the app: ${buildingScope.label}`;
         }
+        contextBlock += '\n- LAUNCH SCOPE BOUNDARY: roofs, ladders, gutter work, and high-access/multi-level execution are not authorized launch services. Observing those conditions is allowed, but they require manual review and must not be converted into executable scope.';
         contextBlock += `\n- Evidence set size: ${activeImages.length} photo${activeImages.length === 1 ? '' : 's'}`;
+        if (activeEvidenceMeta.length) {
+            contextBlock += `\n- Evidence provenance by image: ${JSON.stringify(activeEvidenceMeta)}`;
+            contextBlock += `\n- Provenance rule: manual/operator-selected evidence is deliberate field evidence; sampled walk frames are observational context and must not be treated as operator confirmation merely because they exist.`;
+        }
 
         const promptText = `You are the master technical scanning brain of No Problem Pressure Washing Solutions LLC.
         I am providing you with MULTIPLE images of a property or site, plus optional satellite metadata and site notes. You MUST scan and analyze EVERY SINGLE IMAGE and text note provided.
@@ -168,6 +196,7 @@ async function handler(req, res) {
         9. AIRCRAFT EXTERIORS: For aircraft washing, use serviceId "aircraft_exterior_wash" and quantityUnit "aircraft" only when explicitly requested. Limit the estimate to exterior washing. Require operator authorization, airport or facility compliance, approved aviation-safe products, protection of openings/sensors/static ports, and on-site verification. Exclude engines, interiors, maintenance, and deicing systems.
         10. PHOTO GUIDE DATA: Use the service tags, optional measurements, counts, and skipped-view notes supplied in the site notes. Recommended views are guidance, not a requirement. Do not reduce confidence merely because an irrelevant view was skipped.
         11. AERIAL MEASUREMENT EVIDENCE: When user-traced aerial measurements are supplied, prefer those quantities over visual size guesses for the corresponding named surface. Treat the geometry as measured quantity evidence only. Photos/site evidence still control surface condition, contamination, hazards, access, drainage, and method. If those facts are not established, record the uncertainty instead of inventing precision.
+        12. EVIDENCE REVIEW: Before treating the estimate as field-ready, assess whether the supplied photos/notes establish the relevant material, condition, contamination, access, surroundings/property-protection concerns, runoff/drainage, and hazards. Treat provenance as evidence context: a walkaround_manual_capture or operator_upload can show deliberate evidence selection, while walkaround_sampled_frame is observational context only and is not operator confirmation. Put that assessment in evidenceReview. Only request evidence that is materially relevant to the observed/requested work. Each missingEvidence prompt must be a short field instruction a first-day employee can follow, such as "Show me the side gate" or "Move closer to that stained area." Never expose model jargon, confidence percentages, schema names, or provider terminology in these prompts. Set readyForEstimate false when a missing or uncertain fact could materially change service qualification, safety, scope, or price. Do not invent facts merely to make readyForEstimate true.
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
@@ -195,6 +224,20 @@ async function handler(req, res) {
                     "action": "Tape outlets before cleaning."
                 }
             ],
+            "evidenceReview": {
+                "readyForEstimate": false,
+                "missingEvidence": [
+                    {
+                        "category": "runoff",
+                        "prompt": "Show me where wash water would naturally run.",
+                        "reason": "The current photos do not establish the runoff path.",
+                        "priority": "high"
+                    }
+                ],
+                "uncertainEvidence": [],
+                "confirmedCategories": ["material", "condition"],
+                "summary": "The driveway is visible, but runoff still needs a field view."
+            },
             "fieldPlan": {
                 "difficulty": "moderate",
                 "totalEstimatedHours": "2.5 Hours",
@@ -234,6 +277,33 @@ async function handler(req, res) {
             throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
+        const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
+        const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
+        const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
+        const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
+        if (Array.isArray(scanData.services)) {
+            scanData.services = scanData.services.filter((service) => !launchExcludedServices.has(service?.serviceId));
+        }
+        if (elevatedScopeRequested) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
+            };
+        }
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
+        if (!explicitlyReady) {
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
+                ? evidenceReview.summary.trim().slice(0, 500)
+                : (hasUsableFollowup
+                    ? 'Additional property evidence is required before this estimate is field-ready.'
+                    : 'SchismMatrix could not verify enough property evidence for a field-ready estimate.');
+        } else {
+            scanData.requiresHumanReview = false;
+            delete scanData.humanReviewReason;
+        }
+
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
