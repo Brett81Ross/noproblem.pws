@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - abl-schismmatrix-05-walkaround-evidence
   workflow_dispatch:
 
 permissions:
