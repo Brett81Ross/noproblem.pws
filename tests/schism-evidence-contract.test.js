@@ -27,6 +27,9 @@ assert(analyze.includes('const explicitlyReady = scanData.evidenceReview?.readyF
 assert(analyze.includes('scanData.requiresHumanReview = true;'), 'server fail-closed human-review lock is missing');
 
 assert(!enhancements.includes('multi-level exterior and roof soft washing are enabled'), 'stale high-access enablement copy remains');
+assert(read('api/shell.js').includes("<title>SchismMatrix™ — Property Intelligence</title>"), 'generated shell title is not SchismMatrix');
+assert(read('api/shell.js').includes('SchismMatrix™ · v1.1.0'), 'Schism footer/version is missing');
+assert(read('api/shell.js').includes('https://cactusbyte-studios.vercel.app'), 'CactusByte footer destination is missing');
 assert(enhancements.includes('Multiple levels were observed. Launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution; manual review is required.'), 'multi-level safety copy is missing');
 
 console.log('Schism evidence contract QA passed');
