@@ -888,6 +888,7 @@
 
     <script>
         let stagedBase64Images = [];
+        let stagedEvidenceMeta = [];
         let priceItemsRegistry = [];
         let techMatrixData = null;
         let currentTotalValue = 0;
@@ -1130,8 +1131,25 @@
                 if (laser) laser.style.display = 'block'; 
                 
                 for (let i = 0; i < files.length; i++) {
-                    const base64Str = await resizeAndCompressImage(files[i]);
-                    stagedBase64Images.push(base64Str); 
+                    const file = files[i];
+                    const base64Str = await resizeAndCompressImage(file);
+                    const evidence = file && file.schismEvidence && typeof file.schismEvidence === 'object'
+                        ? file.schismEvidence
+                        : null;
+                    stagedBase64Images.push(base64Str);
+                    stagedEvidenceMeta.push(evidence ? {
+                        kind: 'photo',
+                        source: evidence.source || 'operator_upload',
+                        capturedAt: evidence.capturedAt || null,
+                        provenance: evidence.provenance || 'operator_selected_media',
+                        operatorConfirmationState: evidence.operatorConfirmationState || 'operator_selected'
+                    } : {
+                        kind: 'photo',
+                        source: 'operator_upload',
+                        capturedAt: null,
+                        provenance: 'operator_selected_media',
+                        operatorConfirmationState: 'operator_selected'
+                    });
                 }
                 
                 renderPreviewGrid();
@@ -1146,6 +1164,7 @@
 
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
+            stagedEvidenceMeta.splice(index, 1);
             renderPreviewGrid();
         }
 
@@ -1424,6 +1443,7 @@
 
             try {
                 const payloadImages = stagedBase64Images.slice(0, 4).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
+                const payloadEvidenceMeta = stagedEvidenceMeta.slice(0, payloadImages.length);
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -1432,7 +1452,8 @@
                         'Accept': 'application/json' 
                     },
                     body: JSON.stringify({ 
-                        images: payloadImages, 
+                        images: payloadImages,
+                        evidenceMeta: payloadEvidenceMeta,
                         settings: {},
                         location: currentJobLocation,
                         siteNotes: userSiteNotes 
