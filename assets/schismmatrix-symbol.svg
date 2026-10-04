@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+<title id="title">SchismMatrix split S symbol</title>
+<desc id="desc">A flat geometric S divided by a narrow central schism.</desc>
+<defs>
+  <linearGradient id="signal" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#00D1FF"/>
+    <stop offset="1" stop-color="#0066CC"/>
+  </linearGradient>
+</defs>
+<!-- Deterministic development master. No generated raster geometry. -->
+<path fill="url(#signal)" d="M116 26 48 65v54l68 39v-38L80 99V84l36-21V26Zm0 204-68-39v-54l68-39v38l-36 21v15l36 21v37Z"/>
+<path fill="#F5F8FC" d="m140 26 68 39v54l-68 39v-38l36-21V84l-36-21V26Zm0 204 68-39v-54l-68-39v38l36 21v15l-36 21v37Z"/>
+</svg>

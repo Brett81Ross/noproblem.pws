@@ -194,8 +194,8 @@
     if (houseWash) houseWash.textContent = 'House wash';
 
     if (normalized === MULTIPLE_LEVELS) {
-      if (note) note.textContent = 'Plans and quotes include multi-level exterior washing, roof soft washing, and the access equipment needed for the job.';
-      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multi-level exterior and roof soft washing are enabled. Use professional extension equipment, lifts, or approved access methods.';
+      if (note) note.textContent = 'Multiple levels were observed. Launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution; manual review is required.';
+      if (boundary) boundary.innerHTML = '<strong>Operating boundary:</strong> multiple levels require manual review. Roofs, ladders, gutter work, and high-access/multi-level execution remain excluded at launch.';
     } else {
       if (roofWash && roofWash.getAttribute('aria-pressed') === 'true') roofWash.click();
       if (note) note.textContent = 'Plans and quotes are limited to ground-level and one-story exterior washing.';
@@ -218,6 +218,7 @@
     if (window.__npBuildingFetchPatched || typeof window.fetch !== 'function') return;
 
     var originalFetch = window.fetch.bind(window);
+    var analysisGeneration = 0;
     window.__npBuildingFetchPatched = true;
     window.fetch = function (resource, options) {
       var url = typeof resource === 'string' ? resource : resource && resource.url;
@@ -228,13 +229,13 @@
           var payload = JSON.parse(options.body);
           var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? MULTIPLE_LEVELS : ONE_STORY;
           var scopeInstruction = level === MULTIPLE_LEVELS
-            ? 'BUILDING HEIGHT: Multiple levels. Roof soft washing is available in this mode. Include roof cleaning when requested or clearly supported by the photos, plus safe access equipment, setup time, labor, chemical treatment, and height-related difficulty in the plan and quote. Never use high pressure on roofing materials.'
+            ? 'BUILDING HEIGHT: Multiple levels observed. MCX launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution. Treat this as evidence requiring manual review; do not add excluded work to the executable plan or quote.'
             : 'BUILDING HEIGHT: One story. Keep the plan and quote to ground-level and one-story exterior washing. Do not include roof cleaning.';
 
           payload.buildingScope = {
             level: level,
             label: levelLabel(level),
-            roofCleaningIncluded: level === MULTIPLE_LEVELS
+            roofCleaningIncluded: false
           };
           payload.settings = Object.assign({}, payload.settings || {}, { buildingLevel: level });
           payload.job = Object.assign({}, payload.job || {}, { buildingLevel: level });
@@ -245,9 +246,83 @@
         }
       }
 
-      return originalFetch(resource, requestOptions);
+      var requestGeneration = null;
+      if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
+        requestGeneration = ++analysisGeneration;
+        window.__schismReleaseState = { locked: true, reason: 'SchismMatrix is checking whether this estimate is field-ready.' };
+        document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+      }
+
+      return originalFetch(resource, requestOptions).then(function (response) {
+        if (url && /\/api\/analyze(?:\?|$)/.test(url)) {
+          response.clone().json().then(function (payload) {
+            if (requestGeneration !== analysisGeneration) return;
+            var matrix = payload && payload.rawMatrixData;
+            if (!matrix || typeof matrix !== 'object') {
+              window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
+            } else {
+              var review = matrix.evidenceReview && typeof matrix.evidenceReview === 'object' ? matrix.evidenceReview : null;
+              var locked = matrix.requiresHumanReview === true || !review || review.readyForEstimate !== true;
+              window.__schismReleaseState = {
+                locked: locked,
+                reason: locked
+                  ? (matrix.humanReviewReason || (review && review.summary) || 'Important property evidence still needs review.')
+                  : ''
+              };
+            }
+            document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+          }).catch(function () {
+            if (requestGeneration !== analysisGeneration) return;
+            window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
+            document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+          });
+        }
+        return response;
+      });
     };
   }
+
+  function isQuoteReleaseLocked() {
+    return Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
+  }
+
+  function blockQuoteRelease(actionName) {
+    if (!isQuoteReleaseLocked()) return false;
+    var reason = window.__schismReleaseState.reason || 'Important property evidence still needs review.';
+    showNotice(actionName + ' is locked until human review is complete.');
+    window.alert(actionName + ' is locked until human review is complete.\n\n' + reason);
+    return true;
+  }
+
+  function syncQuoteReleaseControls() {
+    var locked = isQuoteReleaseLocked();
+    ['downloadQuotePdfButton'].forEach(function (id) {
+      var button = document.getElementById(id);
+      if (!button) return;
+      button.disabled = locked;
+      button.setAttribute('aria-disabled', locked ? 'true' : 'false');
+      button.title = locked ? 'Locked until human review is complete.' : '';
+    });
+  }
+
+  window.NPMatrixReleaseGuard = Object.freeze({
+    isLocked: isQuoteReleaseLocked,
+    block: blockQuoteRelease
+  });
+
+  document.addEventListener('schism:release-state-changed', syncQuoteReleaseControls);
+  document.addEventListener('click', function (event) {
+    if (!isQuoteReleaseLocked()) return;
+    var button = event.target && event.target.closest ? event.target.closest('button, a') : null;
+    if (!button) return;
+    var scope = button.closest && button.closest('.quote-actions, #resultsMount, .results-section');
+    if (!scope) return;
+    var label = String(button.textContent || button.getAttribute('aria-label') || '').trim();
+    if (!/(copy|email|send|download|export|save project)/i.test(label)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    blockQuoteRelease(label || 'Quote release');
+  }, true);
 
   function pdfSafeText(value) {
     return String(value === undefined || value === null ? '' : value)
@@ -431,6 +506,7 @@
   }
 
   function downloadQuotePdf() {
+    if (blockQuoteRelease('Download customer PDF')) return;
     if (!document.querySelector('.quote-total')) {
       showNotice('Finish a quote before downloading the customer PDF.');
       return;
@@ -460,6 +536,7 @@
     button.textContent = 'Download customer PDF';
     button.addEventListener('click', downloadQuotePdf);
     quoteActions.appendChild(button);
+    syncQuoteReleaseControls();
   }
 
   function observeResults() {
