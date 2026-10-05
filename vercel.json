@@ -9,10 +9,6 @@
       "dest": "/splash.html"
     },
     {
-      "src": "/index.html",
-      "dest": "/api/demo-shell"
-    },
-    {
       "handle": "filesystem"
     }
   ]
