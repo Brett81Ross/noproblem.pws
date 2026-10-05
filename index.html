@@ -970,6 +970,30 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="adminPinModal" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle" onclick="if(event.target===this) closeAdminPinModal()">
+        <div class="modal-card" style="max-width:380px;">
+            <div class="modal-title">
+                <span id="adminPinTitle">🔐 Admin Access</span>
+                <button type="button" aria-label="Close admin access" onclick="closeAdminPinModal()" style="border:0;background:transparent;color:#ef4444;font-size:20px;font-weight:900;cursor:pointer;padding:4px 8px;">✕</button>
+            </div>
+            <div style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:14px;">Enter the administrator PIN to switch to Admin Mode.</div>
+            <input
+                id="adminPinInput"
+                type="password"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                autocomplete="off"
+                maxlength="12"
+                aria-label="Administrator PIN"
+                placeholder="Admin PIN"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();submitAdminPin();}else if(event.key==='Escape'){closeAdminPinModal();}"
+                style="width:100%;height:52px;box-sizing:border-box;border-radius:12px;border:1px solid rgba(0,240,255,.35);background:rgba(2,6,23,.78);color:#fff;font-size:18px;font-weight:800;letter-spacing:.16em;padding:0 14px;outline:none;margin-bottom:8px;">
+            <div id="adminPinError" role="alert" aria-live="polite" style="min-height:20px;color:#f87171;font-size:12px;font-weight:800;margin-bottom:10px;"></div>
+            <button class="btn" type="button" onclick="submitAdminPin()" style="margin-bottom:8px;">Unlock Admin Mode</button>
+            <button class="btn btn-secondary" type="button" onclick="closeAdminPinModal()" style="margin-bottom:0;">Cancel</button>
+        </div>
+    </div>
+
     <!-- Satellite Map & Notes Modal with Guaranteed Active GPS Fix -->
     <div class="modal-overlay" id="satelliteModal">
         <div class="modal-card">
@@ -1100,6 +1124,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('satelliteModal').style.display = 'none';
+            document.getElementById('adminPinModal').style.display = 'none';
         });
 
         function toggleLanguage() {
@@ -1230,12 +1255,42 @@
 
         function requestAdminMode() {
             if (!isTechMode) return;
-            const enteredPin = prompt(currentLang === 'es' ? "Ingrese el PIN de Administrador:" : "Enter Admin PIN to switch modes:");
-            if (enteredPin === ADMIN_PIN) {
+            openAdminPinModal();
+        }
+
+        function openAdminPinModal() {
+            const modal = document.getElementById('adminPinModal');
+            const input = document.getElementById('adminPinInput');
+            const error = document.getElementById('adminPinError');
+            if (!modal || !input || !error) return;
+            error.textContent = '';
+            input.value = '';
+            modal.style.display = 'flex';
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function closeAdminPinModal() {
+            const modal = document.getElementById('adminPinModal');
+            const input = document.getElementById('adminPinInput');
+            const error = document.getElementById('adminPinError');
+            if (modal) modal.style.display = 'none';
+            if (input) input.value = '';
+            if (error) error.textContent = '';
+        }
+
+        function submitAdminPin() {
+            const input = document.getElementById('adminPinInput');
+            const error = document.getElementById('adminPinError');
+            if (!input || !error) return;
+            if (input.value === ADMIN_PIN) {
+                closeAdminPinModal();
                 setAppMode('admin');
-            } else if (enteredPin !== null) {
-                alert(currentLang === 'es' ? "PIN de Administrador incorrecto." : "Incorrect Admin PIN.");
+                return;
             }
+            error.textContent = currentLang === 'es'
+                ? 'PIN de Administrador incorrecto.'
+                : 'Incorrect Admin PIN.';
+            input.select();
         }
 
         document.getElementById('cameraInput').addEventListener('change', function(e) { 
