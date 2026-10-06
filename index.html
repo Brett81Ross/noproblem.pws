@@ -919,9 +919,159 @@
       @media(max-width:430px){.scope-grid{grid-template-columns:1fr}.evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence-actions{grid-template-columns:1fr}}
     </style>
 
+
+    <style id="schismAugustDashboard">
+      .august-dashboard{display:block}
+      .august-dashboard[hidden],.matrix-workspace[hidden]{display:none!important}
+      .matrix-workspace{display:block}
+      .dashboard-shell{width:100%;max-width:1120px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(36px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));box-sizing:border-box}
+      .dashboard-topbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;margin-bottom:14px}
+      .dashboard-icon-button{display:grid;place-items:center;width:46px;height:46px;border:1px solid rgba(82,231,242,.28);border-radius:14px;color:#8df5ff;background:rgba(3,18,25,.78);font-size:22px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+      .dashboard-brand{display:flex;align-items:center;justify-content:center;gap:12px;min-width:0}
+      .dashboard-brand img{width:58px;height:auto;filter:drop-shadow(0 0 18px rgba(82,231,242,.3))}
+      .dashboard-brand-copy{min-width:0}
+      .dashboard-brand-copy strong{display:block;color:#eefcff;font-size:clamp(19px,4vw,31px);font-weight:950;letter-spacing:-.045em;text-transform:uppercase;white-space:nowrap}
+      .dashboard-brand-copy span{display:block;margin-top:3px;color:#59e9f6;font-size:8px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+      .dashboard-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 13px;border:1px solid rgba(82,231,242,.16);border-radius:14px;background:rgba(2,11,17,.64);color:#89a7b2;font-size:9px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+      .dashboard-status strong{display:flex;align-items:center;gap:7px;color:#c8fbff}.dashboard-status strong:before{content:"";width:7px;height:7px;border-radius:50%;background:#75f5a3;box-shadow:0 0 14px rgba(117,245,163,.7)}
+      .dashboard-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
+      .dashboard-tile{position:relative;min-height:112px;padding:14px 10px;border:1px solid rgba(82,231,242,.22);border-radius:18px;color:#edfaff;background:linear-gradient(145deg,rgba(10,34,44,.92),rgba(4,13,22,.96));cursor:pointer;text-align:center;box-shadow:0 16px 34px rgba(0,0,0,.22);transition:.18s ease}
+      .dashboard-tile:hover,.dashboard-tile:focus-visible{transform:translateY(-2px);border-color:rgba(82,231,242,.56);outline:none}
+      .dashboard-tile.is-primary{border-color:rgba(255,168,54,.72);box-shadow:0 0 0 1px rgba(255,168,54,.12),0 0 28px rgba(255,145,0,.13)}
+      .dashboard-tile-icon{display:block;margin-bottom:8px;color:#58efff;font-size:30px;line-height:1}
+      .dashboard-tile strong{display:block;font-size:10px;line-height:1.25;letter-spacing:.07em;text-transform:uppercase}
+      .dashboard-alert{position:absolute;top:8px;right:8px;display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#ff9e23;color:#2a1100;font-size:11px;font-weight:950}
+      .dashboard-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;margin-bottom:14px;padding:24px;border:1px solid rgba(82,231,242,.28);border-radius:22px;background:radial-gradient(circle at 76% 20%,rgba(82,231,242,.24),transparent 30%),radial-gradient(circle at 8% 100%,rgba(155,124,255,.14),transparent 34%),linear-gradient(135deg,#04151f,#06101a 60%,#06121c);box-shadow:0 22px 52px rgba(0,0,0,.32)}
+      .dashboard-hero:before{content:"";position:absolute;inset:auto -10% -44% 34%;height:70%;background:radial-gradient(ellipse,rgba(79,220,244,.18),transparent 68%);transform:rotate(-8deg);pointer-events:none}
+      .dashboard-hero h1{position:relative;margin:0;color:#eefcff;font-size:clamp(32px,7vw,70px);line-height:.95;letter-spacing:-.055em;text-transform:uppercase}
+      .dashboard-hero h1 span{color:#58efff;text-shadow:0 0 22px rgba(82,231,242,.3)}
+      .dashboard-hero p{position:relative;margin:12px 0 0;color:#96b0b9;font-size:11px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+      .dashboard-field-card{position:relative;min-width:190px;padding:15px;border:1px solid rgba(82,231,242,.25);border-radius:16px;background:rgba(3,15,22,.84);text-align:center}
+      .dashboard-field-card small{display:block;color:#62eaf4;font-size:9px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
+      .dashboard-field-card strong{display:block;margin:6px 0 3px;color:#fff;font-size:18px}.dashboard-field-card span{color:#8aa7b1;font-size:10px}
+      .dashboard-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+      .dashboard-action{min-height:82px;padding:16px;border:1px solid rgba(82,231,242,.24);border-radius:17px;color:#eefcff;background:linear-gradient(135deg,rgba(8,33,45,.95),rgba(4,15,25,.96));cursor:pointer;text-align:left}
+      .dashboard-action.primary{border-color:rgba(255,166,32,.8);color:#1c0c00;background:linear-gradient(135deg,#ffd55e,#ff9d18 55%,#ff7a16);box-shadow:0 12px 34px rgba(255,137,16,.17)}
+      .dashboard-action strong{display:block;font-size:14px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.dashboard-action span{display:block;margin-top:5px;font-size:10px;opacity:.78}
+      .dashboard-section{margin-bottom:14px;padding:18px;border:1px solid rgba(82,231,242,.19);border-radius:20px;background:linear-gradient(145deg,rgba(10,31,41,.92),rgba(4,13,22,.96))}
+      .dashboard-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.dashboard-section-head h2{margin:0;color:#effcff;font-size:17px;letter-spacing:.02em;text-transform:uppercase}.dashboard-link-button{border:0;color:#66edf6;background:transparent;font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .recent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.recent-card{min-height:92px;padding:13px;border:1px solid rgba(82,231,242,.16);border-radius:14px;background:rgba(1,12,19,.62)}.recent-card strong{display:block;color:#e8fbff;font-size:11px}.recent-card span{display:block;margin-top:6px;color:#7798a4;font-size:9px;line-height:1.4}
+      .recent-empty{grid-column:1/-1;padding:18px;border:1px dashed rgba(82,231,242,.16);border-radius:13px;color:#718f9a;font-size:10px;text-align:center}
+      .inventory-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.inventory-summary-card{padding:13px;border:1px solid rgba(82,231,242,.16);border-radius:14px;background:rgba(1,12,19,.62)}.inventory-summary-card span{display:block;color:#5fe9f4;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.inventory-summary-card strong{display:block;margin-top:8px;color:#effcff;font-size:18px}.inventory-summary-card small{display:block;margin-top:3px;color:#7f9ba6;font-size:8px}
+      .inventory-warning{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding:12px 13px;border:1px solid rgba(255,164,37,.32);border-radius:13px;color:#ffc15c;background:rgba(255,148,0,.05);font-size:10px;font-weight:850}
+      .dashboard-footer{text-align:center;padding:18px 6px 4px;color:#647e8a;font-size:9px}.dashboard-footer strong{display:block;margin-bottom:9px;color:#59e9f4;font-size:10px;letter-spacing:.22em;text-transform:uppercase}.dashboard-footer a{color:#59e9f4;text-decoration:none}
+      .workspace-backbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.workspace-back{min-height:42px;padding:0 13px;border:1px solid rgba(82,231,242,.22);border-radius:12px;color:#a9f8ff;background:rgba(2,14,20,.72);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.workspace-title{color:#7d99a3;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+      .saved-panel{display:none;margin-bottom:14px;padding:18px;border:1px solid rgba(82,231,242,.2);border-radius:18px;background:rgba(3,16,23,.92)}.saved-panel.is-open{display:block}.saved-panel h3{margin:0 0 8px;color:#effcff}.saved-panel p{margin:0;color:#7f9ca6;font-size:11px;line-height:1.5}
+      @media(max-width:760px){.dashboard-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard-nav .dashboard-tile:nth-child(4),.dashboard-nav .dashboard-tile:nth-child(5){min-height:96px}.dashboard-hero{grid-template-columns:1fr}.dashboard-field-card{min-width:0}.inventory-summary-grid{grid-template-columns:1fr 1fr}.recent-grid{grid-template-columns:1fr}.dashboard-brand-copy strong{white-space:normal}}
+      @media(max-width:430px){.dashboard-topbar{grid-template-columns:auto 1fr auto}.dashboard-brand img{width:44px}.dashboard-brand-copy strong{font-size:17px}.dashboard-nav{grid-template-columns:1fr 1fr}.dashboard-tile{min-height:94px}.dashboard-actions{grid-template-columns:1fr}.inventory-summary-grid{grid-template-columns:1fr 1fr}.dashboard-hero{padding:18px}.dashboard-hero h1{font-size:38px}}
+    </style>
+
 </head>
 <body>
 
+
+    <section class="august-dashboard" id="augustDashboard">
+      <div class="dashboard-shell">
+        <header class="dashboard-topbar">
+          <button class="dashboard-icon-button" type="button" id="dashboardMenuButton" aria-label="Open Matrix menu">☰</button>
+          <div class="dashboard-brand">
+            <img src="/assets/schismmatrix-symbol.svg" alt="">
+            <div class="dashboard-brand-copy">
+              <strong>SchismMatrix™</strong>
+              <span>Property Intelligence</span>
+            </div>
+          </div>
+          <button class="dashboard-icon-button" type="button" id="dashboardSettingsButton" aria-label="Open settings">⚙</button>
+        </header>
+
+        <div class="dashboard-status">
+          <strong>Matrix Online</strong>
+          <span>v1.1.0 · Field Ready</span>
+        </div>
+
+        <nav class="dashboard-nav" aria-label="Matrix command center">
+          <button class="dashboard-tile is-primary" type="button" data-dashboard-action="quote">
+            <span class="dashboard-tile-icon">⌂</span><strong>Quote<br>Matrix</strong>
+          </button>
+          <button class="dashboard-tile" type="button" data-dashboard-action="crew">
+            <span class="dashboard-tile-icon">👥</span><strong>Crew<br>Command</strong>
+          </button>
+          <button class="dashboard-tile" type="button" data-dashboard-action="inventory">
+            <span class="dashboard-alert" id="inventoryAlertBadge" hidden>!</span>
+            <span class="dashboard-tile-icon">▣</span><strong>Inventory</strong>
+          </button>
+          <button class="dashboard-tile" type="button" data-dashboard-action="photos">
+            <span class="dashboard-tile-icon">▤</span><strong>Job Photos</strong>
+          </button>
+          <button class="dashboard-tile" type="button" data-dashboard-action="reports">
+            <span class="dashboard-tile-icon">▥</span><strong>Reports</strong>
+          </button>
+        </nav>
+
+        <section class="dashboard-hero">
+          <div>
+            <h1>Let's get it <span>clean.</span></h1>
+            <p>Fast. Accurate. Professional.</p>
+          </div>
+          <div class="dashboard-field-card">
+            <small>RapidQuote™</small>
+            <strong>Address + 1–3 photos</strong>
+            <span>Preliminary estimate → on-site confirmation</span>
+          </div>
+        </section>
+
+        <div class="dashboard-actions">
+          <button class="dashboard-action primary" type="button" data-dashboard-action="new-quote">
+            <strong>Start New Quote</strong><span>RapidQuote or guided property walk</span>
+          </button>
+          <button class="dashboard-action" type="button" data-dashboard-action="saved">
+            <strong>Open Saved</strong><span>View the last locally saved project</span>
+          </button>
+        </div>
+
+        <section class="saved-panel" id="savedProjectPanel">
+          <h3>Saved Project</h3>
+          <p id="savedProjectSummary">No saved project is stored on this device yet.</p>
+        </section>
+
+        <section class="dashboard-section">
+          <div class="dashboard-section-head">
+            <h2>Recent Projects</h2>
+            <button class="dashboard-link-button" type="button" data-dashboard-action="saved">View Saved →</button>
+          </div>
+          <div class="recent-grid" id="recentProjectGrid">
+            <div class="recent-empty">No completed local projects yet. Your next completed quote will appear here.</div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <div class="dashboard-section-head">
+            <h2>Inventory Overview</h2>
+            <button class="dashboard-link-button" type="button" data-dashboard-action="inventory">Open Inventory →</button>
+          </div>
+          <div class="inventory-summary-grid">
+            <div class="inventory-summary-card"><span>Chemicals</span><strong id="dashChemicals">—</strong><small id="dashChemicalsState">Not counted</small></div>
+            <div class="inventory-summary-card"><span>Equipment</span><strong id="dashEquipment">—</strong><small id="dashEquipmentState">Not counted</small></div>
+            <div class="inventory-summary-card"><span>PPE / Safety</span><strong id="dashPpe">—</strong><small id="dashPpeState">Not counted</small></div>
+            <div class="inventory-summary-card"><span>Consumables</span><strong id="dashConsumables">—</strong><small id="dashConsumablesState">Not counted</small></div>
+          </div>
+          <div class="inventory-warning"><span id="dashInventoryWarning">Inventory counts have not been completed yet.</span><button class="dashboard-link-button" type="button" data-dashboard-action="inventory">View Restock List →</button></div>
+        </section>
+
+        <footer class="dashboard-footer">
+          <strong>Work smarter. Wash better.</strong>
+          SchismMatrix™ · <a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer">Cactus🌵Byte Studios™</a> · All Rights Reserved
+        </footer>
+      </div>
+    </section>
+
+    <section class="matrix-workspace" id="matrixWorkspace" hidden>
+      <div class="dashboard-shell">
+        <div class="workspace-backbar">
+          <button class="workspace-back" id="returnToDashboard" type="button">← Command Center</button>
+          <div class="workspace-title" id="workspaceTitle">Quote Matrix</div>
+        </div>
+      </div>
     <div class="wrapper-container app-shell">
         <div class="status-rail">
             <div class="live-signal">SchismMatrix™ Ready</div>
@@ -1055,6 +1205,8 @@
             <div><a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer">Cactus🌵Byte Studios™</a> · All Rights Reserved</div>
         </div>
     </div>
+
+    </section>
 
     <div class="modal-overlay" id="adminPinModal" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle" onclick="if(event.target===this) closeAdminPinModal()">
         <div class="modal-card" style="max-width:380px;">
@@ -1967,7 +2119,159 @@
             });
         }
     </script>
+    <script src="/settings.js" defer></script>
+    <script src="/inventory.js" defer></script>
+    <script src="/enhancements.js" defer></script>
+    <script src="/quick-quote.js" defer></script>
+    <script src="/quote-review.js" defer></script>
     <script src="/demo-config.js"></script>
     <script src="/schism-walkaround.js"></script>
+
+    <script id="schismAugustDashboardController">
+      (function(){
+        const DASH_RECENTS='schismmatrix-recent-projects-v1';
+        const SAVED_PROJECT='no-problem-matrix-last-project';
+        const INVENTORY_KEY='no-problem-matrix-inventory-v1';
+
+        function byId(id){ return document.getElementById(id); }
+        function showWorkspace(title){
+          const dash=byId('augustDashboard');
+          const work=byId('matrixWorkspace');
+          if(dash) dash.hidden=true;
+          if(work) work.hidden=false;
+          if(byId('workspaceTitle')) byId('workspaceTitle').textContent=title||'Quote Matrix';
+          window.scrollTo({top:0,behavior:'smooth'});
+        }
+        function showDashboard(){
+          const dash=byId('augustDashboard');
+          const work=byId('matrixWorkspace');
+          if(work) work.hidden=true;
+          if(dash) dash.hidden=false;
+          refreshDashboard();
+          window.scrollTo({top:0,behavior:'smooth'});
+        }
+        function selectQuote(){
+          showWorkspace('Quote Matrix · RapidQuote + Full Matrix');
+          if(typeof setAppMode==='function') setAppMode('admin');
+          requestAnimationFrame(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}));
+        }
+        function selectCrew(){
+          showWorkspace('Crew Command · Field Execution Matrix');
+          if(typeof setAppMode==='function') setAppMode('tech');
+          requestAnimationFrame(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+        }
+        function selectPhotos(){
+          showWorkspace('Job Photos · Guided Evidence');
+          requestAnimationFrame(()=>byId('evidenceCard')?.scrollIntoView({behavior:'smooth',block:'start'}));
+        }
+        function selectReports(){
+          showWorkspace('Reports · Estimate Review');
+          requestAnimationFrame(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+        }
+        function selectInventory(){
+          showWorkspace('Inventory · Supply Matrix');
+          setTimeout(()=>{
+            const btn=byId('inventoryModeButton');
+            if(btn) btn.click();
+          },50);
+        }
+        function openSettings(){
+          const gear=byId('matrixSettingsGear');
+          if(gear) gear.click();
+        }
+        function readJson(key,fallback){
+          try{ const raw=localStorage.getItem(key); return raw?JSON.parse(raw):fallback; }catch(e){ return fallback; }
+        }
+        function renderSavedProject(){
+          const saved=readJson(SAVED_PROJECT,null);
+          const summary=byId('savedProjectSummary');
+          const panel=byId('savedProjectPanel');
+          if(!summary||!panel) return;
+          if(!saved){
+            summary.textContent='No saved project is stored on this device yet.';
+            return;
+          }
+          const name=saved.jobName||saved.projectName||saved.name||'Saved project';
+          const address=saved.jobAddress||saved.address||'Address not saved';
+          summary.textContent=name+' · '+address;
+        }
+        function toggleSaved(){
+          renderSavedProject();
+          byId('savedProjectPanel')?.classList.toggle('is-open');
+        }
+        function inventoryState(){
+          const items=readJson(INVENTORY_KEY,[]);
+          const groups=['Chemicals','Equipment','PPE & Safety','Consumables'];
+          const ids={Chemicals:['dashChemicals','dashChemicalsState'],Equipment:['dashEquipment','dashEquipmentState'],'PPE & Safety':['dashPpe','dashPpeState'],Consumables:['dashConsumables','dashConsumablesState']};
+          let totalAttention=0;
+          groups.forEach(group=>{
+            const groupItems=Array.isArray(items)?items.filter(x=>x&&x.category===group):[];
+            const counted=groupItems.filter(x=>x.qty!==null&&x.qty!==undefined);
+            const attention=counted.filter(x=>Number(x.qty)<=Number(x.min||0)).length;
+            totalAttention+=attention;
+            const pair=ids[group];
+            const number=byId(pair[0]),state=byId(pair[1]);
+            if(!counted.length){
+              if(number) number.textContent='—';
+              if(state) state.textContent='Not counted';
+            }else{
+              if(number) number.textContent=attention?String(attention):'✓';
+              if(state) state.textContent=attention?(attention+' low / out'):'All good';
+            }
+          });
+          const warn=byId('dashInventoryWarning');
+          if(warn) warn.textContent=totalAttention?totalAttention+' inventory item'+(totalAttention===1?' needs':'s need')+' attention.':'Inventory is currently within counted minimums.';
+          const badge=byId('inventoryAlertBadge');
+          if(badge) badge.hidden=!totalAttention;
+        }
+        function renderRecents(){
+          const grid=byId('recentProjectGrid'); if(!grid) return;
+          const recents=readJson(DASH_RECENTS,[]);
+          if(!Array.isArray(recents)||!recents.length){
+            grid.innerHTML='<div class="recent-empty">No completed local projects yet. Your next completed quote will appear here.</div>';
+            return;
+          }
+          grid.innerHTML=recents.slice(0,3).map(item=>'<article class="recent-card"><strong>'+escapeHtml(item.name||'Project')+'</strong><span>'+escapeHtml(item.address||'')+'</span><span>'+escapeHtml(item.total||'')+(item.date?' · '+escapeHtml(item.date):'')+'</span></article>').join('');
+        }
+        function escapeHtml(value){
+          return String(value||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+        }
+        function saveRecentFromVisibleResult(){
+          const card=byId('outputCard');
+          if(!card||card.style.display==='none') return;
+          const name=byId('jobName')?.value?.trim()||'Pressure washing project';
+          const address=byId('jobAddress')?.value?.trim()||'';
+          const total=byId('grandTotalDisplay')?.textContent?.trim()||'';
+          const current=readJson(DASH_RECENTS,[]);
+          const item={name,address,total,date:new Date().toLocaleDateString('en-US')};
+          const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
+          try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
+          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date})); }catch(e){}
+          renderRecents(); renderSavedProject();
+        }
+        function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); }
+        function bindActions(){
+          document.querySelectorAll('[data-dashboard-action]').forEach(btn=>btn.addEventListener('click',()=>{
+            const action=btn.getAttribute('data-dashboard-action');
+            if(action==='quote'||action==='new-quote') selectQuote();
+            else if(action==='crew') selectCrew();
+            else if(action==='inventory') selectInventory();
+            else if(action==='photos') selectPhotos();
+            else if(action==='reports') selectReports();
+            else if(action==='saved') toggleSaved();
+          }));
+          byId('returnToDashboard')?.addEventListener('click',showDashboard);
+          byId('dashboardSettingsButton')?.addEventListener('click',openSettings);
+          byId('dashboardMenuButton')?.addEventListener('click',()=>byId('dashboardMenuButton')?.focus());
+          const output=byId('outputCard');
+          if(output&&typeof MutationObserver==='function'){
+            new MutationObserver(()=>{ if(output.style.display!=='none') saveRecentFromVisibleResult(); }).observe(output,{attributes:true,childList:true,subtree:true,attributeFilter:['style']});
+          }
+        }
+        document.addEventListener('DOMContentLoaded',()=>{ bindActions(); refreshDashboard(); showDashboard(); });
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard};
+      })();
+    </script>
+
 </body>
 </html>
