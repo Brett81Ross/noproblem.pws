@@ -65,4 +65,9 @@ assert(index.includes("crewHandoffReady:Boolean(byId('btnCrewHandoff')"), 'crew 
 assert(index.includes(".workspace-backbar{position:sticky"), 'mobile sticky workspace navigation is missing');
 assert(index.includes("@media(max-width:430px)"), 'Fold/front-screen mobile breakpoint is missing');
 
+assert(index.includes('id="dashboardMenuPanel"'), 'dashboard hamburger menu panel is missing');
+assert(index.includes("menu.classList.toggle('is-open',opening)"), 'dashboard hamburger button is not wired');
+assert(!read('settings.js').includes('built for No Problem Pressure Washing'), 'legacy No Problem product copy remains in settings');
+assert(JSON.parse(read('package.json')).description === 'SchismMatrix Property Intelligence', 'package metadata is not SchismMatrix');
+
 console.log('Schism early-August restoration QA passed');
