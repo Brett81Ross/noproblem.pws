@@ -1,14 +1,14 @@
 window.CACTUSBYTE_DEMO={
   appId:'no-problem-pressure-washing-matrix',
-  appName:'No Problem Pressure Washing Matrix™',
+  appName:'SchismMatrix™ — Property Intelligence',
   demoVersion:'2026-08-v2',
   firstLaunch:false,
   autoDelayMs:1100,
   triggerContainer:'.status-rail',
-  logoUrl:'/noproblem.webp',
+  logoUrl:'/assets/schismmatrix-symbol.svg',
   intro:'A one-minute field walkthrough from customer and property details to a reviewed quote, customer proposal, and crew-ready job.',
   timeline:[
-    {duration:6,kicker:'Pressure Washing Matrix™',title:'Fast evidence. Accurate quote. Ready crew.',text:'Turn organized job information and property photos into a professional quote without slowing down the customer.',action:'START A NEW QUOTE'},
+    {duration:6,kicker:'SchismMatrix™',title:'Fast evidence. Accurate quote. Ready crew.',text:'Turn organized job information and property photos into a professional quote without slowing down the customer.',action:'START A NEW QUOTE'},
     {duration:7,kicker:'Step 1',title:'Choose your working mode',text:'Use Quote Matrix for estimating, Crew mode for field execution, and Supply Matrix for inventory and chemical planning.',cards:[{label:'ESTIMATE',value:'Quote Matrix'},{label:'FIELD',value:'Crew mode'},{label:'SUPPLIES',value:'Supply Matrix'}]},
     {duration:8,kicker:'Step 2',title:'Enter the customer and property',text:'Add the job address, customer phone, and email so the project, PDF, and handoff stay tied to the correct property.',action:'SAVE CUSTOMER & PROPERTY'},
     {duration:9,kicker:'Step 3',title:'Set the scope and capture evidence',text:'Choose the exact services, then follow the guided photo slots for surfaces, problem areas, access, and landscaping protection.',pills:['Service scope','Surface photos','Problem close-ups','Access','Protection']},
