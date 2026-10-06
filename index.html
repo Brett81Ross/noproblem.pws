@@ -941,6 +941,10 @@
       .dashboard-brand-copy span{display:block;margin-top:3px;color:#59e9f6;font-size:8px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
       .dashboard-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:10px 13px;border:1px solid rgba(82,231,242,.16);border-radius:14px;background:rgba(2,11,17,.64);color:#89a7b2;font-size:9px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}
       .dashboard-status strong{display:flex;align-items:center;gap:7px;color:#c8fbff}.dashboard-status strong:before{content:"";width:7px;height:7px;border-radius:50%;background:#75f5a3;box-shadow:0 0 14px rgba(117,245,163,.7)}
+      .dashboard-menu-panel{display:none;margin:-4px 0 14px;padding:10px;border:1px solid rgba(82,231,242,.18);border-radius:15px;background:rgba(3,15,22,.96);box-shadow:0 16px 34px rgba(0,0,0,.28)}
+      .dashboard-menu-panel.is-open{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .dashboard-menu-panel button{min-height:42px;border:1px solid rgba(82,231,242,.18);border-radius:11px;color:#c8f7ff;background:rgba(4,21,29,.8);font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+      @media(max-width:430px){.dashboard-menu-panel.is-open{grid-template-columns:1fr 1fr}}
       .dashboard-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:14px}
       .dashboard-tile{position:relative;min-height:112px;padding:14px 10px;border:1px solid rgba(82,231,242,.22);border-radius:18px;color:#edfaff;background:linear-gradient(145deg,rgba(10,34,44,.92),rgba(4,13,22,.96));cursor:pointer;text-align:center;box-shadow:0 16px 34px rgba(0,0,0,.22);transition:.18s ease}
       .dashboard-tile:hover,.dashboard-tile:focus-visible{transform:translateY(-2px);border-color:rgba(82,231,242,.56);outline:none}
@@ -1025,6 +1029,15 @@
           </div>
           <button class="dashboard-icon-button" type="button" id="dashboardSettingsButton" aria-label="Open settings">⚙</button>
         </header>
+
+        <div class="dashboard-menu-panel" id="dashboardMenuPanel" aria-hidden="true">
+          <button type="button" data-dashboard-action="quote">Quote Matrix</button>
+          <button type="button" data-dashboard-action="crew">Crew Command</button>
+          <button type="button" data-dashboard-action="inventory">Inventory</button>
+          <button type="button" data-dashboard-action="photos">Job Photos</button>
+          <button type="button" data-dashboard-action="reports">Reports</button>
+          <button type="button" data-dashboard-action="saved">Open Saved</button>
+        </div>
 
         <div class="dashboard-status">
           <strong>Matrix Online</strong>
@@ -2230,6 +2243,8 @@
           if(dash) dash.hidden=false;
           byId('crewCommandPanel')?.classList.remove('is-visible');
           byId('reportsEmptyPanel')?.classList.remove('is-visible');
+          byId('dashboardMenuPanel')?.classList.remove('is-open');
+          byId('dashboardMenuPanel')?.setAttribute('aria-hidden','true');
           refreshDashboard();
           window.scrollTo({top:0,behavior:'smooth'});
         }
@@ -2426,6 +2441,8 @@
         function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); dockDemoControl(); }
         function bindActions(){
           document.querySelectorAll('[data-dashboard-action]').forEach(btn=>btn.addEventListener('click',()=>{
+            const menu=byId('dashboardMenuPanel');
+            if(menu){ menu.classList.remove('is-open'); menu.setAttribute('aria-hidden','true'); }
             const action=btn.getAttribute('data-dashboard-action');
             if(action==='quote'||action==='new-quote') selectQuote();
             else if(action==='crew') selectCrew();
@@ -2448,7 +2465,13 @@
             byId('fullMatrixToggle').textContent=opening?'Back to RapidQuote':'Full Matrix Plan';
             if(typeof renderPreviewGrid==='function') renderPreviewGrid();
           });
-          byId('dashboardMenuButton')?.addEventListener('click',()=>byId('dashboardMenuButton')?.focus());
+          byId('dashboardMenuButton')?.addEventListener('click',()=>{
+            const menu=byId('dashboardMenuPanel');
+            if(!menu) return;
+            const opening=!menu.classList.contains('is-open');
+            menu.classList.toggle('is-open',opening);
+            menu.setAttribute('aria-hidden',opening?'false':'true');
+          });
           const output=byId('outputCard');
           if(output&&typeof MutationObserver==='function'){
             new MutationObserver(()=>{ if(output.style.display!=='none') saveRecentFromVisibleResult(); }).observe(output,{attributes:true,childList:true,subtree:true,attributeFilter:['style']});
