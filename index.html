@@ -969,7 +969,12 @@
       .dashboard-footer{text-align:center;padding:18px 6px 4px;color:#647e8a;font-size:9px}.dashboard-footer strong{display:block;margin-bottom:9px;color:#59e9f4;font-size:10px;letter-spacing:.22em;text-transform:uppercase}.dashboard-footer a{color:#59e9f4;text-decoration:none}
       .workspace-backbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.workspace-back{min-height:42px;padding:0 13px;border:1px solid rgba(82,231,242,.22);border-radius:12px;color:#a9f8ff;background:rgba(2,14,20,.72);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.workspace-title{color:#7d99a3;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
       .saved-panel{display:none;margin-bottom:14px;padding:18px;border:1px solid rgba(82,231,242,.2);border-radius:18px;background:rgba(3,16,23,.92)}.saved-panel.is-open{display:block}.saved-panel h3{margin:0 0 8px;color:#effcff}.saved-panel p{margin:0;color:#7f9ca6;font-size:11px;line-height:1.5}
-      .crew-command-panel{display:none;margin-bottom:14px}.crew-command-panel.is-visible{display:block}.crew-empty{padding:22px;border:1px solid rgba(82,231,242,.18);border-radius:18px;background:linear-gradient(145deg,rgba(10,31,41,.92),rgba(4,13,22,.96));text-align:center}.crew-empty strong{display:block;color:#effcff;font-size:18px}.crew-empty span{display:block;max-width:520px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.crew-empty button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .crew-command-panel{display:none;margin-bottom:14px}.crew-command-panel.is-visible{display:block}.crew-empty{padding:22px;border:1px solid rgba(82,231,242,.18);border-radius:18px;background:linear-gradient(145deg,rgba(10,31,41,.92),rgba(4,13,22,.96));text-align:center}
+      .workspace-state-panel{display:none;margin-bottom:14px;padding:20px;border:1px solid rgba(82,231,242,.18);border-radius:18px;background:linear-gradient(145deg,rgba(10,31,41,.92),rgba(4,13,22,.96));text-align:center}.workspace-state-panel.is-visible{display:block}.workspace-state-panel strong{display:block;color:#effcff;font-size:17px}.workspace-state-panel span{display:block;max-width:560px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.workspace-state-panel button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .photo-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;border:1px solid rgba(82,231,242,.14);border-radius:11px;background:rgba(2,13,19,.5);color:#7898a2;font-size:9px}.photo-status-row strong{color:#dffbff;font-size:10px}
+      .handoff-button{width:100%;min-height:48px;margin-top:10px;border:1px solid rgba(117,245,163,.34);border-radius:12px;color:#03130a;background:linear-gradient(135deg,#b8ffca,#75f5a3);font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .handoff-button[disabled]{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}
+.crew-empty strong{display:block;color:#effcff;font-size:18px}.crew-empty span{display:block;max-width:520px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.crew-empty button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
       #cb60DemoButton.dashboard-demo-docked{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;min-width:auto!important;height:34px!important;padding:0 10px!important;margin-left:auto!important;border-radius:10px!important;font-size:9px!important;box-shadow:none!important}
       @media(max-width:760px){.dashboard-status{flex-wrap:wrap}.dashboard-status #cb60DemoButton.dashboard-demo-docked{width:100%;margin:4px 0 0!important}.dashboard-nav{gap:8px}.dashboard-tile{min-height:88px;padding:12px 8px}.dashboard-tile-icon{font-size:25px}.dashboard-hero{padding:18px}.dashboard-section{padding:15px}.recent-card{min-height:74px}}
       @media(max-width:560px){.dashboard-nav{grid-template-columns:1fr 1fr}.dashboard-tile:last-child{grid-column:1/-1}.dashboard-brand-copy span{letter-spacing:.12em}.dashboard-field-card{padding:12px}.inventory-summary-grid{gap:7px}.inventory-summary-card{padding:11px}}
@@ -1167,6 +1172,7 @@
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                     <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
 
+                    <div class="photo-status-row" id="jobPhotoStatus"><strong>Job Photos</strong><span id="jobPhotoCount">0 photos captured</span></div>
                     <div class="evidence-actions">
                         <button class="btn walk-primary" id="btnStartPropertyWalk" type="button" onclick="SchismWalkaround.open()">Start Property Walk</button>
                         <button class="btn btn-secondary" id="btnTakePhoto" type="button" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
@@ -1202,6 +1208,12 @@
                 </div>
             </section>
 
+            <section class="workspace-state-panel" id="reportsEmptyPanel">
+                <strong>No completed estimate to report yet.</strong>
+                <span>Run a Quote Matrix analysis first. Reports will then show the reviewed scope, total, customer-facing output, and export controls.</span>
+                <button type="button" id="reportsBuildQuoteButton">Build Quote</button>
+            </section>
+
             <section class="matrix-card" id="resultsSection">
                 <div class="card-inner" id="resultsMount">
                     <div class="result-card" id="outputCard" style="display:none;">
@@ -1220,6 +1232,7 @@
                             <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
                             <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
                         </div>
+                        <button class="handoff-button" id="btnCrewHandoff" type="button" disabled>Send Approved Job to Crew Command</button>
                     </div>
                 </div>
             </section>
@@ -1665,6 +1678,8 @@
             } else {
                 processTrigger.setAttribute('style', 'display: none !important;');
             }
+            const countLabel = document.getElementById('jobPhotoCount');
+            if (countLabel) countLabel.textContent = stagedBase64Images.length + ' photo' + (stagedBase64Images.length === 1 ? '' : 's') + ' captured';
         }
 
         function togglePriceCard(index) {
@@ -2090,6 +2105,13 @@
                 } else {
                     renderAdminModeView(techMatrixData);
                 }
+                if (window.SchismDashboard && typeof window.SchismDashboard.refreshDashboard === 'function') window.SchismDashboard.refreshDashboard();
+                const handoffButton = document.getElementById('btnCrewHandoff');
+                if (handoffButton) {
+                    const locked = Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
+                    handoffButton.disabled = techMatrixData?.requiresHumanReview === true || locked;
+                    handoffButton.textContent = handoffButton.disabled ? 'Crew Handoff Locked — Review Required' : 'Send Approved Job to Crew Command';
+                }
                 
                 processTrigger.setAttribute('style', 'display: none !important;');
                 processTrigger.disabled = false;
@@ -2204,12 +2226,24 @@
         function selectPhotos(){
           showWorkspace('Job Photos · Guided Evidence');
           restoreEstimatorSections();
+          ['missionCard','scopeCard','resultsSection'].forEach(id=>{ const el=byId(id); if(el) el.style.display='none'; });
+          byId('reportsEmptyPanel')?.classList.remove('is-visible');
+          if(byId('evidenceCard')) byId('evidenceCard').style.display='';
           requestAnimationFrame(()=>byId('evidenceCard')?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectReports(){
           showWorkspace('Reports · Estimate Review');
           restoreEstimatorSections();
-          requestAnimationFrame(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+          const hasReport=typeof techMatrixData!=='undefined' && Boolean(techMatrixData);
+          byId('reportsEmptyPanel')?.classList.toggle('is-visible',!hasReport);
+          if(byId('resultsSection')) byId('resultsSection').style.display=hasReport?'':'none';
+          if(hasReport){
+            if(typeof setAppMode==='function') setAppMode('admin');
+            byId('outputCard').style.display='block';
+            renderAdminModeView(techMatrixData);
+            syncCrewHandoffState();
+          }
+          requestAnimationFrame(()=>(hasReport?byId('resultsSection'):byId('reportsEmptyPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectInventory(){
           showWorkspace('Inventory · Supply Matrix');
@@ -2217,6 +2251,21 @@
             const btn=byId('inventoryModeButton');
             if(btn) btn.click();
           },50);
+        }
+        function syncCrewHandoffState(){
+          const button=byId('btnCrewHandoff');
+          if(!button) return;
+          const hasPlan=typeof techMatrixData!=='undefined' && Boolean(techMatrixData);
+          const locked=Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
+          const reviewRequired=Boolean(hasPlan && techMatrixData.requiresHumanReview);
+          button.disabled=!hasPlan || locked || reviewRequired;
+          button.textContent=reviewRequired || locked ? 'Crew Handoff Locked — Review Required' : 'Send Approved Job to Crew Command';
+        }
+        function handoffToCrew(){
+          syncCrewHandoffState();
+          const button=byId('btnCrewHandoff');
+          if(!button || button.disabled) return;
+          selectCrew();
         }
         function openSettings(){
           const gear=byId('matrixSettingsGear');
@@ -2244,8 +2293,18 @@
           const address=project.jobAddress||project.address||'';
           if(byId('jobName')) byId('jobName').value=name;
           if(byId('jobAddress')) byId('jobAddress').value=address;
-          selectQuote();
-          setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+          if(project.matrixData && typeof project.matrixData==='object'){
+            techMatrixData=project.matrixData;
+            selectQuote();
+            byId('outputCard').style.display='block';
+            byId('actionPanel').setAttribute('style','display:grid !important;');
+            renderAdminModeView(techMatrixData);
+            syncCrewHandoffState();
+            setTimeout(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+          }else{
+            selectQuote();
+            setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+          }
           return true;
         }
         function toggleSaved(){
@@ -2302,10 +2361,11 @@
           const address=byId('jobAddress')?.value?.trim()||'';
           const total=byId('grandTotalDisplay')?.textContent?.trim()||'';
           const current=readJson(DASH_RECENTS,[]);
-          const item={name,address,total,date:new Date().toLocaleDateString('en-US')};
+          const matrix=(typeof techMatrixData!=='undefined' && techMatrixData) ? techMatrixData : null;
+          const item={name,address,total,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0)};
           const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
           try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
-          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date})); }catch(e){}
+          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date,matrixData:matrix,photoCount:item.photoCount})); }catch(e){}
           renderRecents(); renderSavedProject();
         }
         function dockDemoControl(){
@@ -2337,6 +2397,9 @@
           byId('returnToDashboard')?.addEventListener('click',showDashboard);
           byId('dashboardSettingsButton')?.addEventListener('click',openSettings);
           byId('crewBuildQuoteButton')?.addEventListener('click',selectQuote);
+          byId('reportsBuildQuoteButton')?.addEventListener('click',selectQuote);
+          byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
+          document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
           byId('fullMatrixToggle')?.addEventListener('click',()=>{
             const grid=byId('evidenceGrid');
             if(!grid) return;
@@ -2352,7 +2415,7 @@
           }
         }
         document.addEventListener('DOMContentLoaded',()=>{ bindActions(); refreshDashboard(); watchForDemoControl(); showDashboard(); });
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard};
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState};
       })();
     </script>
 
