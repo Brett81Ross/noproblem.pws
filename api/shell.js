@@ -638,12 +638,9 @@ module.exports = async function handler(req, res) {
 
     html = html.replace(/<title>[\s\S]*?<\/title>/i, '<title>SchismMatrix™ — Property Intelligence</title>');
 
-    html = replaceOrInject(
-      html,
-      /<img\s+class=["']brand-logo["'][^>]*>/i,
-      '<img class="brand-logo" src="/brand-logo-alpha.webp" alt="No Problem Pressure Washing Matrix™">',
-      '</head>',
-      ''
+    html = html.replace(
+      /<img\s+[^>]*class=["'][^"']*brand-logo(?:-img)?[^"']*["'][^>]*>/i,
+      '<div class="schism-brand" aria-label="SchismMatrix Property Intelligence"><img src="/assets/schismmatrix-symbol.svg" alt="" class="schism-symbol" aria-hidden="true"><h1 class="schism-wordmark">SchismMatrix<sup>™</sup></h1><div class="schism-descriptor">Property Intelligence</div></div>'
     );
 
     html = replaceOrInject(
