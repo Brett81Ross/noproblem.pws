@@ -37,6 +37,10 @@ assert(index.includes('matrixData:matrix'), 'analyzed Matrix data is not persist
 assert(index.includes('project.matrixData'), 'saved analyzed jobs cannot be restored');
 assert(index.includes('data-recent-index'), 'recent projects are not reopenable');
 assert(index.includes('id="jobPhotoCount"'), 'Job Photos count/status is missing');
+assert(index.includes("const subject = 'SchismMatrix Quote — '"), 'customer email subject is not project-specific SchismMatrix copy');
+assert(index.includes("document.getElementById('downloadQuotePdfButton')"), 'Export PDF is not connected to the real PDF generator');
+assert(index.includes("project.customerEmail||''"), 'saved customer email is not restored');
+assert(index.includes("project.customerPhone||''"), 'saved customer phone is not restored');
 
 assert(index.includes('dashboard-demo-docked'), 'demo control docking protection is missing');
 assert(!vercel.includes('"src": "/index.html", "dest": "/api/demo-shell"'), 'legacy demo-shell route has returned');
@@ -46,5 +50,10 @@ const propertyWalkIds = (index.match(/id="btnStartPropertyWalk"/g) || []).length
 assert.strictEqual(propertyWalkIds, 1, 'there must be exactly one primary Property Walk launcher');
 assert(!index.includes('class="mode-toggle-container"'), 'legacy Admin/Technician primary shell has returned');
 assert(!index.includes('prompt('), 'browser prompt PIN flow has returned');
+const enhancements = read('enhancements.js');
+assert(enhancements.includes("'SCHISMMATRIX(TM)'"), 'customer PDF branding is not SchismMatrix');
+assert(enhancements.includes("return 'schismmatrix-' + safeBase + '.pdf';"), 'customer PDF filename still uses legacy branding');
+assert(!enhancements.includes('Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment.'), 'unsafe high-access PDF scope copy has returned');
+assert(enhancements.includes('Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'), 'safe multi-level PDF scope boundary is missing');
 
 console.log('Schism early-August restoration QA passed');
