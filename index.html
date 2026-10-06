@@ -969,6 +969,11 @@
       .dashboard-footer{text-align:center;padding:18px 6px 4px;color:#647e8a;font-size:9px}.dashboard-footer strong{display:block;margin-bottom:9px;color:#59e9f4;font-size:10px;letter-spacing:.22em;text-transform:uppercase}.dashboard-footer a{color:#59e9f4;text-decoration:none}
       .workspace-backbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.workspace-back{min-height:42px;padding:0 13px;border:1px solid rgba(82,231,242,.22);border-radius:12px;color:#a9f8ff;background:rgba(2,14,20,.72);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.workspace-title{color:#7d99a3;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
       .saved-panel{display:none;margin-bottom:14px;padding:18px;border:1px solid rgba(82,231,242,.2);border-radius:18px;background:rgba(3,16,23,.92)}.saved-panel.is-open{display:block}.saved-panel h3{margin:0 0 8px;color:#effcff}.saved-panel p{margin:0;color:#7f9ca6;font-size:11px;line-height:1.5}
+      .crew-command-panel{display:none;margin-bottom:14px}.crew-command-panel.is-visible{display:block}.crew-empty{padding:22px;border:1px solid rgba(82,231,242,.18);border-radius:18px;background:linear-gradient(145deg,rgba(10,31,41,.92),rgba(4,13,22,.96));text-align:center}.crew-empty strong{display:block;color:#effcff;font-size:18px}.crew-empty span{display:block;max-width:520px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.crew-empty button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      #cb60DemoButton.dashboard-demo-docked{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;min-width:auto!important;height:34px!important;padding:0 10px!important;margin-left:auto!important;border-radius:10px!important;font-size:9px!important;box-shadow:none!important}
+      @media(max-width:760px){.dashboard-status{flex-wrap:wrap}.dashboard-status #cb60DemoButton.dashboard-demo-docked{width:100%;margin:4px 0 0!important}.dashboard-nav{gap:8px}.dashboard-tile{min-height:88px;padding:12px 8px}.dashboard-tile-icon{font-size:25px}.dashboard-hero{padding:18px}.dashboard-section{padding:15px}.recent-card{min-height:74px}}
+      @media(max-width:560px){.dashboard-nav{grid-template-columns:1fr 1fr}.dashboard-tile:last-child{grid-column:1/-1}.dashboard-brand-copy span{letter-spacing:.12em}.dashboard-field-card{padding:12px}.inventory-summary-grid{gap:7px}.inventory-summary-card{padding:11px}}
+
       @media(max-width:760px){.dashboard-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard-nav .dashboard-tile:nth-child(4),.dashboard-nav .dashboard-tile:nth-child(5){min-height:96px}.dashboard-hero{grid-template-columns:1fr}.dashboard-field-card{min-width:0}.inventory-summary-grid{grid-template-columns:1fr 1fr}.recent-grid{grid-template-columns:1fr}.dashboard-brand-copy strong{white-space:normal}}
       @media(max-width:430px){.dashboard-topbar{grid-template-columns:auto 1fr auto}.dashboard-brand img{width:44px}.dashboard-brand-copy strong{font-size:17px}.dashboard-nav{grid-template-columns:1fr 1fr}.dashboard-tile{min-height:94px}.dashboard-actions{grid-template-columns:1fr}.inventory-summary-grid{grid-template-columns:1fr 1fr}.dashboard-hero{padding:18px}.dashboard-hero h1{font-size:38px}}
     </style>
@@ -1186,6 +1191,14 @@
                     </div>
 
                     <button class="scan-button" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Review Estimate</button>
+                </div>
+            </section>
+
+            <section class="crew-command-panel" id="crewCommandPanel">
+                <div class="crew-empty" id="crewCommandEmpty">
+                    <strong>No field-ready job loaded yet.</strong>
+                    <span>Finish and review a Quote Matrix job first. Once SchismMatrix has an analyzed scope, Crew Command shows the execution plan, safety notes, chemicals, equipment, and work sequence.</span>
+                    <button type="button" id="crewBuildQuoteButton">Build / Open Quote</button>
                 </div>
             </section>
 
@@ -2163,8 +2176,13 @@
           refreshDashboard();
           window.scrollTo({top:0,behavior:'smooth'});
         }
+        function restoreEstimatorSections(){
+          ['missionCard','scopeCard','evidenceCard','resultsSection'].forEach(id=>{ const el=byId(id); if(el) el.style.display=''; });
+          byId('crewCommandPanel')?.classList.remove('is-visible');
+        }
         function selectQuote(){
           showWorkspace('Quote Matrix · RapidQuote + Full Matrix');
+          restoreEstimatorSections();
           const grid=byId('evidenceGrid');
           if(grid) grid.classList.remove('full-matrix-open');
           if(byId('fullMatrixToggle')) byId('fullMatrixToggle').textContent='Full Matrix Plan';
@@ -2175,14 +2193,22 @@
         function selectCrew(){
           showWorkspace('Crew Command · Field Execution Matrix');
           if(typeof setAppMode==='function') setAppMode('tech');
-          requestAnimationFrame(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
+          ['missionCard','scopeCard','evidenceCard'].forEach(id=>{ const el=byId(id); if(el) el.style.display='none'; });
+          const crew=byId('crewCommandPanel');
+          if(crew) crew.classList.add('is-visible');
+          const hasPlan=typeof techMatrixData!=='undefined' && Boolean(techMatrixData);
+          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=hasPlan?'none':'';
+          if(byId('resultsSection')) byId('resultsSection').style.display=hasPlan?'':'none';
+          requestAnimationFrame(()=>(hasPlan?byId('resultsSection'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectPhotos(){
           showWorkspace('Job Photos · Guided Evidence');
+          restoreEstimatorSections();
           requestAnimationFrame(()=>byId('evidenceCard')?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectReports(){
           showWorkspace('Reports · Estimate Review');
+          restoreEstimatorSections();
           requestAnimationFrame(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectInventory(){
@@ -2212,9 +2238,21 @@
           const address=saved.jobAddress||saved.address||'Address not saved';
           summary.textContent=name+' · '+address;
         }
+        function loadProjectIntoQuote(project){
+          if(!project) return false;
+          const name=project.jobName||project.projectName||project.name||'';
+          const address=project.jobAddress||project.address||'';
+          if(byId('jobName')) byId('jobName').value=name;
+          if(byId('jobAddress')) byId('jobAddress').value=address;
+          selectQuote();
+          setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+          return true;
+        }
         function toggleSaved(){
+          const saved=readJson(SAVED_PROJECT,null);
+          if(saved && loadProjectIntoQuote(saved)) return;
           renderSavedProject();
-          byId('savedProjectPanel')?.classList.toggle('is-open');
+          byId('savedProjectPanel')?.classList.add('is-open');
         }
         function inventoryState(){
           const items=readJson(INVENTORY_KEY,[]);
@@ -2248,7 +2286,11 @@
             grid.innerHTML='<div class="recent-empty">No completed local projects yet. Your next completed quote will appear here.</div>';
             return;
           }
-          grid.innerHTML=recents.slice(0,3).map(item=>'<article class="recent-card"><strong>'+escapeHtml(item.name||'Project')+'</strong><span>'+escapeHtml(item.address||'')+'</span><span>'+escapeHtml(item.total||'')+(item.date?' · '+escapeHtml(item.date):'')+'</span></article>').join('');
+          grid.innerHTML=recents.slice(0,3).map((item,index)=>'<button type="button" class="recent-card" data-recent-index="'+index+'" style="text-align:left;cursor:pointer"><strong>'+escapeHtml(item.name||'Project')+'</strong><span>'+escapeHtml(item.address||'')+'</span><span>'+escapeHtml(item.total||'')+(item.date?' · '+escapeHtml(item.date):'')+'</span></button>').join('');
+          grid.querySelectorAll('[data-recent-index]').forEach(button=>button.addEventListener('click',()=>{
+            const item=recents[Number(button.getAttribute('data-recent-index'))];
+            loadProjectIntoQuote(item);
+          }));
         }
         function escapeHtml(value){
           return String(value||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
@@ -2266,7 +2308,22 @@
           try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date})); }catch(e){}
           renderRecents(); renderSavedProject();
         }
-        function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); }
+        function dockDemoControl(){
+          const rail=document.querySelector('.dashboard-status');
+          const demo=byId('cb60DemoButton');
+          if(!rail||!demo||demo.classList.contains('dashboard-demo-docked')) return false;
+          demo.classList.add('dashboard-demo-docked');
+          rail.appendChild(demo);
+          return true;
+        }
+        function watchForDemoControl(){
+          if(dockDemoControl()) return;
+          if(typeof MutationObserver!=='function') return;
+          const observer=new MutationObserver(()=>{ if(dockDemoControl()) observer.disconnect(); });
+          observer.observe(document.body,{childList:true,subtree:true});
+          setTimeout(()=>observer.disconnect(),10000);
+        }
+        function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); dockDemoControl(); }
         function bindActions(){
           document.querySelectorAll('[data-dashboard-action]').forEach(btn=>btn.addEventListener('click',()=>{
             const action=btn.getAttribute('data-dashboard-action');
@@ -2279,6 +2336,7 @@
           }));
           byId('returnToDashboard')?.addEventListener('click',showDashboard);
           byId('dashboardSettingsButton')?.addEventListener('click',openSettings);
+          byId('crewBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('fullMatrixToggle')?.addEventListener('click',()=>{
             const grid=byId('evidenceGrid');
             if(!grid) return;
@@ -2293,7 +2351,7 @@
             new MutationObserver(()=>{ if(output.style.display!=='none') saveRecentFromVisibleResult(); }).observe(output,{attributes:true,childList:true,subtree:true,attributeFilter:['style']});
           }
         }
-        document.addEventListener('DOMContentLoaded',()=>{ bindActions(); refreshDashboard(); showDashboard(); });
+        document.addEventListener('DOMContentLoaded',()=>{ bindActions(); refreshDashboard(); watchForDemoControl(); showDashboard(); });
         window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard};
       })();
     </script>
