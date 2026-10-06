@@ -32,6 +32,10 @@ assert(read('api/shell.js').includes('SchismMatrix™ · v1.1.0'), 'Schism foote
 assert(read('api/shell.js').includes('https://cactusbyte-studios.vercel.app'), 'CactusByte footer destination is missing');
 assert(read('runtime/base-shell.html').includes('SchismMatrix™ · v1.1.0'), 'runtime footer is not SchismMatrix');
 assert(!read('runtime/base-shell.html').includes('© 2026 No Problem Pressure Washing Matrix™'), 'legacy main footer remains in runtime shell');
+assert(read('runtime/base-shell.html').includes('/assets/schismmatrix-symbol.svg'), 'runtime shell does not use SchismMatrix symbol');
+assert(read('runtime/base-shell.html').includes('class="schism-wordmark"'), 'runtime shell is missing SchismMatrix wordmark');
+assert(read('runtime/base-shell.html').includes('Property Intelligence'), 'runtime shell is missing Schism descriptor');
+assert(!read('runtime/base-shell.html').includes('src="noproblem.webp"'), 'legacy No Problem header image remains in runtime shell');
 assert(enhancements.includes('Multiple levels were observed. Launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution; manual review is required.'), 'multi-level safety copy is missing');
 
 console.log('Schism evidence contract QA passed');
