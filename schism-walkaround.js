@@ -32,6 +32,11 @@
   }
 
   function ensureLauncher() {
+    const existingPrimary = el('btnStartPropertyWalk');
+    if (existingPrimary) {
+      existingPrimary.addEventListener('click', open);
+      return;
+    }
     if (el('schismWalkLaunch')) return;
     const button = document.createElement('button');
     button.id = 'schismWalkLaunch';
@@ -39,7 +44,7 @@
     button.className = 'schism-walk-launch';
     button.textContent = 'Start Property Walk';
     button.addEventListener('click', open);
-    const evidence = el('evidenceCard') || el('evidenceGrid') || el('imagePreviewGrid') || el('uploadInput') || el('fileInput');
+    const evidence = el('evidenceCard') || el('evidenceGrid') || el('fileInput');
     if (evidence) {
       const host = evidence.closest('.matrix-card,.action-card,section,div') || evidence.parentElement;
       if (host && host.parentNode) host.parentNode.insertBefore(button, host);
