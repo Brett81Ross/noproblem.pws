@@ -889,16 +889,51 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="/cactusbyte-geo.js"></script>
     <script src="/satellite-measure.js"></script>
+
+    <style id="schismMatrixProductionShell">
+      :root{--schism-cyan:#52e7f2;--schism-aqua:#9af9ff;--schism-violet:#9b7cff;--schism-gold:#ffc857;--schism-bg:#030609;--schism-card:#0a1720;--schism-line:rgba(126,239,255,.17)}
+      body{padding:0!important;align-items:stretch!important;background:radial-gradient(circle at 12% 0%,rgba(0,214,255,.16),transparent 28rem),radial-gradient(circle at 90% 8%,rgba(155,124,255,.12),transparent 30rem),linear-gradient(145deg,#030609,#07131b 52%,#05060d)!important}
+      .wrapper-container.app-shell{width:min(100%,1120px)!important;max-width:none!important;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(34px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));display:block}
+      .status-rail{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;margin-bottom:10px;padding:9px 12px;border:1px solid var(--schism-line);border-radius:14px;background:rgba(3,13,18,.7);backdrop-filter:blur(12px);color:#87aab4;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+      .live-signal{display:flex;align-items:center;gap:8px;color:#c8fbff}.live-signal:before{content:"";width:7px;height:7px;border-radius:50%;background:#78f4a2;box-shadow:0 0 14px rgba(120,244,162,.7)}
+      .brand-stage{text-align:center;padding:10px 0 4px}.schism-symbol{width:clamp(72px,13vw,118px)!important;margin-bottom:9px!important}.schism-wordmark{font-size:clamp(34px,7vw,58px)!important}.schism-descriptor{font-size:10px!important}
+      .hero-copy{max-width:760px;margin:8px auto 18px;color:#9db6bf;font-size:clamp(13px,2vw,16px);line-height:1.55;text-align:center}
+      .mode-switch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 auto 16px;padding:5px;border:1px solid var(--schism-line);border-radius:15px;background:rgba(1,9,14,.7)}
+      .mode-button{min-height:48px;border:0;border-radius:11px;background:transparent;color:#78939d;font-size:11px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .mode-button.is-active{color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);box-shadow:0 8px 24px rgba(82,231,242,.15)}
+      .matrix-card{position:relative;overflow:hidden;margin:0 0 14px;border:1px solid var(--schism-line);border-radius:20px;background:linear-gradient(145deg,rgba(14,36,46,.94),rgba(5,13,22,.97));box-shadow:0 22px 60px rgba(0,0,0,.34)}
+      .matrix-card:before{content:"";position:absolute;top:0;left:22px;width:82px;height:2px;background:linear-gradient(90deg,var(--schism-cyan),var(--schism-violet));box-shadow:0 0 16px var(--schism-cyan)}
+      .card-inner{padding:18px}.section-kicker{margin:0 0 6px;color:var(--schism-cyan);font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}.section-heading{margin:0 0 7px;color:#effcff;font-size:clamp(20px,4vw,29px);letter-spacing:-.035em}.section-copy{margin:0 0 15px;color:#8da8b2;font-size:12px;line-height:1.5}
+      .mission-fields{display:grid;grid-template-columns:1fr;gap:10px}.field-label{display:grid;gap:6px;color:#a8c5ce;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.text-field{width:100%;height:50px;box-sizing:border-box;padding:0 12px;border:1px solid rgba(126,239,255,.18);border-radius:12px;outline:0;color:#f2fcff;background:#041017;font-size:16px}.text-field:focus{border-color:var(--schism-cyan);box-shadow:0 0 0 4px rgba(82,231,242,.08)}
+      .scope-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.service-chip{min-height:54px;padding:11px 12px;border:1px solid rgba(126,239,255,.14);border-radius:12px;color:#aec9d0;background:rgba(2,13,19,.65);text-align:left;font-size:11px;font-weight:850;cursor:pointer}.service-chip[aria-pressed="true"]{color:#f3fdff;border-color:rgba(82,231,242,.56);background:linear-gradient(135deg,rgba(82,231,242,.18),rgba(155,124,255,.14));box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
+      .scope-boundary{margin-top:12px;padding:11px 12px;border:1px solid rgba(255,200,87,.17);border-radius:12px;color:#9bb2b9;background:rgba(255,200,87,.04);font-size:10px;line-height:1.45}.scope-boundary strong{color:#f2dc9e}
+      .evidence-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.evidence-actions .btn{margin:0!important;min-height:48px;padding:11px 10px!important;font-size:10px!important;letter-spacing:.07em!important;border-radius:11px!important}.evidence-actions .walk-primary{grid-column:1/-1;background:linear-gradient(135deg,#a8fbff,#53dbe8 58%,#9b7cff)!important;color:#071017!important}
+      .evidence-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.evidence-slot{position:relative;min-height:92px;padding:9px;border:1px dashed rgba(126,239,255,.18);border-radius:12px;background:rgba(1,10,15,.54);overflow:hidden;cursor:pointer}.evidence-slot.has-photo{border-style:solid;border-color:rgba(82,231,242,.48);background-size:cover;background-position:center}.evidence-slot.has-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.76));pointer-events:none}.slot-title,.slot-hint{position:relative;z-index:2;display:block;text-align:left}.slot-title{color:#dffbff;font-size:9px;font-weight:900}.slot-hint{margin-top:4px;color:#6f929d;font-size:8px;line-height:1.3}.evidence-slot.has-photo .slot-title,.evidence-slot.has-photo .slot-hint{position:absolute;left:8px;right:28px;bottom:8px;color:#fff}.evidence-slot.has-photo .slot-hint{display:none}.evidence-slot .remove-photo-btn{top:5px;right:5px;z-index:4}
+      .scan-button{width:100%;min-height:52px;margin-top:12px;border:0;border-radius:13px;background:linear-gradient(135deg,#9af9ff,#54dce8 50%,#9b7cff);color:#061017;font-size:11px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+      .result-card{margin-top:0!important;border:1px solid rgba(126,239,255,.17)!important;border-left:1px solid rgba(126,239,255,.17)!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(14,36,46,.94),rgba(5,13,22,.97))!important}
+      .legacy-mode-controls{display:none!important}.lang-toggle-row{margin-bottom:4px!important}
+      .footer{margin-top:18px!important;padding:18px 8px 5px!important}.footer a{color:#58efff;text-decoration:none;font-weight:850}
+      #schismWalkLaunch{display:none!important}
+      @media(min-width:700px){.mission-fields{grid-template-columns:1fr 1.35fr}.scope-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.evidence-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.card-inner{padding:24px}.evidence-actions{grid-template-columns:repeat(4,1fr)}.evidence-actions .walk-primary{grid-column:auto}}
+      @media(min-width:1000px){.scope-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.evidence-grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
+      @media(max-width:430px){.scope-grid{grid-template-columns:1fr}.evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.evidence-actions{grid-template-columns:1fr}}
+    </style>
+
 </head>
 <body>
 
-    <div class="wrapper-container">
+    <div class="wrapper-container app-shell">
+        <div class="status-rail">
+            <div class="live-signal">SchismMatrix™ Ready</div>
+            <div>Property Intelligence · v1.1.0</div>
+        </div>
+
         <div class="main-content">
             <div class="lang-toggle-row">
                 <button class="lang-btn" id="langToggleBtn" onclick="toggleLanguage()">Español</button>
             </div>
 
-            <div class="logo-container">
+            <div class="brand-stage logo-container">
                 <div class="schism-brand" role="img" aria-label="SchismMatrix, Property Intelligence">
                     <img class="schism-symbol" src="/assets/schismmatrix-symbol.svg" alt="" aria-hidden="true">
                     <h1 class="schism-wordmark">SchismMatrix<sup>™</sup></h1>
@@ -906,90 +941,128 @@
                 </div>
             </div>
 
-            <div class="tagline" id="taglineText">Walk the property, capture what matters, and review a clear estimate.</div>
+            <div class="hero-copy" id="taglineText">Customer + property → service scope → guided evidence → estimate review → field-ready plan.</div>
 
-            <div class="mode-toggle-container">
-                <div class="mode-btn active" id="btnAdminMode" onclick="requestAdminMode()">Admin Mode</div>
-                <div class="mode-btn" id="btnTechMode" onclick="setAppMode('tech')">Technician Mode</div>
+            <div class="mode-switch">
+                <button class="mode-button is-active" id="quoteModeButton" type="button" onclick="requestAdminMode(); if(!isTechMode){this.classList.add('is-active');document.getElementById('crewModeButton').classList.remove('is-active');}">Quote Matrix</button>
+                <button class="mode-button" id="crewModeButton" type="button" onclick="setAppMode('tech');this.classList.add('is-active');document.getElementById('quoteModeButton').classList.remove('is-active');">Crew Mode</button>
+            </div>
+            <div class="legacy-mode-controls">
+                <div class="mode-btn active" id="btnAdminMode">Admin Mode</div>
+                <div class="mode-btn" id="btnTechMode">Technician Mode</div>
             </div>
 
-            <div class="action-card">
-                <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
-                <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
-
-                <button class="btn" id="btnStartPropertyWalk" onclick="SchismWalkaround.open()">Start Property Walk</button>
-                <button class="btn btn-secondary" id="btnTakePhoto" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
-                <button class="btn btn-secondary" id="btnUploadPhoto" onclick="document.getElementById('fileInput').click()">Upload Saved Photos</button>
-                <button class="btn btn-secondary" onclick="openSatelliteModal()" id="gpsBtn">🛰️ Satellite Site & Notes</button>
-                <div id="gpsCoordsDisplay" style="font-size: 13px; color: #00f0ff; margin-top: 5px; margin-bottom: 15px; display: none;"></div>
-                
-                <div class="preview-grid" id="imagePreviewGrid">
-                    <div class="hud-scan-overlay" id="hudLaserBeam"></div>
-                </div>
-                <div class="evidence-followup" id="evidenceFollowup" aria-live="polite">
-                    <div class="evidence-followup-kicker">ONE MORE LOOK</div>
-                    <h3 id="evidenceFollowupPrompt">Show me one more area.</h3>
-                    <p id="evidenceFollowupReason">This view could affect the work plan or estimate.</p>
-                    <div class="evidence-followup-actions">
-                        <button class="btn" type="button" id="evidenceFollowupPhoto">Take Requested Photo</button>
-                        <button class="btn btn-secondary" type="button" id="evidenceFollowupReview">Can't Get It — Send for Review</button>
+            <section class="matrix-card" id="missionCard">
+                <div class="card-inner">
+                    <p class="section-kicker">1 · CUSTOMER + PROPERTY</p>
+                    <h2 class="section-heading">Start the job</h2>
+                    <p class="section-copy">Keep the estimate, customer proposal, and crew handoff tied to the right property.</p>
+                    <div class="mission-fields">
+                        <label class="field-label">Customer / Project
+                            <input class="text-field" id="jobName" autocomplete="name" placeholder="Customer or project name">
+                        </label>
+                        <label class="field-label">Property address
+                            <input class="text-field" id="jobAddress" autocomplete="street-address" placeholder="Street address, city, state">
+                        </label>
                     </div>
                 </div>
-                <button class="btn btn-trigger" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Review Estimate</button>
-            </div>
+            </section>
 
-            <div class="result-card" id="outputCard" style="display: none;">
-                <div class="result-title-row">
-                    <p class="result-title" id="reportTitleText">Estimate Review</p>
-                    <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
+            <section class="matrix-card" id="scopeCard">
+                <div class="card-inner">
+                    <p class="section-kicker">2 · SERVICE SCOPE</p>
+                    <h2 class="section-heading">What are we cleaning?</h2>
+                    <p class="section-copy">Select the work that applies. SchismMatrix uses the selected scope to guide evidence and estimate review.</p>
+                    <div class="scope-grid" id="scopeGrid">
+                        <button class="service-chip" type="button" data-service="house_wash" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">House wash</button>
+                        <button class="service-chip" type="button" data-service="driveway_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Driveway</button>
+                        <button class="service-chip" type="button" data-service="sidewalk_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Sidewalk / walkways</button>
+                        <button class="service-chip" type="button" data-service="patio_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Patio / pool deck</button>
+                        <button class="service-chip" type="button" data-service="deck_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Deck</button>
+                        <button class="service-chip" type="button" data-service="fence_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Fence</button>
+                        <button class="service-chip" type="button" data-service="retaining_wall" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Retaining wall</button>
+                        <button class="service-chip" type="button" data-service="dumpster_pad" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Dumpster pad</button>
+                        <button class="service-chip" type="button" data-service="oil_treatment" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Oil / grease treatment</button>
+                        <button class="service-chip" type="button" data-service="memorial_cleaning" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Memorial cleaning</button>
+                        <button class="service-chip" type="button" data-service="vehicle_wash" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Vehicle wash</button>
+                        <button class="service-chip" type="button" data-service="aircraft_exterior_wash" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Aircraft exterior</button>
+                        <button class="service-chip" type="button" data-service="custom_area" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true')">Custom area</button>
+                    </div>
+                    <div class="scope-boundary"><span><strong>Operating boundary:</strong> ground-level and one-story exterior work at launch. Roofs, ladders, gutter work, and high-access execution remain excluded.</span></div>
                 </div>
+            </section>
 
-                <div class="interactive-tooltip" id="adminTooltip">
-                    💡 <strong id="tooltipStrong">Tap individual scope items</strong> <span id="tooltipText">below to toggle them on or off to adjust the contract total instantly based on customer preference.</span>
+            <section class="matrix-card" id="evidenceCard">
+                <div class="card-inner">
+                    <p class="section-kicker">3 · GUIDED PROPERTY EVIDENCE</p>
+                    <h2 class="section-heading">Show SchismMatrix the property</h2>
+                    <p class="section-copy">Use the guided walk for the fastest path, or add individual photos and satellite notes when needed.</p>
+
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
+                    <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
+
+                    <div class="evidence-actions">
+                        <button class="btn walk-primary" id="btnStartPropertyWalk" type="button" onclick="SchismWalkaround.open()">Start Property Walk</button>
+                        <button class="btn btn-secondary" id="btnTakePhoto" type="button" onclick="document.getElementById('cameraInput').click()">Take Photo</button>
+                        <button class="btn btn-secondary" id="btnUploadPhoto" type="button" onclick="document.getElementById('fileInput').click()">Add Saved Photos</button>
+                        <button class="btn btn-secondary" type="button" onclick="openSatelliteModal()" id="gpsBtn">Satellite & Notes</button>
+                    </div>
+                    <div id="gpsCoordsDisplay" style="font-size:11px;color:#58efff;margin:4px 0 10px;display:none;"></div>
+
+                    <div class="evidence-grid" id="evidenceGrid">
+                        <div class="hud-scan-overlay" id="hudLaserBeam"></div>
+                    </div>
+
+                    <div class="evidence-followup" id="evidenceFollowup" aria-live="polite">
+                        <div class="evidence-followup-kicker">ONE MORE LOOK</div>
+                        <h3 id="evidenceFollowupPrompt">Show me one more area.</h3>
+                        <p id="evidenceFollowupReason">This view could affect the work plan or estimate.</p>
+                        <div class="evidence-followup-actions">
+                            <button class="btn" type="button" id="evidenceFollowupPhoto">Take Requested Photo</button>
+                            <button class="btn btn-secondary" type="button" id="evidenceFollowupReview">Can't Get It — Send for Review</button>
+                        </div>
+                    </div>
+
+                    <button class="scan-button" id="processTrigger" style="display:none !important;" onclick="submitJobForAnalysis()">Review Estimate</button>
                 </div>
+            </section>
 
-                <div id="analysisResult"></div>
-                
-                <div class="proposal-total-card" id="adminTotalCard">
-                    <div style="font-size:12px; text-transform:uppercase; color:#94a3b8; font-weight:800; margin-bottom:4px; letter-spacing: 1px;" id="totalLabelText">Total Contract Price</div>
-                    <div class="proposal-total-amount" id="grandTotalDisplay">$0.00</div>
+            <section class="matrix-card" id="resultsSection">
+                <div class="card-inner" id="resultsMount">
+                    <div class="result-card" id="outputCard" style="display:none;">
+                        <div class="result-title-row">
+                            <p class="result-title" id="reportTitleText">Estimate Review</p>
+                            <button class="copy-btn" id="copyButton" onclick="copyToClipboard()">Copy Text</button>
+                        </div>
+                        <div class="interactive-tooltip" id="adminTooltip">Review the recommended work, pricing, safety notes, and field plan before releasing the quote.</div>
+                        <div id="analysisResult"></div>
+                        <div class="proposal-total-card quote-total" id="adminTotalCard">
+                            <div style="font-size:11px;text-transform:uppercase;color:#94a3b8;font-weight:850;letter-spacing:.08em">Selected Plan Total</div>
+                            <strong class="proposal-total-amount" id="grandTotalDisplay">$0.00</strong>
+                        </div>
+                        <div class="review-lock-note" id="reviewLockNote">Estimate controls stay locked until required evidence is reviewed.</div>
+                        <div class="utility-row admin-only-utility quote-actions" id="actionPanel" style="display:none !important;">
+                            <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
+                            <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="review-lock-note" id="reviewLockNote">Estimate controls stay locked until required evidence is reviewed.</div>
-
-                <div class="utility-row admin-only-utility" id="actionPanel" style="display: none !important;">
-                    <button class="btn btn-secondary btn-utility" id="btnExportPDF" onclick="exportProposal()">Export PDF</button>
-                    <button class="btn btn-utility btn-email" id="btnEmailClient" onclick="sendProposalEmail()">Email Client</button>
-                </div>
-            </div>
+            </section>
         </div>
-        
+
         <div class="footer" id="cactusbyte-standard-footer">
-            <div>© 2026 SchismMatrix™</div>
-            <div>Powered by <strong>Cactus🌵Byte Studios™</strong> · All Rights Reserved</div>
+            <div>SchismMatrix™ · v1.1.0</div>
+            <div><a href="https://cactusbyte-studios.vercel.app" target="_blank" rel="noopener noreferrer">Cactus🌵Byte Studios™</a> · All Rights Reserved</div>
         </div>
     </div>
 
     <div class="modal-overlay" id="adminPinModal" role="dialog" aria-modal="true" aria-labelledby="adminPinTitle" onclick="if(event.target===this) closeAdminPinModal()">
         <div class="modal-card" style="max-width:380px;">
-            <div class="modal-title">
-                <span id="adminPinTitle">🔐 Admin Access</span>
-                <button type="button" aria-label="Close admin access" onclick="closeAdminPinModal()" style="border:0;background:transparent;color:#ef4444;font-size:20px;font-weight:900;cursor:pointer;padding:4px 8px;">✕</button>
-            </div>
-            <div style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:14px;">Enter the administrator PIN to switch to Admin Mode.</div>
-            <input
-                id="adminPinInput"
-                type="password"
-                inputmode="numeric"
-                pattern="[0-9]*"
-                autocomplete="off"
-                maxlength="12"
-                aria-label="Administrator PIN"
-                placeholder="Admin PIN"
-                onkeydown="if(event.key==='Enter'){event.preventDefault();submitAdminPin();}else if(event.key==='Escape'){closeAdminPinModal();}"
-                style="width:100%;height:52px;box-sizing:border-box;border-radius:12px;border:1px solid rgba(0,240,255,.35);background:rgba(2,6,23,.78);color:#fff;font-size:18px;font-weight:800;letter-spacing:.16em;padding:0 14px;outline:none;margin-bottom:8px;">
+            <div class="modal-title"><span id="adminPinTitle">Admin Access</span><button type="button" aria-label="Close admin access" onclick="closeAdminPinModal()" style="border:0;background:transparent;color:#ef4444;font-size:20px;font-weight:900;cursor:pointer;padding:4px 8px;">✕</button></div>
+            <div style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:14px;">Enter the administrator PIN to switch to Quote Matrix.</div>
+            <input id="adminPinInput" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12" aria-label="Administrator PIN" placeholder="Admin PIN" onkeydown="if(event.key==='Enter'){event.preventDefault();submitAdminPin();}else if(event.key==='Escape'){closeAdminPinModal();}" style="width:100%;height:52px;box-sizing:border-box;border-radius:12px;border:1px solid rgba(0,240,255,.35);background:rgba(2,6,23,.78);color:#fff;font-size:18px;font-weight:800;letter-spacing:.16em;padding:0 14px;outline:none;margin-bottom:8px;">
             <div id="adminPinError" role="alert" aria-live="polite" style="min-height:20px;color:#f87171;font-size:12px;font-weight:800;margin-bottom:10px;"></div>
-            <button class="btn" type="button" onclick="submitAdminPin()" style="margin-bottom:8px;">Unlock Admin Mode</button>
+            <button class="btn" type="button" onclick="submitAdminPin()" style="margin-bottom:8px;">Unlock Quote Matrix</button>
             <button class="btn btn-secondary" type="button" onclick="closeAdminPinModal()" style="margin-bottom:0;">Cancel</button>
         </div>
     </div>
@@ -1125,6 +1198,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('satelliteModal').style.display = 'none';
             document.getElementById('adminPinModal').style.display = 'none';
+            renderPreviewGrid();
         });
 
         function toggleLanguage() {
@@ -1238,6 +1312,8 @@
             isTechMode = (mode === 'tech');
             document.getElementById('btnAdminMode').classList.toggle('active', !isTechMode);
             document.getElementById('btnTechMode').classList.toggle('active', isTechMode);
+            document.getElementById('quoteModeButton')?.classList.toggle('is-active', !isTechMode);
+            document.getElementById('crewModeButton')?.classList.toggle('is-active', isTechMode);
 
             const t = translations[currentLang];
             if (isTechMode) {
@@ -1355,33 +1431,56 @@
         }
 
         function renderPreviewGrid() {
-            const previewGrid = document.getElementById('imagePreviewGrid');
+            const previewGrid = document.getElementById('evidenceGrid');
             const processTrigger = document.getElementById('processTrigger');
             const laser = document.getElementById('hudLaserBeam');
-            
+
             previewGrid.innerHTML = '';
             if (laser) previewGrid.appendChild(laser);
 
-            stagedBase64Images.forEach((base64Str, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'preview-thumbnail-wrapper';
+            for (let index = 0; index < 24; index++) {
+                const slot = document.createElement('div');
+                slot.className = 'evidence-slot' + (stagedBase64Images[index] ? ' has-photo' : '');
+                slot.setAttribute('data-slot', String(index));
+                slot.setAttribute('role', 'button');
+                slot.setAttribute('tabindex', '0');
 
-                const thumb = document.createElement('div');
-                thumb.className = 'preview-thumbnail';
-                thumb.style.backgroundImage = `url(${base64Str})`;
+                const title = document.createElement('span');
+                title.className = 'slot-title';
+                title.textContent = stagedBase64Images[index] ? `Photo ${index + 1}` : `Add photo ${index + 1}`;
 
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-photo-btn';
-                removeBtn.innerHTML = '✕';
-                removeBtn.onclick = (e) => {
-                    e.stopPropagation(); 
-                    removeStagedImage(index);
-                };
+                const hint = document.createElement('span');
+                hint.className = 'slot-hint';
+                hint.textContent = stagedBase64Images[index] ? 'Saved to this property' : 'Tap to use the camera';
 
-                wrapper.appendChild(thumb);
-                wrapper.appendChild(removeBtn);
-                previewGrid.appendChild(wrapper);
-            });
+                slot.appendChild(title);
+                slot.appendChild(hint);
+
+                if (stagedBase64Images[index]) {
+                    slot.style.backgroundImage = `url(${stagedBase64Images[index]})`;
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'remove-photo-btn';
+                    removeBtn.innerHTML = '✕';
+                    removeBtn.setAttribute('aria-label', `Remove photo ${index + 1}`);
+                    removeBtn.onclick = (event) => {
+                        event.stopPropagation();
+                        removeStagedImage(index);
+                    };
+                    slot.appendChild(removeBtn);
+                } else {
+                    const openCamera = () => document.getElementById('cameraInput').click();
+                    slot.addEventListener('click', openCamera);
+                    slot.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            openCamera();
+                        }
+                    });
+                }
+
+                previewGrid.appendChild(slot);
+            }
 
             if (stagedBase64Images.length > 0) {
                 processTrigger.setAttribute('style', 'display: block !important;');
