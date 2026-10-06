@@ -95,7 +95,7 @@
       '<section class="matrix-settings-section">',
       '<p class="matrix-settings-kicker">About</p>',
       '<h2 class="matrix-settings-title">Matrix Sight™</h2>',
-      '<p class="matrix-settings-copy">A photo-to-plan workflow built for No Problem Pressure Washing. It turns field evidence into a customer-ready scope, pricing plan, safety checks, and crew brief.</p>',
+      '<p class="matrix-settings-copy">A photo-to-plan property-intelligence workflow that turns field evidence into a customer-ready scope, pricing plan, safety checks, and crew brief.</p>',
       '</section>',
       '<div class="matrix-settings-footer">SchismMatrix™ · Cactus🌵Byte Studios™ · All Rights Reserved</div>',
       '</div></section>'
