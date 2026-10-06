@@ -56,4 +56,13 @@ assert(enhancements.includes("return 'schismmatrix-' + safeBase + '.pdf';"), 'cu
 assert(!enhancements.includes('Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment.'), 'unsafe high-access PDF scope copy has returned');
 assert(enhancements.includes('Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'), 'safe multi-level PDF scope boundary is missing');
 
+assert(index.includes('workflowState'), 'workflow diagnostics helper is missing');
+assert(index.includes("dashboard:Boolean(byId('augustDashboard')"), 'dashboard workflow state check is missing');
+assert(index.includes("photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0)"), 'photo workflow state check is missing');
+assert(index.includes("hasMatrix:Boolean(typeof techMatrixData!=='undefined' && techMatrixData)"), 'analysis workflow state check is missing');
+assert(index.includes("reportVisible:Boolean(byId('outputCard')"), 'report workflow state check is missing');
+assert(index.includes("crewHandoffReady:Boolean(byId('btnCrewHandoff')"), 'crew handoff workflow state check is missing');
+assert(index.includes(".workspace-backbar{position:sticky"), 'mobile sticky workspace navigation is missing');
+assert(index.includes("@media(max-width:430px)"), 'Fold/front-screen mobile breakpoint is missing');
+
 console.log('Schism early-August restoration QA passed');
