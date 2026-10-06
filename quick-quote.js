@@ -435,7 +435,7 @@
       return;
     }
     pendingSavedGuide = { guideId: activeGuide, emptyIndexes: empty.map(function (slot) { return slot.getAttribute('data-slot'); }) };
-    var uploadButton = document.getElementById('uploadButton');
+    var uploadButton = document.getElementById('btnUploadPhoto');
     if (uploadButton) uploadButton.click();
   }
 
@@ -639,7 +639,7 @@
     bindServiceChips();
     observeEvidence();
     patchAnalysisRequest();
-    var uploadInput = document.getElementById('uploadInput');
+    var uploadInput = document.getElementById('fileInput');
     if (uploadInput) uploadInput.addEventListener('change', handleSavedInput);
     window.NPQuickQuote = {
       getState: quickQuoteSnapshot,
