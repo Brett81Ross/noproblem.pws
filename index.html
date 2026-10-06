@@ -910,6 +910,13 @@
       .evidence-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.evidence-actions .btn{margin:0!important;min-height:48px;padding:11px 10px!important;font-size:10px!important;letter-spacing:.07em!important;border-radius:11px!important}.evidence-actions .walk-primary{grid-column:1/-1;background:linear-gradient(135deg,#a8fbff,#53dbe8 58%,#9b7cff)!important;color:#071017!important}
       .evidence-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.evidence-slot{position:relative;min-height:92px;padding:9px;border:1px dashed rgba(126,239,255,.18);border-radius:12px;background:rgba(1,10,15,.54);overflow:hidden;cursor:pointer}.evidence-slot.has-photo{border-style:solid;border-color:rgba(82,231,242,.48);background-size:cover;background-position:center}.evidence-slot.has-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.76));pointer-events:none}.slot-title,.slot-hint{position:relative;z-index:2;display:block;text-align:left}.slot-title{color:#dffbff;font-size:9px;font-weight:900}.slot-hint{margin-top:4px;color:#6f929d;font-size:8px;line-height:1.3}.evidence-slot.has-photo .slot-title,.evidence-slot.has-photo .slot-hint{position:absolute;left:8px;right:28px;bottom:8px;color:#fff}.evidence-slot.has-photo .slot-hint{display:none}.evidence-slot .remove-photo-btn{top:5px;right:5px;z-index:4}
       .scan-button{width:100%;min-height:52px;margin-top:12px;border:0;border-radius:13px;background:linear-gradient(135deg,#9af9ff,#54dce8 50%,#9b7cff);color:#061017;font-size:11px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+      .rapidquote-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:11px 12px;border:1px solid rgba(82,231,242,.17);border-radius:12px;background:rgba(82,231,242,.05)}
+      .rapidquote-strip strong{display:block;color:#dffbff;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.rapidquote-strip span{display:block;margin-top:3px;color:#7898a2;font-size:9px}
+      .full-matrix-button{min-height:44px;padding:0 13px;border:1px solid rgba(155,124,255,.34);border-radius:10px;color:#dcd3ff;background:rgba(155,124,255,.08);font-size:9px;font-weight:950;letter-spacing:.07em;text-transform:uppercase;cursor:pointer}
+      .evidence-slot[hidden]{display:none!important}
+      .evidence-grid.full-matrix-open{max-height:none}
+      .full-matrix-note{display:none;margin-top:10px;padding:10px 12px;border:1px solid rgba(155,124,255,.16);border-radius:11px;color:#9189b7;background:rgba(155,124,255,.04);font-size:9px;line-height:1.45}
+      .evidence-grid.full-matrix-open + .full-matrix-note{display:block}
       .result-card{margin-top:0!important;border:1px solid rgba(126,239,255,.17)!important;border-left:1px solid rgba(126,239,255,.17)!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(14,36,46,.94),rgba(5,13,22,.97))!important}
       .legacy-mode-controls{display:none!important}.lang-toggle-row{margin-bottom:4px!important}
       .footer{margin-top:18px!important;padding:18px 8px 5px!important}.footer a{color:#58efff;text-decoration:none;font-weight:850}
@@ -1146,7 +1153,11 @@
                 <div class="card-inner">
                     <p class="section-kicker">3 · GUIDED PROPERTY EVIDENCE</p>
                     <h2 class="section-heading">Show SchismMatrix the property</h2>
-                    <p class="section-copy">Use the guided walk for the fastest path, or add individual photos and satellite notes when needed.</p>
+                    <p class="section-copy">RapidQuote starts with the address and 1–3 useful exterior photos. Expand to Full Matrix when the job needs deeper evidence.</p>
+                    <div class="rapidquote-strip">
+                      <div><strong>RapidQuote™</strong><span>1–3 photos · preliminary estimate · confirm on site</span></div>
+                      <button class="full-matrix-button" id="fullMatrixToggle" type="button">Full Matrix Plan</button>
+                    </div>
 
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" multiple class="hidden-input">
                     <input type="file" id="fileInput" accept="image/*" multiple class="hidden-input">
@@ -1162,6 +1173,7 @@
                     <div class="evidence-grid" id="evidenceGrid">
                         <div class="hud-scan-overlay" id="hudLaserBeam"></div>
                     </div>
+                    <div class="full-matrix-note">Full Matrix is open: use guided service evidence, measurements, satellite context, and additional photos for a deeper field plan.</div>
 
                     <div class="evidence-followup" id="evidenceFollowup" aria-live="polite">
                         <div class="evidence-followup-kicker">ONE MORE LOOK</div>
@@ -1593,6 +1605,7 @@
             for (let index = 0; index < 24; index++) {
                 const slot = document.createElement('div');
                 slot.className = 'evidence-slot' + (stagedBase64Images[index] ? ' has-photo' : '');
+                if (index >= 3 && !previewGrid.classList.contains('full-matrix-open')) slot.hidden = true;
                 slot.setAttribute('data-slot', String(index));
                 slot.setAttribute('role', 'button');
                 slot.setAttribute('tabindex', '0');
@@ -2152,6 +2165,10 @@
         }
         function selectQuote(){
           showWorkspace('Quote Matrix · RapidQuote + Full Matrix');
+          const grid=byId('evidenceGrid');
+          if(grid) grid.classList.remove('full-matrix-open');
+          if(byId('fullMatrixToggle')) byId('fullMatrixToggle').textContent='Full Matrix Plan';
+          if(typeof renderPreviewGrid==='function') renderPreviewGrid();
           if(typeof setAppMode==='function') setAppMode('admin');
           requestAnimationFrame(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
@@ -2262,6 +2279,14 @@
           }));
           byId('returnToDashboard')?.addEventListener('click',showDashboard);
           byId('dashboardSettingsButton')?.addEventListener('click',openSettings);
+          byId('fullMatrixToggle')?.addEventListener('click',()=>{
+            const grid=byId('evidenceGrid');
+            if(!grid) return;
+            const opening=!grid.classList.contains('full-matrix-open');
+            grid.classList.toggle('full-matrix-open',opening);
+            byId('fullMatrixToggle').textContent=opening?'Back to RapidQuote':'Full Matrix Plan';
+            if(typeof renderPreviewGrid==='function') renderPreviewGrid();
+          });
           byId('dashboardMenuButton')?.addEventListener('click',()=>byId('dashboardMenuButton')?.focus());
           const output=byId('outputCard');
           if(output&&typeof MutationObserver==='function'){
