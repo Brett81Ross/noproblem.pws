@@ -1910,6 +1910,11 @@
 
         function exportProposal() {
             if (blockUnreviewedExternalAction('Export')) return;
+            const pdfButton = document.getElementById('downloadQuotePdfButton');
+            if (pdfButton && !pdfButton.disabled) {
+                pdfButton.click();
+                return;
+            }
             window.print();
         }
 
@@ -1924,7 +1929,10 @@
 
         function sendProposalEmail() {
             if (blockUnreviewedExternalAction('Email')) return;
-            window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
+            const recipient = document.getElementById('customerEmail')?.value?.trim() || '';
+            const project = document.getElementById('jobName')?.value?.trim() || document.getElementById('jobAddress')?.value?.trim() || 'Property';
+            const subject = 'SchismMatrix Quote — ' + project;
+            window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(generateActiveProposalText())}`;
         }
 
         function hideEvidenceFollowup() {
@@ -2293,6 +2301,8 @@
           const address=project.jobAddress||project.address||'';
           if(byId('jobName')) byId('jobName').value=name;
           if(byId('jobAddress')) byId('jobAddress').value=address;
+          if(byId('customerEmail')) byId('customerEmail').value=project.customerEmail||'';
+          if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
           if(project.matrixData && typeof project.matrixData==='object'){
             techMatrixData=project.matrixData;
             selectQuote();
@@ -2362,10 +2372,12 @@
           const total=byId('grandTotalDisplay')?.textContent?.trim()||'';
           const current=readJson(DASH_RECENTS,[]);
           const matrix=(typeof techMatrixData!=='undefined' && techMatrixData) ? techMatrixData : null;
-          const item={name,address,total,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0)};
+          const customerEmail=byId('customerEmail')?.value?.trim()||'';
+          const customerPhone=byId('customerPhone')?.value?.trim()||'';
+          const item={name,address,total,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
           const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
           try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
-          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date,matrixData:matrix,photoCount:item.photoCount})); }catch(e){}
+          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date,matrixData:matrix,photoCount:item.photoCount,customerEmail,customerPhone})); }catch(e){}
           renderRecents(); renderSavedProject();
         }
         function dockDemoControl(){
