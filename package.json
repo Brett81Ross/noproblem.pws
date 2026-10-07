@@ -4,7 +4,7 @@
   "description": "SchismMatrix Property Intelligence",
   "scripts": {
     "start": "node api/analyze.js",
-    "test": "node tests/geo-primitives.test.js && node tests/matrix-calibration-acceptance.test.js && node tests/matrix-calibration-activation.test.js && node tests/matrix-pricing-calibration.test.js && node tests/matrix-active-calibration-vault.test.js && node tests/matrix-effective-rate-card.test.js && node tests/schism-evidence-contract.test.js && node tests/schism-early-august-restoration.test.js && node tests/matrix-decision-support.test.js && node tests/schism-decision-brief.test.js && node tests/matrix-quote-guardrails.test.js && node tests/schism-job-learning.test.js && node tests/schism-job-learning-ui.test.js && node tests/schism-workflow-preflight.test.js && node tests/schism-workflow-preflight-ui.test.js"
+    "test": "node tests/geo-primitives.test.js && node tests/matrix-calibration-acceptance.test.js && node tests/matrix-calibration-activation.test.js && node tests/matrix-pricing-calibration.test.js && node tests/matrix-active-calibration-vault.test.js && node tests/matrix-effective-rate-card.test.js && node tests/schism-evidence-contract.test.js && node tests/schism-early-august-restoration.test.js && node tests/matrix-decision-support.test.js && node tests/schism-decision-brief.test.js && node tests/matrix-quote-guardrails.test.js && node tests/schism-job-learning.test.js && node tests/schism-job-learning-ui.test.js && node tests/schism-workflow-preflight.test.js && node tests/schism-workflow-preflight-ui.test.js && node tests/schism-analysis-revision.test.js && node tests/schism-analysis-revision-ui.test.js"
   },
   "dependencies": {
     "@google/generative-ai": "latest"
