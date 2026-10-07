@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
+const { buildMatrixDecisionSupport } = require('../lib/matrix-decision-support');
 const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
 const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
@@ -320,6 +321,18 @@ async function handler(req, res) {
                 item.calculatedPrice = roundMoney(basePrice * multiplier);
             });
         }
+
+        scanData.decisionSupport = buildMatrixDecisionSupport({
+            scanData,
+            requestedServices: safeRequestedServices,
+            evidenceMeta: activeEvidenceMeta,
+            photoCount: activeImages.length,
+            satelliteMeasurements: safeMeasurements,
+            rateCard,
+            difficulty,
+            multiplier,
+            elevatedScopeRequested
+        });
 
         return res.status(200).json({
             success: true,
