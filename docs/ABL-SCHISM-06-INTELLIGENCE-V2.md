@@ -89,6 +89,26 @@ Move SchismMatrix from a photo estimator toward a field decision system that exp
    - field-ready jobs route directly to Crew Command
    - no network dependency
 
+10. Revision intelligence
+   - compare sequential analyses for the same normalized property address
+   - service additions/removals and quantity/price deltas
+   - estimate-dollar and percentage delta
+   - hazard additions/removals
+   - review-state and crew-readiness transitions
+   - evidence-strength and unresolved-evidence changes
+   - same-evidence material drift detection
+   - Revision Watch is advisory only and never mutates pricing/release state
+   - revision history remains session-scoped
+
+11. Property Memory
+   - exact normalized-address matching against device-local completed-job outcomes
+   - prior completed visit count
+   - prior scope-change / return-visit / anomaly history
+   - last recorded outcome and service context
+   - prior completion notes
+   - always labeled historical; current property conditions must be re-verified
+   - never auto-populates current property facts or quote pricing
+
 ## Explicit non-goals
 
 - No autonomous pricing changes.
@@ -107,4 +127,6 @@ The branch must pass the complete existing Matrix test suite plus:
 - `schism-job-learning-ui.test.js`
 - `schism-workflow-preflight.test.js`
 - `schism-workflow-preflight-ui.test.js`
+- `schism-analysis-revision.test.js`
+- `schism-analysis-revision-ui.test.js`
 
