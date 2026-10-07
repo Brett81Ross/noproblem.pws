@@ -148,7 +148,12 @@
     var scopeChanged = input.scopeChanged === true;
     var returnVisit = input.returnVisit === true;
     var crewReady = snapshot.crewReady === true;
-    var cleanOperations = crewReady && !scopeChanged && !returnVisit;
+    var matrixPriceRatio = ratio(actualPrice, snapshot.matrixEstimatedTotal);
+    var timeRatio = ratio(actualMinutes, snapshot.estimatedMinutes);
+    var extremePriceVariance = matrixPriceRatio !== null && (matrixPriceRatio < 0.5 || matrixPriceRatio > 2);
+    var extremeTimeVariance = timeRatio !== null && (timeRatio < 0.4 || timeRatio > 2.5);
+    var anomaly = extremePriceVariance || extremeTimeVariance;
+    var cleanOperations = crewReady && !scopeChanged && !returnVisit && !anomaly;
     var cleanPricing = cleanOperations && snapshot.manualPriceOverride !== true && Number(snapshot.matrixEstimatedTotal) > 0 && actualPrice > 0;
 
     return {
@@ -176,7 +181,10 @@
         scopeChanged,
         returnVisit,
         manualPriceOverride: snapshot.manualPriceOverride === true,
-        crewWasFieldReady: crewReady
+        crewWasFieldReady: crewReady,
+        anomaly: anomaly,
+        extremePriceVariance: extremePriceVariance,
+        extremeTimeVariance: extremeTimeVariance
       },
       eligibility: {
         operationsLearning: cleanOperations,
@@ -362,6 +370,7 @@
 
     var scopeSurprises = records.filter(function (record) { return record.conditions && record.conditions.scopeChanged === true; }).length;
     var returnVisits = records.filter(function (record) { return record.conditions && record.conditions.returnVisit === true; }).length;
+    var anomalyCount = records.filter(function (record) { return record.conditions && record.conditions.anomaly === true; }).length;
 
     var evidenceStats = {};
     records.forEach(function (record) {
@@ -434,6 +443,7 @@
       waterSignal: signalLabel(waterBiasPct),
       scopeSurpriseRatePct: records.length ? round((scopeSurprises / records.length) * 100, 1) : 0,
       returnVisitRatePct: records.length ? round((returnVisits / records.length) * 100, 1) : 0,
+      anomalyCount,
       evidenceStats,
       evidenceSignals,
       calibrationCandidates: candidates,
@@ -579,6 +589,7 @@
             '<div class="schism-learning-note">' + escapeHtml((record.recordedAt || '').slice(0, 10)) +
             (record.conditions && record.conditions.scopeChanged ? ' · scope changed' : '') +
             (record.conditions && record.conditions.returnVisit ? ' · return visit' : '') +
+            (record.conditions && record.conditions.anomaly ? ' · anomaly quarantined' : '') +
             '</div></span><strong>' + escapeHtml(formatMoney(predicted.matrixPrice)) + ' → ' + escapeHtml(formatMoney(actual.price)) + '</strong></div>';
         }).join('') + '</div>'
       : '';
@@ -610,7 +621,7 @@
       '<div class="schism-learning-section">' + candidateHtml + operationsHtml + evidenceHtml + '</div>' +
       historyHtml +
       '<div class="schism-learning-actions" style="margin-top:10px"><button class="secondary" id="schismCopyLearning" type="button">Copy Learning Report</button></div>' +
-      '<div class="schism-learning-note">Scope-surprise rate: ' + analysis.scopeSurpriseRatePct.toFixed(1) + '% · Return-visit rate: ' + analysis.returnVisitRatePct.toFixed(1) + '%. Pricing recommendations never write to the active calibration vault.</div>';
+      '<div class="schism-learning-note">Scope-surprise rate: ' + analysis.scopeSurpriseRatePct.toFixed(1) + '% · Return-visit rate: ' + analysis.returnVisitRatePct.toFixed(1) + '% · Quarantined anomalies: ' + analysis.anomalyCount + '. Pricing recommendations never write to the active calibration vault.</div>';
 
     var form = document.getElementById('schismLearningForm');
     if (form) {
