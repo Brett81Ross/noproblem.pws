@@ -17,6 +17,9 @@ assert(analyze.includes('scanData.decisionSupport = buildMatrixDecisionSupport({
 assert(analyze.includes('requestedServices: safeRequestedServices'), 'decision support does not receive requested scope');
 assert(analyze.includes('evidenceMeta: activeEvidenceMeta'), 'decision support does not receive evidence provenance');
 assert(analyze.includes('satelliteMeasurements: safeMeasurements'), 'decision support does not receive measured geometry');
+assert(analyze.includes("require('../lib/matrix-quote-guardrails')"), 'analysis API does not load quote guardrails');
+assert(analyze.includes('const normalizedQuote = normalizeServices({'), 'analysis API does not normalize model service output');
+assert(analyze.includes('scanData.quoteGuardrails = {'), 'analysis API does not expose quote-integrity review state');
 
 assert(enhancements.includes('window.__schismDecisionSupport = matrix && matrix.decisionSupport'), 'analysis response does not store decision support');
 assert(enhancements.includes("new CustomEvent('schism:decision-support-changed')"), 'decision support change event is missing');
@@ -26,6 +29,8 @@ assert(enhancements.includes('Best next capture'), 'next-best-evidence guidance 
 assert(enhancements.includes('Price drivers · before manual edits'), 'price-driver explanation is missing');
 assert(enhancements.includes('Scope intelligence'), 'scope-difference explanation is missing');
 assert(enhancements.includes('Crew Handoff'), 'crew readiness status is missing');
+assert(enhancements.includes('<h4>Quote integrity</h4>'), 'quote-integrity guardrails are not shown in the decision brief');
+assert(enhancements.includes('renderDecisionBrief();'), 'decision brief is not refreshed after result DOM changes');
 assert(enhancements.includes("document.addEventListener('schism:decision-support-changed', renderDecisionBrief)"), 'decision brief does not react to analysis updates');
 
 assert(index.includes("window.__schismDecisionSupport=project.matrixData.decisionSupport"), 'saved analyzed projects do not restore decision support');
