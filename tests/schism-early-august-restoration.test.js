@@ -70,4 +70,23 @@ assert(index.includes("menu.classList.toggle('is-open',opening)"), 'dashboard ha
 assert(!read('settings.js').includes('built for No Problem Pressure Washing'), 'legacy No Problem product copy remains in settings');
 assert(JSON.parse(read('package.json')).description === 'SchismMatrix Property Intelligence', 'package metadata is not SchismMatrix');
 
+
+const splash = read('splash.html');
+const manifest = JSON.parse(read('manifest.webmanifest'));
+assert(splash.includes('manifest.webmanifest?v=20261007'), 'splash is not forcing refreshed SchismMatrix manifest metadata');
+assert(splash.includes('@media (orientation: landscape) and (max-height: 650px)'), 'landscape/Fold splash protection is missing');
+assert(splash.includes('max-height: 64px'), 'CactusByte splash logo landscape sizing is missing');
+assert(!/No Problem/i.test(splash), 'legacy No Problem branding remains in SchismMatrix splash');
+
+assert(index.includes('<h1>Build the <span>scope.</span></h1>'), 'operator-focused dashboard hero copy is missing');
+assert(index.includes('<p>Capture. Review. Handoff.</p>'), 'operator workflow hero subtitle is missing');
+assert(index.includes('background:linear-gradient(135deg,#9af9ff 0%,#53dbe8 54%,#67c7d7 100%)'), 'primary CTA is not using Schism cyan/teal styling');
+assert(index.includes('.dashboard-alert[hidden]{display:none!important}'), 'hidden inventory alert badge can still leak into the UI');
+assert(index.includes("Inventory has not been counted yet."), 'uncounted inventory state is misleading');
+assert(index.includes("document.querySelector('.cb60-btn')"), 'shared Watch Demo control is not docked by its actual class');
+assert(index.includes('.cb60-btn.dashboard-demo-docked'), 'Watch Demo docked CSS override is missing');
+
+assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => String(icon.src).includes('schismmatrix-symbol.svg?v=20261007')), 'installed app icon metadata is not refreshed to the SchismMatrix symbol');
+assert(!manifest.icons.some(icon => /noproblem|app-icon/i.test(String(icon.src))), 'legacy install icon remains in the manifest');
+
 console.log('Schism early-August restoration QA passed');
