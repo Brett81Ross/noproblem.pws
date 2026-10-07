@@ -258,6 +258,10 @@
           response.clone().json().then(function (payload) {
             if (requestGeneration !== analysisGeneration) return;
             var matrix = payload && payload.rawMatrixData;
+            window.__schismDecisionSupport = matrix && matrix.decisionSupport && typeof matrix.decisionSupport === 'object'
+              ? matrix.decisionSupport
+              : null;
+            document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
             if (!matrix || typeof matrix !== 'object') {
               window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
             } else {
@@ -524,6 +528,163 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
     showNotice('Customer quote PDF downloaded.');
   }
+
+  function decisionEscapeHtml(value) {
+    return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character];
+    });
+  }
+
+  function decisionMoney(value) {
+    var number = Number(value);
+    return Number.isFinite(number) ? '
+    var quoteActions = document.querySelector('.quote-actions');
+    if (!quoteActions || document.getElementById('downloadQuotePdfButton')) return;
+
+    var button = document.createElement('button');
+    button.className = 'button pdf-download-button';
+    button.id = 'downloadQuotePdfButton';
+    button.type = 'button';
+    button.textContent = 'Download customer PDF';
+    button.addEventListener('click', downloadQuotePdf);
+    quoteActions.appendChild(button);
+    syncQuoteReleaseControls();
+  }
+
+  function observeResults() {
+    var resultsMount = document.getElementById('resultsMount');
+    if (!resultsMount || typeof MutationObserver !== 'function') return;
+
+    var observer = new MutationObserver(function () {
+      updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
+      ensurePdfButton();
+      renderDecisionBrief();
+    });
+    observer.observe(resultsMount, { childList: true, subtree: true });
+    ensurePdfButton();
+    renderDecisionBrief();
+  }
+
+  function observeEvidenceGrid() {
+    var evidenceGrid = document.getElementById('evidenceGrid');
+    if (!evidenceGrid || typeof MutationObserver !== 'function') return;
+
+    var observer = new MutationObserver(function () {
+      updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+    });
+    observer.observe(evidenceGrid, { childList: true });
+    updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
+  }
+
+  function init() {
+    createCustomerFields();
+    restoreCustomerContact();
+    addCustomerContactEvents();
+    createHeightSelector();
+    addSelectorEvents();
+    applyLevel(readSavedLevel());
+    patchAnalysisRequest();
+    observeEvidenceGrid();
+    observeResults();
+  }
+
+  init();
+})();
+ + number.toFixed(2) : '';
+  }
+
+  function decisionLabelId(value) {
+    return String(value || '').replace(/_/g, ' ').replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+  }
+
+  function ensureDecisionBriefStyles() {
+    if (document.getElementById('schismDecisionBriefStyles')) return;
+    var style = document.createElement('style');
+    style.id = 'schismDecisionBriefStyles';
+    style.textContent = [
+      '.schism-decision-brief{margin:0 0 14px;padding:16px;border:1px solid rgba(93,235,245,.24);border-radius:16px;background:linear-gradient(145deg,rgba(7,31,40,.96),rgba(4,14,23,.98));box-shadow:0 18px 34px rgba(0,0,0,.16)}',
+      '.schism-decision-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.schism-decision-kicker{color:#64edf6;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.schism-decision-status{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(93,235,245,.28);border-radius:999px;color:#bffaff;background:rgba(93,235,245,.07);font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.schism-decision-brief[data-status="review_required"] .schism-decision-status,.schism-decision-brief[data-status="blocked"] .schism-decision-status{border-color:rgba(214,176,107,.34);color:#e7cc95;background:rgba(214,176,107,.07)}',
+      '.schism-decision-summary{margin:8px 0 12px;color:#eefcff;font-size:17px;line-height:1.25}.schism-decision-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.schism-decision-stat{padding:10px;border:1px solid rgba(93,235,245,.13);border-radius:11px;background:rgba(1,13,20,.58)}.schism-decision-stat span{display:block;color:#718f9a;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.schism-decision-stat strong{display:block;margin-top:5px;color:#e7fbff;font-size:12px}',
+      '.schism-next-action{margin-top:10px;padding:12px;border:1px solid rgba(101,224,238,.2);border-radius:12px;background:rgba(82,231,242,.045)}.schism-next-action b{display:block;color:#74eef7;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.schism-next-action strong{display:block;margin-top:5px;color:#effcff;font-size:13px}.schism-next-action span{display:block;margin-top:4px;color:#839ea8;font-size:9px;line-height:1.45}',
+      '.schism-decision-section{margin-top:11px}.schism-decision-section h4{margin:0 0 7px;color:#8aa7b1;font-size:8px;letter-spacing:.1em;text-transform:uppercase}.schism-price-driver,.schism-scope-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(93,235,245,.08);color:#bcd1d8;font-size:9px}.schism-price-driver:first-of-type,.schism-scope-line:first-of-type{border-top:0}.schism-price-driver strong,.schism-scope-line strong{color:#effcff;font-size:10px}.schism-decision-note{margin-top:7px;color:#708b95;font-size:8px;line-height:1.45}',
+      '@media(max-width:560px){.schism-decision-grid{grid-template-columns:1fr}.schism-decision-summary{font-size:15px}}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  function renderDecisionBrief() {
+    var mount = document.getElementById('resultsMount');
+    if (!mount) return;
+
+    var support = window.__schismDecisionSupport;
+    var existing = document.getElementById('schismDecisionBrief');
+    if (!support || typeof support !== 'object') {
+      if (existing) existing.remove();
+      return;
+    }
+
+    ensureDecisionBriefStyles();
+
+    var status = support.status || 'review_required';
+    var evidence = support.evidence || {};
+    var pricing = support.pricing || {};
+    var scope = support.scope || {};
+    var crew = support.crew || {};
+    var next = support.nextBestAction;
+    var drivers = Array.isArray(pricing.drivers) ? pricing.drivers : [];
+    var requestedNotQuoted = Array.isArray(scope.requestedNotQuoted) ? scope.requestedNotQuoted : [];
+    var additionalObserved = Array.isArray(scope.additionalObserved) ? scope.additionalObserved : [];
+
+    var html = '<div class="schism-decision-head"><div><div class="schism-decision-kicker">Matrix Decision Brief</div></div><span class="schism-decision-status">' +
+      decisionEscapeHtml(support.statusLabel || status) + '</span></div>' +
+      '<div class="schism-decision-summary">' + decisionEscapeHtml(support.summary || '') + '</div>' +
+      '<div class="schism-decision-grid">' +
+        '<div class="schism-decision-stat"><span>Evidence</span><strong>' + decisionEscapeHtml(decisionLabelId(evidence.strength || 'limited')) + '</strong></div>' +
+        '<div class="schism-decision-stat"><span>Photos / Measurements</span><strong>' + decisionEscapeHtml(String(evidence.photoCount || 0)) + ' / ' + decisionEscapeHtml(String(evidence.measuredSurfaceCount || 0)) + '</strong></div>' +
+        '<div class="schism-decision-stat"><span>Crew Handoff</span><strong>' + (crew.ready ? 'Ready' : 'Locked') + '</strong></div>' +
+      '</div>';
+
+    if (next && next.prompt) {
+      html += '<div class="schism-next-action"><b>Best next capture</b><strong>' + decisionEscapeHtml(next.prompt) + '</strong>' +
+        (next.reason ? '<span>' + decisionEscapeHtml(next.reason) + '</span>' : '') + '</div>';
+    }
+
+    if (drivers.length) {
+      html += '<div class="schism-decision-section"><h4>Price drivers · before manual edits</h4>' +
+        drivers.map(function (driver) {
+          var detail = driver.quantity !== null && driver.quantity !== undefined
+            ? decisionEscapeHtml(String(driver.quantity) + ' ' + String(driver.quantityUnit || ''))
+            : '';
+          return '<div class="schism-price-driver"><div><strong>' + decisionEscapeHtml(driver.label || decisionLabelId(driver.serviceId)) + '</strong>' +
+            (detail ? '<div class="schism-decision-note">' + detail + '</div>' : '') +
+            '</div><strong>' + decisionEscapeHtml(decisionMoney(driver.finalPrice)) + '</strong></div>';
+        }).join('') +
+        '<div class="schism-decision-note">' + decisionEscapeHtml(pricing.explanation || '') + '</div></div>';
+    }
+
+    if (requestedNotQuoted.length || additionalObserved.length) {
+      html += '<div class="schism-decision-section"><h4>Scope intelligence</h4>';
+      if (requestedNotQuoted.length) {
+        html += '<div class="schism-scope-line"><span>Requested but not qualified</span><strong>' +
+          decisionEscapeHtml(requestedNotQuoted.map(decisionLabelId).join(', ')) + '</strong></div>';
+      }
+      if (additionalObserved.length) {
+        html += '<div class="schism-scope-line"><span>Observed beyond selected scope</span><strong>' +
+          decisionEscapeHtml(additionalObserved.map(decisionLabelId).join(', ')) + '</strong></div>';
+      }
+      html += '</div>';
+    }
+
+    var card = existing || document.createElement('section');
+    card.id = 'schismDecisionBrief';
+    card.className = 'schism-decision-brief';
+    card.setAttribute('data-status', status);
+    card.innerHTML = html;
+
+    if (!existing || card.parentNode !== mount) mount.insertBefore(card, mount.firstChild);
+  }
+
+  document.addEventListener('schism:decision-support-changed', renderDecisionBrief);
 
   function ensurePdfButton() {
     var quoteActions = document.querySelector('.quote-actions');
