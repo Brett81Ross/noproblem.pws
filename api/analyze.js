@@ -240,7 +240,11 @@ async function handler(req, res) {
             throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
         }
         
-        const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
+        if (!scanData || typeof scanData !== 'object' || Array.isArray(scanData)) {
+            throw new Error('Analysis returned an invalid Matrix object.');
+        }
+
+        const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' && !Array.isArray(scanData.evidenceReview) ? scanData.evidenceReview : null;
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
         const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
@@ -261,6 +265,16 @@ async function handler(req, res) {
                 ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
                 readyForEstimate: false,
                 summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
+            };
+        }
+
+        if (!evidenceReview) {
+            scanData.evidenceReview = {
+                readyForEstimate: false,
+                missingEvidence: [],
+                uncertainEvidence: [],
+                confirmedCategories: [],
+                summary: 'Manual review required: analysis returned no valid evidence review.'
             };
         }
 
