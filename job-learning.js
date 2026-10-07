@@ -149,7 +149,7 @@
     var returnVisit = input.returnVisit === true;
     var crewReady = snapshot.crewReady === true;
     var cleanOperations = crewReady && !scopeChanged && !returnVisit;
-    var cleanPricing = cleanOperations && snapshot.manualPriceOverride !== true && Number(snapshot.matrixEstimatedTotal) > 0;
+    var cleanPricing = cleanOperations && snapshot.manualPriceOverride !== true && Number(snapshot.matrixEstimatedTotal) > 0 && actualPrice > 0;
 
     return {
       version: 1,
@@ -261,6 +261,80 @@
     });
   }
 
+  function groupSingleServiceOperations(records) {
+    var groups = {};
+
+    records.forEach(function (record) {
+      if (!record || !record.eligibility || record.eligibility.operationsLearning !== true) return;
+      if (!Array.isArray(record.services) || record.services.length !== 1) return;
+      var service = record.services[0];
+      var id = service && service.serviceId;
+      if (!id) return;
+      if (!groups[id]) groups[id] = { serviceId: id, label: service.label || id, records: [], minuteRatios: [], waterRatios: [], estimatedMinutes: [], estimatedWater: [] };
+
+      var minuteRatio = ratio(record.actual && record.actual.minutes, record.predicted && record.predicted.minutes);
+      var waterRatio = ratio(record.actual && record.actual.waterGallons, record.predicted && record.predicted.waterGallons);
+      if (minuteRatio !== null) groups[id].minuteRatios.push(minuteRatio);
+      if (waterRatio !== null) groups[id].waterRatios.push(waterRatio);
+      var estimatedMinutes = finiteNumber(service.estimatedMinutes);
+      var estimatedWater = finiteNumber(service.estimatedWaterGallons);
+      if (estimatedMinutes !== null && estimatedMinutes > 0) groups[id].estimatedMinutes.push(estimatedMinutes);
+      if (estimatedWater !== null && estimatedWater > 0) groups[id].estimatedWater.push(estimatedWater);
+      groups[id].records.push(record);
+    });
+
+    return groups;
+  }
+
+  function buildOperationsCandidates(records) {
+    var groups = groupSingleServiceOperations(records);
+    var candidates = [];
+
+    Object.keys(groups).forEach(function (serviceId) {
+      var group = groups[serviceId];
+      if (group.records.length < MIN_CALIBRATION_SAMPLES) return;
+
+      var minuteRatio = median(group.minuteRatios);
+      var waterRatio = median(group.waterRatios);
+      var medianMinutes = median(group.estimatedMinutes);
+      var medianWater = median(group.estimatedWater);
+      var item = {
+        serviceId,
+        label: group.label,
+        sampleCount: group.records.length,
+        confidence: group.records.length >= 5 ? 'supported' : 'emerging',
+        time: null,
+        water: null
+      };
+
+      if (minuteRatio !== null && Math.abs((minuteRatio - 1) * 100) >= 15 && medianMinutes !== null) {
+        var boundedTimeRatio = Math.max(0.65, Math.min(1.6, minuteRatio));
+        item.time = {
+          observedBiasPct: round((minuteRatio - 1) * 100, 1),
+          recommendedMinutes: Math.max(1, Math.round(medianMinutes * boundedTimeRatio)),
+          multiplier: round(boundedTimeRatio, 3),
+          bounded: boundedTimeRatio !== minuteRatio
+        };
+      }
+
+      if (waterRatio !== null && Math.abs((waterRatio - 1) * 100) >= 20 && medianWater !== null) {
+        var boundedWaterRatio = Math.max(0.6, Math.min(1.75, waterRatio));
+        item.water = {
+          observedBiasPct: round((waterRatio - 1) * 100, 1),
+          recommendedGallons: Math.max(1, Math.round(medianWater * boundedWaterRatio)),
+          multiplier: round(boundedWaterRatio, 3),
+          bounded: boundedWaterRatio !== waterRatio
+        };
+      }
+
+      if (item.time || item.water) candidates.push(item);
+    });
+
+    return candidates.sort(function (a, b) {
+      return b.sampleCount - a.sampleCount;
+    });
+  }
+
   function analyzeLearning(records) {
     records = Array.isArray(records) ? records.filter(Boolean) : [];
     var operations = records.filter(function (record) {
@@ -305,6 +379,19 @@
     });
 
     var candidates = buildCalibrationCandidates(records);
+    var operationsCandidates = buildOperationsCandidates(records);
+    var evidenceSignals = Object.keys(evidenceStats).map(function (strength) {
+      var stat = evidenceStats[strength];
+      if (stat.count < MIN_CALIBRATION_SAMPLES) return null;
+      if (stat.scopeSurpriseRatePct < 20 && stat.returnVisitRatePct < 20) return null;
+      return {
+        evidenceStrength: strength,
+        sampleCount: stat.count,
+        scopeSurpriseRatePct: stat.scopeSurpriseRatePct,
+        returnVisitRatePct: stat.returnVisitRatePct,
+        message: strength + ' evidence jobs are showing elevated field surprises.'
+      };
+    }).filter(Boolean);
     var serviceRateCents = {};
     candidates.forEach(function (candidate) { serviceRateCents[candidate.serviceId] = candidate.candidateRateCents; });
 
@@ -348,9 +435,11 @@
       scopeSurpriseRatePct: records.length ? round((scopeSurprises / records.length) * 100, 1) : 0,
       returnVisitRatePct: records.length ? round((returnVisits / records.length) * 100, 1) : 0,
       evidenceStats,
+      evidenceSignals,
       calibrationCandidates: candidates,
+      operationsCandidates,
       calibrationRecommendation,
-      status: records.length < 3 ? 'collecting' : candidates.length ? 'calibration_candidate' : 'learning'
+      status: records.length < 3 ? 'collecting' : (candidates.length || operationsCandidates.length || evidenceSignals.length) ? 'signal_detected' : 'learning'
     };
   }
 
@@ -453,6 +542,38 @@
         }).join('')
       : '<div class="schism-learning-note">Calibration candidates appear only after at least ' + MIN_CALIBRATION_SAMPLES + ' clean single-service jobs show a consistent ≥10% pricing bias.</div>';
 
+    var operationsHtml = analysis.operationsCandidates.length
+      ? analysis.operationsCandidates.slice(0, 3).map(function (candidate) {
+          var details = [];
+          if (candidate.time) details.push('time ' + (candidate.time.observedBiasPct > 0 ? '+' : '') + candidate.time.observedBiasPct.toFixed(1) + '% → advisory ' + candidate.time.recommendedMinutes + ' min');
+          if (candidate.water) details.push('water ' + (candidate.water.observedBiasPct > 0 ? '+' : '') + candidate.water.observedBiasPct.toFixed(1) + '% → advisory ' + candidate.water.recommendedGallons + ' gal');
+          return '<div class="schism-learning-candidate"><strong>' + escapeHtml(candidate.label) + ' operations signal</strong><span>' +
+            escapeHtml(String(candidate.sampleCount)) + ' clean single-service jobs · ' + escapeHtml(details.join(' · ')) +
+            ' · ' + escapeHtml(candidate.confidence) + '. Advisory only.</span></div>';
+        }).join('')
+      : '';
+
+    var evidenceHtml = analysis.evidenceSignals.length
+      ? analysis.evidenceSignals.slice(0, 2).map(function (signal) {
+          return '<div class="schism-learning-candidate"><strong>Evidence signal · ' + escapeHtml(signal.evidenceStrength) + '</strong><span>' +
+            escapeHtml(String(signal.sampleCount)) + ' jobs · scope surprise ' + escapeHtml(signal.scopeSurpriseRatePct.toFixed(1)) +
+            '% · return visits ' + escapeHtml(signal.returnVisitRatePct.toFixed(1)) + '%. Capture quality may be affecting field accuracy.</span></div>';
+        }).join('')
+      : '';
+
+    var historyHtml = records.length
+      ? '<div class="schism-learning-section"><div class="schism-learning-note"><strong>Recent outcomes</strong></div>' +
+        records.slice(0, 4).map(function (record) {
+          var predicted = record.predicted || {};
+          var actual = record.actual || {};
+          return '<div class="schism-scope-line"><span>' + escapeHtml(record.jobName || record.jobAddress || 'Completed job') +
+            '<div class="schism-learning-note">' + escapeHtml((record.recordedAt || '').slice(0, 10)) +
+            (record.conditions && record.conditions.scopeChanged ? ' · scope changed' : '') +
+            (record.conditions && record.conditions.returnVisit ? ' · return visit' : '') +
+            '</div></span><strong>' + escapeHtml(formatMoney(predicted.matrixPrice)) + ' → ' + escapeHtml(formatMoney(actual.price)) + '</strong></div>';
+        }).join('') + '</div>'
+      : '';
+
     mount.innerHTML =
       '<div class="schism-learning-head"><div><div class="schism-learning-kicker">Closed-loop intelligence</div><h3>Close Job & Teach Matrix</h3><p class="schism-learning-sub">Record what actually happened. Learning stays on this device and remains advisory until you explicitly approve a separate calibration.</p></div><span class="schism-learning-badge">' +
       escapeHtml(analysis.status.replace(/_/g, ' ')) + '</span></div>' +
@@ -477,7 +598,9 @@
         '<label class="schism-learning-field schism-learning-wide">Completion notes<textarea id="schismOutcomeNotes" maxlength="700" placeholder="Anything SchismMatrix should learn from this job"></textarea></label>' +
         '<div class="schism-learning-actions"><button type="submit">Record Completed Job</button><button class="secondary" id="schismUndoOutcome" type="button"' + (records.length ? '' : ' disabled') + '>Undo Last</button></div>' +
       '</form>' +
-      '<div class="schism-learning-section">' + candidateHtml + '</div>' +
+      '<div class="schism-learning-section">' + candidateHtml + operationsHtml + evidenceHtml + '</div>' +
+      historyHtml +
+      '<div class="schism-learning-actions" style="margin-top:10px"><button class="secondary" id="schismCopyLearning" type="button">Copy Learning Report</button></div>' +
       '<div class="schism-learning-note">Scope-surprise rate: ' + analysis.scopeSurpriseRatePct.toFixed(1) + '% · Return-visit rate: ' + analysis.returnVisitRatePct.toFixed(1) + '%. Pricing recommendations never write to the active calibration vault.</div>';
 
     var form = document.getElementById('schismLearningForm');
@@ -503,6 +626,23 @@
           renderBrowser();
         } catch (error) {
           window.alert(error.message || String(error));
+        }
+      });
+    }
+
+    var copyLearning = document.getElementById('schismCopyLearning');
+    if (copyLearning) {
+      copyLearning.addEventListener('click', function () {
+        var report = JSON.stringify(analysis, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(report).then(function () {
+            copyLearning.textContent = 'Learning Report Copied';
+            setTimeout(function () { copyLearning.textContent = 'Copy Learning Report'; }, 1600);
+          }).catch(function () {
+            window.alert(report);
+          });
+        } else {
+          window.alert(report);
         }
       });
     }
@@ -543,6 +683,7 @@
     makeOutcome,
     analyzeLearning,
     buildCalibrationCandidates,
+    buildOperationsCandidates,
     initBrowser,
     render: renderBrowser
   };
