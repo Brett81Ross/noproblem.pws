@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">CactusByte Studios circuit cactus</title>
+  <desc id="desc">A geometric circuit-cactus mark in teal.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#00d5be" stroke-width="58">
+      <path d="M512 806V276"/>
+      <path d="M512 462H356Q288 462 288 394V350"/>
+      <path d="M512 554H668Q736 554 736 486V414"/>
+      <path d="M512 650H414Q360 650 360 704V752"/>
+      <path d="M512 706H612Q664 706 664 758V806"/>
+    </g>
+    <g stroke="#9de3dd" stroke-width="26">
+      <path d="M512 276V208"/><path d="M448 320V232"/><path d="M576 320V232"/>
+      <path d="M288 350H226"/><path d="M736 414H798"/><path d="M360 752H298"/>
+      <path d="M664 806H726"/><path d="M512 806V862"/><path d="M448 760V846"/><path d="M576 760V846"/>
+    </g>
+    <g fill="#9de3dd" stroke="none">
+      <circle cx="512" cy="190" r="23"/><circle cx="448" cy="214" r="18"/><circle cx="576" cy="214" r="18"/>
+      <circle cx="208" cy="350" r="20"/><circle cx="816" cy="414" r="20"/><circle cx="280" cy="752" r="18"/>
+      <circle cx="744" cy="806" r="18"/><circle cx="512" cy="880" r="22"/><circle cx="448" cy="864" r="17"/><circle cx="576" cy="864" r="17"/>
+    </g>
+    <g stroke="#00d5be" stroke-width="18" opacity="0.95">
+      <path d="M408 408H368"/><path d="M618 504H660"/><path d="M410 600H374"/><path d="M610 656H648"/>
+    </g>
+    <g fill="#00d5be" stroke="none">
+      <circle cx="350" cy="408" r="14"/><circle cx="678" cy="504" r="14"/><circle cx="356" cy="600" r="14"/><circle cx="666" cy="656" r="14"/>
+    </g>
+  </g>
+</svg>
