@@ -105,6 +105,40 @@ assert.equal(drivewayAdvisories.some(item => item.type === 'operations_history')
 assert.equal(drivewayAdvisories.every(item => item.serviceId === 'driveway_cleaning'), true);
 assert.equal(learning.buildServiceAdvisories(['sidewalk_cleaning'], analysis).length, 0);
 
+const propertyRecords = [
+  learning.makeOutcome({
+    snapshot: { ...snapshot, jobAddress: '123 Main St.' },
+    actualPrice: 180,
+    actualMinutes: 75,
+    scopeChanged: true,
+    returnVisit: false,
+    notes: 'Rear gate was narrower than expected.'
+  }),
+  learning.makeOutcome({
+    snapshot: { ...snapshot, jobAddress: '123 MAIN ST' },
+    actualPrice: 176,
+    actualMinutes: 72,
+    scopeChanged: false,
+    returnVisit: true,
+    notes: 'Customer requested a touch-up.'
+  }),
+  learning.makeOutcome({
+    snapshot: { ...snapshot, jobAddress: '999 Other Ave' },
+    actualPrice: 180,
+    actualMinutes: 75,
+    scopeChanged: false,
+    returnVisit: false
+  })
+];
+const propertyMemory = learning.buildPropertyMemory('123 main st', propertyRecords);
+assert.equal(propertyMemory.exists, true);
+assert.equal(propertyMemory.completedVisits, 2);
+assert.equal(propertyMemory.scopeChangeCount, 1);
+assert.equal(propertyMemory.returnVisitCount, 1);
+assert.equal(propertyMemory.notes.length, 2);
+assert.equal(propertyMemory.advisory.includes('Historical context only'), true);
+assert.equal(learning.buildPropertyMemory('124 Main St', propertyRecords).exists, false);
+
 assert.equal(learning.sameJobRecord(
   { jobName: 'Test Driveway', jobAddress: '123 MAIN ST' },
   { jobName: 'test driveway', jobAddress: '123 main st' }
