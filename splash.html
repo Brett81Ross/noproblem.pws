@@ -47,8 +47,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+      justify-content: flex-start;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: max(24px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
       isolation: isolate;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -75,7 +77,9 @@
 
     .studio-wrap {
       width: min(76vw, 430px);
-      min-height: 58px;
+      height: clamp(58px, 12vh, 96px);
+      min-height: 0;
+      flex: 0 0 auto;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -85,10 +89,10 @@
 
     .studio-logo {
       display: block;
-      width: auto;
+      width: 100%;
+      height: 100%;
       max-width: 100%;
-      height: auto;
-      max-height: min(15vh, 104px);
+      max-height: 100%;
       object-fit: contain;
       object-position: center;
       filter: drop-shadow(0 14px 28px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(0,240,255,.12));
@@ -98,6 +102,7 @@
       position: relative;
       width: clamp(124px, 34vw, 184px);
       aspect-ratio: 1;
+      flex: 0 0 auto;
       display: grid;
       place-items: center;
       animation: appIn .95s .16s cubic-bezier(.2,.75,.25,1) both, breathe 3.2s 1.15s ease-in-out infinite;
@@ -111,6 +116,7 @@
     }
 
     .app-name {
+      flex: 0 0 auto;
       margin-top: clamp(12px, 2.4vh, 22px);
       text-align: center;
       font-size: clamp(15px, 4vw, 19px);
@@ -124,6 +130,7 @@
     }
 
     .studio-credit {
+      flex: 0 0 auto;
       margin-top: 9px;
       font-size: 11px;
       letter-spacing: .18em;
@@ -133,6 +140,7 @@
     }
 
     .loader {
+      flex: 0 0 auto;
       width: min(220px, 58vw);
       height: 2px;
       margin-top: clamp(16px, 3vh, 28px);
@@ -190,6 +198,25 @@
     }
 
     @keyframes load { to { width: 100%; } }
+
+    @media (max-height: 760px) {
+      .splash {
+        padding-top: max(14px, env(safe-area-inset-top));
+      }
+      .studio-wrap {
+        height: clamp(50px, 10vh, 72px);
+        margin-bottom: 6px;
+      }
+      .app-lockup {
+        width: clamp(92px, 24vw, 132px);
+      }
+      .app-name {
+        margin-top: 7px;
+      }
+      .loader {
+        margin-top: 12px;
+      }
+    }
 
     @media (orientation: landscape) and (max-height: 650px) {
       .splash {
