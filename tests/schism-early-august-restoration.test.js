@@ -94,4 +94,19 @@ assert(index.includes('.cb60-btn.dashboard-demo-docked'), 'Watch Demo docked CSS
 assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => String(icon.src).includes('schismmatrix-symbol.svg?v=20261007')), 'installed app icon metadata is not refreshed to the SchismMatrix symbol');
 assert(!manifest.icons.some(icon => /noproblem|app-icon/i.test(String(icon.src))), 'legacy install icon remains in the manifest');
 
+
+assert(!splash.includes('logo2.png'), 'web splash still depends on the oversized remote CactusByte logo2.png asset');
+assert(splash.includes('/assets/cactusbyte-launcher.svg'), 'web splash does not use the local canonical CactusByte mark');
+assert(splash.includes('CactusByte Studios™'), 'web splash does not render the full CactusByte Studios lockup');
+assert(fs.existsSync(path.join(process.cwd(), 'assets/cactusbyte-launcher.svg')), 'local canonical CactusByte splash mark is missing');
+
+assert(manifest.icons.some(icon => icon.src === '/assets/schismmatrix-icon-192.png' && icon.sizes === '192x192'), 'manifest is missing the unique 192px SchismMatrix install icon');
+assert(manifest.icons.some(icon => icon.src === '/assets/schismmatrix-icon-512.png' && icon.sizes === '512x512'), 'manifest is missing the unique 512px SchismMatrix install icon');
+assert(fs.existsSync(path.join(process.cwd(), 'assets/schismmatrix-icon-192.png')), '192px SchismMatrix install icon file is missing');
+assert(fs.existsSync(path.join(process.cwd(), 'assets/schismmatrix-icon-512.png')), '512px SchismMatrix install icon file is missing');
+
+const nativeInstall = read('native-install.js');
+assert(nativeInstall.includes('/SchismMatrix.apk'), 'Android install link is not pointed at the SchismMatrix APK');
+assert(!nativeInstall.includes('/No-Problem-Pressure-Washing-Matrix.apk'), 'legacy No Problem APK install link is still active');
+
 console.log('Schism early-August restoration QA passed');
