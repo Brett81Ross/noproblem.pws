@@ -56,6 +56,24 @@ function base(overrides) {
 }
 
 {
+  const result = evaluatePreflight(base({
+    propertyMemory: {
+      exists: true,
+      advisory: '2 completed prior jobs found for this exact normalized address. 1 prior return visit. Historical context only — verify current property conditions.'
+    },
+    revision: {
+      critical: true,
+      material: true,
+      sameEvidenceMaterialDrift: true
+    }
+  }));
+  assert.equal(result.state, 'analysis_ready');
+  assert.equal(result.advisories.some(item => /Historical context only/i.test(item)), true);
+  assert.equal(result.advisories.some(item => /Revision consistency concern/i.test(item)), true);
+  assert.equal(result.blockers.length, 0);
+}
+
+{
   const result = evaluatePreflight(base({ buildingLevel: 'multiple' }));
   assert.equal(result.state, 'analysis_review_bound');
   assert.equal(result.readiness, 'review_bound');
