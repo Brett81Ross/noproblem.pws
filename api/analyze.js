@@ -275,8 +275,8 @@ async function handler(req, res) {
             scanData.services.forEach((item) => {
                 const spec = rateCard.services[item.serviceId];
                 if (!spec) {
-                    item.calculatedPrice = rateCard.minimumJob;
-                    item.label = item.label || 'Custom Service';
+                    item.calculatedPrice = null;
+                    item.pricingRequiresReview = true;
                     return;
                 }
                 item.label = spec.label;
