@@ -111,8 +111,14 @@ async function handler(req, res) {
         if (!images || !Array.isArray(images) || images.length === 0) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
         }
+        if (safeRequestedServices.length === 0) {
+            return res.status(400).json({ error: 'Bad Request: Select at least one authorized launch service before analysis.' });
+        }
 
-        const activeImages = images.slice(0, MAX_IMAGES);
+        const activeImages = images.slice(0, MAX_IMAGES).filter((image) => typeof image === 'string' && image.length > 0); 
+        if (activeImages.length === 0) {
+            return res.status(400).json({ error: 'Bad Request: No usable property images were supplied.' });
+        }
         
         const envKeys = Object.keys(process.env);
         const matchingKeyName = envKeys.find(k => k.toLowerCase().includes('gemini') && k.toLowerCase().includes('key'));
@@ -206,7 +212,7 @@ async function handler(req, res) {
         const imageParts = activeImages.map((base64Data) => ({
             inlineData: {
                 mimeType: 'image/jpeg',
-                data: base64Data
+                data: base64Data.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, '')
             }
         }));
 
@@ -245,7 +251,7 @@ async function handler(req, res) {
                 const serviceId = service?.serviceId;
                 return typeof serviceId === 'string'
                     && launchServiceIds.has(serviceId)
-                    && (requestedServiceSet.size === 0 || requestedServiceSet.has(serviceId));
+                    && requestedServiceSet.has(serviceId);
             });
         } else {
             scanData.services = [];
