@@ -2353,6 +2353,10 @@
           if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
           if(project.matrixData && typeof project.matrixData==='object'){
             techMatrixData=project.matrixData;
+            window.__schismDecisionSupport=project.matrixData.decisionSupport&&typeof project.matrixData.decisionSupport==='object'
+              ? project.matrixData.decisionSupport
+              : null;
+            document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
             if(typeof setAppMode==='function') setAppMode('admin');
             selectQuote();
             byId('outputCard').style.display='block';
