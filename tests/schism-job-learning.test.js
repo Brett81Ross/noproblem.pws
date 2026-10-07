@@ -89,10 +89,39 @@ assert.equal(analysis.calibrationRecommendation.status, 'ADVISORY_ONLY');
 assert.equal(analysis.calibrationRecommendation.governance.mutatesPricing, false);
 assert.equal(analysis.calibrationRecommendation.governance.writesCalibrationVault, false);
 assert.equal(analysis.calibrationRecommendation.governance.requiresHumanApproval, true);
-assert.equal(analysis.status, 'calibration_candidate');
+assert.equal(analysis.status, 'signal_detected');
 assert.equal(analysis.matrixPriceBiasPct, 25);
 assert.equal(analysis.timeBiasPct, 25);
 assert.equal(analysis.waterBiasPct, 20);
+assert.equal(analysis.operationsCandidates.length, 1);
+assert.equal(analysis.operationsCandidates[0].serviceId, 'driveway_cleaning');
+assert.equal(analysis.operationsCandidates[0].time.recommendedMinutes, 75);
+assert.equal(analysis.operationsCandidates[0].water.recommendedGallons, 300);
+assert.equal(analysis.anomalyCount, 0);
+
+assert.equal(learning.sameJobRecord(
+  { jobName: 'Test Driveway', jobAddress: '123 MAIN ST' },
+  { jobName: 'test driveway', jobAddress: '123 main st' }
+), true);
+assert.equal(learning.sameJobRecord(
+  { jobName: 'Test Driveway', jobAddress: '123 Main St' },
+  { jobName: 'Different', jobAddress: '123 Main St' }
+), false);
+
+const anomaly = learning.makeOutcome({
+  snapshot,
+  actualPrice: 500,
+  actualMinutes: 240,
+  actualWaterGallons: 900,
+  scopeChanged: false,
+  returnVisit: false
+});
+assert.equal(anomaly.conditions.anomaly, true);
+assert.equal(anomaly.eligibility.operationsLearning, false);
+assert.equal(anomaly.eligibility.pricingCalibration, false);
+const anomalyAnalysis = learning.analyzeLearning([anomaly]);
+assert.equal(anomalyAnalysis.anomalyCount, 1);
+assert.equal(anomalyAnalysis.calibrationCandidates.length, 0);
 
 const noCandidate = learning.analyzeLearning(records.slice(0, 2));
 assert.equal(noCandidate.calibrationCandidates.length, 0);
