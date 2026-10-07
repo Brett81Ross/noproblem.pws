@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <title>SchismMatrix™ — Property Intelligence</title>
-  <link rel="manifest" href="/manifest.webmanifest?v=20261007">
+  <link rel="manifest" href="/manifest.webmanifest?v=20261007b">
   <link rel="icon" type="image/svg+xml" href="/assets/schismmatrix-symbol.svg">
   <link rel="apple-touch-icon" href="/assets/schismmatrix-symbol.svg">
   <style>
@@ -76,26 +76,58 @@
     }
 
     .studio-wrap {
-      width: min(76vw, 430px);
-      height: clamp(58px, 12vh, 96px);
-      min-height: 0;
+      width: min(86vw, 430px);
       flex: 0 0 auto;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: clamp(10px, 2.4vh, 22px);
+      margin-bottom: clamp(12px, 2.6vh, 24px);
       animation: studioIn .85s cubic-bezier(.2,.75,.25,1) both;
     }
 
-    .studio-logo {
-      display: block;
+    .studio-lockup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(9px, 2vw, 14px);
       width: 100%;
-      height: 100%;
-      max-width: 100%;
-      max-height: 100%;
+      min-height: 58px;
+    }
+
+    .studio-mark {
+      display: block;
+      width: clamp(46px, 10vw, 64px);
+      height: clamp(46px, 10vw, 64px);
+      flex: 0 0 auto;
       object-fit: contain;
       object-position: center;
-      filter: drop-shadow(0 14px 28px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(0,240,255,.12));
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(0,213,190,.16));
+    }
+
+    .studio-wordmark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+      line-height: 1;
+    }
+
+    .studio-wordmark strong {
+      color: #eaffff;
+      font-size: clamp(18px, 4.4vw, 28px);
+      font-weight: 950;
+      letter-spacing: -.035em;
+      white-space: nowrap;
+    }
+
+    .studio-wordmark span {
+      margin-top: 6px;
+      color: #75dcd4;
+      font-size: clamp(8px, 1.8vw, 11px);
+      font-weight: 900;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      white-space: nowrap;
     }
 
     .app-lockup {
@@ -204,8 +236,14 @@
         padding-top: max(14px, env(safe-area-inset-top));
       }
       .studio-wrap {
-        height: clamp(50px, 10vh, 72px);
-        margin-bottom: 6px;
+        margin-bottom: 7px;
+      }
+      .studio-mark {
+        width: 48px;
+        height: 48px;
+      }
+      .studio-wordmark strong {
+        font-size: 18px;
       }
       .app-lockup {
         width: clamp(92px, 24vw, 132px);
@@ -224,12 +262,22 @@
         padding-bottom: max(12px, env(safe-area-inset-bottom));
       }
       .studio-wrap {
-        width: min(58vw, 360px);
-        min-height: 38px;
-        margin-bottom: 6px;
+        width: min(62vw, 340px);
+        margin-bottom: 5px;
       }
-      .studio-logo {
-        max-height: 64px;
+      .studio-lockup {
+        min-height: 42px;
+      }
+      .studio-mark {
+        width: 40px;
+        height: 40px;
+      }
+      .studio-wordmark strong {
+        font-size: 16px;
+      }
+      .studio-wordmark span {
+        margin-top: 4px;
+        font-size: 7px;
       }
       .app-lockup {
         width: clamp(86px, 19vh, 118px);
@@ -262,10 +310,13 @@
 <body>
   <main id="splash" class="splash" role="button" tabindex="0" aria-label="Open SchismMatrix">
     <div class="studio-wrap">
-      <img
-        class="studio-logo"
-        src="https://raw.githubusercontent.com/Brett81Ross/cactusbyte-studios/main/public/logo2.png"
-        alt="Cactus Byte Studios">
+      <div class="studio-lockup" aria-label="CactusByte Studios">
+        <img class="studio-mark" src="/assets/cactusbyte-launcher.svg" alt="">
+        <div class="studio-wordmark">
+          <strong>CactusByte</strong>
+          <span>Studios™</span>
+        </div>
+      </div>
     </div>
 
     <div class="app-lockup">
@@ -273,7 +324,6 @@
     </div>
 
     <div class="app-name">SchismMatrix™ <span style="display:block;font-size:.58em;letter-spacing:.2em;color:#58efff;margin-top:6px">Property Intelligence</span></div>
-    <div class="studio-credit">Cactus🌵Byte Studios™</div>
     <div class="loader" aria-hidden="true"></div>
     <div class="skip">Tap to enter</div>
   </main>
@@ -281,7 +331,7 @@
   <script>
     (() => {
       const target = '/index.html';
-      const key = 'np_matrix_splash_seen';
+      const key = 'schismmatrix_splash_seen_v2';
       const splash = document.getElementById('splash');
       let leaving = false;
 
