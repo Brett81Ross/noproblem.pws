@@ -4,15 +4,21 @@
   "start_url": "/splash.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#020617",
+  "background_color": "#020b12",
+  "theme_color": "#06131c",
   "description": "Property intelligence for evidence-driven exterior service planning.",
   "icons": [
     {
-      "src": "/assets/schismmatrix-symbol.svg",
+      "src": "/assets/schismmatrix-symbol.svg?v=20261007",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "/assets/schismmatrix-symbol.svg?v=20261007",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
