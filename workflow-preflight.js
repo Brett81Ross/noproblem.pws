@@ -51,6 +51,11 @@
       advisories.push('Evidence is thin; this should be treated as a preliminary quote until the property is confirmed on site.');
     }
 
+    (Array.isArray(input.learningAdvisories) ? input.learningAdvisories : []).slice(0, 2).forEach(function (signal) {
+      var message = cleanText(signal && signal.message, 420);
+      if (message) advisories.push(message);
+    });
+
     if (!address) {
       blockers.push('Property address is required before SchismMatrix can anchor the job.');
       return {
@@ -186,6 +191,15 @@
 
     var photoCount = document.querySelectorAll('#evidenceGrid .evidence-slot.has-photo').length;
     var matrix = runtime && runtime.matrix ? runtime.matrix : null;
+    var learningAdvisories = [];
+    if (typeof window !== 'undefined' && window.SchismJobLearning &&
+        typeof window.SchismJobLearning.currentBrowserAnalysis === 'function' &&
+        typeof window.SchismJobLearning.buildServiceAdvisories === 'function') {
+      learningAdvisories = window.SchismJobLearning.buildServiceAdvisories(
+        selectedServices,
+        window.SchismJobLearning.currentBrowserAnalysis()
+      );
+    }
 
     return {
       customer: document.getElementById('jobName') && document.getElementById('jobName').value,
@@ -193,7 +207,8 @@
       selectedServices,
       photoCount,
       buildingLevel: document.body.getAttribute('data-building-level') === 'multiple' ? 'multiple' : 'one',
-      matrix
+      matrix,
+      learningAdvisories
     };
   }
 
@@ -364,6 +379,7 @@
     document.addEventListener('schism:decision-support-changed', renderBrowser);
     document.addEventListener('schism:workspace-changed', renderBrowser);
     document.addEventListener('schism:release-state-changed', renderBrowser);
+    document.addEventListener('schism:job-learning-changed', renderBrowser);
 
     if (typeof MutationObserver === 'function') {
       new MutationObserver(renderBrowser).observe(document.body, { attributes: true, attributeFilter: ['data-building-level'] });
