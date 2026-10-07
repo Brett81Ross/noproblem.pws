@@ -457,6 +457,15 @@
     storage.setItem(STORAGE_KEY, JSON.stringify(records.slice(0, MAX_RECORDS)));
   }
 
+  function sameJobRecord(a, b) {
+    if (!a || !b) return false;
+    var aName = cleanText(a.jobName, 120).toLowerCase();
+    var bName = cleanText(b.jobName, 120).toLowerCase();
+    var aAddress = cleanText(a.jobAddress, 180).toLowerCase();
+    var bAddress = cleanText(b.jobAddress, 180).toLowerCase();
+    return Boolean((aName || aAddress) && aName === bName && aAddress === bAddress);
+  }
+
   function escapeHtml(value) {
     return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (character) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character];
@@ -493,7 +502,7 @@
       '.schism-learning-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:13px}.schism-learning-field{display:grid;gap:5px;color:#9fb9c2;font-size:8px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}.schism-learning-field input,.schism-learning-field textarea,.schism-learning-field select{width:100%;box-sizing:border-box;border:1px solid rgba(93,235,245,.2);border-radius:10px;padding:10px;color:#effcff;background:#031018;font-size:15px}.schism-learning-field textarea{min-height:72px;resize:vertical}.schism-learning-wide{grid-column:1/-1}',
       '.schism-learning-checks{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:8px}.schism-learning-check{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid rgba(93,235,245,.12);border-radius:10px;color:#b9cdd4;background:rgba(2,14,21,.55);font-size:9px}.schism-learning-check input{width:auto}',
       '.schism-learning-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:8px}.schism-learning-actions button{min-height:43px;border:1px solid rgba(93,235,245,.28);border-radius:10px;color:#04141a;background:linear-gradient(135deg,#9af9ff,#54dce9);font-size:9px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}.schism-learning-actions button.secondary{padding:0 12px;color:#b8eef4;background:rgba(4,20,29,.82)}',
-      '.schism-learning-candidate{margin-top:10px;padding:10px;border:1px solid rgba(214,176,107,.22);border-radius:11px;background:rgba(214,176,107,.045)}.schism-learning-candidate strong{color:#e9d19c;font-size:10px}.schism-learning-candidate span{display:block;margin-top:4px;color:#8ca1a8;font-size:8px;line-height:1.4}.schism-learning-note{margin-top:9px;color:#718a94;font-size:8px;line-height:1.5}',
+      '.schism-learning-candidate{margin-top:10px;padding:10px;border:1px solid rgba(214,176,107,.22);border-radius:11px;background:rgba(214,176,107,.045)}.schism-learning-candidate strong{color:#e9d19c;font-size:10px}.schism-learning-candidate span{display:block;margin-top:4px;color:#8ca1a8;font-size:8px;line-height:1.4}.schism-learning-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid rgba(93,235,245,.08);color:#bcd1d8;font-size:9px}.schism-learning-row strong{color:#effcff;font-size:10px}.schism-learning-note{margin-top:9px;color:#718a94;font-size:8px;line-height:1.5}',
       '@media(max-width:560px){.schism-learning-grid,.schism-learning-form,.schism-learning-checks{grid-template-columns:1fr}.schism-learning-wide,.schism-learning-actions{grid-column:auto}.schism-learning-actions{grid-template-columns:1fr}}'
     ].join('');
     document.head.appendChild(style);
@@ -566,7 +575,7 @@
         records.slice(0, 4).map(function (record) {
           var predicted = record.predicted || {};
           var actual = record.actual || {};
-          return '<div class="schism-scope-line"><span>' + escapeHtml(record.jobName || record.jobAddress || 'Completed job') +
+          return '<div class="schism-learning-row"><span>' + escapeHtml(record.jobName || record.jobAddress || 'Completed job') +
             '<div class="schism-learning-note">' + escapeHtml((record.recordedAt || '').slice(0, 10)) +
             (record.conditions && record.conditions.scopeChanged ? ' · scope changed' : '') +
             (record.conditions && record.conditions.returnVisit ? ' · return visit' : '') +
@@ -620,7 +629,11 @@
             returnVisit: document.getElementById('schismReturnVisit').checked,
             notes: document.getElementById('schismOutcomeNotes').value
           });
-          var next = [outcome].concat(readRecords(window.localStorage)).slice(0, MAX_RECORDS);
+          var existingRecords = readRecords(window.localStorage);
+          var next = existingRecords.length && sameJobRecord(existingRecords[0], outcome)
+            ? [outcome].concat(existingRecords.slice(1))
+            : [outcome].concat(existingRecords);
+          next = next.slice(0, MAX_RECORDS);
           writeRecords(window.localStorage, next);
           document.dispatchEvent(new CustomEvent('schism:job-learning-changed', { detail: analyzeLearning(next) }));
           renderBrowser();
@@ -684,6 +697,7 @@
     analyzeLearning,
     buildCalibrationCandidates,
     buildOperationsCandidates,
+    sameJobRecord,
     initBrowser,
     render: renderBrowser
   };
