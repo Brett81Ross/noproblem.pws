@@ -75,12 +75,12 @@ const splash = read('splash.html');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 assert(splash.includes('manifest.webmanifest?v=20261007'), 'splash is not forcing refreshed SchismMatrix manifest metadata');
 assert(splash.includes('@media (orientation: landscape) and (max-height: 650px)'), 'landscape/Fold splash protection is missing');
-assert(splash.includes('max-height: 64px'), 'CactusByte splash logo landscape sizing is missing');
 assert(splash.includes('justify-content: flex-start;'), 'splash stack must start at the safe top instead of vertically centering into a clipped viewport');
-assert(splash.includes('overflow-y: auto;'), 'splash must allow vertical overflow instead of clipping the studio logo');
+assert(splash.includes('overflow-y: auto;'), 'splash must allow vertical overflow instead of clipping the studio lockup');
 assert(splash.includes('flex: 0 0 auto;'), 'splash logo/lockup rows must not flex-shrink into clipping');
-assert(splash.includes('height: clamp(58px, 12vh, 96px);'), 'CactusByte logo needs a bounded contain box on Fold-sized viewports');
-assert(splash.includes('object-fit: contain;') && splash.includes('object-position: center;'), 'CactusByte logo must render contained and centered');
+assert(splash.includes('class="studio-lockup"'), 'full local CactusByte splash lockup is missing');
+assert(splash.includes('class="studio-mark"'), 'CactusByte splash mark is missing');
+assert(splash.includes('object-fit: contain;') && splash.includes('object-position: center;'), 'CactusByte mark must render contained and centered');
 assert(!/No Problem/i.test(splash), 'legacy No Problem branding remains in SchismMatrix splash');
 
 assert(index.includes('<h1>Build the <span>scope.</span></h1>'), 'operator-focused dashboard hero copy is missing');
