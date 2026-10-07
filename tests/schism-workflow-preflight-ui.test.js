@@ -32,6 +32,9 @@ assert(preflight.includes("window.SchismWalkaround.open()"), 'evidence preflight
 assert(preflight.includes("window.submitJobForAnalysis"), 'analysis-ready preflight cannot execute analysis');
 assert(preflight.includes("document.addEventListener('schism:decision-support-changed', renderBrowser)"), 'preflight does not react to analysis intelligence');
 assert(preflight.includes("document.addEventListener('schism:workspace-changed', renderBrowser)"), 'preflight does not react to workspace changes');
+assert(preflight.includes("window.SchismJobLearning.buildServiceAdvisories"), 'preflight does not consume completed-job learning signals');
+assert(preflight.includes("window.SchismJobLearning.currentBrowserAnalysis()"), 'preflight does not read the current device-local learning analysis');
+assert(preflight.includes("document.addEventListener('schism:job-learning-changed', renderBrowser)"), 'preflight does not refresh when job learning changes');
 assert(!preflight.includes('fetch('), 'preflight unexpectedly adds a network dependency');
 
 console.log('Schism workflow preflight UI QA passed');
