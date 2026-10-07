@@ -8,7 +8,6 @@ const LAUNCH_SERVICE_IDS = Object.freeze([
     'rust_treatment', 'oil_treatment'
 ]);
 const LAUNCH_SERVICE_ID_SET = new Set(LAUNCH_SERVICE_IDS);
-const MAX_SERVICE_QUANTITY = 100000;
 const MAX_SITE_NOTES_LENGTH = 4000;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -292,7 +291,7 @@ async function handler(req, res) {
                 }
                 item.label = spec.label;
                 const quantity = spec.unit === 'flat' ? 1 : Number(item.quantity);
-                if (spec.unit !== 'flat' && (!Number.isFinite(quantity) || quantity <= 0 || quantity > MAX_SERVICE_QUANTITY)) {
+                if (spec.unit !== 'flat' && (!Number.isFinite(quantity) || quantity <= 0)) {
                     item.calculatedPrice = null;
                     item.pricingRequiresReview = true;
                     return;
