@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <title>SchismMatrix™ — Property Intelligence</title>
-  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="manifest" href="/manifest.webmanifest?v=20261007">
   <link rel="icon" type="image/svg+xml" href="/assets/schismmatrix-symbol.svg">
   <link rel="apple-touch-icon" href="/assets/schismmatrix-symbol.svg">
   <style>
@@ -74,24 +74,29 @@
     }
 
     .studio-wrap {
-      width: min(92vw, 560px);
+      width: min(76vw, 430px);
+      min-height: 58px;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: clamp(18px, 3.7vh, 36px);
+      margin-bottom: clamp(10px, 2.4vh, 22px);
       animation: studioIn .85s cubic-bezier(.2,.75,.25,1) both;
     }
 
     .studio-logo {
-      width: 100%;
-      max-height: 34vh;
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: min(15vh, 104px);
       object-fit: contain;
-      filter: drop-shadow(0 18px 34px rgba(0,0,0,.65)) drop-shadow(0 0 24px rgba(0,240,255,.12));
+      object-position: center;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(0,240,255,.12));
     }
 
     .app-lockup {
       position: relative;
-      width: clamp(162px, 46vw, 230px);
+      width: clamp(124px, 34vw, 184px);
       aspect-ratio: 1;
       display: grid;
       place-items: center;
@@ -106,7 +111,7 @@
     }
 
     .app-name {
-      margin-top: clamp(20px, 3.8vh, 34px);
+      margin-top: clamp(12px, 2.4vh, 22px);
       text-align: center;
       font-size: clamp(15px, 4vw, 19px);
       line-height: 1.35;
@@ -130,7 +135,7 @@
     .loader {
       width: min(220px, 58vw);
       height: 2px;
-      margin-top: clamp(25px, 5vh, 45px);
+      margin-top: clamp(16px, 3vh, 28px);
       border-radius: 999px;
       overflow: hidden;
       background: rgba(148,163,184,.12);
@@ -185,6 +190,39 @@
     }
 
     @keyframes load { to { width: 100%; } }
+
+    @media (orientation: landscape) and (max-height: 650px) {
+      .splash {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+      .studio-wrap {
+        width: min(58vw, 360px);
+        min-height: 38px;
+        margin-bottom: 6px;
+      }
+      .studio-logo {
+        max-height: 64px;
+      }
+      .app-lockup {
+        width: clamp(86px, 19vh, 118px);
+      }
+      .app-name {
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      .studio-credit {
+        margin-top: 5px;
+        font-size: 9px;
+      }
+      .loader {
+        margin-top: 10px;
+      }
+      .skip {
+        bottom: max(7px, env(safe-area-inset-bottom));
+        font-size: 8px;
+      }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
