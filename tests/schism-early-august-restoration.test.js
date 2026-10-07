@@ -91,7 +91,7 @@ assert(index.includes("Inventory has not been counted yet."), 'uncounted invento
 assert(index.includes("document.querySelector('.cb60-btn')"), 'shared Watch Demo control is not docked by its actual class');
 assert(index.includes('.cb60-btn.dashboard-demo-docked'), 'Watch Demo docked CSS override is missing');
 
-assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => String(icon.src).includes('schismmatrix-symbol.svg?v=20261007')), 'installed app icon metadata is not refreshed to the SchismMatrix symbol');
+assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => icon.src === '/assets/schismmatrix-install-v2.svg'), 'installed app icon metadata is not refreshed to the unique SchismMatrix install asset');
 assert(!manifest.icons.some(icon => /noproblem|app-icon/i.test(String(icon.src))), 'legacy install icon remains in the manifest');
 
 
