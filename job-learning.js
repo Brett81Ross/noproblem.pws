@@ -31,7 +31,7 @@
 
   function round(value, places) {
     var factor = Math.pow(10, places || 0);
-    return Math.round((Number(value) || 0) * factor) / factor;
+    return Math.round(((Number(value) || 0) + Number.EPSILON) * factor) / factor;
   }
 
   function cleanText(value, max) {
