@@ -296,7 +296,7 @@
 
   function syncQuoteReleaseControls() {
     var locked = isQuoteReleaseLocked();
-    ['downloadQuotePdfButton'].forEach(function (id) {
+    ['downloadQuotePdfButton', 'btnExportPDF', 'btnEmailClient', 'copyButton', 'btnCrewHandoff'].forEach(function (id) {
       var button = document.getElementById(id);
       if (!button) return;
       button.disabled = locked;
@@ -450,8 +450,8 @@
     var editState = window.NPMatrixQuote && typeof window.NPMatrixQuote.getState === 'function' ? window.NPMatrixQuote.getState() : { discountPercent: 0, quoteNotes: '' };
     var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
     var lines = [
-      'NO PROBLEM PRESSURE WASHING SOLUTIONS LLC',
-      'NO PROBLEM PRESSURE WASHING MATRIX(TM)',
+      'SCHISMMATRIX(TM)',
+      'PROPERTY INTELLIGENCE',
       'CUSTOMER QUOTE',
       '',
       'Prepared: ' + new Date().toLocaleDateString('en-US'),
@@ -489,10 +489,10 @@
     lines.push('');
     lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
     lines.push(level === 'Multiple levels'
-      ? 'Multi-level exterior washing and selected roof soft washing are included with safe professional access equipment.'
+      ? 'Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'
       : 'Ground-level and one-story exterior washing are included. Roof cleaning is not included.');
     lines.push('');
-    lines.push('No Problem Pressure Washing Matrix(TM)');
+    lines.push('SchismMatrix(TM)');
     lines.push('Cactus Byte Studios(TM) | All Rights Reserved');
 
     return lines;
@@ -502,7 +502,7 @@
     var jobName = document.getElementById('jobName');
     var base = jobName && jobName.value.trim() ? jobName.value.trim() : 'customer-quote';
     var safeBase = base.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'customer-quote';
-    return 'no-problem-' + safeBase + '.pdf';
+    return 'schismmatrix-' + safeBase + '.pdf';
   }
 
   function downloadQuotePdf() {

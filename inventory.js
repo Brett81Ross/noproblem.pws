@@ -182,7 +182,7 @@
   }
 
   function setEstimatorVisibility(visible) {
-    ['missionCard', 'evidenceCard'].forEach(function (id) {
+    ['missionCard', 'scopeCard', 'evidenceCard', 'crewCommandPanel'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.style.display = visible ? '' : 'none';
     });
@@ -207,7 +207,7 @@
 
   function copyRestockList() {
     var list = restockItems();
-    var text = list.length ? ['NO PROBLEM — SUPPLY MATRIX RESTOCK LIST', ''].concat(list.map(function (item) {
+    var text = list.length ? ['SCHISMMATRIX™ — SUPPLY MATRIX RESTOCK LIST', ''].concat(list.map(function (item) {
       var target = Math.max(item.min + 1, item.min * 2);
       var needed = Math.max(1, target - item.qty);
       return '- ' + item.name + ': buy ' + needed + ' ' + item.unit + (needed === 1 ? '' : 's') + ' (on hand ' + item.qty + ')';
