@@ -1793,7 +1793,7 @@
                     const desc = currentLang === 'es' && item.spanishReason ? item.spanishReason : (item.reason || 'Surface treatment required.');
                     const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${desc}`;
                     
-                    priceItemsRegistry.push({ id: globalCardIndex, cleanText: textContent, value: itemTotal, disabled: false });
+                    priceItemsRegistry.push({ id: globalCardIndex, serviceId: item.serviceId, cleanText: textContent, value: itemTotal, disabled: false });
 
                     htmlOutput += `
                         <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
@@ -2224,6 +2224,7 @@
     <script src="/enhancements.js" defer></script>
     <script src="/quick-quote.js" defer></script>
     <script src="/quote-review.js" defer></script>
+    <script src="/job-learning.js" defer></script>
     <script src="/demo-config.js"></script>
     <script src="/schism-walkaround.js"></script>
 
@@ -2240,6 +2241,7 @@
           if(dash) dash.hidden=true;
           if(work) work.hidden=false;
           if(byId('workspaceTitle')) byId('workspaceTitle').textContent=title||'Quote Matrix';
+          document.dispatchEvent(new CustomEvent('schism:workspace-changed',{detail:{title:title||'Quote Matrix',dashboard:false}}));
           window.scrollTo({top:0,behavior:'smooth'});
         }
         function showDashboard(){
@@ -2252,6 +2254,7 @@
           byId('dashboardMenuPanel')?.classList.remove('is-open');
           byId('dashboardMenuPanel')?.setAttribute('aria-hidden','true');
           refreshDashboard();
+          document.dispatchEvent(new CustomEvent('schism:workspace-changed',{detail:{title:'Dashboard',dashboard:true}}));
           window.scrollTo({top:0,behavior:'smooth'});
         }
         function restoreEstimatorSections(){
@@ -2507,6 +2510,25 @@
             crewHandoffReady:Boolean(byId('btnCrewHandoff') && !byId('btnCrewHandoff').disabled)
           };
         }
+        window.SchismRuntime={
+          snapshot(){
+            let matrix=null;
+            try{ matrix=(typeof techMatrixData!=='undefined'&&techMatrixData)?JSON.parse(JSON.stringify(techMatrixData)):null; }catch(e){ matrix=(typeof techMatrixData!=='undefined'?techMatrixData:null); }
+            const selectedServiceIds=(typeof priceItemsRegistry!=='undefined'&&Array.isArray(priceItemsRegistry))
+              ? priceItemsRegistry.filter(item=>item&&!item.disabled&&item.serviceId).map(item=>item.serviceId)
+              : [];
+            const displayedTotal=Number(String(byId('grandTotalDisplay')?.textContent||'').replace(/[^0-9.-]/g,''));
+            return {
+              matrix,
+              jobName:byId('jobName')?.value?.trim()||'',
+              jobAddress:byId('jobAddress')?.value?.trim()||'',
+              quotedTotal:(typeof currentTotalValue!=='undefined'&&Number.isFinite(Number(currentTotalValue))&&Number(currentTotalValue)>0)
+                ? Number(currentTotalValue)
+                : (Number.isFinite(displayedTotal)?displayedTotal:0),
+              selectedServiceIds
+            };
+          }
+        };
         window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState};
       })();
     </script>
