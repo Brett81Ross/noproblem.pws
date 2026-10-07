@@ -456,6 +456,47 @@
     };
   }
 
+  function buildServiceAdvisories(selectedServiceIds, analysis) {
+    var selected = new Set(Array.isArray(selectedServiceIds) ? selectedServiceIds.filter(Boolean) : []);
+    analysis = analysis && typeof analysis === 'object' ? analysis : {};
+    var advisories = [];
+
+    (Array.isArray(analysis.calibrationCandidates) ? analysis.calibrationCandidates : []).forEach(function (candidate) {
+      if (!candidate || !selected.has(candidate.serviceId)) return;
+      advisories.push({
+        type: 'pricing_history',
+        serviceId: candidate.serviceId,
+        severity: 'review',
+        message: (candidate.label || candidate.serviceId) + ' has a repeated historical Matrix-price bias of ' +
+          (candidate.observedBiasPct > 0 ? '+' : '') + candidate.observedBiasPct.toFixed(1) + '% across ' +
+          candidate.sampleCount + ' clean job' + (candidate.sampleCount === 1 ? '' : 's') +
+          '. Pricing is unchanged; review the advisory calibration before release.'
+      });
+    });
+
+    (Array.isArray(analysis.operationsCandidates) ? analysis.operationsCandidates : []).forEach(function (candidate) {
+      if (!candidate || !selected.has(candidate.serviceId)) return;
+      var signals = [];
+      if (candidate.time) signals.push('crew time ' + (candidate.time.observedBiasPct > 0 ? '+' : '') + candidate.time.observedBiasPct.toFixed(1) + '%');
+      if (candidate.water) signals.push('water ' + (candidate.water.observedBiasPct > 0 ? '+' : '') + candidate.water.observedBiasPct.toFixed(1) + '%');
+      if (!signals.length) return;
+      advisories.push({
+        type: 'operations_history',
+        serviceId: candidate.serviceId,
+        severity: 'note',
+        message: (candidate.label || candidate.serviceId) + ' historical operations signal: ' + signals.join(' · ') +
+          ' across ' + candidate.sampleCount + ' clean job' + (candidate.sampleCount === 1 ? '' : 's') + '.'
+      });
+    });
+
+    return advisories.slice(0, 4);
+  }
+
+  function currentBrowserAnalysis() {
+    if (typeof window === 'undefined' || !window.localStorage) return analyzeLearning([]);
+    return analyzeLearning(readRecords(window.localStorage));
+  }
+
   function readRecords(storage) {
     try {
       var raw = storage.getItem(STORAGE_KEY);
@@ -762,6 +803,8 @@
     analyzeLearning,
     buildCalibrationCandidates,
     buildOperationsCandidates,
+    buildServiceAdvisories,
+    currentBrowserAnalysis,
     sameJobRecord,
     renderDashboardPulse,
     initBrowser,
