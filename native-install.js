@@ -1,5 +1,5 @@
 (() => {
-  const APK_URL = 'https://github.com/Brett81Ross/cactusbyte-studios/releases/download/android-latest/No-Problem-Pressure-Washing-Matrix.apk';
+  const APK_URL = 'https://github.com/Brett81Ross/cactusbyte-studios/releases/download/android-latest/SchismMatrix.apk';
   const APP_NAME = 'SchismMatrix';
   const isNative = () => /CactusByteNative\/1\.0/i.test(navigator.userAgent);
   const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);

@@ -75,12 +75,12 @@ const splash = read('splash.html');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 assert(splash.includes('manifest.webmanifest?v=20261007'), 'splash is not forcing refreshed SchismMatrix manifest metadata');
 assert(splash.includes('@media (orientation: landscape) and (max-height: 650px)'), 'landscape/Fold splash protection is missing');
-assert(splash.includes('max-height: 64px'), 'CactusByte splash logo landscape sizing is missing');
 assert(splash.includes('justify-content: flex-start;'), 'splash stack must start at the safe top instead of vertically centering into a clipped viewport');
-assert(splash.includes('overflow-y: auto;'), 'splash must allow vertical overflow instead of clipping the studio logo');
+assert(splash.includes('overflow-y: auto;'), 'splash must allow vertical overflow instead of clipping the studio lockup');
 assert(splash.includes('flex: 0 0 auto;'), 'splash logo/lockup rows must not flex-shrink into clipping');
-assert(splash.includes('height: clamp(58px, 12vh, 96px);'), 'CactusByte logo needs a bounded contain box on Fold-sized viewports');
-assert(splash.includes('object-fit: contain;') && splash.includes('object-position: center;'), 'CactusByte logo must render contained and centered');
+assert(splash.includes('class="studio-lockup"'), 'full local CactusByte splash lockup is missing');
+assert(splash.includes('class="studio-mark"'), 'CactusByte splash mark is missing');
+assert(splash.includes('object-fit: contain;') && splash.includes('object-position: center;'), 'CactusByte mark must render contained and centered');
 assert(!/No Problem/i.test(splash), 'legacy No Problem branding remains in SchismMatrix splash');
 
 assert(index.includes('<h1>Build the <span>scope.</span></h1>'), 'operator-focused dashboard hero copy is missing');
@@ -91,7 +91,21 @@ assert(index.includes("Inventory has not been counted yet."), 'uncounted invento
 assert(index.includes("document.querySelector('.cb60-btn')"), 'shared Watch Demo control is not docked by its actual class');
 assert(index.includes('.cb60-btn.dashboard-demo-docked'), 'Watch Demo docked CSS override is missing');
 
-assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => String(icon.src).includes('schismmatrix-symbol.svg?v=20261007')), 'installed app icon metadata is not refreshed to the SchismMatrix symbol');
+assert(Array.isArray(manifest.icons) && manifest.icons.some(icon => icon.src === '/assets/schismmatrix-install-v2.svg'), 'installed app icon metadata is not refreshed to the unique SchismMatrix install asset');
 assert(!manifest.icons.some(icon => /noproblem|app-icon/i.test(String(icon.src))), 'legacy install icon remains in the manifest');
+
+
+assert(!splash.includes('logo2.png'), 'web splash still depends on the oversized remote CactusByte logo2.png asset');
+assert(splash.includes('/assets/cactusbyte-launcher.svg'), 'web splash does not use the local canonical CactusByte mark');
+assert(splash.includes('CactusByte Studios™'), 'web splash does not render the full CactusByte Studios lockup');
+assert(fs.existsSync(path.join(process.cwd(), 'assets/cactusbyte-launcher.svg')), 'local canonical CactusByte splash mark is missing');
+
+assert(manifest.icons.some(icon => icon.src === '/assets/schismmatrix-install-v2.svg' && icon.sizes === 'any'), 'manifest is missing the unique SchismMatrix install icon');
+assert(fs.existsSync(path.join(process.cwd(), 'assets/schismmatrix-install-v2.svg')), 'unique SchismMatrix install icon file is missing');
+assert(!manifest.icons.some(icon => /app-icon|noproblem/i.test(String(icon.src))), 'manifest still references a legacy No Problem install icon');
+
+const nativeInstall = read('native-install.js');
+assert(nativeInstall.includes('/SchismMatrix.apk'), 'Android install link is not pointed at the SchismMatrix APK');
+assert(!nativeInstall.includes('/No-Problem-Pressure-Washing-Matrix.apk'), 'legacy No Problem APK install link is still active');
 
 console.log('Schism early-August restoration QA passed');

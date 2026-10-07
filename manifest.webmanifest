@@ -9,16 +9,10 @@
   "description": "Property intelligence for evidence-driven exterior service planning.",
   "icons": [
     {
-      "src": "/assets/schismmatrix-symbol.svg?v=20261007",
+      "src": "/assets/schismmatrix-install-v2.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/schismmatrix-symbol.svg?v=20261007",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
