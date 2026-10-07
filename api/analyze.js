@@ -3,6 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 4;
 const LAUNCH_EXCLUDED_SERVICES = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
+const MAX_SERVICE_QUANTITY = 100000;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -91,9 +92,11 @@ async function handler(req, res) {
 
     try {
         const { images, location, siteNotes, requestedServices, buildingScope } = req.body;
+        const launchServiceIds = new Set(Object.keys(DEFAULT_RATE_CARD.services).filter((serviceId) => !LAUNCH_EXCLUDED_SERVICES.has(serviceId)));
         const safeRequestedServices = Array.isArray(requestedServices)
-            ? requestedServices.filter((serviceId) => typeof serviceId === 'string' && !LAUNCH_EXCLUDED_SERVICES.has(serviceId))
+            ? [...new Set(requestedServices.filter((serviceId) => typeof serviceId === 'string' && launchServiceIds.has(serviceId)))]
             : [];
+        const requestedServiceSet = new Set(safeRequestedServices);
         const elevatedScopeRequested = buildingScope?.level === 'multiple'
             || /multi|two[- ]?story|second[- ]?story|roof|ladder|high[- ]?access/i.test(String(buildingScope?.label || ''));
 
@@ -230,7 +233,14 @@ async function handler(req, res) {
         const hasUsableFollowup = [...missingEvidence, ...uncertainEvidence].some(item => item && typeof item.prompt === 'string' && item.prompt.trim());
 
         if (Array.isArray(scanData.services)) {
-            scanData.services = scanData.services.filter((service) => !LAUNCH_EXCLUDED_SERVICES.has(service?.serviceId));
+            scanData.services = scanData.services.filter((service) => {
+                const serviceId = service?.serviceId;
+                return typeof serviceId === 'string'
+                    && launchServiceIds.has(serviceId)
+                    && (requestedServiceSet.size === 0 || requestedServiceSet.has(serviceId));
+            });
+        } else {
+            scanData.services = [];
         }
 
         if (elevatedScopeRequested) {
@@ -244,8 +254,9 @@ async function handler(req, res) {
         const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
-            scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
-                ? evidenceReview.summary.trim().slice(0, 500)
+            const currentEvidenceSummary = scanData.evidenceReview?.summary;
+            scanData.humanReviewReason = typeof currentEvidenceSummary === 'string' && currentEvidenceSummary.trim()
+                ? currentEvidenceSummary.trim().slice(0, 500)
                 : (hasUsableFollowup
                     ? 'Additional property evidence is required before this estimate is field-ready.'
                     : 'Matrix could not verify enough property evidence for a field-ready estimate.');
@@ -266,7 +277,14 @@ async function handler(req, res) {
                     return;
                 }
                 item.label = spec.label;
-                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
+                const quantity = spec.unit === 'flat' ? 1 : Number(item.quantity);
+                if (spec.unit !== 'flat' && (!Number.isFinite(quantity) || quantity <= 0 || quantity > MAX_SERVICE_QUANTITY)) {
+                    item.calculatedPrice = null;
+                    item.pricingRequiresReview = true;
+                    return;
+                }
+                item.quantity = quantity;
+                const basePrice = spec.unit === 'flat' ? spec.rate : (quantity * spec.rate);
                 item.calculatedPrice = roundMoney(basePrice * multiplier);
             });
         }
