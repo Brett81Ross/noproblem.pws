@@ -20,8 +20,9 @@ assert(preflight.includes("state: 'evidence_required'"), 'evidence gate is missi
 assert(preflight.includes("? 'analysis_review_bound' : 'analysis_ready'"), 'analysis-ready state routing is missing');
 assert(preflight.includes("'Ready to Analyze'"), 'analysis-ready operator label is missing');
 assert(preflight.includes("'Analyze for Review'"), 'review-bound analysis operator label is missing');
-assert(preflight.includes("state: 'evidence_followup'"), 'adaptive evidence-followup state is missing');
-assert(preflight.includes("state: 'manual_review'"), 'manual review state is missing');
+assert(preflight.includes("nextBest ? 'evidence_followup' : 'manual_review'"), 'adaptive review routing is missing');
+assert(preflight.includes("'One More Look'"), 'adaptive evidence-followup operator label is missing');
+assert(preflight.includes("'Review Locked'"), 'manual review operator label is missing');
 assert(preflight.includes("state: 'crew_ready'"), 'crew-ready state is missing');
 assert(preflight.includes('Select at least one service so SchismMatrix does not invent the requested scope.'), 'scope-invention protection is missing');
 assert(preflight.includes('At least one property image is required before analysis.'), 'minimum evidence gate is missing');
