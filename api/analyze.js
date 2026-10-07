@@ -2,7 +2,12 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const MODEL = 'gemini-3.5-flash'; 
 const MAX_IMAGES = 4;
-const LAUNCH_EXCLUDED_SERVICES = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
+const LAUNCH_SERVICE_IDS = Object.freeze([
+    'house_wash', 'driveway_cleaning', 'sidewalk_cleaning', 'patio_cleaning',
+    'deck_cleaning', 'fence_cleaning', 'retaining_wall', 'dumpster_pad',
+    'rust_treatment', 'oil_treatment'
+]);
+const LAUNCH_SERVICE_ID_SET = new Set(LAUNCH_SERVICE_IDS);
 const MAX_SERVICE_QUANTITY = 100000;
 const MAX_SITE_NOTES_LENGTH = 4000;
 
@@ -95,7 +100,7 @@ async function handler(req, res) {
         const body = req.body && typeof req.body === 'object' ? req.body : {};
         const { images, location, siteNotes, requestedServices, buildingScope } = body;
         const safeSiteNotes = typeof siteNotes === 'string' ? siteNotes.trim().slice(0, MAX_SITE_NOTES_LENGTH) : '';
-        const launchServiceIds = new Set(Object.keys(DEFAULT_RATE_CARD.services).filter((serviceId) => !LAUNCH_EXCLUDED_SERVICES.has(serviceId)));
+        const launchServiceIds = LAUNCH_SERVICE_ID_SET;
         const safeRequestedServices = Array.isArray(requestedServices)
             ? [...new Set(requestedServices.filter((serviceId) => typeof serviceId === 'string' && launchServiceIds.has(serviceId)))]
             : [];
@@ -150,9 +155,9 @@ async function handler(req, res) {
         STRICT OPERATIONAL, PRICING & FIELD SAFETY PROTOCOLS:
         0. EVIDENCE REVIEW: Before treating the estimate as field-ready, assess whether the supplied photos and notes establish material, condition, contamination, access, surroundings/property protection, runoff/drainage, and hazards relevant to the requested work. Do not invent facts merely to make the estimate ready.
         0.1 READINESS: Include an evidenceReview object with readyForEstimate, missingEvidence, uncertainEvidence, confirmedCategories, and summary. Set readyForEstimate false whenever missing or uncertain evidence could materially change qualification, safety, scope, or price. Missing/uncertain prompts must be short field instructions a first-day employee can follow.
-        1. MANDATORY CONCRETE & FLATWORK SCANNERS: Look closely at all images and site notes. If you see concrete, driveways, sidewalks, walkways, aprons, or parking slabs, you MUST include serviceId "driveway_cleaning" or "sidewalk_cleaning" with estimated square footage. Do not skip flatwork.
-        2. TRASH PADS & DUMPSTERS: If you see trash bins, garbage cans, dumpster pads, or waste collection bins, you MUST include serviceId "dumpster_pad".
-        3. Vehicle Detection: If any cars, trucks, vans, or commercial fleet vehicles are present, automatically add serviceId "vehicle_wash" with quantity 1 (unit: flat).
+        1. REQUESTED-SCOPE AUTHORITY: Analyze only the launch services explicitly listed in the customer-requested services above. Visible surfaces, bins, vehicles, roofs, gutters, or other conditions outside that requested set are observations only and MUST NOT be added as executable or priced services.
+        2. SERVICE IDENTIFIERS: Return only service IDs from the authorized launch-service list below. Never invent a service ID.
+        3. OBSERVATIONS VS SCOPE: If evidence suggests additional work, mention it only in evidence/hazard/review context; do not silently expand the selected scope.
         4. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
         5. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, mandate low-pressure chemical soft washing only to protect joint sand.
         6. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
@@ -160,7 +165,7 @@ async function handler(req, res) {
         
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
-        ${Object.entries(rateCard.services).map(([id, s]) => `- Service ID: ${id} (${s.label}) Base Cost: $${s.rate} per ${s.unit}`).join('\n')}
+        ${LAUNCH_SERVICE_IDS.map((id) => { const s = rateCard.services[id]; return `- Service ID: ${id} (${s.label}) Base Cost: ${s.rate} per ${s.unit}`; }).join('\n')}
         
         IMPORTANT INSTRUCTION: Respond ONLY with a raw, valid JSON object. Do not wrap the JSON in markdown blocks like \`\`\`json. Start your response directly with '{' and end with ''. Use the following exact JSON structure:
         {
