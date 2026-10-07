@@ -76,6 +76,19 @@ Move SchismMatrix from a photo estimator toward a field decision system that exp
    - evidence-quality signals
    - command-center Matrix Learning pulse
 
+9. Adaptive workflow preflight
+   - deterministic workflow ladder: Property → Scope → Evidence → Analyze → Resolve Review → Crew
+   - one best next move at a time
+   - property-address gate
+   - explicit service-scope gate to prevent invented requested scope
+   - minimum evidence gate
+   - thin-evidence advisory without fabricated confidence
+   - multiple-level/high-access analysis remains review-bound
+   - post-analysis next-best-evidence routing
+   - quote-integrity/manual-review routing
+   - field-ready jobs route directly to Crew Command
+   - no network dependency
+
 ## Explicit non-goals
 
 - No autonomous pricing changes.
@@ -92,4 +105,6 @@ The branch must pass the complete existing Matrix test suite plus:
 - `schism-decision-brief.test.js`
 - `schism-job-learning.test.js`
 - `schism-job-learning-ui.test.js`
+- `schism-workflow-preflight.test.js`
+- `schism-workflow-preflight-ui.test.js`
 
