@@ -634,6 +634,8 @@
     var drivers = Array.isArray(pricing.drivers) ? pricing.drivers : [];
     var requestedNotQuoted = Array.isArray(scope.requestedNotQuoted) ? scope.requestedNotQuoted : [];
     var additionalObserved = Array.isArray(scope.additionalObserved) ? scope.additionalObserved : [];
+    var quoteIntegrity = support.quoteIntegrity || {};
+    var integrityIssues = Array.isArray(quoteIntegrity.issues) ? quoteIntegrity.issues : [];
 
     var html = '<div class="schism-decision-head"><div><div class="schism-decision-kicker">Matrix Decision Brief</div></div><span class="schism-decision-status">' +
       decisionEscapeHtml(support.statusLabel || status) + '</span></div>' +
@@ -675,6 +677,14 @@
       html += '</div>';
     }
 
+    if (integrityIssues.length) {
+      html += '<div class="schism-decision-section"><h4>Quote integrity</h4>' +
+        integrityIssues.map(function (issue) {
+          return '<div class="schism-scope-line"><span>' + decisionEscapeHtml(issue.code || 'Review') + '</span><strong>' +
+            decisionEscapeHtml(issue.message || 'Manual review required.') + '</strong></div>';
+        }).join('') + '</div>';
+    }
+
     var card = existing || document.createElement('section');
     card.id = 'schismDecisionBrief';
     card.className = 'schism-decision-brief';
@@ -707,9 +717,11 @@
     var observer = new MutationObserver(function () {
       updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
       ensurePdfButton();
+      renderDecisionBrief();
     });
     observer.observe(resultsMount, { childList: true, subtree: true });
     ensurePdfButton();
+    renderDecisionBrief();
   }
 
   function observeEvidenceGrid() {
