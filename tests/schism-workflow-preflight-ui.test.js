@@ -19,7 +19,7 @@ assert(preflight.includes("state: 'scope_required'"), 'scope gate is missing');
 assert(preflight.includes("state: 'evidence_required'"), 'evidence gate is missing');
 assert(preflight.includes("? 'analysis_review_bound' : 'analysis_ready'"), 'analysis-ready state routing is missing');
 assert(preflight.includes("'Ready to Analyze'"), 'analysis-ready operator label is missing');
-assert(preflight.includes("state: 'analysis_review_bound'"), 'review-bound analysis state is missing');
+assert(preflight.includes("'Analyze for Review'"), 'review-bound analysis operator label is missing');
 assert(preflight.includes("state: 'evidence_followup'"), 'adaptive evidence-followup state is missing');
 assert(preflight.includes("state: 'manual_review'"), 'manual review state is missing');
 assert(preflight.includes("state: 'crew_ready'"), 'crew-ready state is missing');
