@@ -278,6 +278,14 @@ async function handler(req, res) {
             };
         }
 
+        if (scanData.services.length === 0) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Manual review required: analysis returned no authorized requested services to price.'
+            };
+        }
+
         const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
@@ -292,8 +300,17 @@ async function handler(req, res) {
             delete scanData.humanReviewReason;
         }
 
-        const difficulty = scanData.fieldPlan?.difficulty || 'low';
-        const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
+        const difficulty = typeof scanData.fieldPlan?.difficulty === 'string' ? scanData.fieldPlan.difficulty.toLowerCase() : '';
+        const multiplier = rateCard.difficultyMultipliers[difficulty];
+        if (!multiplier) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Manual review required: analysis returned an unsupported difficulty classification.'
+            };
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = scanData.evidenceReview.summary;
+        }
 
         if (scanData.services && Array.isArray(scanData.services)) {
             scanData.services.forEach((item) => {
@@ -311,6 +328,11 @@ async function handler(req, res) {
                     return;
                 }
                 item.quantity = quantity;
+                if (!multiplier) {
+                    item.calculatedPrice = null;
+                    item.pricingRequiresReview = true;
+                    return;
+                }
                 const basePrice = spec.unit === 'flat' ? spec.rate : (quantity * spec.rate);
                 item.calculatedPrice = roundMoney(basePrice * multiplier);
             });
