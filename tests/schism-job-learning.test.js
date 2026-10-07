@@ -99,6 +99,12 @@ assert.equal(analysis.operationsCandidates[0].time.recommendedMinutes, 75);
 assert.equal(analysis.operationsCandidates[0].water.recommendedGallons, 300);
 assert.equal(analysis.anomalyCount, 0);
 
+const drivewayAdvisories = learning.buildServiceAdvisories(['driveway_cleaning'], analysis);
+assert.equal(drivewayAdvisories.some(item => item.type === 'pricing_history'), true);
+assert.equal(drivewayAdvisories.some(item => item.type === 'operations_history'), true);
+assert.equal(drivewayAdvisories.every(item => item.serviceId === 'driveway_cleaning'), true);
+assert.equal(learning.buildServiceAdvisories(['sidewalk_cleaning'], analysis).length, 0);
+
 assert.equal(learning.sameJobRecord(
   { jobName: 'Test Driveway', jobAddress: '123 MAIN ST' },
   { jobName: 'test driveway', jobAddress: '123 main st' }
