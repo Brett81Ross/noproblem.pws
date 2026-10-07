@@ -493,6 +493,47 @@
     return (number > 0 ? '+' : '') + number.toFixed(1) + '%';
   }
 
+  function renderDashboardPulse() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+    var jobs = document.getElementById('dashLearningJobs');
+    var price = document.getElementById('dashLearningPrice');
+    var priceState = document.getElementById('dashLearningPriceState');
+    var time = document.getElementById('dashLearningTime');
+    var timeState = document.getElementById('dashLearningTimeState');
+    var signal = document.getElementById('dashLearningSignal');
+    var note = document.getElementById('dashLearningNote');
+    if (!jobs || !price || !time || !signal || !note) return;
+
+    var analysis = analyzeLearning(readRecords(window.localStorage));
+    jobs.textContent = String(analysis.completedJobs);
+    price.textContent = analysis.matrixPriceBiasPct === null ? '—' : formatBias(analysis.matrixPriceBiasPct);
+    time.textContent = analysis.timeBiasPct === null ? '—' : formatBias(analysis.timeBiasPct);
+    if (priceState) priceState.textContent = analysis.matrixPriceSignal;
+    if (timeState) timeState.textContent = analysis.timeSignal;
+
+    var statusText = analysis.status === 'signal_detected'
+      ? 'Signal'
+      : analysis.status === 'learning'
+        ? 'Learning'
+        : 'Collecting';
+    signal.textContent = statusText;
+
+    var noteText = 'Complete jobs in Crew Command to teach SchismMatrix what actually happened.';
+    if (analysis.calibrationCandidates.length) {
+      noteText = analysis.calibrationCandidates.length + ' pricing calibration candidate' + (analysis.calibrationCandidates.length === 1 ? '' : 's') + ' detected — review required before any change.';
+    } else if (analysis.operationsCandidates.length) {
+      noteText = analysis.operationsCandidates.length + ' operations trend' + (analysis.operationsCandidates.length === 1 ? '' : 's') + ' detected in time or water use.';
+    } else if (analysis.evidenceSignals.length) {
+      noteText = 'Evidence quality is correlating with field surprises. Review capture guidance before changing pricing.';
+    } else if (analysis.completedJobs >= MIN_CALIBRATION_SAMPLES) {
+      noteText = 'Learning is active. No strong calibration signal has crossed the review threshold.';
+    }
+
+    var span = note.querySelector('span');
+    if (span) span.textContent = noteText;
+    note.classList.toggle('is-alert', analysis.status === 'signal_detected');
+  }
+
   function browserRuntimeSnapshot() {
     var runtime = typeof window !== 'undefined' && window.SchismRuntime && typeof window.SchismRuntime.snapshot === 'function'
       ? window.SchismRuntime.snapshot()
@@ -648,6 +689,7 @@
           writeRecords(window.localStorage, next);
           document.dispatchEvent(new CustomEvent('schism:job-learning-changed', { detail: analyzeLearning(next) }));
           renderBrowser();
+          renderDashboardPulse();
         } catch (error) {
           window.alert(error.message || String(error));
         }
@@ -680,6 +722,7 @@
         writeRecords(window.localStorage, next);
         document.dispatchEvent(new CustomEvent('schism:job-learning-changed', { detail: analyzeLearning(next) }));
         renderBrowser();
+        renderDashboardPulse();
       });
     }
   }
@@ -688,13 +731,21 @@
     if (typeof window === 'undefined' || typeof document === 'undefined') return;
     ensureStyles();
     ensureMount();
-    document.addEventListener('schism:workspace-changed', renderBrowser);
+    document.addEventListener('schism:workspace-changed', function () {
+      renderBrowser();
+      renderDashboardPulse();
+    });
     document.addEventListener('schism:decision-support-changed', renderBrowser);
     document.addEventListener('schism:release-state-changed', renderBrowser);
+    document.addEventListener('schism:job-learning-changed', renderDashboardPulse);
     window.addEventListener('storage', function (event) {
-      if (event.key === STORAGE_KEY) renderBrowser();
+      if (event.key === STORAGE_KEY) {
+        renderBrowser();
+        renderDashboardPulse();
+      }
     });
     renderBrowser();
+    renderDashboardPulse();
   }
 
   return {
@@ -709,6 +760,7 @@
     buildCalibrationCandidates,
     buildOperationsCandidates,
     sameJobRecord,
+    renderDashboardPulse,
     initBrowser,
     render: renderBrowser
   };
