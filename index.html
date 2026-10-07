@@ -2131,6 +2131,17 @@
                     throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
                 
+                if (window.SchismRevisionIntelligence && typeof window.SchismRevisionIntelligence.capture === 'function') {
+                    const requestedServicesForRevision = Array.from(document.querySelectorAll('#scopeGrid [data-service][aria-pressed="true"]'))
+                        .map(button => button.getAttribute('data-service'))
+                        .filter(Boolean);
+                    window.SchismRevisionIntelligence.capture(data.rawMatrixData, {
+                        address: document.getElementById('jobAddress')?.value?.trim() || '',
+                        photoCount: stagedBase64Images.length,
+                        requestedServices: requestedServicesForRevision,
+                        recordedAt: new Date().toISOString()
+                    });
+                }
                 techMatrixData = data.rawMatrixData;
 
                 const evidenceReview = techMatrixData?.evidenceReview;
@@ -2239,6 +2250,7 @@
     <script src="/quick-quote.js" defer></script>
     <script src="/quote-review.js" defer></script>
     <script src="/job-learning.js" defer></script>
+    <script src="/analysis-revision.js" defer></script>
     <script src="/workflow-preflight.js" defer></script>
     <script src="/demo-config.js"></script>
     <script src="/schism-walkaround.js"></script>
@@ -2370,6 +2382,14 @@
           if(byId('customerEmail')) byId('customerEmail').value=project.customerEmail||'';
           if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
           if(project.matrixData && typeof project.matrixData==='object'){
+            if(window.SchismRevisionIntelligence && typeof window.SchismRevisionIntelligence.seed==='function'){
+              window.SchismRevisionIntelligence.seed(project.matrixData,{
+                address,
+                photoCount:Number(project.photoCount)||0,
+                requestedServices:Array.isArray(project.matrixData.services)?project.matrixData.services.map(service=>service&&service.serviceId).filter(Boolean):[],
+                recordedAt:new Date().toISOString()
+              });
+            }
             techMatrixData=project.matrixData;
             window.__schismDecisionSupport=project.matrixData.decisionSupport&&typeof project.matrixData.decisionSupport==='object'
               ? project.matrixData.decisionSupport
@@ -2386,6 +2406,7 @@
             selectQuote();
             setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
           }
+          document.dispatchEvent(new CustomEvent('schism:project-loaded',{detail:{address,name}}));
           return true;
         }
         function toggleSaved(){
