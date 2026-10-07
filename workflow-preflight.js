@@ -56,6 +56,20 @@
       if (message) advisories.push(message);
     });
 
+    var revision = input.revision && typeof input.revision === 'object' ? input.revision : null;
+    if (revision && revision.critical) {
+      advisories.unshift(revision.sameEvidenceMaterialDrift
+        ? 'Revision consistency concern: the analysis changed materially without a new photo-count signal. Review the delta before release.'
+        : 'Revision Watch found a critical change after re-analysis. Review the delta before release.');
+    } else if (revision && revision.material) {
+      advisories.push('Revision Watch found a material change after re-analysis. Review the delta before release.');
+    }
+
+    var propertyMemory = input.propertyMemory && typeof input.propertyMemory === 'object' ? input.propertyMemory : null;
+    if (propertyMemory && propertyMemory.exists && cleanText(propertyMemory.advisory, 520)) {
+      advisories.unshift(cleanText(propertyMemory.advisory, 520));
+    }
+
     if (!address) {
       blockers.push('Property address is required before SchismMatrix can anchor the job.');
       return {
@@ -191,24 +205,38 @@
 
     var photoCount = document.querySelectorAll('#evidenceGrid .evidence-slot.has-photo').length;
     var matrix = runtime && runtime.matrix ? runtime.matrix : null;
+    var address = document.getElementById('jobAddress') && document.getElementById('jobAddress').value;
     var learningAdvisories = [];
-    if (typeof window !== 'undefined' && window.SchismJobLearning &&
-        typeof window.SchismJobLearning.currentBrowserAnalysis === 'function' &&
-        typeof window.SchismJobLearning.buildServiceAdvisories === 'function') {
-      learningAdvisories = window.SchismJobLearning.buildServiceAdvisories(
-        selectedServices,
-        window.SchismJobLearning.currentBrowserAnalysis()
-      );
+    var propertyMemory = null;
+    if (typeof window !== 'undefined' && window.SchismJobLearning) {
+      if (typeof window.SchismJobLearning.currentBrowserAnalysis === 'function' &&
+          typeof window.SchismJobLearning.buildServiceAdvisories === 'function') {
+        learningAdvisories = window.SchismJobLearning.buildServiceAdvisories(
+          selectedServices,
+          window.SchismJobLearning.currentBrowserAnalysis()
+        );
+      }
+      if (typeof window.SchismJobLearning.currentPropertyMemory === 'function') {
+        propertyMemory = window.SchismJobLearning.currentPropertyMemory(address);
+      }
+    }
+
+    var revision = null;
+    if (typeof window !== 'undefined' && window.SchismRevisionIntelligence &&
+        typeof window.SchismRevisionIntelligence.getCurrentRevision === 'function') {
+      revision = window.SchismRevisionIntelligence.getCurrentRevision();
     }
 
     return {
       customer: document.getElementById('jobName') && document.getElementById('jobName').value,
-      address: document.getElementById('jobAddress') && document.getElementById('jobAddress').value,
+      address,
       selectedServices,
       photoCount,
       buildingLevel: document.body.getAttribute('data-building-level') === 'multiple' ? 'multiple' : 'one',
       matrix,
-      learningAdvisories
+      learningAdvisories,
+      propertyMemory,
+      revision
     };
   }
 
@@ -221,7 +249,7 @@
       '.schism-preflight[data-readiness="field_ready"]{border-color:rgba(117,245,163,.28)}.schism-preflight[data-readiness="review_required"],.schism-preflight[data-readiness="review_bound"]{border-color:rgba(214,176,107,.32)}',
       '.schism-preflight-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.schism-preflight-kicker{color:#62edf6;font-size:8px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.schism-preflight h3{margin:5px 0 0;color:#effcff;font-size:17px}.schism-preflight-badge{padding:6px 9px;border:1px solid rgba(93,235,245,.24);border-radius:999px;color:#bffaff;background:rgba(93,235,245,.06);font-size:8px;font-weight:950;letter-spacing:.07em;text-transform:uppercase}',
       '.schism-preflight-summary{margin:9px 0 0;color:#9bb5be;font-size:10px;line-height:1.5}.schism-preflight-list{display:grid;gap:6px;margin-top:10px}.schism-preflight-item{padding:8px 10px;border:1px solid rgba(93,235,245,.1);border-radius:10px;color:#a9c1c9;background:rgba(1,12,18,.46);font-size:9px;line-height:1.45}.schism-preflight-item.blocker{border-color:rgba(214,176,107,.22);color:#d8c08c}.schism-preflight-item.advisory:before{content:"Note · ";color:#64dce6;font-weight:900}.schism-preflight-item.blocker:before{content:"Blocker · ";font-weight:900}',
-      '.schism-preflight-action{width:100%;min-height:43px;margin-top:11px;border:1px solid rgba(93,235,245,.35);border-radius:11px;color:#03151b;background:linear-gradient(135deg,#a6faff,#55dce9);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.schism-preflight[data-readiness="field_ready"] .schism-preflight-action{border-color:rgba(117,245,163,.35);background:linear-gradient(135deg,#bdffce,#75f5a3)}',
+      '.schism-property-memory{margin-top:10px;padding:9px 10px;border:1px solid rgba(93,235,245,.13);border-radius:10px;background:rgba(93,235,245,.035);color:#91aeb7;font-size:8px;line-height:1.45}.schism-property-memory strong{display:block;margin-bottom:4px;color:#8cf1f7;font-size:8px;letter-spacing:.08em;text-transform:uppercase}.schism-preflight-action{width:100%;min-height:43px;margin-top:11px;border:1px solid rgba(93,235,245,.35);border-radius:11px;color:#03151b;background:linear-gradient(135deg,#a6faff,#55dce9);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.schism-preflight[data-readiness="field_ready"] .schism-preflight-action{border-color:rgba(117,245,163,.35);background:linear-gradient(135deg,#bdffce,#75f5a3)}',
       '.schism-preflight-pulse{animation:schismPreflightPulse .75s ease}@keyframes schismPreflightPulse{0%,100%{box-shadow:none}45%{box-shadow:0 0 0 4px rgba(93,235,245,.14)}}'
     ].join('');
     document.head.appendChild(style);
@@ -326,7 +354,9 @@
     var mount = ensureMount();
     if (!mount) return;
 
-    var result = evaluatePreflight(snapshotBrowserState());
+    var browserState = snapshotBrowserState();
+    var result = evaluatePreflight(browserState);
+    var propertyMemory = browserState.propertyMemory;
     mount.setAttribute('data-state', result.state);
     mount.setAttribute('data-readiness', result.readiness);
 
@@ -343,6 +373,14 @@
       escapeHtml(result.summary) + '</h3></div><span class="schism-preflight-badge">' +
       escapeHtml(result.stateLabel) + '</span></div>' +
       '<div class="schism-preflight-summary">Property → Scope → Evidence → Analyze → Resolve Review → Crew</div>' +
+      (propertyMemory && propertyMemory.exists
+        ? '<div class="schism-property-memory"><strong>Property Memory</strong>' +
+          escapeHtml(propertyMemory.completedVisits + ' completed prior job' + (propertyMemory.completedVisits === 1 ? '' : 's') +
+          (propertyMemory.lastVisit ? ' · last ' + String(propertyMemory.lastVisit).slice(0,10) : '') +
+          (propertyMemory.scopeChangeCount ? ' · ' + propertyMemory.scopeChangeCount + ' scope change' + (propertyMemory.scopeChangeCount === 1 ? '' : 's') : '') +
+          (propertyMemory.returnVisitCount ? ' · ' + propertyMemory.returnVisitCount + ' return visit' + (propertyMemory.returnVisitCount === 1 ? '' : 's') : '') +
+          '. Historical context only; verify current conditions.') + '</div>'
+        : '') +
       (list.length ? '<div class="schism-preflight-list">' + list.join('') + '</div>' : '') +
       '<button class="schism-preflight-action" id="schismPreflightAction" type="button">' +
       escapeHtml(result.nextAction.label) + '</button>';
@@ -380,6 +418,8 @@
     document.addEventListener('schism:workspace-changed', renderBrowser);
     document.addEventListener('schism:release-state-changed', renderBrowser);
     document.addEventListener('schism:job-learning-changed', renderBrowser);
+    document.addEventListener('schism:revision-changed', renderBrowser);
+    document.addEventListener('schism:project-loaded', renderBrowser);
 
     if (typeof MutationObserver === 'function') {
       new MutationObserver(renderBrowser).observe(document.body, { attributes: true, attributeFilter: ['data-building-level'] });
