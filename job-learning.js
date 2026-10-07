@@ -244,7 +244,7 @@
       var medianRate = median(group.rates);
       if (medianRatio === null || medianRate === null) return;
 
-      var rawChangePct = (medianRatio - 1) * 100;
+      var rawChangePct = round((medianRatio - 1) * 100, 1);
       if (Math.abs(rawChangePct) < 10) return;
 
       var boundedRatio = Math.max(0.75, Math.min(1.25, medianRatio));
@@ -315,20 +315,23 @@
         water: null
       };
 
-      if (minuteRatio !== null && Math.abs((minuteRatio - 1) * 100) >= 15 && medianMinutes !== null) {
+      var minuteBiasPct = minuteRatio === null ? null : round((minuteRatio - 1) * 100, 1);
+      var waterBiasPct = waterRatio === null ? null : round((waterRatio - 1) * 100, 1);
+
+      if (minuteBiasPct !== null && Math.abs(minuteBiasPct) >= 15 && medianMinutes !== null) {
         var boundedTimeRatio = Math.max(0.65, Math.min(1.6, minuteRatio));
         item.time = {
-          observedBiasPct: round((minuteRatio - 1) * 100, 1),
+          observedBiasPct: minuteBiasPct,
           recommendedMinutes: Math.max(1, Math.round(medianMinutes * boundedTimeRatio)),
           multiplier: round(boundedTimeRatio, 3),
           bounded: boundedTimeRatio !== minuteRatio
         };
       }
 
-      if (waterRatio !== null && Math.abs((waterRatio - 1) * 100) >= 20 && medianWater !== null) {
+      if (waterBiasPct !== null && Math.abs(waterBiasPct) >= 20 && medianWater !== null) {
         var boundedWaterRatio = Math.max(0.6, Math.min(1.75, waterRatio));
         item.water = {
-          observedBiasPct: round((waterRatio - 1) * 100, 1),
+          observedBiasPct: waterBiasPct,
           recommendedGallons: Math.max(1, Math.round(medianWater * boundedWaterRatio)),
           multiplier: round(boundedWaterRatio, 3),
           bounded: boundedWaterRatio !== waterRatio
