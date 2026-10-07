@@ -520,6 +520,85 @@
     return Boolean((aName || aAddress) && aName === bName && aAddress === bAddress);
   }
 
+  function normalizePropertyAddress(value) {
+    return cleanText(value, 220)
+      .toLowerCase()
+      .replace(/[^a-z0-9\s#-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function buildPropertyMemory(address, records) {
+    var normalized = normalizePropertyAddress(address);
+    records = Array.isArray(records) ? records.filter(Boolean) : [];
+    if (!normalized) {
+      return {
+        address: '',
+        exists: false,
+        completedVisits: 0,
+        scopeChangeCount: 0,
+        returnVisitCount: 0,
+        anomalyCount: 0,
+        lastVisit: null,
+        lastServiceIds: [],
+        lastOutcome: null,
+        notes: [],
+        advisory: ''
+      };
+    }
+
+    var matches = records.filter(function (record) {
+      return normalizePropertyAddress(record && record.jobAddress) === normalized;
+    });
+
+    var last = matches[0] || null;
+    var scopeChangeCount = matches.filter(function (record) {
+      return record.conditions && record.conditions.scopeChanged === true;
+    }).length;
+    var returnVisitCount = matches.filter(function (record) {
+      return record.conditions && record.conditions.returnVisit === true;
+    }).length;
+    var anomalyCount = matches.filter(function (record) {
+      return record.conditions && record.conditions.anomaly === true;
+    }).length;
+    var notes = matches.map(function (record) { return cleanText(record.notes, 240); }).filter(Boolean).slice(0, 3);
+
+    var advisory = '';
+    if (matches.length) {
+      var parts = [matches.length + ' completed prior job' + (matches.length === 1 ? '' : 's') + ' found for this exact normalized address.'];
+      if (scopeChangeCount) parts.push(scopeChangeCount + ' prior scope-change event' + (scopeChangeCount === 1 ? '' : 's') + '.');
+      if (returnVisitCount) parts.push(returnVisitCount + ' prior return visit' + (returnVisitCount === 1 ? '' : 's') + '.');
+      if (anomalyCount) parts.push(anomalyCount + ' prior anomalous outcome' + (anomalyCount === 1 ? '' : 's') + ' quarantined from calibration.');
+      parts.push('Historical context only — verify current property conditions.');
+      advisory = parts.join(' ');
+    }
+
+    return {
+      address: normalized,
+      exists: matches.length > 0,
+      completedVisits: matches.length,
+      scopeChangeCount,
+      returnVisitCount,
+      anomalyCount,
+      lastVisit: last ? last.recordedAt : null,
+      lastServiceIds: last && Array.isArray(last.serviceIds) ? last.serviceIds.slice() : [],
+      lastOutcome: last ? {
+        predicted: last.predicted || null,
+        actual: last.actual || null,
+        conditions: last.conditions || null
+      } : null,
+      notes,
+      advisory
+    };
+  }
+
+  function currentPropertyMemory(address) {
+    if (typeof window === 'undefined' || !window.localStorage) return buildPropertyMemory(address, []);
+    return buildPropertyMemory(address, readRecords(window.localStorage));
+  }
+
+
+
   function escapeHtml(value) {
     return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (character) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character];
@@ -806,6 +885,9 @@
     buildServiceAdvisories,
     currentBrowserAnalysis,
     sameJobRecord,
+    normalizePropertyAddress,
+    buildPropertyMemory,
+    currentPropertyMemory,
     renderDashboardPulse,
     initBrowser,
     render: renderBrowser
