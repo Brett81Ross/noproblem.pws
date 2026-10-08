@@ -301,7 +301,7 @@ async function handler(req, res) {
         }
 
         const difficulty = typeof scanData.fieldPlan?.difficulty === 'string' ? scanData.fieldPlan.difficulty.toLowerCase() : '';
-        const multiplier = rateCard.difficultyMultipliers[difficulty];
+        const multiplier = Object.prototype.hasOwnProperty.call(rateCard.difficultyMultipliers, difficulty) ? rateCard.difficultyMultipliers[difficulty] : null;
         if (!multiplier) {
             scanData.evidenceReview = {
                 ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
@@ -334,11 +334,17 @@ async function handler(req, res) {
                     return;
                 }
                 const basePrice = spec.unit === 'flat' ? spec.rate : (quantity * spec.rate);
-                item.calculatedPrice = roundMoney(basePrice * multiplier);
+                const calculated = roundMoney(basePrice * multiplier);
+                if (!Number.isFinite(calculated) || calculated < 0) {
+                    item.calculatedPrice = null;
+                    item.pricingRequiresReview = true;
+                    return;
+                }
+                item.calculatedPrice = calculated;
             });
         }
 
-        if (scanData.services.some((item) => item?.pricingRequiresReview === true || !Number.isFinite(Number(item?.calculatedPrice)))) {
+        if (scanData.services.some((item) => item?.pricingRequiresReview === true || item?.calculatedPrice === null || !Number.isFinite(Number(item?.calculatedPrice)) || Number(item?.calculatedPrice) < 0)) {
             scanData.evidenceReview = {
                 ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
                 readyForEstimate: false,
