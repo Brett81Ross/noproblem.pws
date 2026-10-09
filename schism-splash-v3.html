@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>SchismMatrix™ — Property Intelligence</title>
+  <link rel="manifest" href="/manifest.webmanifest?v=20261008c">
+  <link rel="icon" type="image/svg+xml" href="/assets/schismmatrix-symbol.svg">
+  <link rel="apple-touch-icon" href="/assets/schismmatrix-symbol.svg">
+  <style>
+    :root {
+      color-scheme: dark;
+      --cyan: #00f0ff;
+      --green: #22c55e;
+      --ink: #020617;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: #020617;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(0, 240, 255, .13), transparent 34%),
+        radial-gradient(circle at 50% 82%, rgba(34, 197, 94, .10), transparent 34%),
+        linear-gradient(145deg, #020617 0%, #07111c 45%, #000 100%);
+    }
+
+    .splash {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+      isolation: isolate;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity .42s ease, transform .42s ease;
+    }
+
+    .splash::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      z-index: -2;
+      background: conic-gradient(from 0deg, transparent, rgba(0,240,255,.08), transparent 28%, rgba(34,197,94,.07), transparent 60%);
+      animation: orbit 10s linear infinite;
+    }
+
+    .splash::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(255,255,255,.018), transparent 28%, transparent 72%, rgba(255,255,255,.015));
+      pointer-events: none;
+    }
+
+    .studio-wrap {
+      width: min(86vw, 430px);
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: clamp(12px, 2.6vh, 24px);
+      animation: studioIn .85s cubic-bezier(.2,.75,.25,1) both;
+    }
+
+    .studio-lockup {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(9px, 2vw, 14px);
+      width: 100%;
+      min-height: 58px;
+    }
+
+    .studio-mark {
+      display: block;
+      width: clamp(46px, 10vw, 64px);
+      height: clamp(46px, 10vw, 64px);
+      flex: 0 0 auto;
+      object-fit: contain;
+      object-position: center;
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(0,213,190,.16));
+    }
+
+    .studio-wordmark {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+      line-height: 1;
+    }
+
+    .studio-wordmark strong {
+      color: #eaffff;
+      font-size: clamp(18px, 4.4vw, 28px);
+      font-weight: 950;
+      letter-spacing: -.035em;
+      white-space: nowrap;
+    }
+
+    .studio-wordmark span {
+      margin-top: 6px;
+      color: #75dcd4;
+      font-size: clamp(8px, 1.8vw, 11px);
+      font-weight: 900;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .app-lockup {
+      position: relative;
+      width: clamp(124px, 34vw, 184px);
+      aspect-ratio: 1;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      animation: appIn .95s .16s cubic-bezier(.2,.75,.25,1) both, breathe 3.2s 1.15s ease-in-out infinite;
+    }
+
+    .app-logo {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 24px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(0,240,255,.18));
+    }
+
+    .app-name {
+      flex: 0 0 auto;
+      margin-top: clamp(12px, 2.4vh, 22px);
+      text-align: center;
+      font-size: clamp(15px, 4vw, 19px);
+      line-height: 1.35;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #eafcff;
+      text-shadow: 0 0 18px rgba(0,240,255,.22);
+      animation: textIn .8s .36s ease both;
+    }
+
+    .studio-credit {
+      flex: 0 0 auto;
+      margin-top: 9px;
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #64748b;
+      animation: textIn .8s .48s ease both;
+    }
+
+    .loader {
+      flex: 0 0 auto;
+      width: min(220px, 58vw);
+      height: 2px;
+      margin-top: clamp(16px, 3vh, 28px);
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(148,163,184,.12);
+      animation: textIn .8s .55s ease both;
+    }
+
+    .loader::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      box-shadow: 0 0 12px rgba(0,240,255,.55);
+      animation: load 2.05s .55s cubic-bezier(.2,.7,.25,1) forwards;
+    }
+
+    .skip {
+      position: absolute;
+      bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(148,163,184,.46);
+      animation: textIn .8s .75s ease both;
+    }
+
+    .splash.exit {
+      opacity: 0;
+      transform: scale(1.025);
+    }
+
+    @keyframes studioIn {
+      from { opacity: 0; transform: translateY(-18px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes appIn {
+      from { opacity: 0; transform: translateY(18px) scale(.86); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes textIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes orbit { to { transform: rotate(360deg); } }
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.018); }
+    }
+
+    @keyframes load { to { width: 100%; } }
+
+    @media (max-height: 760px) {
+      .splash {
+        padding-top: max(14px, env(safe-area-inset-top));
+      }
+      .studio-wrap {
+        margin-bottom: 7px;
+      }
+      .studio-mark {
+        width: 48px;
+        height: 48px;
+      }
+      .studio-wordmark strong {
+        font-size: 18px;
+      }
+      .app-lockup {
+        width: clamp(92px, 24vw, 132px);
+      }
+      .app-name {
+        margin-top: 7px;
+      }
+      .loader {
+        margin-top: 12px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 650px) {
+      .splash {
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+      .studio-wrap {
+        width: min(62vw, 340px);
+        margin-bottom: 5px;
+      }
+      .studio-lockup {
+        min-height: 42px;
+      }
+      .studio-mark {
+        width: 40px;
+        height: 40px;
+      }
+      .studio-wordmark strong {
+        font-size: 16px;
+      }
+      .studio-wordmark span {
+        margin-top: 4px;
+        font-size: 7px;
+      }
+      .app-lockup {
+        width: clamp(86px, 19vh, 118px);
+      }
+      .app-name {
+        margin-top: 6px;
+        font-size: 13px;
+      }
+      .studio-credit {
+        margin-top: 5px;
+        font-size: 9px;
+      }
+      .loader {
+        margin-top: 10px;
+      }
+      .skip {
+        bottom: max(7px, env(safe-area-inset-bottom));
+        font-size: 8px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="splash" class="splash" role="button" tabindex="0" aria-label="Open SchismMatrix">
+    <div class="studio-wrap">
+      <div class="studio-lockup" aria-label="CactusByte Studios™">
+        <img class="studio-mark" src="/assets/cactusbyte-launcher.svg" alt="">
+        <div class="studio-wordmark">
+          <strong>CactusByte</strong>
+          <span>Studios™</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-lockup">
+      <img class="app-logo" src="/assets/schismmatrix-symbol.svg" alt="SchismMatrix logo">
+    </div>
+
+    <div class="app-name">SchismMatrix™ <span style="display:block;font-size:.58em;letter-spacing:.2em;color:#58efff;margin-top:6px">Property Intelligence</span></div>
+    <div class="loader" aria-hidden="true"></div>
+    <div class="skip">Tap to enter</div>
+  </main>
+
+  <script>
+    (() => {
+      const target = '/index.html';
+      const key = 'schismmatrix_splash_seen_v3';
+      const splash = document.getElementById('splash');
+      let leaving = false;
+
+      const enterApp = () => {
+        if (leaving) return;
+        leaving = true;
+        try { sessionStorage.setItem(key, '1'); } catch (_) {}
+        splash.classList.add('exit');
+        setTimeout(() => window.location.replace(target), 390);
+      };
+
+      try {
+        if (sessionStorage.getItem(key) === '1') {
+          window.location.replace(target);
+          return;
+        }
+      } catch (_) {}
+
+      splash.addEventListener('click', enterApp);
+      splash.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') enterApp();
+      });
+
+      setTimeout(enterApp, 2800);
+    })();
+  </script>
+</body>
+</html>

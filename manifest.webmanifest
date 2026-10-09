@@ -1,7 +1,7 @@
 {
   "name": "SchismMatrix™ — Property Intelligence",
   "short_name": "SchismMatrix",
-  "start_url": "/splash.html",
+  "start_url": "/schism-splash-v3.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#020b12",

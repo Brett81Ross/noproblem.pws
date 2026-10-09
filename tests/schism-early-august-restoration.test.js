@@ -112,4 +112,13 @@ assert(!nativeInstall.includes('/No-Problem-Pressure-Washing-Matrix.apk'), 'lega
 assert(splash.includes('padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));'), 'splash lockup is not lowered into the Fold composition');
 assert(splash.includes('bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));'), 'Tap to Enter is still pinned too low on the Fold viewport');
 
+
+const vercelConfig = JSON.parse(read('vercel.json'));
+assert(vercelConfig.routes.some(route => route.src === '/' && route.dest === '/schism-splash-v3.html'), 'root route is not pinned to the cache-busted Schism splash');
+assert(vercelConfig.routes.some(route => route.src === '/splash.html' && route.dest === '/schism-splash-v3.html'), 'legacy splash.html route does not forward to the cache-busted Schism splash');
+assert(Array.isArray(vercelConfig.headers) && vercelConfig.headers.some(rule => rule.source === '/schism-splash-v3.html' && rule.headers.some(h => h.key === 'Cache-Control' && /no-store/.test(h.value))), 'cache-busted Schism splash is not protected with no-store');
+assert(Array.isArray(vercelConfig.headers) && vercelConfig.headers.some(rule => rule.source === '/manifest.webmanifest' && rule.headers.some(h => h.key === 'Cache-Control' && /no-store/.test(h.value))), 'manifest is not protected with no-store');
+assert(fs.existsSync(path.join(process.cwd(), 'schism-splash-v3.html')), 'cache-busted Schism splash file is missing');
+assert(JSON.parse(read('manifest.webmanifest')).start_url === '/schism-splash-v3.html', 'manifest start_url still points at the legacy splash path');
+
 console.log('Schism early-August restoration QA passed');
