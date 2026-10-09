@@ -6,10 +6,52 @@
   "routes": [
     {
       "src": "/",
-      "dest": "/splash.html"
+      "dest": "/schism-splash-v3.html"
+    },
+    {
+      "src": "/splash.html",
+      "dest": "/schism-splash-v3.html"
     },
     {
       "handle": "filesystem"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/splash.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/schism-splash-v3.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
     }
   ]
 }
