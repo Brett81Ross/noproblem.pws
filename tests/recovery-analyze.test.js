@@ -88,3 +88,18 @@ test.after(() => {
     if (priorKey === undefined) delete process.env.GEMINI_API_KEY;
     else process.env.GEMINI_API_KEY = priorKey;
 });
+
+test('model-supplied chemical and execution directions never reach the client', async () => {
+    modelResponse = ready();
+    Object.assign(modelResponse.services[0], {
+        chemicalPrescription: 'Unapproved chemical recipe',
+        batchMixingInstructions: 'Unapproved mixing directions',
+        executionInstructions: 'Unapproved field procedure'
+    });
+    const res = await invoke();
+    assert.equal(res.statusCode, 200);
+    const service = res.payload.rawMatrixData.services[0];
+    assert.equal(service.chemicalPrescription, null);
+    assert.equal(service.batchMixingInstructions, null);
+    assert.equal(service.executionInstructions, null);
+});
