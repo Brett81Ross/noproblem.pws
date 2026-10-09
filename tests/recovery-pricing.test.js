@@ -33,7 +33,6 @@ test('unknown difficulty fails closed', () => {
     assert.ok(result.reviewReason);
 });
 test('missing difficulty fails closed', () => {
-    assert.ok(price([{ serviceId: 'driveway_cleaning', quantity: 100 }], undefined).reviewReason === null);
     assert.ok(priceServices([{ serviceId: 'driveway_cleaning', quantity: 100 }], undefined, rateCard).reviewReason);
 });
 test('empty services cannot create a quote', () => assert.ok(price([]).reviewReason));
