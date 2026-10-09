@@ -164,11 +164,9 @@ async function handler(req, res) {
         1. REQUESTED-SCOPE AUTHORITY: Analyze only the launch services explicitly listed in the customer-requested services above. Visible surfaces, bins, vehicles, roofs, gutters, or other conditions outside that requested set are observations only and MUST NOT be added as executable or priced services.
         2. SERVICE IDENTIFIERS: Return only service IDs from the authorized launch-service list below. Never invent a service ID.
         3. OBSERVATIONS VS SCOPE: If evidence suggests additional work, mention it only in evidence/hazard/review context; do not silently expand the selected scope.
-        4. Mandatory Pre-Job Inspection: Techs must execute a 10-minute perimeter check to document pre-existing damage, close windows/vents, and cover electrical outlets.
-        5. Paver & Poly Sand Protection: If you detect pavers, stone blocks, or any surface with joint sand, mandate low-pressure chemical soft washing only to protect joint sand.
-        6. Concrete Anti-Streaking (Cross-Hit Method): For concrete surfaces, mandate the 2-pass perpendicular cross-hit method (vertical first, then horizontal) or post-treatment with bleach.
-        7. Batch-Mixing Formulas: Calculate exact batch quantities assuming a standard 30-gallon or 60-gallon batch mix tank using 12.5% bulk Sodium Hypochlorite (SH). Formula: (Tank Size / 12.5) * Target % = Gallons of Bleach, remainder H2O.
-        
+        4. FIELD SAFETY HOLD: This is a property evidence and preliminary estimating system only. Do not generate chemical concentrations, batch-mixing formulas, treatment recipes, equipment settings, or step-by-step execution procedures. Any field method requires separate qualified human authorization.
+        5. PROPERTY OBSERVATIONS: Identify material, visible condition, contamination, access restrictions, adjacent property, drainage/runoff concerns, and missing evidence. When uncertainty could affect safety, scope, or price, require manual review.
+
         RATE CARD DATASET:
         - Minimum Service Order: $${rateCard.minimumJob}
         ${LAUNCH_SERVICE_IDS.map((id) => { const s = rateCard.services[id]; return `- Service ID: ${id} (${s.label}) Base Cost: ${s.rate} per ${s.unit}`; }).join('\n')}
@@ -191,9 +189,9 @@ async function handler(req, res) {
                     "quantityUnit": "sq_ft",
                     "estimatedTimeMinutes": 60,
                     "waterUsageGallons": 250,
-                    "chemicalPrescription": "Surface Pre-Treat with 2% SH",
-                    "batchMixingInstructions": "For 30-gal tank: 30 / 12.5 * 2 = 4.8 gallons 12.5% SH + 25.2 gal H2O.",
-                    "executionInstructions": "Apply pre-treat, run surface cleaner with perpendicular cross-hit method, post-treat."
+                    "chemicalPrescription": "NOT AUTHORIZED — requires qualified human field review",
+                    "batchMixingInstructions": "NOT AUTHORIZED — no automated chemical mixing directions",
+                    "executionInstructions": "NOT AUTHORIZED — field execution plan pending qualified human review"
                 }
             ],
             "hazards": [
