@@ -9,6 +9,7 @@ const LAUNCH_SERVICE_IDS = Object.freeze([
 ]);
 const LAUNCH_SERVICE_ID_SET = new Set(LAUNCH_SERVICE_IDS);
 const MAX_SITE_NOTES_LENGTH = 4000;
+const pricing = require('../lib/recovery-pricing');
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -300,58 +301,16 @@ async function handler(req, res) {
             delete scanData.humanReviewReason;
         }
 
-        const difficulty = typeof scanData.fieldPlan?.difficulty === 'string' ? scanData.fieldPlan.difficulty.toLowerCase() : '';
-        const multiplier = Object.prototype.hasOwnProperty.call(rateCard.difficultyMultipliers, difficulty) ? rateCard.difficultyMultipliers[difficulty] : null;
-        if (!multiplier) {
+        const priced = pricing.priceServices(scanData.services, scanData.fieldPlan?.difficulty, rateCard);
+        scanData.services = priced.services;
+        if (priced.reviewReason) {
             scanData.evidenceReview = {
                 ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
                 readyForEstimate: false,
-                summary: 'Manual review required: analysis returned an unsupported difficulty classification.'
+                summary: priced.reviewReason
             };
             scanData.requiresHumanReview = true;
-            scanData.humanReviewReason = scanData.evidenceReview.summary;
-        }
-
-        if (scanData.services && Array.isArray(scanData.services)) {
-            scanData.services.forEach((item) => {
-                const spec = rateCard.services[item.serviceId];
-                if (!spec) {
-                    item.calculatedPrice = null;
-                    item.pricingRequiresReview = true;
-                    return;
-                }
-                item.label = spec.label;
-                const quantity = spec.unit === 'flat' ? 1 : Number(item.quantity);
-                if (spec.unit !== 'flat' && (!Number.isFinite(quantity) || quantity <= 0)) {
-                    item.calculatedPrice = null;
-                    item.pricingRequiresReview = true;
-                    return;
-                }
-                item.quantity = quantity;
-                if (!multiplier) {
-                    item.calculatedPrice = null;
-                    item.pricingRequiresReview = true;
-                    return;
-                }
-                const basePrice = spec.unit === 'flat' ? spec.rate : (quantity * spec.rate);
-                const calculated = roundMoney(basePrice * multiplier);
-                if (!Number.isFinite(calculated) || calculated < 0) {
-                    item.calculatedPrice = null;
-                    item.pricingRequiresReview = true;
-                    return;
-                }
-                item.calculatedPrice = calculated;
-            });
-        }
-
-        if (scanData.services.some((item) => item?.pricingRequiresReview === true || item?.calculatedPrice === null || !Number.isFinite(Number(item?.calculatedPrice)) || Number(item?.calculatedPrice) < 0)) {
-            scanData.evidenceReview = {
-                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
-                readyForEstimate: false,
-                summary: 'Manual review required: one or more service quantities could not be priced safely.'
-            };
-            scanData.requiresHumanReview = true;
-            scanData.humanReviewReason = scanData.evidenceReview.summary;
+            scanData.humanReviewReason = priced.reviewReason;
         }
 
         scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
