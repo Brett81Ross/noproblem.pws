@@ -103,3 +103,14 @@ test('model-supplied chemical and execution directions never reach the client', 
     assert.equal(service.batchMixingInstructions, null);
     assert.equal(service.executionInstructions, null);
 });
+
+test('model-generated hazard actions are replaced by human-review instructions', async () => {
+    modelResponse = ready();
+    modelResponse.hazards = [{ hazard: 'Electrical outlet', action: 'Unapproved procedure' }];
+    const res = await invoke();
+    assert.equal(res.statusCode, 200);
+    assert.deepEqual(res.payload.rawMatrixData.hazards, [{
+        hazard: 'Electrical outlet',
+        action: 'Qualified human review required before field execution.'
+    }]);
+});
