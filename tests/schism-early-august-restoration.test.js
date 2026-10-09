@@ -108,4 +108,8 @@ const nativeInstall = read('native-install.js');
 assert(nativeInstall.includes('/SchismMatrix.apk'), 'Android install link is not pointed at the SchismMatrix APK');
 assert(!nativeInstall.includes('/No-Problem-Pressure-Washing-Matrix.apk'), 'legacy No Problem APK install link is still active');
 
+
+assert(splash.includes('padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));'), 'splash lockup is not lowered into the Fold composition');
+assert(splash.includes('bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));'), 'Tap to Enter is still pinned too low on the Fold viewport');
+
 console.log('Schism early-August restoration QA passed');
