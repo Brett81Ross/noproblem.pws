@@ -1,0 +1,25 @@
+name: Recovery QA (No Deploy)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - recovery/matrix-sight-aug2
+    paths:
+      - 'api/analyze.js'
+      - 'lib/recovery-pricing.js'
+      - 'tests/recovery-*.test.js'
+      - '.github/workflows/recovery-qa.yml'
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install runtime dependencies without executing lifecycle scripts
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run isolated recovery regressions
+        run: node --test tests/recovery-pricing.test.js tests/recovery-analyze.test.js
