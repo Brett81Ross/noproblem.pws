@@ -52,3 +52,9 @@ test('very large finite multiplication cannot become Infinity', () => {
     assert.equal(result.services[0].calculatedPrice, null);
     assert.ok(result.reviewReason);
 });
+
+test('duplicate AI service lines force manual review instead of double billing', () => {
+    const result = price([{ serviceId: 'driveway_cleaning', quantity: 100 }, { serviceId: 'driveway_cleaning', quantity: 100 }]);
+    assert.ok(result.reviewReason);
+    assert.equal(result.services[1].calculatedPrice, null);
+});
