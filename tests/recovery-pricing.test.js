@@ -41,3 +41,14 @@ test('one invalid line blocks the entire estimate', () => {
     const result = price([{ serviceId: 'driveway_cleaning', quantity: 100 }, { serviceId: 'driveway_cleaning', quantity: -5 }]);
     assert.ok(result.reviewReason);
 });
+
+test('extreme finite quantity cannot produce unsafe cents', () => {
+    const result = price([{ serviceId: 'driveway_cleaning', quantity: 1e20 }]);
+    assert.equal(result.services[0].calculatedPrice, null);
+    assert.ok(result.reviewReason);
+});
+test('very large finite multiplication cannot become Infinity', () => {
+    const result = price([{ serviceId: 'driveway_cleaning', quantity: 1e308 }]);
+    assert.equal(result.services[0].calculatedPrice, null);
+    assert.ok(result.reviewReason);
+});
