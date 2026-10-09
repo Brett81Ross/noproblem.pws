@@ -243,6 +243,17 @@ async function handler(req, res) {
             throw new Error('Analysis returned an invalid Matrix object.');
         }
 
+        // Fail closed: model-generated chemical or execution directions are never field-authorized.
+        if (Array.isArray(scanData.services)) {
+            for (const service of scanData.services) {
+                if (service && typeof service === 'object') {
+                    service.chemicalPrescription = null;
+                    service.batchMixingInstructions = null;
+                    service.executionInstructions = null;
+                }
+            }
+        }
+
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' && !Array.isArray(scanData.evidenceReview) ? scanData.evidenceReview : null;
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
