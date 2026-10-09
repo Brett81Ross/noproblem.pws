@@ -197,7 +197,7 @@ async function handler(req, res) {
             "hazards": [
                 {
                     "hazard": "Outdoor Electrical Outlet",
-                    "action": "Tape outlets before cleaning."
+                    "action": "Flag for qualified human review before field execution."
                 }
             ],
             "fieldPlan": {
@@ -252,6 +252,14 @@ async function handler(req, res) {
                     service.executionInstructions = null;
                 }
             }
+        }
+
+        // Hazards are observations, not model-authorized work orders.
+        if (Array.isArray(scanData.hazards)) {
+            scanData.hazards = scanData.hazards.map((hazard) => ({
+                hazard: typeof hazard?.hazard === 'string' ? hazard.hazard.slice(0, 500) : 'Unspecified hazard',
+                action: 'Qualified human review required before field execution.'
+            }));
         }
 
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' && !Array.isArray(scanData.evidenceReview) ? scanData.evidenceReview : null;
