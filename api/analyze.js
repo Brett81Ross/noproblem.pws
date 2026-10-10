@@ -304,7 +304,7 @@ async function handler(req, res) {
             };
         }
 
-        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && missingEvidence.length === 0 && uncertainEvidence.length === 0;
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
             const currentEvidenceSummary = scanData.evidenceReview?.summary;
