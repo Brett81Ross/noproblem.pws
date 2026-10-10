@@ -306,6 +306,7 @@ async function handler(req, res) {
 
         const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && missingEvidence.length === 0 && uncertainEvidence.length === 0;
         if (!explicitlyReady) {
+            scanData.evidenceReview.readyForEstimate = false;
             scanData.requiresHumanReview = true;
             const currentEvidenceSummary = scanData.evidenceReview?.summary;
             scanData.humanReviewReason = typeof currentEvidenceSummary === 'string' && currentEvidenceSummary.trim()
