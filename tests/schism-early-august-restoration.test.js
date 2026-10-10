@@ -130,4 +130,13 @@ assert(splashV3.includes('font-size: clamp(19px, 4.6vw, 24px);'), 'SchismMatrix 
 assert(splashV3.includes('width: min(280px, 68vw);'), 'splash loader is still undersized');
 assert(splashV3.includes('width: clamp(154px, 34vw, 204px);'), 'Fold short-viewport breakpoint still shrinks Schism too aggressively');
 
+
+const fullSplash = read('schism-splash-v3.html');
+assert(fullSplash.includes('justify-content: center;'), 'splash stack is not vertically centered on full-height viewports');
+assert(fullSplash.includes('width: clamp(230px, 50vw, 340px);'), 'Schism symbol is not scaled for a full-screen composition');
+assert(fullSplash.includes('width: min(360px, 78vw);'), 'splash loader is not scaled for the larger composition');
+assert(fullSplash.includes('position: static;'), 'Tap to Enter is still detached from the splash stack');
+assert(fullSplash.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport splash is still too small');
+assert(fullSplash.includes('width: clamp(180px, 45vh, 240px);'), 'Fold landscape splash is still too small');
+
 console.log('Schism early-August restoration QA passed');
