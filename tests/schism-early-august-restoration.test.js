@@ -123,12 +123,12 @@ assert(JSON.parse(read('manifest.webmanifest')).start_url === '/schism-splash-v3
 
 
 const splashV3 = read('schism-splash-v3.html');
-assert(splashV3.includes('width: clamp(64px, 12vw, 82px);'), 'CactusByte splash mark is still undersized');
-assert(splashV3.includes('font-size: clamp(24px, 5.2vw, 34px);'), 'CactusByte splash wordmark is still undersized');
-assert(splashV3.includes('width: clamp(180px, 42vw, 260px);'), 'Schism splash symbol is still undersized');
-assert(splashV3.includes('font-size: clamp(19px, 4.6vw, 24px);'), 'SchismMatrix splash title is still undersized');
-assert(splashV3.includes('width: min(280px, 68vw);'), 'splash loader is still undersized');
-assert(splashV3.includes('width: clamp(154px, 34vw, 204px);'), 'Fold short-viewport breakpoint still shrinks Schism too aggressively');
+assert(splashV3.includes('width: clamp(72px, 14vw, 100px);'), 'CactusByte splash mark is not using fullscreen scale');
+assert(splashV3.includes('font-size: clamp(28px, 5.8vw, 42px);'), 'CactusByte splash wordmark is not using fullscreen scale');
+assert(splashV3.includes('width: clamp(230px, 50vw, 340px);'), 'Schism splash symbol is not using fullscreen scale');
+assert(splashV3.includes('font-size: clamp(22px, 5vw, 30px);'), 'SchismMatrix splash title is not using fullscreen scale');
+assert(splashV3.includes('width: min(360px, 78vw);'), 'splash loader is not using fullscreen scale');
+assert(splashV3.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport breakpoint still shrinks Schism too aggressively');
 
 
 const fullSplash = read('schism-splash-v3.html');
