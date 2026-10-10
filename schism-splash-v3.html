@@ -47,10 +47,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+      padding: max(20px, env(safe-area-inset-top)) 24px max(20px, env(safe-area-inset-bottom));
       isolation: isolate;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -76,12 +76,12 @@
     }
 
     .studio-wrap {
-      width: min(86vw, 430px);
+      width: min(94vw, 560px);
       flex: 0 0 auto;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: clamp(12px, 2.6vh, 24px);
+      margin-bottom: clamp(12px, 2vh, 24px);
       animation: studioIn .85s cubic-bezier(.2,.75,.25,1) both;
     }
 
@@ -96,8 +96,8 @@
 
     .studio-mark {
       display: block;
-      width: clamp(64px, 12vw, 82px);
-      height: clamp(64px, 12vw, 82px);
+      width: clamp(72px, 14vw, 100px);
+      height: clamp(72px, 14vw, 100px);
       flex: 0 0 auto;
       object-fit: contain;
       object-position: center;
@@ -114,7 +114,7 @@
 
     .studio-wordmark strong {
       color: #eaffff;
-      font-size: clamp(24px, 5.2vw, 34px);
+      font-size: clamp(28px, 5.8vw, 42px);
       font-weight: 950;
       letter-spacing: -.035em;
       white-space: nowrap;
@@ -123,7 +123,7 @@
     .studio-wordmark span {
       margin-top: 6px;
       color: #75dcd4;
-      font-size: clamp(10px, 2.1vw, 13px);
+      font-size: clamp(11px, 2.2vw, 14px);
       font-weight: 900;
       letter-spacing: .24em;
       text-transform: uppercase;
@@ -132,7 +132,7 @@
 
     .app-lockup {
       position: relative;
-      width: clamp(180px, 42vw, 260px);
+      width: clamp(230px, 50vw, 340px);
       aspect-ratio: 1;
       flex: 0 0 auto;
       display: grid;
@@ -141,8 +141,8 @@
     }
 
     .app-logo {
-      width: 90%;
-      height: 90%;
+      width: 96%;
+      height: 96%;
       object-fit: contain;
       filter: drop-shadow(0 10px 24px rgba(0,0,0,.5)) drop-shadow(0 0 18px rgba(0,240,255,.18));
     }
@@ -151,7 +151,7 @@
       flex: 0 0 auto;
       margin-top: clamp(12px, 2.4vh, 22px);
       text-align: center;
-      font-size: clamp(19px, 4.6vw, 24px);
+      font-size: clamp(22px, 5vw, 30px);
       line-height: 1.35;
       font-weight: 800;
       letter-spacing: .08em;
@@ -173,8 +173,8 @@
 
     .loader {
       flex: 0 0 auto;
-      width: min(280px, 68vw);
-      height: 2px;
+      width: min(360px, 78vw);
+      height: 3px;
       margin-top: clamp(16px, 3vh, 28px);
       border-radius: 999px;
       overflow: hidden;
@@ -193,12 +193,13 @@
     }
 
     .skip {
-      position: absolute;
-      bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));
-      font-size: 10px;
+      position: static;
+      flex: 0 0 auto;
+      margin-top: clamp(26px, 5vh, 58px);
+      font-size: clamp(11px, 2.2vw, 13px);
       letter-spacing: .14em;
       text-transform: uppercase;
-      color: rgba(148,163,184,.46);
+      color: rgba(148,163,184,.62);
       animation: textIn .8s .75s ease both;
     }
 
@@ -233,74 +234,80 @@
 
     @media (max-height: 760px) {
       .splash {
-        padding-top: max(14px, env(safe-area-inset-top));
+        justify-content: flex-start;
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
       }
       .studio-wrap {
-        margin-bottom: 7px;
+        width: min(94vw, 500px);
+        margin-bottom: 6px;
       }
       .studio-mark {
-        width: 58px;
-        height: 58px;
+        width: 66px;
+        height: 66px;
       }
       .studio-wordmark strong {
-        font-size: 22px;
+        font-size: 24px;
       }
       .studio-wordmark span {
         font-size: 9px;
       }
       .app-lockup {
-        width: clamp(154px, 34vw, 204px);
+        width: clamp(200px, 52vw, 260px);
       }
       .app-name {
-        margin-top: 9px;
-        font-size: 17px;
+        margin-top: 8px;
+        font-size: 20px;
       }
       .loader {
-        width: min(250px, 64vw);
-        margin-top: 14px;
+        width: min(300px, 72vw);
+        height: 3px;
+        margin-top: 12px;
+      }
+      .skip {
+        margin-top: clamp(18px, 4vh, 28px);
+        font-size: 11px;
       }
     }
 
     @media (orientation: landscape) and (max-height: 650px) {
       .splash {
-        padding-top: max(12px, env(safe-area-inset-top));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        justify-content: flex-start;
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
       }
       .studio-wrap {
-        width: min(62vw, 340px);
-        margin-bottom: 5px;
+        width: min(76vw, 420px);
+        margin-bottom: 4px;
       }
       .studio-lockup {
-        min-height: 42px;
+        min-height: 48px;
       }
       .studio-mark {
-        width: 50px;
-        height: 50px;
+        width: 56px;
+        height: 56px;
       }
       .studio-wordmark strong {
-        font-size: 19px;
+        font-size: 21px;
       }
       .studio-wordmark span {
         margin-top: 4px;
         font-size: 8px;
       }
       .app-lockup {
-        width: clamp(126px, 28vh, 166px);
+        width: clamp(180px, 45vh, 240px);
       }
       .app-name {
-        margin-top: 7px;
-        font-size: 15px;
-      }
-      .studio-credit {
-        margin-top: 5px;
-        font-size: 9px;
+        margin-top: 6px;
+        font-size: 17px;
       }
       .loader {
-        margin-top: 10px;
+        width: min(290px, 64vw);
+        margin-top: 9px;
       }
       .skip {
-        bottom: max(7px, env(safe-area-inset-bottom));
-        font-size: 8px;
+        margin-top: 10px;
+        font-size: 9px;
       }
     }
 
