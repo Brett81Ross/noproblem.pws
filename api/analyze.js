@@ -262,6 +262,16 @@ async function handler(req, res) {
             }));
         }
 
+        // Do not expose unreviewed AI prose as service directions.
+        if (Array.isArray(scanData.services)) {
+            for (const item of scanData.services) {
+                if (item && typeof item === 'object') {
+                    item.reason = 'AI observation; confirm on site.';
+                    item.evidence = 'Verify against property photos.';
+                }
+            }
+        }
+
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' && !Array.isArray(scanData.evidenceReview) ? scanData.evidenceReview : null;
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
