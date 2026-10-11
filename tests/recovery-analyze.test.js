@@ -141,3 +141,15 @@ test('undocumented top-level model fields are discarded', async () => {
     assert.equal(res.statusCode, 200);
     assert.equal(Object.hasOwn(res.payload.rawMatrixData, 'unapprovedProcedure'), false);
 });
+
+test('evidence review rejects unexpected nested attributes', async () => {
+    modelResponse = ready();
+    modelResponse.evidenceReview.unexpected = 'extra';
+    modelResponse.evidenceReview.missingEvidence = [{ category: 'access', prompt: 'untrusted', unexpected: 'extra' }];
+    const res = await invoke();
+    const review = res.payload.rawMatrixData.evidenceReview;
+    assert.equal(Object.hasOwn(review, 'unexpected'), false);
+    assert.equal(Object.hasOwn(review.missingEvidence[0], 'unexpected'), false);
+    assert.equal(review.missingEvidence[0].prompt, 'Additional site photos or inspection required.');
+    assert.equal(review.readyForEstimate, false);
+});
