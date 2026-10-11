@@ -349,6 +349,7 @@ async function handler(req, res) {
             const entries = scanData.evidenceReview[key];
             scanData.evidenceReview[key] = Array.isArray(entries) ? entries.map(entry => ({ category: entry?.category, prompt: 'Additional site photos or inspection required.' })) : [];
         }
+        scanData.evidenceReview.summary = scanData.requiresHumanReview ? 'Human review required before field authorization.' : 'Evidence review passed preliminary checks; human authorization still required.';
         scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
 
         return res.status(200).json({
