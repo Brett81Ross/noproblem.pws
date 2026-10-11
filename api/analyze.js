@@ -341,6 +341,7 @@ async function handler(req, res) {
             scanData.humanReviewReason = priced.reviewReason;
         }
 
+        scanData = Object.fromEntries(Object.entries(scanData).filter(([key]) => ['evidenceReview', 'services', 'hazards', 'fieldPlan', 'requiresHumanReview', 'humanReviewReason'].includes(key)));
         scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
 
         return res.status(200).json({
