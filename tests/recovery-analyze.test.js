@@ -114,3 +114,13 @@ test('model-generated hazard actions are replaced by human-review instructions',
         action: 'Qualified human review required before field execution.'
     }]);
 });
+
+test('unresolved evidence overrides ready flag', async () => {
+    for (const category of ['missingEvidence', 'uncertainEvidence']) {
+        modelResponse = ready();
+        modelResponse.evidenceReview[category] = [{ prompt: 'Inspect' }];
+        const res = await invoke();
+        assert.equal(res.payload.rawMatrixData.evidenceReview.readyForEstimate, false);
+        assert.equal(res.payload.rawMatrixData.requiresHumanReview, true);
+    }
+});
