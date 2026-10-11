@@ -124,3 +124,12 @@ test('unresolved evidence overrides ready flag', async () => {
         assert.equal(res.payload.rawMatrixData.requiresHumanReview, true);
     }
 });
+
+test('service narratives are neutralized', async () => {
+    modelResponse = ready();
+    modelResponse.services[0].reason = 'Unapproved field method';
+    modelResponse.services[0].evidence = 'Unapproved field procedure';
+    const res = await invoke();
+    assert.equal(res.payload.rawMatrixData.services[0].reason, 'AI observation; confirm on site.');
+    assert.equal(res.payload.rawMatrixData.services[0].evidence, 'Verify against property photos.');
+});
