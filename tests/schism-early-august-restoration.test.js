@@ -144,7 +144,7 @@ assert(index.includes("const CREW_HANDOFF='schismmatrix-crew-handoff-v1';"), 'Cr
 assert(index.includes('id="crewActiveCard"'), 'Crew Command active release card is missing');
 assert(index.includes('id="crewActiveBadge"'), 'Crew Command dashboard release badge is missing');
 assert(index.includes('function persistCrewHandoff()'), 'Crew Command does not persist approved handoffs');
-assert(index.includes('function restoreCrewHandoff()'), 'Crew Command does not restore released jobs after refresh');
+assert(index.includes('function restoreCrewHandoff('), 'Crew Command does not restore released jobs after refresh');
 assert(index.includes('function clearCrewHandoff()'), 'Crew Command release cannot be cleared');
 assert(index.includes('localStorage.setItem(CREW_HANDOFF'), 'Crew Command handoff is not written to local storage');
 assert(index.includes('localStorage.removeItem(CREW_HANDOFF)'), 'Crew Command handoff clear path is missing');
