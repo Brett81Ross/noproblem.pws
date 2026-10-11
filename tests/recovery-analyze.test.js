@@ -133,3 +133,11 @@ test('service narratives are neutralized', async () => {
     assert.equal(res.payload.rawMatrixData.services[0].reason, 'AI observation; confirm on site.');
     assert.equal(res.payload.rawMatrixData.services[0].evidence, 'Verify against property photos.');
 });
+
+test('undocumented top-level model fields are discarded', async () => {
+    modelResponse = ready();
+    modelResponse.unapprovedProcedure = 'Unapproved instructions';
+    const res = await invoke();
+    assert.equal(res.statusCode, 200);
+    assert.equal(Object.hasOwn(res.payload.rawMatrixData, 'unapprovedProcedure'), false);
+});
