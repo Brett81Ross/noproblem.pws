@@ -345,6 +345,10 @@ async function handler(req, res) {
         scanData.services = scanData.services.map(s => ({ serviceId:s.serviceId, quantity:s.quantity, quantityUnit:s.quantityUnit, estimatedTimeMinutes:s.estimatedTimeMinutes, waterUsageGallons:s.waterUsageGallons, reason:s.reason, evidence:s.evidence, chemicalPrescription:s.chemicalPrescription, batchMixingInstructions:s.batchMixingInstructions, executionInstructions:s.executionInstructions, label:s.label, calculatedPrice:s.calculatedPrice, pricingRequiresReview:s.pricingRequiresReview }));
         scanData.fieldPlan = { difficulty: scanData.fieldPlan?.difficulty, totalEstimatedHours: scanData.fieldPlan?.totalEstimatedHours, crewSizeRecommended: scanData.fieldPlan?.crewSizeRecommended };
         scanData.evidenceReview = Object.fromEntries(Object.entries(scanData.evidenceReview).filter(([key]) => ['readyForEstimate', 'missingEvidence', 'uncertainEvidence', 'confirmedCategories', 'summary'].includes(key)));
+        for (const key of ['missingEvidence', 'uncertainEvidence']) {
+            const entries = scanData.evidenceReview[key];
+            scanData.evidenceReview[key] = Array.isArray(entries) ? entries.map(entry => ({ category: entry?.category, prompt: 'Additional site photos or inspection required.' })) : [];
+        }
         scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
 
         return res.status(200).json({
