@@ -139,4 +139,15 @@ assert(fullSplash.includes('position: static;'), 'Tap to Enter is still detached
 assert(fullSplash.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport splash is still too small');
 assert(fullSplash.includes('width: clamp(180px, 45vh, 240px);'), 'Fold landscape splash is still too small');
 
+
+assert(index.includes("const CREW_HANDOFF='schismmatrix-crew-handoff-v1';"), 'Crew Command release store is missing');
+assert(index.includes('id="crewActiveCard"'), 'Crew Command active release card is missing');
+assert(index.includes('id="crewActiveBadge"'), 'Crew Command dashboard release badge is missing');
+assert(index.includes('function persistCrewHandoff()'), 'Crew Command does not persist approved handoffs');
+assert(index.includes('function restoreCrewHandoff()'), 'Crew Command does not restore released jobs after refresh');
+assert(index.includes('function clearCrewHandoff()'), 'Crew Command release cannot be cleared');
+assert(index.includes('localStorage.setItem(CREW_HANDOFF'), 'Crew Command handoff is not written to local storage');
+assert(index.includes('localStorage.removeItem(CREW_HANDOFF)'), 'Crew Command handoff clear path is missing');
+assert(index.includes("const snapshot=readJson(CREW_HANDOFF,null);"), 'Crew Command view does not require a released snapshot');
+
 console.log('Schism early-August restoration QA passed');
