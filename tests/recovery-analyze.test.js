@@ -110,7 +110,7 @@ test('model-generated hazard actions are replaced by human-review instructions',
     const res = await invoke();
     assert.equal(res.statusCode, 200);
     assert.deepEqual(res.payload.rawMatrixData.hazards, [{
-        hazard: 'Electrical outlet',
+        hazard: 'Potential site hazard; inspect original evidence',
         action: 'Qualified human review required before field execution.'
     }]);
 });
