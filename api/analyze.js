@@ -342,6 +342,7 @@ async function handler(req, res) {
         }
 
         scanData = Object.fromEntries(Object.entries(scanData).filter(([key]) => ['evidenceReview', 'services', 'hazards', 'fieldPlan', 'requiresHumanReview', 'humanReviewReason'].includes(key)));
+        scanData.services = scanData.services.map(s => ({ serviceId:s.serviceId, quantity:s.quantity, quantityUnit:s.quantityUnit, estimatedTimeMinutes:s.estimatedTimeMinutes, waterUsageGallons:s.waterUsageGallons, reason:s.reason, evidence:s.evidence, chemicalPrescription:s.chemicalPrescription, batchMixingInstructions:s.batchMixingInstructions, executionInstructions:s.executionInstructions, label:s.label, calculatedPrice:s.calculatedPrice, pricingRequiresReview:s.pricingRequiresReview }));
         scanData.quoteMeta = { minimumJob: rateCard.minimumJob };
 
         return res.status(200).json({
