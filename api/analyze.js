@@ -257,7 +257,7 @@ async function handler(req, res) {
         // Hazards are observations, not model-authorized work orders.
         if (Array.isArray(scanData.hazards)) {
             scanData.hazards = scanData.hazards.map((hazard) => ({
-                hazard: typeof hazard?.hazard === 'string' ? hazard.hazard.slice(0, 500) : 'Unspecified hazard',
+                hazard: 'Potential site hazard; inspect original evidence',
                 action: 'Qualified human review required before field execution.'
             }));
         }
