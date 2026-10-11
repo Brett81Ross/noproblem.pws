@@ -983,6 +983,9 @@
       .handoff-button{width:100%;min-height:48px;margin-top:10px;border:1px solid rgba(117,245,163,.34);border-radius:12px;color:#03130a;background:linear-gradient(135deg,#b8ffca,#75f5a3);font-size:10px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
       .handoff-button[disabled]{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}
 .crew-empty strong{display:block;color:#effcff;font-size:18px}.crew-empty span{display:block;max-width:520px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.crew-empty button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .crew-active-card{padding:18px;border:1px solid rgba(117,245,163,.28);border-radius:18px;background:linear-gradient(145deg,rgba(8,31,27,.94),rgba(4,13,22,.97));box-shadow:0 18px 44px rgba(0,0,0,.22)}
+      .crew-active-card[hidden]{display:none}.crew-active-kicker{color:#75f5a3;font-size:8px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}.crew-active-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 14px}.crew-active-head strong{display:block;color:#f0fff6;font-size:19px;line-height:1.15}.crew-active-head span{display:block;margin-top:5px;color:#84a39d;font-size:10px;line-height:1.4}.crew-release-status{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(117,245,163,.26);border-radius:999px;color:#8ff9ad;background:rgba(117,245,163,.07);font-size:8px;font-weight:950;letter-spacing:.1em;text-transform:uppercase}.crew-release-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.crew-release-metric{padding:10px;border:1px solid rgba(82,231,242,.12);border-radius:11px;background:rgba(2,13,19,.52)}.crew-release-metric span{display:block;color:#6f8d95;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.crew-release-metric strong{display:block;margin-top:4px;color:#dffbff;font-size:12px}.crew-release-actions{display:flex;justify-content:flex-end;margin-top:12px}.crew-release-actions button{min-height:38px;padding:0 12px;border:1px solid rgba(248,113,113,.22);border-radius:10px;color:#fecaca;background:rgba(127,29,29,.12);font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      @media(max-width:560px){.crew-release-grid{grid-template-columns:1fr 1fr}.crew-active-head{flex-direction:column}.crew-release-status{align-self:flex-start}}
       #cb60DemoButton.dashboard-demo-docked,.cb60-btn.dashboard-demo-docked{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;min-width:auto!important;height:34px!important;padding:0 10px!important;margin-left:auto!important;border-radius:10px!important;font-size:9px!important;box-shadow:none!important}
       @media(max-width:760px){.dashboard-status{flex-wrap:wrap}.dashboard-status #cb60DemoButton.dashboard-demo-docked,.dashboard-status .cb60-btn.dashboard-demo-docked{width:100%;margin:4px 0 0!important}.dashboard-nav{gap:8px}.dashboard-tile{min-height:88px;padding:12px 8px}.dashboard-tile-icon{font-size:25px}.dashboard-hero{padding:18px}.dashboard-section{padding:15px}.recent-card{min-height:74px}}
       @media(max-width:560px){.dashboard-nav{grid-template-columns:1fr 1fr}.dashboard-tile:last-child{grid-column:1/-1}.dashboard-brand-copy span{letter-spacing:.12em}.dashboard-field-card{padding:12px}.inventory-summary-grid{gap:7px}.inventory-summary-card{padding:11px}}
@@ -1055,6 +1058,7 @@
             <span class="dashboard-tile-icon">⌂</span><strong>Quote<br>Matrix</strong>
           </button>
           <button class="dashboard-tile" type="button" data-dashboard-action="crew">
+            <span class="dashboard-alert" id="crewActiveBadge" hidden>1</span>
             <span class="dashboard-tile-icon">👥</span><strong>Crew<br>Command</strong>
           </button>
           <button class="dashboard-tile" type="button" data-dashboard-action="inventory">
@@ -1246,9 +1250,29 @@
 
             <section class="crew-command-panel" id="crewCommandPanel">
                 <div class="crew-empty" id="crewCommandEmpty">
-                    <strong>No field-ready job loaded yet.</strong>
-                    <span>Finish and review a Quote Matrix job first. Once SchismMatrix has an analyzed scope, Crew Command shows the execution plan, safety notes, chemicals, equipment, and work sequence.</span>
+                    <strong>No released crew job yet.</strong>
+                    <span>Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.</span>
                     <button type="button" id="crewBuildQuoteButton">Build / Open Quote</button>
+                </div>
+                <div class="crew-active-card" id="crewActiveCard" hidden>
+                    <div class="crew-active-kicker">Crew Command Release</div>
+                    <div class="crew-active-head">
+                        <div><strong id="crewActiveName">Released job</strong><span id="crewActiveAddress">Address not saved</span></div>
+                        <div class="crew-release-status">Field Ready</div>
+                    </div>
+                    <div class="crew-release-grid">
+                        <div class="crew-release-metric"><span>Released</span><strong id="crewReleasedAt">—</strong></div>
+                        <div class="crew-release-metric"><span>Crew</span><strong id="crewReleasedCrew">—</strong></div>
+                        <div class="crew-release-metric"><span>Work Window</span><strong id="crewReleasedWindow">—</strong></div>
+                        <div class="crew-release-metric"><span>Difficulty</span><strong id="crewReleasedDifficulty">—</strong></div>
+                    </div>
+                    <div class="crew-release-grid" style="margin-top:8px">
+                        <div class="crew-release-metric"><span>Photos</span><strong id="crewReleasedPhotos">0</strong></div>
+                        <div class="crew-release-metric"><span>Services</span><strong id="crewReleasedServices">0</strong></div>
+                        <div class="crew-release-metric"><span>Approved Total</span><strong id="crewReleasedTotal">—</strong></div>
+                        <div class="crew-release-metric"><span>Release State</span><strong>Approved</strong></div>
+                    </div>
+                    <div class="crew-release-actions"><button type="button" id="crewClearJobButton">Remove Released Job</button></div>
                 </div>
             </section>
 
@@ -2232,6 +2256,7 @@
         const DASH_RECENTS='schismmatrix-recent-projects-v1';
         const SAVED_PROJECT='no-problem-matrix-last-project';
         const INVENTORY_KEY='no-problem-matrix-inventory-v1';
+        const CREW_HANDOFF='schismmatrix-crew-handoff-v1';
 
         function byId(id){ return document.getElementById(id); }
         function showWorkspace(title){
@@ -2270,14 +2295,18 @@
         }
         function selectCrew(){
           showWorkspace('Crew Command · Field Execution Matrix');
-          if(typeof setAppMode==='function') setAppMode('tech');
           ['missionCard','scopeCard','evidenceCard'].forEach(id=>{ const el=byId(id); if(el) el.style.display='none'; });
           const crew=byId('crewCommandPanel');
           if(crew) crew.classList.add('is-visible');
-          const hasPlan=typeof techMatrixData!=='undefined' && Boolean(techMatrixData);
-          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=hasPlan?'none':'';
-          if(byId('resultsSection')) byId('resultsSection').style.display=hasPlan?'':'none';
-          requestAnimationFrame(()=>(hasPlan?byId('resultsSection'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
+          const snapshot=readJson(CREW_HANDOFF,null);
+          const hasRelease=Boolean(snapshot && snapshot.matrixData);
+          if(hasRelease) restoreCrewHandoff(snapshot);
+          if(typeof setAppMode==='function') setAppMode('tech');
+          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=hasRelease?'none':'';
+          if(byId('crewActiveCard')) byId('crewActiveCard').hidden=!hasRelease;
+          if(byId('resultsSection')) byId('resultsSection').style.display=hasRelease?'':'none';
+          if(hasRelease) renderCrewHandoffSummary(snapshot);
+          requestAnimationFrame(()=>(hasRelease?byId('crewActiveCard'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectPhotos(){
           showWorkspace('Job Photos · Guided Evidence');
@@ -2308,6 +2337,89 @@
             if(btn) btn.click();
           },50);
         }
+        function releasedMatrixData(){
+          if(typeof techMatrixData==='undefined' || !techMatrixData) return null;
+          let matrix;
+          try{ matrix=JSON.parse(JSON.stringify(techMatrixData)); }catch(e){ return null; }
+          if(Array.isArray(matrix.services) && Array.isArray(priceItemsRegistry) && priceItemsRegistry.length){
+            matrix.services=matrix.services.filter((item,index)=>!priceItemsRegistry[index]?.disabled);
+            const minutes=matrix.services.reduce((sum,item)=>sum+Number(item?.estimatedTimeMinutes||0),0);
+            if(matrix.fieldPlan && minutes>0){
+              const hours=Math.max(.5,Math.round((minutes/60)*10)/10);
+              matrix.fieldPlan.totalEstimatedHours=String(hours).replace(/\.0$/,'')+' Hours';
+            }
+          }
+          return matrix;
+        }
+        function buildCrewHandoffSnapshot(){
+          const matrix=releasedMatrixData();
+          if(!matrix || matrix.requiresHumanReview) return null;
+          const locked=Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
+          if(locked) return null;
+          return {
+            version:1,
+            releasedAt:new Date().toISOString(),
+            jobName:byId('jobName')?.value?.trim()||'Released property job',
+            jobAddress:byId('jobAddress')?.value?.trim()||'Address not saved',
+            customerEmail:byId('customerEmail')?.value?.trim()||'',
+            customerPhone:byId('customerPhone')?.value?.trim()||'',
+            approvedTotal:byId('grandTotalDisplay')?.textContent?.trim()||'',
+            photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),
+            siteNotes:(typeof userSiteNotes!=='undefined'?userSiteNotes:''),
+            location:(typeof currentJobLocation!=='undefined'&&currentJobLocation?{lat:currentJobLocation.lat,lon:currentJobLocation.lon}:null),
+            matrixData:matrix
+          };
+        }
+        function persistCrewHandoff(){
+          const snapshot=buildCrewHandoffSnapshot();
+          if(!snapshot) return null;
+          try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(snapshot)); }catch(e){ return null; }
+          renderCrewHandoffSummary(snapshot);
+          refreshCrewBadge();
+          return snapshot;
+        }
+        function restoreCrewHandoff(snapshot){
+          const saved=snapshot||readJson(CREW_HANDOFF,null);
+          if(!saved || !saved.matrixData) return null;
+          techMatrixData=saved.matrixData;
+          if(typeof userSiteNotes!=='undefined') userSiteNotes=saved.siteNotes||'';
+          if(typeof currentJobLocation!=='undefined') currentJobLocation=saved.location||null;
+          if(byId('jobName')) byId('jobName').value=saved.jobName||'';
+          if(byId('jobAddress')) byId('jobAddress').value=saved.jobAddress||'';
+          if(byId('customerEmail')) byId('customerEmail').value=saved.customerEmail||'';
+          if(byId('customerPhone')) byId('customerPhone').value=saved.customerPhone||'';
+          return saved;
+        }
+        function renderCrewHandoffSummary(snapshot){
+          const saved=snapshot||readJson(CREW_HANDOFF,null);
+          const card=byId('crewActiveCard');
+          if(!saved || !card){ if(card) card.hidden=true; return; }
+          card.hidden=false;
+          const plan=saved.matrixData?.fieldPlan||{};
+          const released=saved.releasedAt ? new Date(saved.releasedAt) : null;
+          const set=(id,value)=>{ const el=byId(id); if(el) el.textContent=value; };
+          set('crewActiveName',saved.jobName||'Released property job');
+          set('crewActiveAddress',saved.jobAddress||'Address not saved');
+          set('crewReleasedAt',released&&!Number.isNaN(released.getTime())?released.toLocaleString():'—');
+          set('crewReleasedCrew',(plan.crewSizeRecommended||1)+' Tech'+(Number(plan.crewSizeRecommended||1)===1?'':'s'));
+          set('crewReleasedWindow',plan.totalEstimatedHours||'—');
+          set('crewReleasedDifficulty',plan.difficulty||'Moderate');
+          set('crewReleasedPhotos',String(saved.photoCount||0));
+          set('crewReleasedServices',String(Array.isArray(saved.matrixData?.services)?saved.matrixData.services.length:0));
+          set('crewReleasedTotal',saved.approvedTotal||'—');
+        }
+        function refreshCrewBadge(){
+          const active=Boolean(readJson(CREW_HANDOFF,null)?.matrixData);
+          const badge=byId('crewActiveBadge');
+          if(badge) badge.hidden=!active;
+        }
+        function clearCrewHandoff(){
+          try{ localStorage.removeItem(CREW_HANDOFF); }catch(e){}
+          const card=byId('crewActiveCard'); if(card) card.hidden=true;
+          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display='';
+          if(byId('resultsSection')) byId('resultsSection').style.display='none';
+          refreshCrewBadge();
+        }
         function syncCrewHandoffState(){
           const button=byId('btnCrewHandoff');
           if(!button) return;
@@ -2321,6 +2433,8 @@
           syncCrewHandoffState();
           const button=byId('btnCrewHandoff');
           if(!button || button.disabled) return;
+          const snapshot=persistCrewHandoff();
+          if(!snapshot) return;
           selectCrew();
         }
         function openSettings(){
@@ -2453,7 +2567,7 @@
           observer.observe(document.body,{childList:true,subtree:true});
           setTimeout(()=>observer.disconnect(),10000);
         }
-        function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); dockDemoControl(); }
+        function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); refreshCrewBadge(); dockDemoControl(); }
         function bindActions(){
           document.querySelectorAll('[data-dashboard-action]').forEach(btn=>btn.addEventListener('click',()=>{
             const menu=byId('dashboardMenuPanel');
@@ -2471,6 +2585,7 @@
           byId('crewBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('reportsBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
+          byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
           byId('fullMatrixToggle')?.addEventListener('click',()=>{
             const grid=byId('evidenceGrid');
@@ -2500,7 +2615,8 @@
             photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),
             hasMatrix:Boolean(typeof techMatrixData!=='undefined' && techMatrixData),
             reportVisible:Boolean(byId('outputCard') && byId('outputCard').style.display!=='none'),
-            crewHandoffReady:Boolean(byId('btnCrewHandoff') && !byId('btnCrewHandoff').disabled)
+            crewHandoffReady:Boolean(byId('btnCrewHandoff') && !byId('btnCrewHandoff').disabled),
+            crewReleased:Boolean(readJson(CREW_HANDOFF,null)?.matrixData)
           };
         }
         window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState};
