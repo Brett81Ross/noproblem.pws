@@ -19,6 +19,7 @@ function baseSnapshot() {
       { evidenceId: 'ev_1', kind: 'photo', source: 'operator_upload', capturedAt: '2026-10-12T12:00:00.000Z' }
     ],
     matrixData: {
+      __schismEstimate: { estimateId: 'estimate_test_1', revision: 2, createdAt: '2026-10-12T12:00:00.000Z', updatedAt: '2026-10-12T12:30:00.000Z', jobKey: 'test property|123 test st' },
       requiresHumanReview: false,
       evidenceReview: { readyForEstimate: true, missingEvidence: [], uncertainEvidence: [] },
       services: [
@@ -98,6 +99,14 @@ function baseSnapshot() {
   snapshot.selectedScopeItemIds = ['scope_house'];
   snapshot.integrityFingerprint = release.computeReleaseFingerprint(snapshot);
   assert.equal(release.validateRelease(snapshot).code, 'selected_scope_mismatch', 'released matrix must exactly match approved scope IDs');
+}
+
+
+{
+  const snapshot = baseSnapshot();
+  snapshot.matrixData.__schismEstimate.revision = 3;
+  snapshot.integrityFingerprint = release.computeReleaseFingerprint(snapshot);
+  assert.equal(release.validateRelease(snapshot).code, 'matrix_revision_mismatch', 'matrix revision must match released revision');
 }
 
 console.log('Schism release contract QA passed');
