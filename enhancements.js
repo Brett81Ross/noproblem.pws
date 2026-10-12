@@ -210,6 +210,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
       button.addEventListener('click', function () {
         applyLevel(button.getAttribute('data-building-level'));
+        document.dispatchEvent(new CustomEvent('schism:estimate-mutated', { detail: { reason: 'Building-height scope changed after release.' } }));
       });
     });
   }
@@ -258,9 +259,7 @@
           response.clone().json().then(function (payload) {
             if (requestGeneration !== analysisGeneration) return;
             var matrix = payload && payload.rawMatrixData;
-            window.__schismDecisionSupport = matrix && matrix.decisionSupport && typeof matrix.decisionSupport === 'object'
-              ? matrix.decisionSupport
-              : null;
+            window.__schismDecisionSupport = matrix && matrix.decisionSupport && typeof matrix.decisionSupport === 'object' ? matrix.decisionSupport : null;
             document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
             if (!matrix || typeof matrix !== 'object') {
               window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
@@ -510,6 +509,21 @@
   }
 
   function downloadQuotePdf() {
+    // The button can be inserted by MutationObserver after the dashboard
+    // installed its listeners. Enforce authorization in the action itself.
+    var crewPanel = document.getElementById('crewCommandPanel');
+    var isFieldPlan = Boolean(
+      document.body.classList.contains('tech-mode') ||
+      (crewPanel && crewPanel.classList.contains('is-visible'))
+    );
+    if (isFieldPlan) {
+      var authorization = window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function'
+        ? window.SchismDashboard.getFieldReadyRelease() : null;
+      if (!authorization || authorization.ok !== true) {
+        showNotice('Field-plan PDF blocked: re-release is required.');
+        return;
+      }
+    }
     if (blockQuoteRelease('Download customer PDF')) return;
     if (!document.querySelector('.quote-total')) {
       showNotice('Finish a quote before downloading the customer PDF.');

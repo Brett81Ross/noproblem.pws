@@ -189,14 +189,20 @@
     }
   }
 
+  function notifyEstimateMutation(reason) {
+    document.dispatchEvent(new CustomEvent('schism:estimate-mutated', { detail: { reason: reason } }));
+  }
+
   function handleQuoteChange(event) {
     if (!window.NPMatrixQuote) return;
     if (event.target.id === 'npQuoteDiscount') {
       window.NPMatrixQuote.setDiscount(event.target.value);
+      notifyEstimateMutation('Discount changed after release.');
       return;
     }
     if (event.target.id === 'npQuoteNotes') {
       window.NPMatrixQuote.setNotes(event.target.value);
+      notifyEstimateMutation('Customer quote notes changed after release.');
       return;
     }
     var id = event.target.getAttribute('data-quote-service');
@@ -205,6 +211,7 @@
     var patch = {};
     patch[field] = event.target.value;
     window.NPMatrixQuote.updateService(id, patch);
+    notifyEstimateMutation('Scope item details changed after release.');
   }
 
   function handleQuoteInput(event) {

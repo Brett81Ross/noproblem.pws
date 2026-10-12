@@ -50,7 +50,7 @@
       justify-content: flex-start;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: max(24px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+      padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
       isolation: isolate;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
@@ -194,7 +194,7 @@
 
     .skip {
       position: absolute;
-      bottom: max(15px, env(safe-area-inset-bottom));
+      bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));
       font-size: 10px;
       letter-spacing: .14em;
       text-transform: uppercase;

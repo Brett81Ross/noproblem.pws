@@ -108,4 +108,57 @@ const nativeInstall = read('native-install.js');
 assert(nativeInstall.includes('/SchismMatrix.apk'), 'Android install link is not pointed at the SchismMatrix APK');
 assert(!nativeInstall.includes('/No-Problem-Pressure-Washing-Matrix.apk'), 'legacy No Problem APK install link is still active');
 
+
+assert(splash.includes('padding: max(34px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));'), 'splash lockup is not lowered into the Fold composition');
+assert(splash.includes('bottom: max(84px, calc(env(safe-area-inset-bottom) + 48px));'), 'Tap to Enter is still pinned too low on the Fold viewport');
+
+
+const vercelConfig = JSON.parse(read('vercel.json'));
+assert(vercelConfig.routes.some(route => route.src === '/' && route.dest === '/schism-splash-v3.html'), 'root route is not pinned to the cache-busted Schism splash');
+assert(vercelConfig.routes.some(route => route.src === '/splash.html' && route.dest === '/schism-splash-v3.html'), 'legacy splash.html route does not forward to the cache-busted Schism splash');
+assert(Array.isArray(vercelConfig.headers) && vercelConfig.headers.some(rule => rule.source === '/schism-splash-v3.html' && rule.headers.some(h => h.key === 'Cache-Control' && /no-store/.test(h.value))), 'cache-busted Schism splash is not protected with no-store');
+assert(Array.isArray(vercelConfig.headers) && vercelConfig.headers.some(rule => rule.source === '/manifest.webmanifest' && rule.headers.some(h => h.key === 'Cache-Control' && /no-store/.test(h.value))), 'manifest is not protected with no-store');
+assert(fs.existsSync(path.join(process.cwd(), 'schism-splash-v3.html')), 'cache-busted Schism splash file is missing');
+assert(JSON.parse(read('manifest.webmanifest')).start_url === '/schism-splash-v3.html', 'manifest start_url still points at the legacy splash path');
+
+
+const splashV3 = read('schism-splash-v3.html');
+assert(splashV3.includes('width: clamp(72px, 14vw, 100px);'), 'CactusByte splash mark is not using fullscreen scale');
+assert(splashV3.includes('font-size: clamp(28px, 5.8vw, 42px);'), 'CactusByte splash wordmark is not using fullscreen scale');
+assert(splashV3.includes('width: clamp(230px, 50vw, 340px);'), 'Schism splash symbol is not using fullscreen scale');
+assert(splashV3.includes('font-size: clamp(22px, 5vw, 30px);'), 'SchismMatrix splash title is not using fullscreen scale');
+assert(splashV3.includes('width: min(360px, 78vw);'), 'splash loader is not using fullscreen scale');
+assert(splashV3.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport breakpoint still shrinks Schism too aggressively');
+
+
+const fullSplash = read('schism-splash-v3.html');
+assert(fullSplash.includes('justify-content: center;'), 'splash stack is not vertically centered on full-height viewports');
+assert(fullSplash.includes('width: clamp(230px, 50vw, 340px);'), 'Schism symbol is not scaled for a full-screen composition');
+assert(fullSplash.includes('width: min(360px, 78vw);'), 'splash loader is not scaled for the larger composition');
+assert(fullSplash.includes('position: static;'), 'Tap to Enter is still detached from the splash stack');
+assert(fullSplash.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport splash is still too small');
+assert(fullSplash.includes('width: clamp(180px, 45vh, 240px);'), 'Fold landscape splash is still too small');
+
+
+assert(index.includes("const CREW_HANDOFF='schismmatrix-crew-handoff-v1';"), 'Crew Command release store is missing');
+assert(index.includes('id="crewActiveCard"'), 'Crew Command active release card is missing');
+assert(index.includes('id="crewActiveBadge"'), 'Crew Command dashboard release badge is missing');
+assert(index.includes('function persistCrewHandoff()'), 'Crew Command does not persist approved handoffs');
+assert(index.includes('function restoreCrewHandoff('), 'Crew Command does not restore released jobs after refresh');
+assert(index.includes('function clearCrewHandoff()'), 'Crew Command release cannot be cleared');
+assert(index.includes('localStorage.setItem(CREW_HANDOFF'), 'Crew Command handoff is not written to local storage');
+assert(index.includes('localStorage.removeItem(CREW_HANDOFF)'), 'Crew Command handoff clear path is missing');
+assert(index.includes('const stored=readCrewHandoffRecord();'), 'Crew Command does not read release state through the guarded release reader');
+assert(index.includes('function validateCrewRelease('), 'Crew Command restore validation gate is missing');
+assert(index.includes('function currentReleaseAuthorization('), 'Crew Command central release authorization gate is missing');
+assert(index.includes('function prepareMatrixForEstimate('), 'Estimate identity preparation is missing');
+assert(index.includes('scopeItemId: item.scopeItemId'), 'Quote scope registry is not bound to immutable scope IDs');
+assert(index.includes("schemaVersion:contract.SCHEMA_VERSION"), 'Crew release schema version is missing');
+assert(index.includes("deviceAuthority:'local'"), 'Crew release does not identify its device-local authority boundary');
+assert(index.includes('estimateRevisionId:meta.estimateId+\':r\'+meta.revision'), 'Crew release is not bound to an estimate revision');
+assert(index.includes('integrityFingerprint=contract.computeReleaseFingerprint(snapshot)'), 'Crew release integrity fingerprint is missing');
+assert(index.includes('function markEstimateMutated('), 'Released estimates are not superseded after mutation');
+assert(index.includes("status.textContent=state.ok?'Device Release · Field Ready':'Re-release Required'"), 'Crew Command does not distinguish valid and superseded releases');
+assert(index.includes('/schism-release-contract.js'), 'Crew release contract script is not loaded');
+
 console.log('Schism early-August restoration QA passed');
