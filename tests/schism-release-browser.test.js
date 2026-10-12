@@ -214,6 +214,39 @@ function blocked(tab){
   tab.ctx.techMatrixData.evidenceReview.readyForEstimate=false;
   assert.equal(tab.ctx.SchismDashboard.workflowState().crewReleased,false,'dashboard API must block current evidence regression');
 }
+{
+  // Exercise the actual PDF action body, not just whether its click listener exists.
+  // A MutationObserver may add the button after the dashboard binds its listeners.
+  const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');
+  const start=enhancementSource.indexOf('  function downloadQuotePdf() {');
+  const end=enhancementSource.indexOf('  function ensurePdfButton() {',start);
+  assert(start>=0&&end>start,'PDF action must exist');
+  const pdfAction=enhancementSource.slice(start,end);
+  function invokePdf(fieldMode,validRelease){
+    const result={downloads:0,notices:[]};
+    const button={click:()=>{result.downloads++;}};
+    const document={
+      body:{classList:{contains:key=>key==='tech-mode'&&fieldMode},appendChild(){},removeChild(){}},
+      getElementById:id=>id==='crewCommandPanel'?{classList:{contains:key=>key==='is-visible'&&fieldMode}}:null,
+      querySelector:()=>({}),
+      createElement:()=>button
+    };
+    const window={SchismDashboard:{getFieldReadyRelease:()=>({ok:validRelease})}};
+    const env={document,window,
+      showNotice:text=>result.notices.push(text),
+      blockQuoteRelease:()=>false,
+      createPdfBlob:()=>({}),quotePdfLines:()=>[],pdfFileName:()=>('approved-quote.pdf'),
+      URL:{createObjectURL:()=>('blob:fixture'),revokeObjectURL(){}},
+      setTimeout(){}};
+    vm.runInNewContext(pdfAction+'\ndownloadQuotePdf();',env);
+    return result;
+  }
+  const blocked=invokePdf(true,false);
+  assert.equal(blocked.downloads,0,'invalid release must block directly invoked PDF action');
+  assert.match(blocked.notices.join(' '),/blocked/i);
+  assert.equal(invokePdf(true,true).downloads,1,'valid device release may export');
+  assert.equal(invokePdf(false,false).downloads,1,'normal customer quote PDF must remain available');
+}
 assert(!html.includes('<span>v1.1.0 · Field Ready</span>'),'dashboard must not claim release approval');
 assert(html.includes("function blockUnreviewedExternalAction(actionName)"),'export guard must exist');
 assert(html.includes("getFieldReadyRelease?.()"),'field exports must require central authorization');

@@ -507,6 +507,21 @@
   }
 
   function downloadQuotePdf() {
+    // The button can be inserted by MutationObserver after the dashboard
+    // installed its listeners. Enforce authorization in the action itself.
+    var crewPanel = document.getElementById('crewCommandPanel');
+    var isFieldPlan = Boolean(
+      document.body.classList.contains('tech-mode') ||
+      (crewPanel && crewPanel.classList.contains('is-visible'))
+    );
+    if (isFieldPlan) {
+      var authorization = window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function'
+        ? window.SchismDashboard.getFieldReadyRelease() : null;
+      if (!authorization || authorization.ok !== true) {
+        showNotice('Field-plan PDF blocked: re-release is required.');
+        return;
+      }
+    }
     if (blockQuoteRelease('Download customer PDF')) return;
     if (!document.querySelector('.quote-total')) {
       showNotice('Finish a quote before downloading the customer PDF.');
