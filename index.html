@@ -984,7 +984,7 @@
       .handoff-button[disabled]{opacity:.42;cursor:not-allowed;filter:grayscale(.35)}
 .crew-empty strong{display:block;color:#effcff;font-size:18px}.crew-empty span{display:block;max-width:520px;margin:8px auto 14px;color:#819da7;font-size:11px;line-height:1.5}.crew-empty button{min-height:44px;padding:0 15px;border:1px solid rgba(82,231,242,.34);border-radius:11px;color:#061017;background:linear-gradient(135deg,#a8fbff,#53dbe8);font-size:9px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
       .crew-active-card{padding:18px;border:1px solid rgba(117,245,163,.28);border-radius:18px;background:linear-gradient(145deg,rgba(8,31,27,.94),rgba(4,13,22,.97));box-shadow:0 18px 44px rgba(0,0,0,.22)}
-      .crew-active-card[hidden]{display:none}.crew-active-kicker{color:#75f5a3;font-size:8px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}.crew-active-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 14px}.crew-active-head strong{display:block;color:#f0fff6;font-size:19px;line-height:1.15}.crew-active-head span{display:block;margin-top:5px;color:#84a39d;font-size:10px;line-height:1.4}.crew-release-status{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(117,245,163,.26);border-radius:999px;color:#8ff9ad;background:rgba(117,245,163,.07);font-size:8px;font-weight:950;letter-spacing:.1em;text-transform:uppercase}.crew-release-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.crew-release-metric{padding:10px;border:1px solid rgba(82,231,242,.12);border-radius:11px;background:rgba(2,13,19,.52)}.crew-release-metric span{display:block;color:#6f8d95;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.crew-release-metric strong{display:block;margin-top:4px;color:#dffbff;font-size:12px}.crew-release-actions{display:flex;justify-content:flex-end;margin-top:12px}.crew-release-actions button{min-height:38px;padding:0 12px;border:1px solid rgba(248,113,113,.22);border-radius:10px;color:#fecaca;background:rgba(127,29,29,.12);font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .crew-active-card[hidden]{display:none}.crew-active-kicker{color:#75f5a3;font-size:8px;font-weight:950;letter-spacing:.18em;text-transform:uppercase}.crew-active-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:8px 0 14px}.crew-active-head strong{display:block;color:#f0fff6;font-size:19px;line-height:1.15}.crew-active-head span{display:block;margin-top:5px;color:#84a39d;font-size:10px;line-height:1.4}.crew-release-status{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(117,245,163,.26);border-radius:999px;color:#8ff9ad;background:rgba(117,245,163,.07);font-size:8px;font-weight:950;letter-spacing:.1em;text-transform:uppercase}.crew-release-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.crew-release-metric{padding:10px;border:1px solid rgba(82,231,242,.12);border-radius:11px;background:rgba(2,13,19,.52)}.crew-release-metric span{display:block;color:#6f8d95;font-size:7px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.crew-release-metric strong{display:block;margin-top:4px;color:#dffbff;font-size:12px}.crew-release-actions{display:flex;justify-content:flex-end;margin-top:12px}.crew-release-actions button{min-height:38px;padding:0 12px;border:1px solid rgba(248,113,113,.22);border-radius:10px;color:#fecaca;background:rgba(127,29,29,.12);font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.crew-active-card.is-blocked{border-color:rgba(248,113,113,.34);background:linear-gradient(145deg,rgba(44,17,22,.94),rgba(4,13,22,.97))}.crew-release-status.is-blocked{border-color:rgba(248,113,113,.3);color:#fecaca;background:rgba(127,29,29,.16)}.crew-release-warning{margin:0 0 12px;padding:10px 11px;border:1px solid rgba(248,113,113,.26);border-radius:11px;color:#fecaca;background:rgba(127,29,29,.12);font-size:10px;line-height:1.45}
       @media(max-width:560px){.crew-release-grid{grid-template-columns:1fr 1fr}.crew-active-head{flex-direction:column}.crew-release-status{align-self:flex-start}}
       #cb60DemoButton.dashboard-demo-docked,.cb60-btn.dashboard-demo-docked{position:static!important;right:auto!important;bottom:auto!important;z-index:auto!important;min-width:auto!important;height:34px!important;padding:0 10px!important;margin-left:auto!important;border-radius:10px!important;font-size:9px!important;box-shadow:none!important}
       @media(max-width:760px){.dashboard-status{flex-wrap:wrap}.dashboard-status #cb60DemoButton.dashboard-demo-docked,.dashboard-status .cb60-btn.dashboard-demo-docked{width:100%;margin:4px 0 0!important}.dashboard-nav{gap:8px}.dashboard-tile{min-height:88px;padding:12px 8px}.dashboard-tile-icon{font-size:25px}.dashboard-hero{padding:18px}.dashboard-section{padding:15px}.recent-card{min-height:74px}}
@@ -1250,16 +1250,17 @@
 
             <section class="crew-command-panel" id="crewCommandPanel">
                 <div class="crew-empty" id="crewCommandEmpty">
-                    <strong>No released crew job yet.</strong>
-                    <span>Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.</span>
+                    <strong id="crewEmptyTitle">No released crew job yet.</strong>
+                    <span id="crewEmptyCopy">Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.</span>
                     <button type="button" id="crewBuildQuoteButton">Build / Open Quote</button>
                 </div>
                 <div class="crew-active-card" id="crewActiveCard" hidden>
                     <div class="crew-active-kicker">Crew Command Release</div>
                     <div class="crew-active-head">
                         <div><strong id="crewActiveName">Released job</strong><span id="crewActiveAddress">Address not saved</span></div>
-                        <div class="crew-release-status">Field Ready</div>
+                        <div class="crew-release-status" id="crewReleaseStatus">Device Release · Field Ready</div>
                     </div>
+                    <div class="crew-release-warning" id="crewReleaseWarning" hidden></div>
                     <div class="crew-release-grid">
                         <div class="crew-release-metric"><span>Released</span><strong id="crewReleasedAt">—</strong></div>
                         <div class="crew-release-metric"><span>Crew</span><strong id="crewReleasedCrew">—</strong></div>
@@ -1562,6 +1563,9 @@
             }
             gpsDisplay.innerHTML = displayString;
             gpsBtn.innerText = t.gpsUpdate;
+            if (techMatrixData && window.SchismDashboard?.markEstimateMutated) {
+                window.SchismDashboard.markEstimateMutated('Site notes or property context changed after release.');
+            }
 
             closeSatelliteModal();
         }
@@ -1674,6 +1678,9 @@
                     trigger.setAttribute('style', 'display: block !important;');
                 }
                 
+                if (techMatrixData && window.SchismDashboard?.markEstimateMutated) {
+                    window.SchismDashboard.markEstimateMutated('Property evidence changed after release.');
+                }
                 if (laser) laser.style.display = 'none';
             } catch (error) {
                 alert("Image processing failed: " + error.message);
@@ -1686,6 +1693,9 @@
             stagedBase64Images.splice(index, 1);
             stagedEvidenceMeta.splice(index, 1);
             renderPreviewGrid();
+            if (techMatrixData && window.SchismDashboard?.markEstimateMutated) {
+                window.SchismDashboard.markEstimateMutated('Property evidence changed after release.');
+            }
         }
 
         function renderPreviewGrid() {
@@ -1765,6 +1775,9 @@
             }
             
             recalculateGrandTotal();
+            if (window.SchismDashboard?.markEstimateMutated) {
+                window.SchismDashboard.markEstimateMutated('Approved scope selection changed after release.');
+            }
         }
 
         function animatePriceRollup(targetAmount) {
@@ -1817,7 +1830,7 @@
                     const desc = currentLang === 'es' && item.spanishReason ? item.spanishReason : (item.reason || 'Surface treatment required.');
                     const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${desc}`;
                     
-                    priceItemsRegistry.push({ id: globalCardIndex, cleanText: textContent, value: itemTotal, disabled: false });
+                    priceItemsRegistry.push({ id: globalCardIndex, scopeItemId: item.scopeItemId || '', serviceId: item.serviceId || '', cleanText: textContent, value: itemTotal, disabled: false });
 
                     htmlOutput += `
                         <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
@@ -2141,7 +2154,11 @@
                     throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
                 
+                const previousMatrixForRevision = techMatrixData;
                 techMatrixData = data.rawMatrixData;
+                if (window.SchismDashboard && typeof window.SchismDashboard.prepareMatrixForEstimate === 'function') {
+                    techMatrixData = window.SchismDashboard.prepareMatrixForEstimate(techMatrixData, previousMatrixForRevision);
+                }
 
                 const evidenceReview = techMatrixData?.evidenceReview;
                 if (techMatrixData?.requiresHumanReview || evidenceReview?.readyForEstimate !== true) {
@@ -2250,6 +2267,7 @@
     <script src="/quote-review.js" defer></script>
     <script src="/demo-config.js"></script>
     <script src="/schism-walkaround.js"></script>
+    <script src="/schism-release-contract.js"></script>
 
     <script id="schismAugustDashboardController">
       (function(){
@@ -2298,15 +2316,29 @@
           ['missionCard','scopeCard','evidenceCard'].forEach(id=>{ const el=byId(id); if(el) el.style.display='none'; });
           const crew=byId('crewCommandPanel');
           if(crew) crew.classList.add('is-visible');
-          const snapshot=readJson(CREW_HANDOFF,null);
-          const hasRelease=Boolean(snapshot && snapshot.matrixData);
+
+          const stored=readCrewHandoffRecord();
+          const snapshot=stored.snapshot;
+          const validation=stored.error
+            ? {ok:false,code:'storage_corrupt',reason:stored.error}
+            : validateCrewRelease(snapshot);
+          const hasStored=Boolean(snapshot)||Boolean(stored.error);
+          const hasRelease=validation.ok===true;
+
           if(hasRelease) restoreCrewHandoff(snapshot);
           if(typeof setAppMode==='function') setAppMode('tech');
-          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=hasRelease?'none':'';
-          if(byId('crewActiveCard')) byId('crewActiveCard').hidden=!hasRelease;
+          if(hasRelease && snapshot?.matrixData) renderTechModeView(snapshot.matrixData);
+
+          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=hasStored?'none':'';
+          if(byId('crewActiveCard')) byId('crewActiveCard').hidden=!snapshot;
           if(byId('resultsSection')) byId('resultsSection').style.display=hasRelease?'':'none';
-          if(hasRelease) renderCrewHandoffSummary(snapshot);
-          requestAnimationFrame(()=>(hasRelease?byId('crewActiveCard'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
+
+          if(snapshot) renderCrewHandoffSummary(snapshot,validation);
+          else if(stored.error) setCrewEmptyState('Release needs attention',stored.error+' Re-release this job before field execution.');
+          else setCrewEmptyState('No released crew job yet.','Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.');
+
+          if(stored.error && byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display='';
+          requestAnimationFrame(()=>(snapshot?byId('crewActiveCard'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectPhotos(){
           showWorkspace('Job Photos · Guided Evidence');
@@ -2337,66 +2369,206 @@
             if(btn) btn.click();
           },50);
         }
-        function releasedMatrixData(){
-          if(typeof techMatrixData==='undefined' || !techMatrixData) return null;
-          let matrix;
-          try{ matrix=JSON.parse(JSON.stringify(techMatrixData)); }catch(e){ return null; }
-          if(Array.isArray(matrix.services) && Array.isArray(priceItemsRegistry) && priceItemsRegistry.length){
-            matrix.services=matrix.services.filter((item,index)=>!priceItemsRegistry[index]?.disabled);
-            const minutes=matrix.services.reduce((sum,item)=>sum+Number(item?.estimatedTimeMinutes||0),0);
-            if(matrix.fieldPlan && minutes>0){
-              const hours=Math.max(.5,Math.round((minutes/60)*10)/10);
-              matrix.fieldPlan.totalEstimatedHours=String(hours).replace(/\.0$/,'')+' Hours';
-            }
+        function releaseContract(){
+          return window.SchismReleaseContract || null;
+        }
+        function makeLocalId(prefix){
+          const safePrefix=String(prefix||'id').replace(/[^a-z0-9_-]/gi,'').toLowerCase()||'id';
+          if(window.crypto && typeof window.crypto.randomUUID==='function') return safePrefix+'_'+window.crypto.randomUUID();
+          const seed=safePrefix+'|'+Date.now()+'|'+Math.random()+'|'+(window.performance?.now?.()||0);
+          const hash=releaseContract()?.hashText(seed)||Math.floor(Math.random()*0xffffffff).toString(16);
+          return safePrefix+'_'+Date.now().toString(36)+'_'+hash;
+        }
+        function currentJobKey(){
+          const name=byId('jobName')?.value?.trim().toLowerCase()||'';
+          const address=byId('jobAddress')?.value?.trim().toLowerCase()||'';
+          return name+'|'+address;
+        }
+        function prepareMatrixForEstimate(matrix,previousMatrix){
+          if(!matrix || typeof matrix!=='object') return matrix;
+          const now=new Date().toISOString();
+          const previousMeta=previousMatrix && previousMatrix.__schismEstimate && typeof previousMatrix.__schismEstimate==='object'
+            ? previousMatrix.__schismEstimate
+            : null;
+          const jobKey=currentJobKey();
+          const canContinue=Boolean(previousMeta && previousMeta.estimateId && previousMeta.jobKey===jobKey);
+
+          if(!matrix.__schismEstimate || typeof matrix.__schismEstimate!=='object' || !matrix.__schismEstimate.estimateId){
+            matrix.__schismEstimate={
+              estimateId:canContinue?previousMeta.estimateId:makeLocalId('estimate'),
+              revision:canContinue&&Number.isInteger(previousMeta.revision)?previousMeta.revision:1,
+              createdAt:canContinue?(previousMeta.createdAt||now):now,
+              updatedAt:now,
+              jobKey:jobKey
+            };
+          }else{
+            if(!Number.isInteger(matrix.__schismEstimate.revision)||matrix.__schismEstimate.revision<1) matrix.__schismEstimate.revision=1;
+            matrix.__schismEstimate.jobKey=matrix.__schismEstimate.jobKey||jobKey;
+            matrix.__schismEstimate.updatedAt=matrix.__schismEstimate.updatedAt||now;
+          }
+
+          const priorQueues=Object.create(null);
+          if(previousMatrix && Array.isArray(previousMatrix.services)){
+            previousMatrix.services.forEach(item=>{
+              if(!item?.serviceId || !item?.scopeItemId) return;
+              if(!priorQueues[item.serviceId]) priorQueues[item.serviceId]=[];
+              priorQueues[item.serviceId].push(item.scopeItemId);
+            });
+          }
+          if(Array.isArray(matrix.services)){
+            matrix.services.forEach(item=>{
+              if(!item || typeof item!=='object') return;
+              if(!item.scopeItemId){
+                const queue=item.serviceId?priorQueues[item.serviceId]:null;
+                item.scopeItemId=queue&&queue.length?queue.shift():makeLocalId('scope');
+              }
+            });
           }
           return matrix;
         }
+        function estimateRevisionId(matrix){
+          const prepared=prepareMatrixForEstimate(matrix);
+          const meta=prepared?.__schismEstimate;
+          return meta?.estimateId&&Number.isInteger(meta.revision)?meta.estimateId+':r'+meta.revision:'';
+        }
+        function readCrewHandoffRecord(){
+          try{
+            const raw=localStorage.getItem(CREW_HANDOFF);
+            if(!raw) return {snapshot:null,error:null};
+            return {snapshot:JSON.parse(raw),error:null};
+          }catch(e){
+            return {snapshot:null,error:'The stored device release is corrupted or unreadable.'};
+          }
+        }
+        function validateCrewRelease(snapshot){
+          const contract=releaseContract();
+          if(!contract) return {ok:false,code:'contract_missing',reason:'Release validation is unavailable.'};
+          return contract.validateRelease(snapshot);
+        }
+        function currentReleaseAuthorization(){
+          const contract=releaseContract();
+          if(!contract) return {ok:false,reason:'Release validation is unavailable.'};
+          if(typeof techMatrixData==='undefined'||!techMatrixData) return {ok:false,reason:'No analyzed estimate is loaded.'};
+          prepareMatrixForEstimate(techMatrixData);
+          if(techMatrixData.requiresHumanReview===true) return {ok:false,reason:techMatrixData.humanReviewReason||'Human review is still required.'};
+          if(techMatrixData.evidenceReview?.readyForEstimate!==true) return {ok:false,reason:'Evidence review is not explicitly ready for release.'};
+          if(Boolean(window.__schismReleaseState&&window.__schismReleaseState.locked)) return {ok:false,reason:window.__schismReleaseState.reason||'Release controls are locked pending review.'};
+          if(!Array.isArray(techMatrixData.services)||!techMatrixData.services.length) return {ok:false,reason:'No executable scope is loaded.'};
+          if(techMatrixData.services.some(item=>contract.EXCLUDED_SERVICE_IDS[item?.serviceId])) return {ok:false,reason:'The estimate contains work outside the launch operating boundary.'};
+          if(techMatrixData.services.some(item=>!item?.serviceId||!item?.scopeItemId)) return {ok:false,reason:'The estimate scope is missing stable service identity.'};
+          const selected=priceItemsRegistry.filter(item=>!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
+          if(!selected.length) return {ok:false,reason:'Select at least one approved scope item before release.'};
+          return {ok:true,reason:'',selectedScopeItemIds:selected};
+        }
+        function releasedMatrixData(selectedScopeItemIds){
+          if(typeof techMatrixData==='undefined'||!techMatrixData) return null;
+          const contract=releaseContract();
+          if(!contract) return null;
+          let matrix;
+          try{ matrix=JSON.parse(JSON.stringify(prepareMatrixForEstimate(techMatrixData))); }catch(e){ return null; }
+          matrix.services=contract.selectedServicesByScopeIds(matrix.services,selectedScopeItemIds);
+          const minutes=matrix.services.reduce((sum,item)=>sum+Number(item?.estimatedTimeMinutes||0),0);
+          const water=matrix.services.reduce((sum,item)=>sum+Number(item?.waterUsageGallons||0),0);
+          matrix.fieldPlan=matrix.fieldPlan&&typeof matrix.fieldPlan==='object'?matrix.fieldPlan:{};
+          if(minutes>0){
+            const hours=Math.max(.5,Math.round((minutes/60)*10)/10);
+            matrix.fieldPlan.totalEstimatedMinutes=Math.round(minutes);
+            matrix.fieldPlan.totalEstimatedHours=String(hours).replace(/\.0$/,'')+' Hours';
+          }
+          matrix.fieldPlan.totalWaterUsageGallons=Math.round(water);
+          return matrix;
+        }
+        function evidenceReleaseSnapshot(){
+          const count=typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0;
+          const evidence=[];
+          for(let index=0;index<count;index++){
+            const item=typeof stagedEvidenceMeta!=='undefined'&&stagedEvidenceMeta[index]?stagedEvidenceMeta[index]:{};
+            if(!item.evidenceId) item.evidenceId=makeLocalId('evidence');
+            evidence.push({
+              evidenceId:item.evidenceId,
+              kind:item.kind||'photo',
+              source:item.source||'operator_upload',
+              capturedAt:item.capturedAt||null,
+              provenance:item.provenance||'operator_selected_media',
+              operatorConfirmationState:item.operatorConfirmationState||'operator_selected'
+            });
+          }
+          return evidence;
+        }
         function buildCrewHandoffSnapshot(){
-          const matrix=releasedMatrixData();
-          if(!matrix || matrix.requiresHumanReview) return null;
-          const locked=Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
-          if(locked) return null;
-          return {
-            version:1,
+          const authorization=currentReleaseAuthorization();
+          if(!authorization.ok) return null;
+          const contract=releaseContract();
+          const matrix=releasedMatrixData(authorization.selectedScopeItemIds);
+          if(!matrix) return null;
+          const meta=matrix.__schismEstimate;
+          const snapshot={
+            schemaVersion:contract.SCHEMA_VERSION,
+            releaseId:makeLocalId('release'),
+            status:'released',
+            deviceAuthority:'local',
             releasedAt:new Date().toISOString(),
+            estimateId:meta.estimateId,
+            estimateRevision:meta.revision,
+            estimateRevisionId:meta.estimateId+':r'+meta.revision,
             jobName:byId('jobName')?.value?.trim()||'Released property job',
             jobAddress:byId('jobAddress')?.value?.trim()||'Address not saved',
             customerEmail:byId('customerEmail')?.value?.trim()||'',
             customerPhone:byId('customerPhone')?.value?.trim()||'',
             approvedTotal:byId('grandTotalDisplay')?.textContent?.trim()||'',
             photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),
+            selectedScopeItemIds:authorization.selectedScopeItemIds.slice(),
+            evidence:evidenceReleaseSnapshot(),
             siteNotes:(typeof userSiteNotes!=='undefined'?userSiteNotes:''),
             location:(typeof currentJobLocation!=='undefined'&&currentJobLocation?{lat:currentJobLocation.lat,lon:currentJobLocation.lon}:null),
             matrixData:matrix
           };
+          snapshot.integrityFingerprint=contract.computeReleaseFingerprint(snapshot);
+          return validateCrewRelease(snapshot).ok?snapshot:null;
         }
         function persistCrewHandoff(){
           const snapshot=buildCrewHandoffSnapshot();
           if(!snapshot) return null;
           try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(snapshot)); }catch(e){ return null; }
-          renderCrewHandoffSummary(snapshot);
+          renderCrewHandoffSummary(snapshot,{ok:true,code:'ok',reason:''});
           refreshCrewBadge();
           return snapshot;
         }
         function restoreCrewHandoff(snapshot){
-          const saved=snapshot||readJson(CREW_HANDOFF,null);
-          if(!saved || !saved.matrixData) return null;
-          techMatrixData=saved.matrixData;
-          if(typeof userSiteNotes!=='undefined') userSiteNotes=saved.siteNotes||'';
-          if(typeof currentJobLocation!=='undefined') currentJobLocation=saved.location||null;
-          if(byId('jobName')) byId('jobName').value=saved.jobName||'';
-          if(byId('jobAddress')) byId('jobAddress').value=saved.jobAddress||'';
-          if(byId('customerEmail')) byId('customerEmail').value=saved.customerEmail||'';
-          if(byId('customerPhone')) byId('customerPhone').value=saved.customerPhone||'';
-          return saved;
+          const validation=validateCrewRelease(snapshot);
+          if(!validation.ok) return null;
+          techMatrixData=snapshot.matrixData;
+          if(typeof userSiteNotes!=='undefined') userSiteNotes=snapshot.siteNotes||'';
+          if(typeof currentJobLocation!=='undefined') currentJobLocation=snapshot.location||null;
+          if(byId('jobName')) byId('jobName').value=snapshot.jobName||'';
+          if(byId('jobAddress')) byId('jobAddress').value=snapshot.jobAddress||'';
+          if(byId('customerEmail')) byId('customerEmail').value=snapshot.customerEmail||'';
+          if(byId('customerPhone')) byId('customerPhone').value=snapshot.customerPhone||'';
+          return snapshot;
         }
-        function renderCrewHandoffSummary(snapshot){
-          const saved=snapshot||readJson(CREW_HANDOFF,null);
+        function setCrewEmptyState(title,copy){
+          if(byId('crewEmptyTitle')) byId('crewEmptyTitle').textContent=title;
+          if(byId('crewEmptyCopy')) byId('crewEmptyCopy').textContent=copy;
+        }
+        function renderCrewHandoffSummary(snapshot,validation){
+          const saved=snapshot;
           const card=byId('crewActiveCard');
-          if(!saved || !card){ if(card) card.hidden=true; return; }
+          if(!saved||!card){ if(card) card.hidden=true; return; }
+          const state=validation||validateCrewRelease(saved);
           card.hidden=false;
+          card.classList.toggle('is-blocked',!state.ok);
+          const status=byId('crewReleaseStatus');
+          if(status){
+            status.classList.toggle('is-blocked',!state.ok);
+            status.textContent=state.ok?'Device Release · Field Ready':'Re-release Required';
+          }
+          const warning=byId('crewReleaseWarning');
+          if(warning){
+            warning.hidden=state.ok;
+            warning.textContent=state.ok?'':state.reason;
+          }
           const plan=saved.matrixData?.fieldPlan||{};
-          const released=saved.releasedAt ? new Date(saved.releasedAt) : null;
+          const released=saved.releasedAt?new Date(saved.releasedAt):null;
           const set=(id,value)=>{ const el=byId(id); if(el) el.textContent=value; };
           set('crewActiveName',saved.jobName||'Released property job');
           set('crewActiveAddress',saved.jobAddress||'Address not saved');
@@ -2409,25 +2581,47 @@
           set('crewReleasedTotal',saved.approvedTotal||'—');
         }
         function refreshCrewBadge(){
-          const active=Boolean(readJson(CREW_HANDOFF,null)?.matrixData);
+          const stored=readCrewHandoffRecord();
           const badge=byId('crewActiveBadge');
-          if(badge) badge.hidden=!active;
+          if(!badge) return;
+          if(!stored.snapshot&&!stored.error){ badge.hidden=true; return; }
+          badge.hidden=false;
+          badge.textContent=stored.error?'!':(validateCrewRelease(stored.snapshot).ok?'1':'!');
         }
         function clearCrewHandoff(){
           try{ localStorage.removeItem(CREW_HANDOFF); }catch(e){}
           const card=byId('crewActiveCard'); if(card) card.hidden=true;
           if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display='';
           if(byId('resultsSection')) byId('resultsSection').style.display='none';
+          setCrewEmptyState('No released crew job yet.','Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.');
           refreshCrewBadge();
+        }
+        function markEstimateMutated(reason){
+          if(typeof techMatrixData==='undefined'||!techMatrixData) return false;
+          prepareMatrixForEstimate(techMatrixData);
+          const meta=techMatrixData.__schismEstimate;
+          meta.revision=Math.max(1,Number(meta.revision)||1)+1;
+          meta.updatedAt=new Date().toISOString();
+          meta.jobKey=currentJobKey();
+
+          const stored=readCrewHandoffRecord();
+          if(stored.snapshot&&stored.snapshot.status==='released'&&stored.snapshot.estimateId===meta.estimateId){
+            const contract=releaseContract();
+            if(contract){
+              const superseded=contract.markSuperseded(stored.snapshot,reason||'The estimate changed after release. Re-release is required.',new Date().toISOString());
+              try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(superseded)); }catch(e){}
+            }
+          }
+          refreshCrewBadge();
+          return true;
         }
         function syncCrewHandoffState(){
           const button=byId('btnCrewHandoff');
           if(!button) return;
-          const hasPlan=typeof techMatrixData!=='undefined' && Boolean(techMatrixData);
-          const locked=Boolean(window.__schismReleaseState && window.__schismReleaseState.locked);
-          const reviewRequired=Boolean(hasPlan && techMatrixData.requiresHumanReview);
-          button.disabled=!hasPlan || locked || reviewRequired;
-          button.textContent=reviewRequired || locked ? 'Crew Handoff Locked — Review Required' : 'Send Approved Job to Crew Command';
+          const authorization=currentReleaseAuthorization();
+          button.disabled=!authorization.ok;
+          button.textContent=authorization.ok?'Send Approved Job to Crew Command':'Crew Handoff Locked — Review Required';
+          button.title=authorization.ok?'':authorization.reason;
         }
         function handoffToCrew(){
           syncCrewHandoffState();
@@ -2466,7 +2660,7 @@
           if(byId('customerEmail')) byId('customerEmail').value=project.customerEmail||'';
           if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
           if(project.matrixData && typeof project.matrixData==='object'){
-            techMatrixData=project.matrixData;
+            techMatrixData=prepareMatrixForEstimate(project.matrixData);
             if(typeof setAppMode==='function') setAppMode('admin');
             selectQuote();
             byId('outputCard').style.display='block';
@@ -2587,6 +2781,8 @@
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
           byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
+          document.addEventListener('schism:estimate-mutated',event=>markEstimateMutated(event?.detail?.reason||'Estimate changed after release.'));
+          ['jobName','jobAddress','customerEmail','customerPhone'].forEach(id=>byId(id)?.addEventListener('change',()=>markEstimateMutated('Job or customer details changed after release.')));
           byId('fullMatrixToggle')?.addEventListener('click',()=>{
             const grid=byId('evidenceGrid');
             if(!grid) return;
@@ -2616,10 +2812,10 @@
             hasMatrix:Boolean(typeof techMatrixData!=='undefined' && techMatrixData),
             reportVisible:Boolean(byId('outputCard') && byId('outputCard').style.display!=='none'),
             crewHandoffReady:Boolean(byId('btnCrewHandoff') && !byId('btnCrewHandoff').disabled),
-            crewReleased:Boolean(readJson(CREW_HANDOFF,null)?.matrixData)
+            crewReleased:(()=>{const stored=readCrewHandoffRecord();return Boolean(stored.snapshot&&validateCrewRelease(stored.snapshot).ok);})()
           };
         }
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState};
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,validateCrewRelease,estimateRevisionId,makeLocalId};
       })();
     </script>
 
