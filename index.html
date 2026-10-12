@@ -1050,7 +1050,7 @@
 
         <div class="dashboard-status">
           <strong>Matrix Online</strong>
-          <span>v1.1.0 · Field Ready</span>
+          <span>v1.1.0 · Matrix Online</span>
         </div>
 
         <nav class="dashboard-nav" aria-label="Matrix command center">
@@ -1258,7 +1258,7 @@
                     <div class="crew-active-kicker">Crew Command Release</div>
                     <div class="crew-active-head">
                         <div><strong id="crewActiveName">Released job</strong><span id="crewActiveAddress">Address not saved</span></div>
-                        <div class="crew-release-status" id="crewReleaseStatus">Device Release · Field Ready</div>
+                        <div class="crew-release-status" id="crewReleaseStatus">Release Verification Required</div>
                     </div>
                     <div class="crew-release-warning" id="crewReleaseWarning" hidden></div>
                     <div class="crew-release-grid">
@@ -1271,7 +1271,7 @@
                         <div class="crew-release-metric"><span>Photos</span><strong id="crewReleasedPhotos">0</strong></div>
                         <div class="crew-release-metric"><span>Services</span><strong id="crewReleasedServices">0</strong></div>
                         <div class="crew-release-metric"><span>Approved Total</span><strong id="crewReleasedTotal">—</strong></div>
-                        <div class="crew-release-metric"><span>Release State</span><strong>Approved</strong></div>
+                        <div class="crew-release-metric"><span>Release State</span><strong id="crewApprovalState">Review Required</strong></div>
                     </div>
                     <div class="crew-release-actions"><button type="button" id="crewClearJobButton">Remove Released Job</button></div>
                 </div>
@@ -1856,6 +1856,15 @@
         }
 
         function renderTechModeView(scanData) {
+            if(document.getElementById('crewCommandPanel')?.classList.contains('is-visible')){
+                const release=window.SchismDashboard?.getFieldReadyRelease?.();
+                if(!release?.ok){
+                    const result=document.getElementById('analysisResult');
+                    if(result) result.textContent='Re-release Required — field execution is blocked.';
+                    return;
+                }
+                scanData=release.snapshot.matrixData;
+            }
             let htmlOutput = "";
             if (scanData.requiresHumanReview) {
                 const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
@@ -1891,8 +1900,8 @@
                         <div class="tech-execution-card">
                             <div class="tech-card-title">📌 ${item.label || item.serviceId}</div>
                             <div class="tech-metric-row"><strong>${t.scope}</strong> ${item.quantity} ${item.quantityUnit}</div>
-                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${item.estimatedTimeMinutes || 60} Minutes</div>
-                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${item.waterUsageGallons || 200} Gallons</div>
+                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${item.estimatedTimeMinutes ?? '—'} Minutes</div>
+                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${item.waterUsageGallons ?? '—'} Gallons</div>
                             <div class="tech-metric-row"><strong>${t.chem}</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
                             <div class="tech-metric-row"><strong>${t.steps}</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
                         </div>`;
@@ -1934,7 +1943,7 @@
                 if (techMatrixData && techMatrixData.services) {
                     techMatrixData.services.forEach(item => {
                         proposalText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
-                        proposalText += `  - Timeline: ${item.estimatedTimeMinutes || 60} Mins | Water: ~${item.waterUsageGallons || 200} Gal\n`;
+                        proposalText += `  - Timeline: ${item.estimatedTimeMinutes ?? '—'} Mins | Water: ~${item.waterUsageGallons ?? '—'} Gal\n`;
                         proposalText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
                         proposalText += `  - Execution: ${item.executionInstructions}\n\n`;
                     });
@@ -1983,6 +1992,13 @@
         }
 
         function blockUnreviewedExternalAction(actionName) {
+            if (isTechMode) {
+                const release=window.SchismDashboard?.getFieldReadyRelease?.();
+                if(!release?.ok){
+                    alert(actionName + ' is blocked. Crew Command requires a validated device release.');
+                    return true;
+                }
+            }
             if (!techMatrixData?.requiresHumanReview) return false;
             const reason = techMatrixData.humanReviewReason || 'Important property evidence is still missing.';
             alert(actionName + ' is locked until human review is complete.\n\n' + reason);
@@ -2158,6 +2174,7 @@
                 techMatrixData = data.rawMatrixData;
                 if (window.SchismDashboard && typeof window.SchismDashboard.prepareMatrixForEstimate === 'function') {
                     techMatrixData = window.SchismDashboard.prepareMatrixForEstimate(techMatrixData, previousMatrixForRevision);
+                    window.SchismDashboard.noteEstimateReanalysis(previousMatrixForRevision);
                 }
 
                 const evidenceReview = techMatrixData?.evidenceReview;
@@ -2317,12 +2334,9 @@
           const crew=byId('crewCommandPanel');
           if(crew) crew.classList.add('is-visible');
 
-          const stored=readCrewHandoffRecord();
-          const snapshot=stored.snapshot;
-          const validation=stored.error
-            ? {ok:false,code:'storage_corrupt',reason:stored.error}
-            : validateCrewRelease(snapshot);
-          const hasStored=Boolean(snapshot)||Boolean(stored.error);
+          const validation=getFieldReadyRelease();
+          const snapshot=validation.snapshot;
+          const hasStored=Boolean(snapshot)||Boolean(validation.error);
           const hasRelease=validation.ok===true;
 
           if(hasRelease) restoreCrewHandoff(snapshot);
@@ -2334,10 +2348,10 @@
           if(byId('resultsSection')) byId('resultsSection').style.display=hasRelease?'':'none';
 
           if(snapshot) renderCrewHandoffSummary(snapshot,validation);
-          else if(stored.error) setCrewEmptyState('Release needs attention',stored.error+' Re-release this job before field execution.');
+          else if(validation.error) setCrewEmptyState('Release needs attention',validation.reason+' Re-release this job before field execution.');
           else setCrewEmptyState('No released crew job yet.','Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.');
 
-          if(stored.error && byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display='';
+          if(validation.error && byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display='';
           requestAnimationFrame(()=>(snapshot?byId('crewActiveCard'):byId('crewCommandPanel'))?.scrollIntoView({behavior:'smooth',block:'start'}));
         }
         function selectPhotos(){
@@ -2407,21 +2421,25 @@
             matrix.__schismEstimate.updatedAt=matrix.__schismEstimate.updatedAt||now;
           }
 
-          const priorQueues=Object.create(null);
+          // Preserve lineage only for an unambiguous one-to-one service identity.
+          // Duplicate service types must never inherit IDs based on array order.
+          const priorByType=Object.create(null);
+          const nextCounts=Object.create(null);
           if(previousMatrix && Array.isArray(previousMatrix.services)){
             previousMatrix.services.forEach(item=>{
               if(!item?.serviceId || !item?.scopeItemId) return;
-              if(!priorQueues[item.serviceId]) priorQueues[item.serviceId]=[];
-              priorQueues[item.serviceId].push(item.scopeItemId);
+              (priorByType[item.serviceId] ||= []).push(item.scopeItemId);
             });
           }
           if(Array.isArray(matrix.services)){
             matrix.services.forEach(item=>{
-              if(!item || typeof item!=='object') return;
-              if(!item.scopeItemId){
-                const queue=item.serviceId?priorQueues[item.serviceId]:null;
-                item.scopeItemId=queue&&queue.length?queue.shift():makeLocalId('scope');
-              }
+              if(item?.serviceId) nextCounts[item.serviceId]=(nextCounts[item.serviceId]||0)+1;
+            });
+            matrix.services.forEach(item=>{
+              if(!item || typeof item!=='object' || item.scopeItemId) return;
+              const candidates=priorByType[item.serviceId]||[];
+              item.scopeItemId=candidates.length===1&&nextCounts[item.serviceId]===1
+                ?candidates[0]:makeLocalId('scope');
             });
           }
           return matrix;
@@ -2445,6 +2463,48 @@
           if(!contract) return {ok:false,code:'contract_missing',reason:'Release validation is unavailable.'};
           return contract.validateRelease(snapshot);
         }
+        // The only selector permitted to authorize Field Ready.
+        // Invalid records may be retained solely to display a blocked summary.
+        function getFieldReadyRelease(){
+          try{
+            const stored=readCrewHandoffRecord();
+            if(stored.error) return {ok:false,snapshot:null,error:true,code:'storage_corrupt',reason:stored.error};
+            const snapshot=stored.snapshot;
+            const state=validateCrewRelease(snapshot);
+            if(!state.ok) return {ok:false,snapshot,code:state.code,reason:state.reason};
+            if(typeof techMatrixData!=='undefined'&&techMatrixData?.__schismEstimate?.estimateId===snapshot.estimateId){
+              const current=techMatrixData;
+              if(current.__schismEstimate.revision!==snapshot.estimateRevision)
+                return {ok:false,snapshot,code:'current_revision_mismatch',reason:'The active estimate changed after release.'};
+              if(current.requiresHumanReview===true||current.evidenceReview?.readyForEstimate!==true)
+                return {ok:false,snapshot,code:'current_evidence_not_ready',reason:'Current evidence needs human review.'};
+              const contract=releaseContract();
+              const services=contract.selectedServicesByScopeIds(current.services,snapshot.selectedScopeItemIds);
+              if(contract.stableStringify(services)!==contract.stableStringify(snapshot.matrixData.services))
+                return {ok:false,snapshot,code:'current_scope_mismatch',reason:'The current approved scope differs from the device release.'};
+            }
+            return {ok:true,snapshot,code:'ok',reason:''};
+          }catch(error){
+            return {ok:false,snapshot:null,error:true,code:'validation_error',reason:'Release validation failed. Re-release is required.'};
+          }
+        }
+        function syncVisibleCrewRelease(){
+          refreshCrewBadge();
+          const crew=byId('crewCommandPanel');
+          if(!crew?.classList.contains('is-visible')) return;
+          const state=getFieldReadyRelease();
+          const snapshot=state.snapshot;
+          if(byId('resultsSection')) byId('resultsSection').style.display=state.ok?'':'none';
+          if(byId('crewActiveCard')) byId('crewActiveCard').hidden=!snapshot;
+          if(byId('analysisResult')&&!state.ok) byId('analysisResult').textContent='Re-release Required — field execution is blocked.';
+          if(byId('crewCommandEmpty')) byId('crewCommandEmpty').style.display=snapshot?'none':'';
+          if(snapshot){
+            renderCrewHandoffSummary(snapshot);
+            if(state.ok&&typeof renderTechModeView==='function') renderTechModeView(snapshot.matrixData);
+          }else{
+            setCrewEmptyState('Release needs attention',state.reason||'No validated device release is available.');
+          }
+        }
         function currentReleaseAuthorization(){
           const contract=releaseContract();
           if(!contract) return {ok:false,reason:'Release validation is unavailable.'};
@@ -2456,8 +2516,12 @@
           if(!Array.isArray(techMatrixData.services)||!techMatrixData.services.length) return {ok:false,reason:'No executable scope is loaded.'};
           if(techMatrixData.services.some(item=>contract.EXCLUDED_SERVICE_IDS[item?.serviceId])) return {ok:false,reason:'The estimate contains work outside the launch operating boundary.'};
           if(techMatrixData.services.some(item=>!item?.serviceId||!item?.scopeItemId)) return {ok:false,reason:'The estimate scope is missing stable service identity.'};
+          const scopeIds=techMatrixData.services.map(item=>item.scopeItemId);
+          if(new Set(scopeIds).size!==scopeIds.length) return {ok:false,reason:'Duplicate scope IDs require a new estimate review.'};
           const selected=priceItemsRegistry.filter(item=>!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
           if(!selected.length) return {ok:false,reason:'Select at least one approved scope item before release.'};
+          if(new Set(selected).size!==selected.length||selected.some(id=>!scopeIds.includes(id)))
+            return {ok:false,reason:'Selected scope identity is invalid. Review the estimate again.'};
           return {ok:true,reason:'',selectedScopeItemIds:selected};
         }
         function releasedMatrixData(selectedScopeItemIds){
@@ -2467,14 +2531,21 @@
           let matrix;
           try{ matrix=JSON.parse(JSON.stringify(prepareMatrixForEstimate(techMatrixData))); }catch(e){ return null; }
           matrix.services=contract.selectedServicesByScopeIds(matrix.services,selectedScopeItemIds);
-          const minutes=matrix.services.reduce((sum,item)=>sum+Number(item?.estimatedTimeMinutes||0),0);
-          const water=matrix.services.reduce((sum,item)=>sum+Number(item?.waterUsageGallons||0),0);
+          if(!matrix.services.length||matrix.services.some(item=>
+            item.estimatedTimeMinutes===null||item.estimatedTimeMinutes===undefined||
+            item.waterUsageGallons===null||item.waterUsageGallons===undefined||
+            !Number.isFinite(Number(item.estimatedTimeMinutes))||Number(item.estimatedTimeMinutes)<0||
+            !Number.isFinite(Number(item.waterUsageGallons))||Number(item.waterUsageGallons)<0)) return null;
+          matrix.services.forEach(item=>{
+            item.estimatedTimeMinutes=Number(item.estimatedTimeMinutes);
+            item.waterUsageGallons=Number(item.waterUsageGallons);
+          });
+          const minutes=matrix.services.reduce((sum,item)=>sum+item.estimatedTimeMinutes,0);
+          const water=matrix.services.reduce((sum,item)=>sum+item.waterUsageGallons,0);
           matrix.fieldPlan=matrix.fieldPlan&&typeof matrix.fieldPlan==='object'?matrix.fieldPlan:{};
-          if(minutes>0){
-            const hours=Math.max(.5,Math.round((minutes/60)*10)/10);
-            matrix.fieldPlan.totalEstimatedMinutes=Math.round(minutes);
-            matrix.fieldPlan.totalEstimatedHours=String(hours).replace(/\.0$/,'')+' Hours';
-          }
+          matrix.fieldPlan.totalEstimatedMinutes=Math.round(minutes);
+          const hours=Math.round((minutes/60)*10)/10;
+          matrix.fieldPlan.totalEstimatedHours=String(hours).replace(/\.0$/,'')+' Hours';
           matrix.fieldPlan.totalWaterUsageGallons=Math.round(water);
           return matrix;
         }
@@ -2495,12 +2566,24 @@
           }
           return evidence;
         }
+        function approvedScopeTotalCents(){
+          const approved=priceItemsRegistry.filter(item=>!item.disabled);
+          if(!approved.length)return null;
+          let cents=0;
+          for(const item of approved){
+            if(item.value===undefined||item.value===null||!Number.isFinite(Number(item.value))||Number(item.value)<0) return null;
+            cents+=Math.round(Number(item.value)*100);
+          }
+          return Number.isSafeInteger(cents)?cents:null;
+        }
         function buildCrewHandoffSnapshot(){
           const authorization=currentReleaseAuthorization();
           if(!authorization.ok) return null;
           const contract=releaseContract();
           const matrix=releasedMatrixData(authorization.selectedScopeItemIds);
           if(!matrix) return null;
+          const approvedTotalCents=approvedScopeTotalCents();
+          if(approvedTotalCents===null) return null;
           const meta=matrix.__schismEstimate;
           const snapshot={
             schemaVersion:contract.SCHEMA_VERSION,
@@ -2515,7 +2598,13 @@
             jobAddress:byId('jobAddress')?.value?.trim()||'Address not saved',
             customerEmail:byId('customerEmail')?.value?.trim()||'',
             customerPhone:byId('customerPhone')?.value?.trim()||'',
-            approvedTotal:byId('grandTotalDisplay')?.textContent?.trim()||'',
+            approvedTotalCents,
+            approvedTotal:'$'+(approvedTotalCents/100).toFixed(2),
+            workBasis:{
+              services:matrix.services.map(item=>({scopeItemId:item.scopeItemId,estimatedTimeMinutes:item.estimatedTimeMinutes,waterUsageGallons:item.waterUsageGallons})),
+              totalEstimatedMinutes:matrix.fieldPlan.totalEstimatedMinutes,
+              totalWaterUsageGallons:matrix.fieldPlan.totalWaterUsageGallons
+            },
             photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),
             selectedScopeItemIds:authorization.selectedScopeItemIds.slice(),
             evidence:evidenceReleaseSnapshot(),
@@ -2530,13 +2619,15 @@
           const snapshot=buildCrewHandoffSnapshot();
           if(!snapshot) return null;
           try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(snapshot)); }catch(e){ return null; }
-          renderCrewHandoffSummary(snapshot,{ok:true,code:'ok',reason:''});
+          const verified=getFieldReadyRelease();
+          if(!verified.ok) return null;
+          renderCrewHandoffSummary(verified.snapshot);
           refreshCrewBadge();
-          return snapshot;
+          return verified.snapshot;
         }
         function restoreCrewHandoff(snapshot){
-          const validation=validateCrewRelease(snapshot);
-          if(!validation.ok) return null;
+          const validation=getFieldReadyRelease();
+          if(!validation.ok||validation.snapshot.releaseId!==snapshot?.releaseId) return null;
           techMatrixData=snapshot.matrixData;
           if(typeof userSiteNotes!=='undefined') userSiteNotes=snapshot.siteNotes||'';
           if(typeof currentJobLocation!=='undefined') currentJobLocation=snapshot.location||null;
@@ -2554,7 +2645,7 @@
           const saved=snapshot;
           const card=byId('crewActiveCard');
           if(!saved||!card){ if(card) card.hidden=true; return; }
-          const state=validation||validateCrewRelease(saved);
+          const state=getFieldReadyRelease();
           card.hidden=false;
           card.classList.toggle('is-blocked',!state.ok);
           const status=byId('crewReleaseStatus');
@@ -2567,26 +2658,27 @@
             warning.hidden=state.ok;
             warning.textContent=state.ok?'':state.reason;
           }
-          const plan=saved.matrixData?.fieldPlan||{};
+          const plan=state.ok?(saved.matrixData?.fieldPlan||{}):{};
           const released=saved.releasedAt?new Date(saved.releasedAt):null;
           const set=(id,value)=>{ const el=byId(id); if(el) el.textContent=value; };
           set('crewActiveName',saved.jobName||'Released property job');
           set('crewActiveAddress',saved.jobAddress||'Address not saved');
           set('crewReleasedAt',released&&!Number.isNaN(released.getTime())?released.toLocaleString():'—');
-          set('crewReleasedCrew',(plan.crewSizeRecommended||1)+' Tech'+(Number(plan.crewSizeRecommended||1)===1?'':'s'));
-          set('crewReleasedWindow',plan.totalEstimatedHours||'—');
-          set('crewReleasedDifficulty',plan.difficulty||'Moderate');
+          set('crewReleasedCrew',state.ok?((plan.crewSizeRecommended??1)+' Tech'+(Number(plan.crewSizeRecommended??1)===1?'':'s')):'—');
+          set('crewReleasedWindow',state.ok?(plan.totalEstimatedHours??'—'):'—');
+          set('crewReleasedDifficulty',state.ok?(plan.difficulty??'—'):'—');
           set('crewReleasedPhotos',String(saved.photoCount||0));
           set('crewReleasedServices',String(Array.isArray(saved.matrixData?.services)?saved.matrixData.services.length:0));
-          set('crewReleasedTotal',saved.approvedTotal||'—');
+          set('crewReleasedTotal',state.ok?(saved.approvedTotal||'—'):'—');
+          set('crewApprovalState',state.ok?'Approved':'Re-release Required');
         }
         function refreshCrewBadge(){
-          const stored=readCrewHandoffRecord();
+          const state=getFieldReadyRelease();
           const badge=byId('crewActiveBadge');
           if(!badge) return;
-          if(!stored.snapshot&&!stored.error){ badge.hidden=true; return; }
+          if(!state.snapshot&&!state.error){ badge.hidden=true; return; }
           badge.hidden=false;
-          badge.textContent=stored.error?'!':(validateCrewRelease(stored.snapshot).ok?'1':'!');
+          badge.textContent=state.ok?'1':'!';
         }
         function clearCrewHandoff(){
           try{ localStorage.removeItem(CREW_HANDOFF); }catch(e){}
@@ -2612,8 +2704,28 @@
               try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(superseded)); }catch(e){}
             }
           }
-          refreshCrewBadge();
+          syncVisibleCrewRelease();
           return true;
+        }
+        function noteEstimateReanalysis(previousMatrix){
+          if(!techMatrixData)return;
+          const previous=previousMatrix?.__schismEstimate;
+          const current=techMatrixData.__schismEstimate;
+          if(previous?.estimateId&&previous.estimateId===current?.estimateId){
+            markEstimateMutated('Estimate re-analyzed after release.');
+            return;
+          }
+          const stored=readCrewHandoffRecord();
+          const old=stored.snapshot;
+          const sameJob=old&&((old.jobName||'').trim().toLowerCase()+'|'+(old.jobAddress||'').trim().toLowerCase())===currentJobKey();
+          if(old?.status==='released'&&(sameJob||old.estimateId===current?.estimateId)){
+            const contract=releaseContract();
+            if(contract){
+              const superseded=contract.markSuperseded(old,'Estimate re-analyzed after release.');
+              try{localStorage.setItem(CREW_HANDOFF,JSON.stringify(superseded));}catch(error){}
+            }
+            syncVisibleCrewRelease();
+          }
         }
         function syncCrewHandoffState(){
           const button=byId('btnCrewHandoff');
@@ -2781,6 +2893,13 @@
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
           byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
+          window.addEventListener('storage',event=>{
+            if(event.key===CREW_HANDOFF||event.key===null) syncVisibleCrewRelease();
+          });
+          window.addEventListener('focus',syncVisibleCrewRelease);
+          document.addEventListener('visibilitychange',()=>{
+            if(!document.hidden) syncVisibleCrewRelease();
+          });
           document.addEventListener('schism:estimate-mutated',event=>markEstimateMutated(event?.detail?.reason||'Estimate changed after release.'));
           ['jobName','jobAddress','customerEmail','customerPhone'].forEach(id=>byId(id)?.addEventListener('change',()=>markEstimateMutated('Job or customer details changed after release.')));
           byId('fullMatrixToggle')?.addEventListener('click',()=>{
@@ -2815,7 +2934,7 @@
             crewReleased:(()=>{const stored=readCrewHandoffRecord();return Boolean(stored.snapshot&&validateCrewRelease(stored.snapshot).ok);})()
           };
         }
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,validateCrewRelease,estimateRevisionId,makeLocalId};
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,estimateRevisionId,makeLocalId};
       })();
     </script>
 

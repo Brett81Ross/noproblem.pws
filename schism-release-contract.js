@@ -5,7 +5,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  var SCHEMA_VERSION = 1;
+  var SCHEMA_VERSION = 2;
   var ACTIVE_STATUS = 'released';
   var EXCLUDED_SERVICE_IDS = Object.freeze({
     roof_soft_wash: true,
@@ -124,6 +124,38 @@
     var releasedIds = ids.slice().sort();
     if (stableStringify(selected) !== stableStringify(releasedIds)) {
       return { ok: false, code: 'selected_scope_mismatch', reason: 'The approved scope IDs do not match the released field plan.' };
+    }
+
+    if (!Number.isSafeInteger(snapshot.approvedTotalCents) || snapshot.approvedTotalCents < 0 ||
+        snapshot.approvedTotal !== '$' + (snapshot.approvedTotalCents / 100).toFixed(2)) {
+      return { ok: false, code: 'approved_total_invalid', reason: 'The approved total is missing or inconsistent.' };
+    }
+    var basis = snapshot.workBasis;
+    if (!basis || !Array.isArray(basis.services) || basis.services.length !== matrix.services.length ||
+        !Number.isFinite(basis.totalEstimatedMinutes) || !Number.isFinite(basis.totalWaterUsageGallons)) {
+      return { ok: false, code: 'work_basis_missing', reason: 'The frozen work and water basis is incomplete.' };
+    }
+    var expectedMinutes = 0;
+    var expectedWater = 0;
+    for (var workIndex = 0; workIndex < matrix.services.length; workIndex += 1) {
+      var item = matrix.services[workIndex];
+      var frozen = basis.services[workIndex];
+      if (!Number.isFinite(item.estimatedTimeMinutes) || item.estimatedTimeMinutes < 0 ||
+          !Number.isFinite(item.waterUsageGallons) || item.waterUsageGallons < 0 ||
+          !frozen || frozen.scopeItemId !== item.scopeItemId ||
+          frozen.estimatedTimeMinutes !== item.estimatedTimeMinutes ||
+          frozen.waterUsageGallons !== item.waterUsageGallons) {
+        return { ok: false, code: 'work_basis_mismatch', reason: 'Released scope time or water differs from its frozen basis.' };
+      }
+      expectedMinutes += item.estimatedTimeMinutes;
+      expectedWater += item.waterUsageGallons;
+    }
+    if (basis.totalEstimatedMinutes !== Math.round(expectedMinutes) ||
+        basis.totalWaterUsageGallons !== Math.round(expectedWater) ||
+        !matrix.fieldPlan ||
+        matrix.fieldPlan.totalEstimatedMinutes !== basis.totalEstimatedMinutes ||
+        matrix.fieldPlan.totalWaterUsageGallons !== basis.totalWaterUsageGallons) {
+      return { ok: false, code: 'work_totals_mismatch', reason: 'Released time or water totals do not match approved scope.' };
     }
 
     if (!Array.isArray(snapshot.evidence)) {
