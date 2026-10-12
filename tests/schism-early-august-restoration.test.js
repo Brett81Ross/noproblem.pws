@@ -148,6 +148,17 @@ assert(index.includes('function restoreCrewHandoff('), 'Crew Command does not re
 assert(index.includes('function clearCrewHandoff()'), 'Crew Command release cannot be cleared');
 assert(index.includes('localStorage.setItem(CREW_HANDOFF'), 'Crew Command handoff is not written to local storage');
 assert(index.includes('localStorage.removeItem(CREW_HANDOFF)'), 'Crew Command handoff clear path is missing');
-assert(index.includes("const snapshot=readJson(CREW_HANDOFF,null);"), 'Crew Command view does not require a released snapshot');
+assert(index.includes('const stored=readCrewHandoffRecord();'), 'Crew Command does not read release state through the guarded release reader');
+assert(index.includes('function validateCrewRelease('), 'Crew Command restore validation gate is missing');
+assert(index.includes('function currentReleaseAuthorization('), 'Crew Command central release authorization gate is missing');
+assert(index.includes('function prepareMatrixForEstimate('), 'Estimate identity preparation is missing');
+assert(index.includes('scopeItemId: item.scopeItemId'), 'Quote scope registry is not bound to immutable scope IDs');
+assert(index.includes("schemaVersion:contract.SCHEMA_VERSION"), 'Crew release schema version is missing');
+assert(index.includes("deviceAuthority:'local'"), 'Crew release does not identify its device-local authority boundary');
+assert(index.includes('estimateRevisionId:meta.estimateId+\':r\'+meta.revision'), 'Crew release is not bound to an estimate revision');
+assert(index.includes('integrityFingerprint=contract.computeReleaseFingerprint(snapshot)'), 'Crew release integrity fingerprint is missing');
+assert(index.includes('function markEstimateMutated('), 'Released estimates are not superseded after mutation');
+assert(index.includes("status.textContent=state.ok?'Device Release · Field Ready':'Re-release Required'"), 'Crew Command does not distinguish valid and superseded releases');
+assert(index.includes('/schism-release-contract.js'), 'Crew release contract script is not loaded');
 
 console.log('Schism early-August restoration QA passed');
