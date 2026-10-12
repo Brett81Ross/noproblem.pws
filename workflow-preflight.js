@@ -418,6 +418,7 @@
     document.addEventListener('schism:decision-support-changed', renderBrowser);
     document.addEventListener('schism:workspace-changed', renderBrowser);
     document.addEventListener('schism:release-state-changed', renderBrowser);
+    document.addEventListener('schism:device-release-updated', renderBrowser);
     document.addEventListener('schism:job-learning-changed', renderBrowser);
     document.addEventListener('schism:revision-changed', renderBrowser);
     document.addEventListener('schism:project-loaded', renderBrowser);

@@ -2523,6 +2523,7 @@
         }
         function syncVisibleCrewRelease(){
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
           const crew=byId('crewCommandPanel');
           if(!crew?.classList.contains('is-visible')) return;
           const state=getFieldReadyRelease();
@@ -2656,6 +2657,7 @@
           if(!verified.ok) return null;
           renderCrewHandoffSummary(verified.snapshot);
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
           return verified.snapshot;
         }
         function restoreCrewHandoff(snapshot){
@@ -2720,6 +2722,7 @@
           if(byId('resultsSection')) byId('resultsSection').style.display='none';
           setCrewEmptyState('No released crew job yet.','Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.');
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
         }
         function markEstimateMutated(reason){
           if(typeof techMatrixData==='undefined'||!techMatrixData) return false;

@@ -654,12 +654,18 @@
     card.id = 'schismDecisionBrief';
     card.className = 'schism-decision-brief';
     card.setAttribute('data-status', status);
-    card.innerHTML = html;
+    // DOM childList observers include this card. Write only when the content changes
+    // or they can repeatedly trigger themselves and freeze mobile browsers.
+    if (card.__schismRenderSignature !== html) {
+      card.__schismRenderSignature = html;
+      card.innerHTML = html;
+    }
 
     if (!existing || card.parentNode !== mount) mount.insertBefore(card, mount.firstChild);
   }
 
   document.addEventListener('schism:decision-support-changed', renderDecisionBrief);
+  document.addEventListener('schism:device-release-updated', renderDecisionBrief);
 
   function ensurePdfButton() {
     var quoteActions = document.querySelector('.quote-actions');

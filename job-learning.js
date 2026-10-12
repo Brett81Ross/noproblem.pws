@@ -869,9 +869,10 @@
     });
     document.addEventListener('schism:decision-support-changed', renderBrowser);
     document.addEventListener('schism:release-state-changed', renderBrowser);
+    document.addEventListener('schism:device-release-updated', renderBrowser);
     document.addEventListener('schism:job-learning-changed', renderDashboardPulse);
     window.addEventListener('storage', function (event) {
-      if (event.key === STORAGE_KEY) {
+      if (event.key === STORAGE_KEY || event.key === 'schismmatrix-crew-handoff-v1') {
         renderBrowser();
         renderDashboardPulse();
       }
