@@ -139,4 +139,26 @@ assert(fullSplash.includes('position: static;'), 'Tap to Enter is still detached
 assert(fullSplash.includes('width: clamp(200px, 52vw, 260px);'), 'Fold short-viewport splash is still too small');
 assert(fullSplash.includes('width: clamp(180px, 45vh, 240px);'), 'Fold landscape splash is still too small');
 
+
+assert(index.includes("const CREW_HANDOFF='schismmatrix-crew-handoff-v1';"), 'Crew Command release store is missing');
+assert(index.includes('id="crewActiveCard"'), 'Crew Command active release card is missing');
+assert(index.includes('id="crewActiveBadge"'), 'Crew Command dashboard release badge is missing');
+assert(index.includes('function persistCrewHandoff()'), 'Crew Command does not persist approved handoffs');
+assert(index.includes('function restoreCrewHandoff('), 'Crew Command does not restore released jobs after refresh');
+assert(index.includes('function clearCrewHandoff()'), 'Crew Command release cannot be cleared');
+assert(index.includes('localStorage.setItem(CREW_HANDOFF'), 'Crew Command handoff is not written to local storage');
+assert(index.includes('localStorage.removeItem(CREW_HANDOFF)'), 'Crew Command handoff clear path is missing');
+assert(index.includes('const stored=readCrewHandoffRecord();'), 'Crew Command does not read release state through the guarded release reader');
+assert(index.includes('function validateCrewRelease('), 'Crew Command restore validation gate is missing');
+assert(index.includes('function currentReleaseAuthorization('), 'Crew Command central release authorization gate is missing');
+assert(index.includes('function prepareMatrixForEstimate('), 'Estimate identity preparation is missing');
+assert(index.includes('scopeItemId: item.scopeItemId'), 'Quote scope registry is not bound to immutable scope IDs');
+assert(index.includes("schemaVersion:contract.SCHEMA_VERSION"), 'Crew release schema version is missing');
+assert(index.includes("deviceAuthority:'local'"), 'Crew release does not identify its device-local authority boundary');
+assert(index.includes('estimateRevisionId:meta.estimateId+\':r\'+meta.revision'), 'Crew release is not bound to an estimate revision');
+assert(index.includes('integrityFingerprint=contract.computeReleaseFingerprint(snapshot)'), 'Crew release integrity fingerprint is missing');
+assert(index.includes('function markEstimateMutated('), 'Released estimates are not superseded after mutation');
+assert(index.includes("status.textContent=state.ok?'Device Release · Field Ready':'Re-release Required'"), 'Crew Command does not distinguish valid and superseded releases');
+assert(index.includes('/schism-release-contract.js'), 'Crew release contract script is not loaded');
+
 console.log('Schism early-August restoration QA passed');
