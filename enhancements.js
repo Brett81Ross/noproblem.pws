@@ -210,6 +210,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('button[data-building-level]'), function (button) {
       button.addEventListener('click', function () {
         applyLevel(button.getAttribute('data-building-level'));
+        document.dispatchEvent(new CustomEvent('schism:estimate-mutated', { detail: { reason: 'Building-height scope changed after release.' } }));
       });
     });
   }
