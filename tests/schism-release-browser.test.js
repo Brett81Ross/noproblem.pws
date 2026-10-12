@@ -219,7 +219,8 @@ function blocked(tab){
   // A MutationObserver may add the button after the dashboard binds its listeners.
   const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');
   const start=enhancementSource.indexOf('  function downloadQuotePdf() {');
-  const end=enhancementSource.indexOf('  function ensurePdfButton() {',start);
+  const nextHelper=enhancementSource.indexOf('  function decisionEscapeHtml(value) {',start);
+  const end=nextHelper>start?nextHelper:enhancementSource.indexOf('  function ensurePdfButton() {',start);
   assert(start>=0&&end>start,'PDF action must exist');
   const pdfAction=enhancementSource.slice(start,end);
   function invokePdf(fieldMode,validRelease){
