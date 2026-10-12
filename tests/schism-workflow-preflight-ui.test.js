@@ -12,6 +12,7 @@ const index = read('index.html');
 const preflight = read('workflow-preflight.js');
 
 assert(index.includes('<script src="/workflow-preflight.js" defer></script>'), 'adaptive preflight browser module is not loaded');
+assert(preflight.includes('window.SchismDashboard.getCurrentEstimateRelease()'), 'preflight must not claim another property is released');
 assert(preflight.includes('Matrix Next Move'), 'Matrix Next Move UI is missing');
 assert(preflight.includes('Property → Scope → Evidence → Analyze → Resolve Review → Crew'), 'workflow ladder is missing');
 assert(preflight.includes("state: 'property_required'"), 'property gate is missing');

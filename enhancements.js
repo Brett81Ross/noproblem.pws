@@ -587,7 +587,7 @@
     ensureDecisionBriefStyles();
 
     // Analysis eligibility does not authorize field execution.
-    var approvedRelease = Boolean(window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function' && window.SchismDashboard.getFieldReadyRelease().ok === true);
+    var approvedRelease = Boolean(window.SchismDashboard && typeof window.SchismDashboard.getCurrentEstimateRelease === 'function' && window.SchismDashboard.getCurrentEstimateRelease().ok === true);
     var status = support.status || 'review_required';
     if(status === 'field_ready' && !approvedRelease) status = 'review_required';
     var statusLabel = approvedRelease ? (support.statusLabel || status) : (support.status === 'field_ready' ? 'Release Approval Required' : (support.statusLabel || status));

@@ -215,6 +215,42 @@ function blocked(tab){
   assert.equal(tab.ctx.SchismDashboard.workflowState().crewReleased,false,'dashboard API must block current evidence regression');
 }
 {
+  // A valid release for Property A must not mark a different active Property B ready.
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(s.matrixData));
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().ok,true);
+  tab.node('jobAddress').value='999 Different Address';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_property');
+  tab.node('jobAddress').value='123 Test St';
+  tab.ctx.techMatrixData.__schismEstimate.estimateId='est_unrelated';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_estimate');
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,'prior valid local record may still exist; it is not the new job release');
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s); ready(tab);
+  tab.ctx.__schismReleaseState={locked:true,reason:'Re-analysis in progress'};
+  tab.ctx.document.dispatchEvent({type:'schism:release-state-changed'});
+  blocked(tab);
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'analysis_not_approved');
+  tab.ctx.__schismReleaseState={locked:false,reason:''};
+  tab.ctx.document.dispatchEvent({type:'schism:release-state-changed'});
+  ready(tab);
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s); ready(tab);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(s.matrixData));
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'different_id',serviceId:'driveway_cleaning',value:50,disabled:false}];
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_selection',
+    'a newly selected scope may not borrow an earlier scope release');
+}
+{
   // Exercise the actual PDF action body, not just whether its click listener exists.
   // A MutationObserver may add the button after the dashboard binds its listeners.
   const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');

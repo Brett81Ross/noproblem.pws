@@ -2496,6 +2496,8 @@
         // Invalid records may be retained solely to display a blocked summary.
         function getFieldReadyRelease(){
           try{
+            if(window.__schismReleaseState?.locked===true)
+              return {ok:false,snapshot:null,error:true,code:'analysis_not_approved',reason:'Estimate analysis or evidence review is still in progress.'};
             const stored=readCrewHandoffRecord();
             if(stored.error) return {ok:false,snapshot:null,error:true,code:'storage_corrupt',reason:stored.error};
             const snapshot=stored.snapshot;
@@ -2520,6 +2522,26 @@
           }catch(error){
             return {ok:false,snapshot:null,error:true,code:'validation_error',reason:'Release validation failed. Re-release is required.'};
           }
+        }
+        // Decision Brief / Next Move evaluate the CURRENT estimate, not another
+        // property's otherwise valid local release.
+        function getCurrentEstimateRelease(){
+          const verified=getFieldReadyRelease();
+          if(!verified.ok)return verified;
+          const released=verified.snapshot;
+          const meta=techMatrixData?.__schismEstimate;
+          if(!meta||meta.estimateId!==released.estimateId||meta.revision!==released.estimateRevision)
+            return {ok:false,snapshot:released,code:'different_estimate',reason:'This estimate has not been released.'};
+          const normalize=value=>String(value||'').trim().toLowerCase().replace(/\s+/g,' ');
+          if(normalize(byId('jobName')?.value)!==normalize(released.jobName)||
+             normalize(byId('jobAddress')?.value)!==normalize(released.jobAddress))
+            return {ok:false,snapshot:released,code:'different_property',reason:'The displayed property differs from the approved release.'};
+          const contract=releaseContract();
+          const picked=priceItemsRegistry.filter(item=>item&&!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
+          if(picked.length && contract.stableStringify(picked.slice().sort())!==
+              contract.stableStringify(released.selectedScopeItemIds.slice().sort()))
+            return {ok:false,snapshot:released,code:'different_selection',reason:'The displayed scope differs from the approved release.'};
+          return verified;
         }
         function syncVisibleCrewRelease(){
           refreshCrewBadge();
@@ -2949,6 +2971,7 @@
             alert('Field-plan export is blocked until the device release is re-approved.');
           },true);
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
+          document.addEventListener('schism:release-state-changed',syncVisibleCrewRelease);
           window.addEventListener('storage',event=>{
             if(event.key===CREW_HANDOFF||event.key===null) syncVisibleCrewRelease();
           });
@@ -3009,7 +3032,7 @@
             };
           }
         };
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,estimateRevisionId,makeLocalId};
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,getCurrentEstimateRelease,estimateRevisionId,makeLocalId};
       })();
     </script>
 

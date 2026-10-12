@@ -28,18 +28,18 @@ const document={
 };
 const window={
   __schismDecisionSupport:{status:'field_ready',statusLabel:'Field Ready',summary:'Evidence is eligible for review',crew:{ready:true},evidence:{photoCount:3},pricing:{drivers:[]}},
-  SchismDashboard:{getFieldReadyRelease:()=>({ok:false})}
+  SchismDashboard:{getCurrentEstimateRelease:()=>({ok:false})}
 };
 vm.runInNewContext(logic+'\nrenderDecisionBrief();renderDecisionBrief();', {document,window});
 assert.equal(writes,1,'unchanged decision content must not cause repeated DOM child mutations');
 assert.match(card.innerHTML,/Release Approval Required/,'unreleased analysis cannot be labeled Field Ready');
 assert.match(card.innerHTML,/Approval Required/,'Crew status must not imply unapproved readiness');
-window.SchismDashboard.getFieldReadyRelease=()=>({ok:true});
+window.SchismDashboard.getCurrentEstimateRelease=()=>({ok:true});
 document._events['schism:device-release-updated']();
 assert.equal(writes,2,'validated approval must update once');
 document._events['schism:device-release-updated']();
 assert.equal(writes,2,'repeated valid event must not retrigger observer DOM writes');
-window.SchismDashboard.getFieldReadyRelease=()=>({ok:false});
+window.SchismDashboard.getCurrentEstimateRelease=()=>({ok:false});
 document._events['schism:device-release-updated']();
 assert.equal(writes,3,'superseding release must invalidate readiness');
 assert.match(card.innerHTML,/Release Approval Required/);

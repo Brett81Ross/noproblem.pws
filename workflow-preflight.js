@@ -234,7 +234,7 @@
       photoCount,
       buildingLevel: document.body.getAttribute('data-building-level') === 'multiple' ? 'multiple' : 'one',
       matrix,
-      deviceReleaseReady:Boolean(typeof window !== 'undefined' && window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function' && window.SchismDashboard.getFieldReadyRelease().ok === true),
+      deviceReleaseReady:Boolean(typeof window !== 'undefined' && window.SchismDashboard && typeof window.SchismDashboard.getCurrentEstimateRelease === 'function' && window.SchismDashboard.getCurrentEstimateRelease().ok === true),
       learningAdvisories,
       propertyMemory,
       revision
