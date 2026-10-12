@@ -2496,10 +2496,10 @@
         // Invalid records may be retained solely to display a blocked summary.
         function getFieldReadyRelease(){
           try{
-            if(window.__schismReleaseState?.locked===true)
-              return {ok:false,snapshot:null,error:true,code:'analysis_not_approved',reason:'Estimate analysis or evidence review is still in progress.'};
             const stored=readCrewHandoffRecord();
             if(stored.error) return {ok:false,snapshot:null,error:true,code:'storage_corrupt',reason:stored.error};
+            if(window.__schismReleaseState?.locked===true)
+              return {ok:false,snapshot:stored.snapshot,error:true,code:'analysis_not_approved',reason:'Estimate analysis or evidence review is still in progress.'};
             const snapshot=stored.snapshot;
             const state=validateCrewRelease(snapshot);
             if(!state.ok) return {ok:false,snapshot,code:state.code,reason:state.reason};
@@ -2538,7 +2538,7 @@
             return {ok:false,snapshot:released,code:'different_property',reason:'The displayed property differs from the approved release.'};
           const contract=releaseContract();
           const picked=priceItemsRegistry.filter(item=>item&&!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
-          if(picked.length && contract.stableStringify(picked.slice().sort())!==
+          if(priceItemsRegistry.length && contract.stableStringify(picked.slice().sort())!==
               contract.stableStringify(released.selectedScopeItemIds.slice().sort()))
             return {ok:false,snapshot:released,code:'different_selection',reason:'The displayed scope differs from the approved release.'};
           return verified;

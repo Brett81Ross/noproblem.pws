@@ -249,6 +249,9 @@ function blocked(tab){
   tab.ctx.priceItemsRegistry=[{scopeItemId:'different_id',serviceId:'driveway_cleaning',value:50,disabled:false}];
   assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_selection',
     'a newly selected scope may not borrow an earlier scope release');
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:true}];
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_selection',
+    'deselecting the entire quote scope must never retain Field Ready');
 }
 {
   // Exercise the actual PDF action body, not just whether its click listener exists.
