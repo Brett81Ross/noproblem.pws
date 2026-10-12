@@ -83,6 +83,10 @@
     if (!matrix || typeof matrix !== 'object' || Array.isArray(matrix)) {
       return { ok: false, code: 'matrix_missing', reason: 'The released field plan is missing.' };
     }
+    var matrixMeta = matrix.__schismEstimate;
+    if (!matrixMeta || matrixMeta.estimateId !== snapshot.estimateId || matrixMeta.revision !== snapshot.estimateRevision) {
+      return { ok: false, code: 'matrix_revision_mismatch', reason: 'The field plan does not match the released estimate revision.' };
+    }
     if (matrix.requiresHumanReview === true) {
       return { ok: false, code: 'human_review_required', reason: matrix.humanReviewReason || 'Human review is still required.' };
     }
