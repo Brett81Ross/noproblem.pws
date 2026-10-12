@@ -47,7 +47,9 @@ function createTab(shared){
             return force;
           }
         },
-        addEventListener(){},setAttribute(){},scrollIntoView(){},appendChild(){},click(){},
+        addEventListener(type,fn){this._events||(this._events={});(this._events[type]||=([])).push(fn);},
+        setAttribute(){},scrollIntoView(){},appendChild(){},
+        click(){for(const fn of (this._events?.click||[])) fn({preventDefault(){},stopImmediatePropagation(){}});},
         querySelector(){return null;},querySelectorAll(){return []}
       });
     }
@@ -196,6 +198,21 @@ function blocked(tab){
     'global definition changes must not alter frozen released work values');
   assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().snapshot.matrixData.services[0].waterUsageGallons,90);
   assert.equal(definitions.house_wash.waterUsageGallons,900);
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(s.matrixData));
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false}];
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  tab.node('grandTotalDisplay').textContent='$0.01'; // Animated, not final.
+  tab.node('btnCrewHandoff').click();
+  assert.equal(tab.stored().approvedTotal,'$150.00','release total must ignore intermediate animation');
+  assert.equal(tab.stored().approvedTotalCents,15000);
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true);
+  assert.equal(tab.ctx.SchismDashboard.workflowState().crewReleased,true,'dashboard API uses same selector');
+  tab.ctx.techMatrixData.evidenceReview.readyForEstimate=false;
+  assert.equal(tab.ctx.SchismDashboard.workflowState().crewReleased,false,'dashboard API must block current evidence regression');
 }
 assert(!html.includes('<span>v1.1.0 · Field Ready</span>'),'dashboard must not claim release approval');
 assert(html.includes("function blockUnreviewedExternalAction(actionName)"),'export guard must exist');

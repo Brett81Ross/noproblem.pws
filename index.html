@@ -1887,7 +1887,7 @@
                 htmlOutput += `
                     <div class="tech-execution-card" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.08);">
                         <div class="tech-card-title" style="color: #22c55e;">${t.crewPlanTitle}</div>
-                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${scanData.fieldPlan.totalEstimatedHours || '2 Hours'}</div>
+                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${scanData.fieldPlan.totalEstimatedHours ?? '—'}</div>
                         <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
                         <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
                     </div>`;
@@ -2479,7 +2479,11 @@
               if(current.requiresHumanReview===true||current.evidenceReview?.readyForEstimate!==true)
                 return {ok:false,snapshot,code:'current_evidence_not_ready',reason:'Current evidence needs human review.'};
               const contract=releaseContract();
-              const services=contract.selectedServicesByScopeIds(current.services,snapshot.selectedScopeItemIds);
+              const services=contract.selectedServicesByScopeIds(current.services,snapshot.selectedScopeItemIds).map(item=>({
+                ...item,
+                estimatedTimeMinutes:item?.estimatedTimeMinutes===null||item?.estimatedTimeMinutes===undefined?null:Number(item.estimatedTimeMinutes),
+                waterUsageGallons:item?.waterUsageGallons===null||item?.waterUsageGallons===undefined?null:Number(item.waterUsageGallons)
+              }));
               if(contract.stableStringify(services)!==contract.stableStringify(snapshot.matrixData.services))
                 return {ok:false,snapshot,code:'current_scope_mismatch',reason:'The current approved scope differs from the device release.'};
             }
@@ -2892,6 +2896,14 @@
           byId('reportsBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
           byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
+          // Direct PDF buttons must not bypass the field release gate.
+          byId('downloadQuotePdfButton')?.addEventListener('click',event=>{
+            if(typeof isTechMode==='undefined'||!isTechMode) return;
+            if(getFieldReadyRelease().ok) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            alert('Field-plan export is blocked until the device release is re-approved.');
+          },true);
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
           window.addEventListener('storage',event=>{
             if(event.key===CREW_HANDOFF||event.key===null) syncVisibleCrewRelease();
@@ -2931,7 +2943,7 @@
             hasMatrix:Boolean(typeof techMatrixData!=='undefined' && techMatrixData),
             reportVisible:Boolean(byId('outputCard') && byId('outputCard').style.display!=='none'),
             crewHandoffReady:Boolean(byId('btnCrewHandoff') && !byId('btnCrewHandoff').disabled),
-            crewReleased:(()=>{const stored=readCrewHandoffRecord();return Boolean(stored.snapshot&&validateCrewRelease(stored.snapshot).ok);})()
+            crewReleased:getFieldReadyRelease().ok
           };
         }
         window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,estimateRevisionId,makeLocalId};
