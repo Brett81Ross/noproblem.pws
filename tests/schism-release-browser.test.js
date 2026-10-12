@@ -1,0 +1,203 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const contract=require('../schism-release-contract');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const match=html.match(/<script id="schismAugustDashboardController">([\s\S]*?)<\/script>/);
+assert(match,'Crew Command controller script must exist');
+const controller=match[1];
+const KEY='schismmatrix-crew-handoff-v1';
+
+function releaseFixture(){
+  const matrix={
+    __schismEstimate:{estimateId:'est_1',revision:1,jobKey:'test property|123 test st'},
+    requiresHumanReview:false,
+    evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+    services:[{scopeItemId:'scope_a',serviceId:'house_wash',estimatedTimeMinutes:45,waterUsageGallons:90,calculatedPrice:150}],
+    fieldPlan:{totalEstimatedMinutes:45,totalWaterUsageGallons:90,totalEstimatedHours:'0.8 Hours',crewSizeRecommended:1}
+  };
+  const snapshot={
+    schemaVersion:contract.SCHEMA_VERSION,
+    releaseId:'release_a',status:'released',deviceAuthority:'local',
+    releasedAt:'2026-10-12T14:00:00Z',estimateId:'est_1',estimateRevision:1,
+    estimateRevisionId:'est_1:r1',jobName:'Test property',jobAddress:'123 Test St',
+    approvedTotal:'$150.00',approvedTotalCents:15000,photoCount:0,
+    selectedScopeItemIds:['scope_a'],evidence:[],siteNotes:'',
+    workBasis:{services:[{scopeItemId:'scope_a',estimatedTimeMinutes:45,waterUsageGallons:90}],totalEstimatedMinutes:45,totalWaterUsageGallons:90},
+    matrixData:matrix
+  };
+  snapshot.integrityFingerprint=contract.computeReleaseFingerprint(snapshot);
+  assert.equal(contract.validateRelease(snapshot).ok,true);
+  return snapshot;
+}
+function createTab(shared){
+  const nodes=new Map(),docListeners=new Map(),winListeners=new Map();
+  let counter=0,fieldRenders=0;
+  function node(id){
+    if(!nodes.has(id)){
+      const classes=new Set();
+      nodes.set(id,{
+        id,hidden:false,style:{},textContent:'',innerText:'',innerHTML:'',value:'',disabled:false,
+        classList:{
+          add:(key)=>classes.add(key),remove:(key)=>classes.delete(key),
+          contains:(key)=>classes.has(key),toggle:(key,force)=>{
+            if(force===undefined)force=!classes.has(key);
+            if(force)classes.add(key);else classes.delete(key);
+            return force;
+          }
+        },
+        addEventListener(){},setAttribute(){},scrollIntoView(){},appendChild(){},click(){},
+        querySelector(){return null;},querySelectorAll(){return []}
+      });
+    }
+    return nodes.get(id);
+  }
+  const document={
+    hidden:false,body:{},
+    getElementById:node,
+    querySelector(){return null;},
+    querySelectorAll(){return []},
+    addEventListener:(type,fn)=>{(docListeners.get(type)||docListeners.set(type,[]).get(type)).push(fn);}
+  };
+  const localStorage={
+    getItem:key=>shared.has(key)?shared.get(key):null,
+    setItem:(key,value)=>shared.set(key,String(value)),
+    removeItem:key=>shared.delete(key)
+  };
+  const ctx={
+    document,localStorage,SchismReleaseContract:contract,
+    crypto:{randomUUID:()=>('test-'+(++counter))},
+    performance:{now:()=>0},
+    techMatrixData:null,userSiteNotes:'',currentJobLocation:null,
+    stagedBase64Images:[],stagedEvidenceMeta:[],priceItemsRegistry:[],
+    setAppMode(){},
+    renderTechModeView(){fieldRenders++;},
+    renderAdminModeView(){},
+    renderPreviewGrid(){},
+    requestAnimationFrame:fn=>fn(),
+    setTimeout(){},
+    MutationObserver:undefined,
+    CustomEvent:function(type,init){this.type=type;this.detail=init?.detail||{};},
+    scrollTo(){},
+    addEventListener:(type,fn)=>{(winListeners.get(type)||winListeners.set(type,[]).get(type)).push(fn);},
+    dispatchEvent(){}
+  };
+  ctx.window=ctx;
+  ctx.document.dispatchEvent=(event)=>{for(const fn of docListeners.get(event.type)||[])fn(event);};
+  vm.runInNewContext(controller,ctx,{filename:'SchismDashboard'});
+  for(const fn of docListeners.get('DOMContentLoaded')||[])fn();
+  return {
+    ctx,node,
+    emitWindow:(type,event={})=>{for(const fn of winListeners.get(type)||[])fn(event);},
+    fieldRenderCount:()=>fieldRenders,
+    put:snap=>localStorage.setItem(KEY,JSON.stringify(snap)),
+    stored:()=>JSON.parse(localStorage.getItem(KEY))
+  };
+}
+function ready(tab){
+  tab.ctx.SchismDashboard.selectCrew();
+  assert.equal(tab.node('crewReleaseStatus').textContent,'Device Release · Field Ready');
+  assert.notEqual(tab.node('resultsSection').style.display,'none');
+}
+function blocked(tab){
+  assert.equal(tab.node('crewReleaseStatus').textContent,'Re-release Required');
+  assert.equal(tab.node('resultsSection').style.display,'none','invalid release must hide execution plan');
+  assert.equal(tab.node('crewApprovalState').textContent,'Re-release Required');
+}
+{
+  const shared=new Map(),tab=createTab(shared),s=releaseFixture();
+  s.approvedTotal='$999.00'; // No new fingerprint: tampered store
+  tab.put(s);
+  tab.ctx.SchismDashboard.selectCrew();
+  blocked(tab);
+}
+{
+  const shared=new Map(),tab=createTab(shared);
+  tab.put(releaseFixture());
+  ready(tab);
+  const before=tab.fieldRenderCount();
+  tab.put(contract.markSuperseded(tab.stored(),'Estimate edited'));
+  tab.emitWindow('storage',{key:KEY});
+  blocked(tab);
+  assert.equal(tab.fieldRenderCount(),before,'superseded releases must not render the field plan again');
+  tab.emitWindow('focus');
+  blocked(tab);
+}
+{
+  const shared=new Map(),tab=createTab(shared),s=releaseFixture();
+  tab.put(s);ready(tab);
+  s.status='unexpected';
+  s.integrityFingerprint=contract.computeReleaseFingerprint(s);
+  tab.put(s);
+  tab.emitWindow('focus');
+  blocked(tab);
+  delete s.status;
+  s.integrityFingerprint=contract.computeReleaseFingerprint(s);
+  tab.put(s);
+  tab.emitWindow('storage',{key:KEY});
+  blocked(tab);
+}
+{
+  const shared=new Map(),tabA=createTab(shared),tabB=createTab(shared);
+  tabA.put(releaseFixture());
+  ready(tabA);ready(tabB);
+  tabA.ctx.SchismDashboard.markEstimateMutated('Scope changed');
+  tabB.emitWindow('storage',{key:KEY});
+  blocked(tabB);
+}
+{
+  const shared=new Map(),tab=createTab(shared);
+  tab.put(releaseFixture());ready(tab);
+  tab.ctx.techMatrixData.evidenceReview.readyForEstimate=false;
+  tab.emitWindow('focus');
+  blocked(tab);
+}
+{
+  const tab=createTab(new Map());
+  const previous={
+    __schismEstimate:{estimateId:'est_1',revision:1,jobKey:'|'},
+    services:[
+      {serviceId:'house_wash',scopeItemId:'one'},
+      {serviceId:'house_wash',scopeItemId:'two'},
+      {serviceId:'driveway_cleaning',scopeItemId:'stable'}
+    ]
+  };
+  const newMatrix={services:[
+    {serviceId:'house_wash'},{serviceId:'house_wash'},
+    {serviceId:'driveway_cleaning'}
+  ]};
+  tab.ctx.SchismDashboard.prepareMatrixForEstimate(newMatrix,previous);
+  assert.notEqual(newMatrix.services[0].scopeItemId,'one','ambiguous first item must have new identity');
+  assert.notEqual(newMatrix.services[1].scopeItemId,'two','ambiguous second item must have new identity');
+  assert.notEqual(newMatrix.services[0].scopeItemId,newMatrix.services[1].scopeItemId);
+  assert.equal(newMatrix.services[2].scopeItemId,'stable','unique service identity should persist');
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s);ready(tab);
+  const previous=tab.ctx.techMatrixData;
+  const next={services:[{serviceId:'house_wash',estimatedTimeMinutes:50,waterUsageGallons:95}],
+    requiresHumanReview:false,evidenceReview:{readyForEstimate:true}};
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  tab.ctx.techMatrixData=tab.ctx.SchismDashboard.prepareMatrixForEstimate(next,previous);
+  tab.ctx.SchismDashboard.noteEstimateReanalysis(previous);
+  assert.equal(tab.stored().status,'superseded','reanalysis must supersede old release');
+  assert.equal(tab.ctx.techMatrixData.__schismEstimate.revision,2);
+  blocked(tab);
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s);ready(tab);
+  const definitions={house_wash:{estimatedTimeMinutes:500,waterUsageGallons:900}};
+  tab.emitWindow('focus');
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().snapshot.matrixData.services[0].estimatedTimeMinutes,45,
+    'global definition changes must not alter frozen released work values');
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().snapshot.matrixData.services[0].waterUsageGallons,90);
+  assert.equal(definitions.house_wash.waterUsageGallons,900);
+}
+assert(!html.includes('<span>v1.1.0 · Field Ready</span>'),'dashboard must not claim release approval');
+assert(html.includes("function blockUnreviewedExternalAction(actionName)"),'export guard must exist');
+assert(html.includes("getFieldReadyRelease?.()"),'field exports must require central authorization');
+console.log('Schism Crew Command browser integration QA passed');

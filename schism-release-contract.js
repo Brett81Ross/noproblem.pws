@@ -126,8 +126,53 @@
       return { ok: false, code: 'selected_scope_mismatch', reason: 'The approved scope IDs do not match the released field plan.' };
     }
 
+    if (!Array.isArray(snapshot.evidence)) {
+      return { ok: false, code: 'evidence_snapshot_missing', reason: 'The release evidence snapshot is missing.' };
+    }
+
+    if (typeof snapshot.integrityFingerprint !== 'string' || !snapshot.integrityFingerprint) {
+      return { ok: false, code: 'integrity_missing', reason: 'The release integrity fingerprint is missing.' };
+    }
+    if (computeReleaseFingerprint(snapshot) !== snapshot.integrityFingerprint) {
+      return { ok: false, code: 'integrity_mismatch', reason: 'The device release failed its integrity check.' };
+    }
+
     if (!Number.isSafeInteger(snapshot.approvedTotalCents) || snapshot.approvedTotalCents < 0 ||
-        snapshot.approvedTotal !== '$' + (snapshot.approvedTotalCents / 100).toFixed(2)) {
+        snapshot.approvedTotal !== '
+      return {
+        ok: false,
+        code: snapshot.status === 'superseded' ? 'release_superseded' : 'release_not_active',
+        reason: snapshot.status === 'superseded'
+          ? (snapshot.supersededReason || 'The estimate changed after release. Re-release is required.')
+          : 'The device release is not active.'
+      };
+    }
+
+    return { ok: true, code: 'ok', reason: '' };
+  }
+
+  function markSuperseded(snapshot, reason, timestamp) {
+    var next = clone(snapshot || {});
+    next.status = 'superseded';
+    next.supersededAt = timestamp || new Date().toISOString();
+    next.supersededReason = String(reason || 'The estimate changed after release. Re-release is required.').slice(0, 240);
+    next.integrityFingerprint = computeReleaseFingerprint(next);
+    return next;
+  }
+
+  return Object.freeze({
+    SCHEMA_VERSION: SCHEMA_VERSION,
+    ACTIVE_STATUS: ACTIVE_STATUS,
+    EXCLUDED_SERVICE_IDS: EXCLUDED_SERVICE_IDS,
+    stableStringify: stableStringify,
+    hashText: hashText,
+    computeReleaseFingerprint: computeReleaseFingerprint,
+    selectedServicesByScopeIds: selectedServicesByScopeIds,
+    validateRelease: validateRelease,
+    markSuperseded: markSuperseded
+  });
+});
+ + (snapshot.approvedTotalCents / 100).toFixed(2)) {
       return { ok: false, code: 'approved_total_invalid', reason: 'The approved total is missing or inconsistent.' };
     }
     var basis = snapshot.workBasis;
@@ -156,17 +201,6 @@
         matrix.fieldPlan.totalEstimatedMinutes !== basis.totalEstimatedMinutes ||
         matrix.fieldPlan.totalWaterUsageGallons !== basis.totalWaterUsageGallons) {
       return { ok: false, code: 'work_totals_mismatch', reason: 'Released time or water totals do not match approved scope.' };
-    }
-
-    if (!Array.isArray(snapshot.evidence)) {
-      return { ok: false, code: 'evidence_snapshot_missing', reason: 'The release evidence snapshot is missing.' };
-    }
-
-    if (typeof snapshot.integrityFingerprint !== 'string' || !snapshot.integrityFingerprint) {
-      return { ok: false, code: 'integrity_missing', reason: 'The release integrity fingerprint is missing.' };
-    }
-    if (computeReleaseFingerprint(snapshot) !== snapshot.integrityFingerprint) {
-      return { ok: false, code: 'integrity_mismatch', reason: 'The device release failed its integrity check.' };
     }
 
     if (snapshot.status !== ACTIVE_STATUS) {
