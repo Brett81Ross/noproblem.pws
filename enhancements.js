@@ -550,61 +550,8 @@
   }
 
   function decisionMoney(value) {
-    var number = Number(value);
-    return Number.isFinite(number) ? '
-    var quoteActions = document.querySelector('.quote-actions');
-    if (!quoteActions || document.getElementById('downloadQuotePdfButton')) return;
-
-    var button = document.createElement('button');
-    button.className = 'button pdf-download-button';
-    button.id = 'downloadQuotePdfButton';
-    button.type = 'button';
-    button.textContent = 'Download customer PDF';
-    button.addEventListener('click', downloadQuotePdf);
-    quoteActions.appendChild(button);
-    syncQuoteReleaseControls();
-  }
-
-  function observeResults() {
-    var resultsMount = document.getElementById('resultsMount');
-    if (!resultsMount || typeof MutationObserver !== 'function') return;
-
-    var observer = new MutationObserver(function () {
-      updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
-      ensurePdfButton();
-      renderDecisionBrief();
-    });
-    observer.observe(resultsMount, { childList: true, subtree: true });
-    ensurePdfButton();
-    renderDecisionBrief();
-  }
-
-  function observeEvidenceGrid() {
-    var evidenceGrid = document.getElementById('evidenceGrid');
-    if (!evidenceGrid || typeof MutationObserver !== 'function') return;
-
-    var observer = new MutationObserver(function () {
-      updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
-    });
-    observer.observe(evidenceGrid, { childList: true });
-    updateEvidenceGuidance(document.body.getAttribute('data-building-level'));
-  }
-
-  function init() {
-    createCustomerFields();
-    restoreCustomerContact();
-    addCustomerContactEvents();
-    createHeightSelector();
-    addSelectorEvents();
-    applyLevel(readSavedLevel());
-    patchAnalysisRequest();
-    observeEvidenceGrid();
-    observeResults();
-  }
-
-  init();
-})();
- + number.toFixed(2) : '';
+    var number=Number(value);
+    return Number.isFinite(number) ? '$' + number.toFixed(2) : '';
   }
 
   function decisionLabelId(value) {
@@ -639,7 +586,11 @@
 
     ensureDecisionBriefStyles();
 
+    // Analysis eligibility does not authorize field execution.
+    var approvedRelease = Boolean(window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function' && window.SchismDashboard.getFieldReadyRelease().ok === true);
     var status = support.status || 'review_required';
+    if(status === 'field_ready' && !approvedRelease) status = 'review_required';
+    var statusLabel = approvedRelease ? (support.statusLabel || status) : (support.status === 'field_ready' ? 'Release Approval Required' : (support.statusLabel || status));
     var evidence = support.evidence || {};
     var pricing = support.pricing || {};
     var scope = support.scope || {};
@@ -652,12 +603,12 @@
     var integrityIssues = Array.isArray(quoteIntegrity.issues) ? quoteIntegrity.issues : [];
 
     var html = '<div class="schism-decision-head"><div><div class="schism-decision-kicker">Matrix Decision Brief</div></div><span class="schism-decision-status">' +
-      decisionEscapeHtml(support.statusLabel || status) + '</span></div>' +
+      decisionEscapeHtml(statusLabel) + '</span></div>' +
       '<div class="schism-decision-summary">' + decisionEscapeHtml(support.summary || '') + '</div>' +
       '<div class="schism-decision-grid">' +
         '<div class="schism-decision-stat"><span>Evidence</span><strong>' + decisionEscapeHtml(decisionLabelId(evidence.strength || 'limited')) + '</strong></div>' +
         '<div class="schism-decision-stat"><span>Photos / Measurements</span><strong>' + decisionEscapeHtml(String(evidence.photoCount || 0)) + ' / ' + decisionEscapeHtml(String(evidence.measuredSurfaceCount || 0)) + '</strong></div>' +
-        '<div class="schism-decision-stat"><span>Crew Handoff</span><strong>' + (crew.ready ? 'Ready' : 'Locked') + '</strong></div>' +
+        '<div class="schism-decision-stat"><span>Crew Handoff</span><strong>' + (approvedRelease ? 'Device Release Ready' : (crew.ready ? 'Approval Required' : 'Locked')) + '</strong></div>' +
       '</div>';
 
     if (next && next.prompt) {

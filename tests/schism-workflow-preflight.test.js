@@ -134,9 +134,14 @@ function base(overrides) {
       }
     }
   }));
-  assert.equal(result.state, 'crew_ready');
-  assert.equal(result.readiness, 'field_ready');
-  assert.equal(result.nextAction.id, 'crew');
+  assert.equal(result.state, 'review_quote', 'analysis alone must not authorize Field Ready');
+  const approved=evaluatePreflight(base({
+    deviceReleaseReady:true,
+    matrix:{requiresHumanReview:false,decisionSupport:{status:'field_ready',quoteIntegrity:{issues:[]},crew:{ready:true}}}
+  }));
+  assert.equal(approved.state, 'crew_ready');
+  assert.equal(approved.readiness, 'field_ready');
+  assert.equal(approved.nextAction.id, 'crew');
 }
 
 {

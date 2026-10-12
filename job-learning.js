@@ -658,11 +658,20 @@
   }
 
   function browserRuntimeSnapshot() {
-    var runtime = typeof window !== 'undefined' && window.SchismRuntime && typeof window.SchismRuntime.snapshot === 'function'
-      ? window.SchismRuntime.snapshot()
-      : null;
-    if (!runtime || !runtime.matrix) return null;
-    return matrixSnapshot(runtime.matrix, runtime);
+    // Completed-job learning is based on the explicit, validated device release,
+    // never an unapproved draft or stale in-memory estimate.
+    var authorization = typeof window !== 'undefined' && window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function'
+      ? window.SchismDashboard.getFieldReadyRelease() : null;
+    if (!authorization || authorization.ok !== true || !authorization.snapshot) return null;
+    var approved = authorization.snapshot;
+    var matrix = approved.matrixData;
+    if (!matrix || !Array.isArray(matrix.services)) return null;
+    return matrixSnapshot(matrix, {
+      jobName: approved.jobName,
+      jobAddress: approved.jobAddress,
+      quotedTotal: approved.approvedTotalCents / 100,
+      selectedServiceIds: matrix.services.map(function (service) { return service && service.serviceId; }).filter(Boolean)
+    });
   }
 
   function ensureStyles() {

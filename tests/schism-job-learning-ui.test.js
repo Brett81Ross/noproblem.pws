@@ -22,6 +22,8 @@ assert(index.includes('id="dashLearningPrice"'), 'dashboard price-bias signal is
 assert(index.includes('id="dashLearningTime"'), 'dashboard time-bias signal is missing');
 assert(index.includes('id="dashLearningSignal"'), 'dashboard learning-state signal is missing');
 
+assert(learning.includes("window.SchismDashboard.getFieldReadyRelease()"), 'completion learning must require valid device release');
+assert(learning.includes('approved.approvedTotalCents / 100'), 'learning must use frozen approved quote total');
 assert(learning.includes('Close Job & Teach Matrix'), 'Crew Command job completion learning UI is missing');
 assert(learning.includes('Actual collected ($)'), 'actual revenue capture is missing');
 assert(learning.includes('Actual crew minutes'), 'actual crew time capture is missing');

@@ -166,7 +166,7 @@
       };
     }
 
-    if (decision && decision.crew && decision.crew.ready === true) {
+    if (decision && decision.crew && decision.crew.ready === true && input.deviceReleaseReady === true) {
       return {
         version: 1,
         state: 'crew_ready',
@@ -234,6 +234,7 @@
       photoCount,
       buildingLevel: document.body.getAttribute('data-building-level') === 'multiple' ? 'multiple' : 'one',
       matrix,
+      deviceReleaseReady:Boolean(typeof window !== 'undefined' && window.SchismDashboard && typeof window.SchismDashboard.getFieldReadyRelease === 'function' && window.SchismDashboard.getFieldReadyRelease().ok === true),
       learningAdvisories,
       propertyMemory,
       revision
