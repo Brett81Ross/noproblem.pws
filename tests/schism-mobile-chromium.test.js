@@ -155,6 +155,39 @@ async function main(){
       assert(back,name+': return navigation failed');
       console.log('Mobile Chrome '+name+' '+width+'x'+height+': PASS');
     }
+
+    // First-run splash acceptance: both studio and app symbols load,
+    // stay inside a Fold cover screen, and tap takes the user into the app.
+    await cdp.send('Emulation.setDeviceMetricsOverride',{
+      width:360,height:780,deviceScaleFactor:2,mobile:true,screenWidth:360,screenHeight:780
+    });
+    await cdp.send('Page.navigate',{url:host+'/'});
+    await delay(550);
+    const splash=await evaluate(cdp,function(){
+      const el=document.getElementById('splash');
+      const studio=document.querySelector('.studio-mark');
+      const app=document.querySelector('.app-logo');
+      const images=[studio,app].map(img=>({
+        found:!!img,
+        loaded:!!img&&img.complete&&img.naturalWidth>0,
+        left:img?.getBoundingClientRect().left||0,
+        right:img?.getBoundingClientRect().right||0
+      }));
+      return {visible:!!el,images,width:innerWidth,docWidth:document.documentElement.scrollWidth};
+    });
+    assert(splash.visible&&splash.images.every(item=>
+      item.loaded&&item.left>=-2&&item.right<=splash.width+2),
+      'Launch splash logos are missing or clipped on Fold cover: '+JSON.stringify(splash));
+    assert(splash.docWidth<=362,'Splash creates horizontal overflow');
+    await evaluate(cdp,function(){document.getElementById('splash').click();return true;});
+    await delay(1000);
+    const entered=await evaluate(cdp,function(){
+      return {route:location.pathname,dashboard:!!window.SchismDashboard,
+        visible:!!document.getElementById('augustDashboard')&&!document.getElementById('augustDashboard').hidden};
+    });
+    assert(entered.route==='/index.html'&&entered.dashboard&&entered.visible,
+      'Tap-to-enter failed: '+JSON.stringify(entered));
+    console.log('Mobile Chrome Fold cover splash logos and tap-to-enter: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
     const exited=child.exitCode!==null?Promise.resolve():new Promise(resolve=>child.once('exit',resolve));
