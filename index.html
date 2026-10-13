@@ -1824,14 +1824,27 @@
                     runningSum += item.value;
                 }
             });
+            if(!Number.isFinite(runningSum)){
+                currentTotalValue=Number.NaN;
+                document.getElementById('grandTotalDisplay').textContent='Price Review Required';
+                return;
+            }
             animatePriceRollup(runningSum);
+        }
+
+        // Values from the analysis service are untrusted text, not HTML.
+        function escapeMatrixHtml(value) {
+            return String(value===null||value===undefined?'':value)
+                .replace(/[&<>"']/g,character=>({
+                    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+                }[character]));
         }
 
         function renderAdminModeView(scanData) {
             let htmlOutput = "";
             if (scanData.requiresHumanReview) {
                 const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not treat this estimate as field-ready until the missing evidence is reviewed.</strong></div></div>`;
+                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${escapeMatrixHtml(reason)}<br><strong>Do not treat this estimate as field-ready until the missing evidence is reviewed.</strong></div></div>`;
             }
             priceItemsRegistry = [];
             let globalCardIndex = 0;
@@ -1840,7 +1853,9 @@
             if (scanData.services && Array.isArray(scanData.services)) {
                 htmlOutput += `<div class="proposal-section-title">${t.diagTitle}</div>`;
                 scanData.services.forEach(item => {
-                    const itemTotal = item.calculatedPrice || 0;
+                    const price=Number(item.calculatedPrice);
+                    const itemTotal=item.calculatedPrice!==undefined && item.calculatedPrice!==null &&
+                        Number.isFinite(price) && price>=0 ? price : Number.NaN;
                     const desc = currentLang === 'es' && item.spanishReason ? item.spanishReason : (item.reason || 'Surface treatment required.');
                     const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${desc}`;
                     
@@ -1848,8 +1863,8 @@
 
                     htmlOutput += `
                         <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
-                            <div class="item-text">${textContent}</div>
-                            <span class="price-badge" id="priceBadge_${globalCardIndex}">$${itemTotal.toFixed(2)}</span>
+                            <div class="item-text">${escapeMatrixHtml(textContent)}</div>
+                            <span class="price-badge" id="priceBadge_${globalCardIndex}">${Number.isFinite(itemTotal)?'$'+itemTotal.toFixed(2):'Price Review Required'}</span>
                         </div>`;
                     globalCardIndex++;
                 });
@@ -1859,7 +1874,7 @@
                 htmlOutput += `<div class="proposal-section-title">${t.hazardsTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
                     const hazText = currentLang === 'es' && hazard.spanishAction ? `${hazard.spanishHazard} - ${hazard.spanishAction}` : `${hazard.hazard} - ${hazard.action}`;
-                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazText}</div>`;
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${escapeMatrixHtml(hazText)}</div>`;
                 });
             }
 
@@ -1882,7 +1897,7 @@
             let htmlOutput = "";
             if (scanData.requiresHumanReview) {
                 const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not start work from this plan until the missing evidence is reviewed.</strong></div></div>`;
+                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${escapeMatrixHtml(reason)}<br><strong>Do not start work from this plan until the missing evidence is reviewed.</strong></div></div>`;
             }
             const t = translations[currentLang];
 
@@ -1901,9 +1916,9 @@
                 htmlOutput += `
                     <div class="tech-execution-card" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.08);">
                         <div class="tech-card-title" style="color: #22c55e;">${t.crewPlanTitle}</div>
-                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${scanData.fieldPlan.totalEstimatedHours ?? '—'}</div>
-                        <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
-                        <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
+                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${escapeMatrixHtml(scanData.fieldPlan.totalEstimatedHours ?? '—')}</div>
+                        <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${escapeMatrixHtml(scanData.fieldPlan.crewSizeRecommended ?? '—')} Tech(s)</div>
+                        <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${escapeMatrixHtml(scanData.fieldPlan.difficulty || 'Moderate')}</div>
                     </div>`;
             }
 
@@ -1912,12 +1927,12 @@
                 scanData.services.forEach(item => {
                     htmlOutput += `
                         <div class="tech-execution-card">
-                            <div class="tech-card-title">📌 ${item.label || item.serviceId}</div>
-                            <div class="tech-metric-row"><strong>${t.scope}</strong> ${item.quantity} ${item.quantityUnit}</div>
-                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${item.estimatedTimeMinutes ?? '—'} Minutes</div>
-                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${item.waterUsageGallons ?? '—'} Gallons</div>
-                            <div class="tech-metric-row"><strong>${t.chem}</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
-                            <div class="tech-metric-row"><strong>${t.steps}</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
+                            <div class="tech-card-title">📌 ${escapeMatrixHtml(item.label || item.serviceId)}</div>
+                            <div class="tech-metric-row"><strong>${t.scope}</strong> ${escapeMatrixHtml(item.quantity)} ${escapeMatrixHtml(item.quantityUnit)}</div>
+                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${escapeMatrixHtml(item.estimatedTimeMinutes ?? '—')} Minutes</div>
+                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${escapeMatrixHtml(item.waterUsageGallons ?? '—')} Gallons</div>
+                            <div class="tech-metric-row"><strong>${t.chem}</strong> ${escapeMatrixHtml(item.chemicalPrescription || 'Standard')} -> ${escapeMatrixHtml(item.batchMixingInstructions || 'Standard mix')}</div>
+                            <div class="tech-metric-row"><strong>${t.steps}</strong> ${escapeMatrixHtml(item.executionInstructions || 'Standard operating procedure.')}</div>
                         </div>`;
                 });
             }
@@ -1925,7 +1940,7 @@
             if (scanData.hazards && scanData.hazards.length > 0) {
                 htmlOutput += `<div class="proposal-section-title">${t.safetyTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
-                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard}: ${hazard.action}</div>`;
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${escapeMatrixHtml(hazard.hazard)}: ${escapeMatrixHtml(hazard.action)}</div>`;
                 });
             }
 
@@ -2585,6 +2600,7 @@
           if(new Set(scopeIds).size!==scopeIds.length) return {ok:false,reason:'Duplicate scope IDs require a new estimate review.'};
           const selected=priceItemsRegistry.filter(item=>!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
           if(!selected.length) return {ok:false,reason:'Select at least one approved scope item before release.'};
+          if(approvedScopeTotalCents()===null)return {ok:false,reason:'A selected service has invalid pricing. Review the quote before release.'};
           if(new Set(selected).size!==selected.length||selected.some(id=>!scopeIds.includes(id)))
             return {ok:false,reason:'Selected scope identity is invalid. Review the estimate again.'};
           return {ok:true,reason:'',selectedScopeItemIds:selected};
