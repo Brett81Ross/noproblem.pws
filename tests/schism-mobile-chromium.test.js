@@ -73,7 +73,7 @@ async function connect(url){
 }
 async function evaluate(cdp,fn){
   const result=await cdp.send('Runtime.evaluate',{
-    expression:'('+fn.toString()+')()',returnByValue:true,awaitPromise:true
+    expression:'('+fn.toString()+')()',returnByValue:true,awaitPromise:fn.constructor.name==='AsyncFunction'
   });
   if(result.exceptionDetails)throw Error('Page JS: '+JSON.stringify(result.exceptionDetails).slice(0,600));
   return result.result.value;
