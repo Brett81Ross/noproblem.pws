@@ -299,7 +299,7 @@
 
   function syncQuoteReleaseControls() {
     var locked = isQuoteReleaseLocked();
-    ['downloadQuotePdfButton', 'btnExportPDF', 'btnEmailClient', 'copyButton', 'btnCrewHandoff'].forEach(function (id) {
+    ['downloadQuotePdfButton', 'btnExportPDF', 'btnEmailClient', 'copyButton'].forEach(function (id) {
       var button = document.getElementById(id);
       if (!button) return;
       button.disabled = locked;
@@ -441,63 +441,44 @@
     return new Blob([pdf], { type: 'application/pdf' });
   }
 
-  function quotePdfLines() {
-    var jobName = document.getElementById('jobName');
-    var jobAddress = document.getElementById('jobAddress');
-    var customerEmail = document.getElementById('customerEmail');
-    var customerPhone = document.getElementById('customerPhone');
-    var resultTitle = document.querySelector('.result-title');
-    var resultSummary = document.querySelector('.result-summary');
-    var total = document.querySelector('.quote-total strong');
-    var selectedServices = document.querySelectorAll('.quoted-service[aria-pressed="true"]');
-    var editState = window.NPMatrixQuote && typeof window.NPMatrixQuote.getState === 'function' ? window.NPMatrixQuote.getState() : { discountPercent: 0, quoteNotes: '' };
-    var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
-    var lines = [
-      'SCHISMMATRIX(TM)',
-      'PROPERTY INTELLIGENCE',
-      'CUSTOMER QUOTE',
-      '',
-      'Prepared: ' + new Date().toLocaleDateString('en-US'),
-      jobName && jobName.value.trim() ? 'Project: ' + jobName.value.trim() : 'Project: Pressure washing service',
-      jobAddress && jobAddress.value.trim() ? 'Property: ' + jobAddress.value.trim() : '',
-      customerEmail && customerEmail.value.trim() ? 'Customer email: ' + customerEmail.value.trim() : '',
-      customerPhone && customerPhone.value.trim() ? 'Customer phone: ' + customerPhone.value.trim() : '',
-      'Building height: ' + level,
-      '',
-      'QUOTE SUMMARY',
-      resultTitle ? resultTitle.textContent.trim() : '',
-      resultSummary ? resultSummary.textContent.trim() : '',
-      '',
-      'SELECTED SERVICES'
-    ].filter(function (line, index, array) {
-      return line || (index > 0 && array[index - 1] !== '');
+  function quotePdfLines(quote) {
+    if(!quote||!Array.isArray(quote.services)||!quote.services.length||
+      !Number.isSafeInteger(quote.totalCents)||quote.totalCents<0)return [];
+    const state=!quote.released&&window.NPMatrixQuote&&
+      typeof window.NPMatrixQuote.getState==='function'
+      ?window.NPMatrixQuote.getState():{quoteNotes:''};
+    const level=document.body.getAttribute('data-building-level')===MULTIPLE_LEVELS
+      ?'Multiple levels':'One story';
+    const lines=[
+      'SCHISMMATRIX(TM)','PROPERTY INTELLIGENCE',
+      quote.released?'APPROVED DEVICE RELEASE':'CUSTOMER QUOTE',
+      '','Prepared: '+new Date().toLocaleDateString('en-US'),
+      'Project: '+(quote.jobName||'Pressure washing service'),
+      'Property: '+(quote.jobAddress||'Address not saved'),
+      quote.customerEmail?'Customer email: '+quote.customerEmail:'',
+      quote.customerPhone?'Customer phone: '+quote.customerPhone:'',
+      'Building height: '+level,
+      quote.released?'Release ID: '+quote.releaseId:'',
+      '','SELECTED SERVICES'
+    ].filter((line,index,all)=>line||(index>0&&all[index-1]!==''));
+    quote.services.forEach((service,index)=>{
+      const price=Number.isSafeInteger(service.priceCents)
+        ?' - $'+(service.priceCents/100).toFixed(2):'';
+      const quantity=service.quantity===null||service.quantity===undefined?''
+        :String(service.quantity)+' '+String(service.quantityUnit||'');
+      lines.push((index+1)+'. '+(service.label||service.serviceId||'Service')+price);
+      if(quantity.trim())lines.push('   Quantity: '+quantity.trim());
+      if(service.reason)lines.push('   '+service.reason);
     });
-
-    Array.prototype.forEach.call(selectedServices, function (service, index) {
-      var name = service.querySelector('.service-name');
-      var price = service.querySelector('.service-price');
-      var meta = service.querySelector('.service-meta');
-      var reason = service.querySelector('.service-reason');
-      lines.push((index + 1) + '. ' + (name ? name.textContent.trim() : 'Service') + (price ? ' - ' + price.textContent.trim() : ''));
-      if (meta) lines.push('   ' + meta.textContent.replace(/\s+/g, ' ').trim());
-      if (reason) lines.push('   ' + reason.textContent.trim());
-    });
-
-    if (!selectedServices.length) lines.push('No services selected.');
-
-    lines.push('');
-    if (Number(editState.discountPercent)) lines.push('DISCOUNT: ' + Number(editState.discountPercent) + '%');
-    lines.push('SELECTED PLAN TOTAL: ' + (total ? total.textContent.trim() : 'To be confirmed'));
-    if (editState.quoteNotes) lines.push('QUOTE NOTES: ' + editState.quoteNotes);
-    lines.push('');
-    lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
-    lines.push(level === 'Multiple levels'
-      ? 'Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'
-      : 'Ground-level and one-story exterior washing are included. Roof cleaning is not included.');
-    lines.push('');
-    lines.push('SchismMatrix(TM)');
-    lines.push('Cactus Byte Studios(TM) | All Rights Reserved');
-
+    lines.push('','SELECTED PLAN TOTAL: $'+(quote.totalCents/100).toFixed(2));
+    if(state?.quoteNotes)lines.push('QUOTE NOTES: '+state.quoteNotes);
+    if(quote.siteNotes)lines.push('SITE NOTES: '+quote.siteNotes);
+    lines.push('',
+      'Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.',
+      level==='Multiple levels'
+      ?'Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'
+      :'Ground-level and one-story exterior washing are included. Roof cleaning is not included.',
+      '','SchismMatrix(TM)','Cactus Byte Studios(TM) | All Rights Reserved');
     return lines;
   }
 
@@ -525,12 +506,14 @@
       }
     }
     if (blockQuoteRelease('Download customer PDF')) return;
-    if (!document.querySelector('.quote-total')) {
-      showNotice('Finish a quote before downloading the customer PDF.');
+    var source=window.SchismRuntime && typeof window.SchismRuntime.quoteDocument==='function'
+      ?window.SchismRuntime.quoteDocument():null;
+    var lines=quotePdfLines(source);
+    if(!lines.length){
+      showNotice('Review and select a valid quote before downloading the PDF.');
       return;
     }
-
-    var blob = createPdfBlob(quotePdfLines());
+    var blob = createPdfBlob(lines);
     var url = URL.createObjectURL(blob);
     var link = document.createElement('a');
     link.href = url;

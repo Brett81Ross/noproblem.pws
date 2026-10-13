@@ -275,7 +275,7 @@ function blocked(tab){
     const env={document,window,
       showNotice:text=>result.notices.push(text),
       blockQuoteRelease:()=>false,
-      createPdfBlob:()=>({}),quotePdfLines:()=>[],pdfFileName:()=>('approved-quote.pdf'),
+      createPdfBlob:()=>({}),quotePdfLines:()=>['QUOTE'],pdfFileName:()=>('approved-quote.pdf'),
       URL:{createObjectURL:()=>('blob:fixture'),revokeObjectURL(){}},
       setTimeout(){}};
     vm.runInNewContext(pdfAction+'\ndownloadQuotePdf();',env);
