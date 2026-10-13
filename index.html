@@ -1933,64 +1933,55 @@
             syncReviewLockState();
         }
 
+        // Copy and Email must show exactly the data approved for PDF export.
+        // The field plan is generated from the immutable device release.
         function generateActiveProposalText() {
-            let proposalText = "";
-            const reviewWarning = techMatrixData?.requiresHumanReview
-                ? `REVIEW REQUIRED: ${techMatrixData.humanReviewReason || 'Important property evidence is still missing.'}\nThis estimate/work plan is not field-ready until reviewed.\n\n`
-                : "";
-            if (isTechMode) {
-                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n` + reviewWarning;
-                proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
-                if (currentJobLocation) {
-                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
-                if (userSiteNotes) {
-                    proposalText += `SATELLITE/SITE NOTES: ${userSiteNotes}\n\n`;
-                } else {
-                    proposalText += `\n`;
-                }
-                if (techMatrixData && techMatrixData.fieldPlan) {
-                    proposalText += `JOB SUMMARY:\n`;
-                    proposalText += `- Total Window: ${techMatrixData.fieldPlan.totalEstimatedHours || '2 Hours'}\n`;
-                    proposalText += `- Crew Size: ${techMatrixData.fieldPlan.crewSizeRecommended || 1} Tech(s)\n\n`;
-                }
-                if (techMatrixData && techMatrixData.services) {
-                    techMatrixData.services.forEach(item => {
-                        proposalText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
-                        proposalText += `  - Timeline: ${item.estimatedTimeMinutes ?? '—'} Mins | Water: ~${item.waterUsageGallons ?? '—'} Gal\n`;
-                        proposalText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
-                        proposalText += `  - Execution: ${item.executionInstructions}\n\n`;
-                    });
-                }
-            } else {
-                proposalText = currentLang === 'es' 
-                    ? `SCHISMMATRIX - REVISIÓN DE ESTIMACIÓN\n\n`
-                    : `SCHISMMATRIX - ESTIMATE REVIEW\n\n`;
-                
-                if (currentJobLocation) {
-                    proposalText += currentLang === 'es' 
-                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`
-                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
-                if (userSiteNotes) {
-                    proposalText += currentLang === 'es'
-                        ? `NOTAS DEL SITIO: ${userSiteNotes}\n\n`
-                        : `SITE NOTES: ${userSiteNotes}\n\n`;
-                } else {
-                    proposalText += `\n`;
-                }
-
-                priceItemsRegistry.forEach(item => {
-                    if (item.disabled) return;
-                    if (item.value > 0) {
-                        proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
-                    }
+            const quote=window.SchismRuntime?.quoteDocument?.();
+            if(!quote)return '';
+            const amount=cents=>'$'+(cents/100).toFixed(2);
+            const lines=[
+                quote.released?'SCHISMMATRIX - APPROVED FIELD WORK PLAN':'SCHISMMATRIX - CUSTOMER ESTIMATE',
+                'Project: '+(quote.jobName||'Property'),
+                'Property: '+(quote.jobAddress||'Address not saved')
+            ];
+            if(quote.released){
+                const verified=window.SchismDashboard?.getFieldReadyRelease?.();
+                if(!verified?.ok||verified.snapshot.releaseId!==quote.releaseId)return '';
+                const release=verified.snapshot;
+                const matrix=release.matrixData;
+                lines.push('Release ID: '+release.releaseId);
+                if(release.location && Number.isFinite(Number(release.location.lat))&&Number.isFinite(Number(release.location.lon)))
+                    lines.push('Job site GPS: '+Number(release.location.lat).toFixed(5)+', '+Number(release.location.lon).toFixed(5));
+                if(quote.siteNotes)lines.push('Site notes: '+quote.siteNotes);
+                lines.push('','JOB SUMMARY:');
+                const plan=matrix.fieldPlan||{};
+                lines.push('Total window: '+(plan.totalEstimatedHours??'Not established'));
+                lines.push('Crew size: '+(plan.crewSizeRecommended??'Not established'));
+                lines.push('','APPROVED EXECUTION SCOPE:');
+                (matrix.services||[]).forEach(item=>{
+                    lines.push('- '+(item.label||item.serviceId||'Service')+' ('+String(item.quantity??'—')+' '+String(item.quantityUnit||'')+')');
+                    lines.push('  Time: '+(item.estimatedTimeMinutes??'—')+' minutes; Water: '+(item.waterUsageGallons??'—')+' gallons');
+                    if(item.chemicalPrescription)lines.push('  Chemical: '+item.chemicalPrescription);
+                    if(item.batchMixingInstructions)lines.push('  Mixing: '+item.batchMixingInstructions);
+                    if(item.executionInstructions)lines.push('  Execution: '+item.executionInstructions);
                 });
-                proposalText += `\nTOTAL: ${document.getElementById('grandTotalDisplay').innerText}\n`;
-                proposalText += `\n----------------------------------------\n`;
-                proposalText += currentLang === 'es' ? `TÉRMINOS Y CONDICIONES:\n- Estimación válida por 30 días.\n- El cliente garantiza acceso a fuente de agua y electricidad.` : `TERMS & CONDITIONS:\n- Estimate valid for 30 days.\n- Client guarantees access to water and power.`;
+            }else{
+                if(quote.siteNotes)lines.push('Site notes: '+quote.siteNotes);
+                lines.push('','SELECTED SERVICES:');
+                quote.services.forEach(item=>{
+                    lines.push('- '+(item.label||item.serviceId||'Service')+
+                        (Number.isSafeInteger(item.priceCents)?': '+amount(item.priceCents):''));
+                    if(item.quantity!==undefined&&item.quantity!==null)
+                        lines.push('  Quantity: '+item.quantity+' '+(item.quantityUnit||''));
+                    if(item.reason)lines.push('  '+item.reason);
+                });
             }
-            return proposalText;
+            lines.push('','TOTAL: '+amount(quote.totalCents));
+            if(!quote.released){
+                lines.push('','Estimate valid for 30 days. Customer provides water and power.');
+                lines.push('Final measurements, access, and conditions must be confirmed on site.');
+            }
+            return lines.join('\n');
         }
 
         function syncReviewLockState() {
@@ -2006,16 +1997,14 @@
         }
 
         function blockUnreviewedExternalAction(actionName) {
-            if (isTechMode) {
-                const release=window.SchismDashboard?.getFieldReadyRelease?.();
-                if(!release?.ok){
-                    alert(actionName + ' is blocked. Crew Command requires a validated device release.');
-                    return true;
-                }
+            const quote=window.SchismRuntime?.quoteDocument?.();
+            if(quote&&quote.services.length>0)return false;
+            const toast=document.getElementById('toast');
+            if(toast){
+                toast.textContent=actionName+' blocked. Review the current quote or re-release the field plan.';
+                toast.classList.add('is-visible');
+                setTimeout(()=>toast.classList.remove('is-visible'),2800);
             }
-            if (!techMatrixData?.requiresHumanReview) return false;
-            const reason = techMatrixData.humanReviewReason || 'Important property evidence is still missing.';
-            alert(actionName + ' is locked until human review is complete.\n\n' + reason);
             return true;
         }
 
@@ -2026,16 +2015,34 @@
                 pdfButton.click();
                 return;
             }
-            window.print();
+            // Do not print the entire app when the protected PDF action is unavailable.
+            const toast=document.getElementById('toast');
+            if(toast){
+                toast.textContent='PDF export is unavailable. Reload the app and retry.';
+                toast.classList.add('is-visible');
+                setTimeout(()=>toast.classList.remove('is-visible'),2800);
+            }
         }
 
         function copyToClipboard() {
             if (blockUnreviewedExternalAction('Copy')) return;
-            navigator.clipboard.writeText(generateActiveProposalText());
-            const btn = document.getElementById('copyButton');
-            const originalText = btn.innerText;
-            btn.innerText = translations[currentLang].copied;
-            setTimeout(() => { btn.innerText = originalText; }, 2000);
+            const text=generateActiveProposalText();
+            if(!text)return;
+            const button=document.getElementById('copyButton');
+            const original=button?.innerText;
+            if(!navigator.clipboard?.writeText){
+                const toast=document.getElementById('toast');
+                if(toast){toast.textContent='Clipboard is unavailable in this browser.';toast.classList.add('is-visible');}
+                return;
+            }
+            navigator.clipboard.writeText(text).then(()=>{
+                if(!button)return;
+                button.innerText=translations[currentLang].copied;
+                setTimeout(()=>{button.innerText=original;},2000);
+            }).catch(()=>{
+                const toast=document.getElementById('toast');
+                if(toast){toast.textContent='Copy was blocked by browser permissions.';toast.classList.add('is-visible');}
+            });
         }
 
         function sendProposalEmail() {
@@ -2043,7 +2050,9 @@
             const recipient = document.getElementById('customerEmail')?.value?.trim() || '';
             const project = document.getElementById('jobName')?.value?.trim() || document.getElementById('jobAddress')?.value?.trim() || 'Property';
             const subject = 'SchismMatrix Quote — ' + project;
-            window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(generateActiveProposalText())}`;
+            const text=generateActiveProposalText();
+            if(!text)return;
+            window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
         }
 
         function hideEvidenceFollowup() {
