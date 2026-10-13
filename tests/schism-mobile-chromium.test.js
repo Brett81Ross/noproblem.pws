@@ -336,6 +336,45 @@ async function main(){
       injection.priceLabel==='Price Review Required'&&injection.handoffDisabled,
       'Untrusted analysis markup or malformed price bypass: '+JSON.stringify(injection));
     console.log('Mobile Chrome untrusted analysis HTML and invalid pricing fail closed: PASS');
+
+    const savedQuote=await evaluate(cdp,function(){
+      window.SchismDashboard.selectQuote();
+      techMatrixData.services=[
+        {
+          serviceId:'driveway_cleaning',scopeItemId:'scope_qa_driveway',
+          label:'Driveway Cleaning',quantity:1,quantityUnit:'job',
+          calculatedPrice:175,estimatedTimeMinutes:45,waterUsageGallons:90,reason:'QA only'
+        },
+        {
+          serviceId:'patio_cleaning',scopeItemId:'scope_qa_patio',
+          label:'Patio Cleaning',quantity:1,quantityUnit:'job',
+          calculatedPrice:60,estimatedTimeMinutes:20,waterUsageGallons:40,reason:'QA only'
+        }
+      ];
+      window.__schismReleaseState={locked:false,reason:''};
+      renderAdminModeView(techMatrixData);
+      togglePriceCard(1);
+      document.getElementById('outputCard').style.display='block';
+      document.getElementById('grandTotalDisplay').textContent='$0.01';
+      window.SchismDashboard.saveRecentFromVisibleResult();
+      const saved=JSON.parse(localStorage.getItem('no-problem-matrix-last-project')||'null');
+      renderAdminModeView(techMatrixData); // simulate a fresh, all-selected render
+      window.SchismDashboard.loadProjectIntoQuote(saved);
+      return {
+        savedTotal:saved?.total,
+        savedCents:saved?.quoteTotalCents,
+        savedScope:saved?.selectedScopeItemIds,
+        restoredSelected:priceItemsRegistry.filter(item=>!item.disabled).map(item=>item.scopeItemId),
+        restoredCents:window.SchismRuntime.quoteDocument()?.totalCents,
+        blocked:window.__schismReleaseState?.locked===true
+      };
+    });
+    assert(savedQuote.savedTotal==='$175.00'&&savedQuote.savedCents===17500&&
+      savedQuote.savedScope?.length===1&&savedQuote.savedScope[0]==='scope_qa_driveway'&&
+      savedQuote.restoredSelected?.length===1&&savedQuote.restoredSelected[0]==='scope_qa_driveway'&&
+      savedQuote.restoredCents===17500&&!savedQuote.blocked,
+      'Saved quote must preserve selected scope and finalized total, not animation: '+JSON.stringify(savedQuote));
+    console.log('Mobile Chrome saved quote cents and scope restoration: PASS');
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
