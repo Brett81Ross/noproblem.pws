@@ -239,6 +239,20 @@ async function main(){
     });
     assert.equal(prepared.buttonDisabled,false,'Reviewed synthetic quote was not eligible for handoff: '+JSON.stringify(prepared));
     assert.equal(prepared.totalCents,17500,'Quote document must use selected registry, not animated counter');
+    const consistent=await evaluate(cdp,function(){
+      document.getElementById('grandTotalDisplay').textContent='$0.01';
+      const text=generateActiveProposalText();
+      return {
+        text,
+        source:window.SchismRuntime.quoteDocument(),
+        active:!blockUnreviewedExternalAction('Copy')
+      };
+    });
+    assert(consistent.active&&consistent.source?.totalCents===17500 &&
+      consistent.text.includes('Driveway Cleaning')&&
+      consistent.text.includes('TOTAL: $175.00')&&
+      !consistent.text.includes('$0.01'),
+      'Copy/Email must not reflect price animation or stale cards: '+JSON.stringify(consistent));
 
     // Capture the bytes actually passed to the browser's Blob download path.
     const pdf=await evaluate(cdp,async function(){
@@ -272,6 +286,11 @@ async function main(){
       release.valid&&release.crewShown&&release.fieldPlanVisible&&
       release.releasePdf?.released===true&&release.releasePdf?.totalCents===17500,
       'Browser handoff must freeze and validate approved work: '+JSON.stringify(release));
+    const fieldText=await evaluate(cdp,function(){return generateActiveProposalText();});
+    assert(fieldText.includes('APPROVED FIELD WORK PLAN')&&
+      fieldText.includes('TOTAL: $175.00')&&
+      fieldText.includes('45 minutes')&&!fieldText.includes('2 Hours'),
+      'Field-plan copy must reflect the approved execution window and price');
 
     const invalidated=await evaluate(cdp,async function(){
       window.SchismDashboard.markEstimateMutated('QA scope changed');
@@ -284,11 +303,14 @@ async function main(){
           ready:window.SchismDashboard.getFieldReadyRelease().ok,
           planHidden:document.getElementById('resultsSection').style.display==='none',
           approvalText:document.getElementById('crewApprovalState').textContent,
-          pdfGenerated:!!attemptedBlob};
+          pdfGenerated:!!attemptedBlob,
+          text:generateActiveProposalText(),
+          copyBlocked:blockUnreviewedExternalAction('Copy')};
       }finally{URL.createObjectURL=original}
     });
     assert(invalidated.status==='superseded'&&!invalidated.ready&&invalidated.planHidden&&
-      invalidated.approvalText==='Re-release Required'&&!invalidated.pdfGenerated,
+      invalidated.approvalText==='Re-release Required'&&!invalidated.pdfGenerated&&
+      !invalidated.text&&invalidated.copyBlocked,
       'Mutation must block plan and PDF: '+JSON.stringify(invalidated));
     assert.equal(cdp.unexpectedDialogs.length,0,'No native alert dialog should interrupt the quote and PDF workflow: '+JSON.stringify(cdp.unexpectedDialogs));
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
