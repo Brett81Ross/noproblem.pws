@@ -127,7 +127,8 @@
 
     while ((node = walker.nextNode())) {
       if (/One-Story House Soft Wash|Multi-Level House Soft Wash/i.test(node.nodeValue || '')) {
-        node.nodeValue = node.nodeValue.replace(/One-Story House Soft Wash|Multi-Level House Soft Wash/gi, replacement);
+        var nextValue=node.nodeValue.replace(/One-Story House Soft Wash|Multi-Level House Soft Wash/gi, replacement);
+        if(nextValue!==node.nodeValue)node.nodeValue=nextValue;
       }
     }
   }
@@ -668,10 +669,18 @@
     var resultsMount = document.getElementById('resultsMount');
     if (!resultsMount || typeof MutationObserver !== 'function') return;
 
+    // Multiple quote widgets observe this subtree. Defer their work to one
+    // animation frame, so a nested render cannot recursively starve Chrome.
+    var scheduled=false;
     var observer = new MutationObserver(function () {
-      updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
-      ensurePdfButton();
-      renderDecisionBrief();
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(function(){
+        scheduled=false;
+        updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
+        ensurePdfButton();
+        renderDecisionBrief();
+      });
     });
     observer.observe(resultsMount, { childList: true, subtree: true });
     ensurePdfButton();
