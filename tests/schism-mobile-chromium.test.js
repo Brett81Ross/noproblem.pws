@@ -313,6 +313,29 @@ async function main(){
       !invalidated.text&&invalidated.copyBlocked,
       'Mutation must block plan and PDF: '+JSON.stringify(invalidated));
     assert.equal(cdp.unexpectedDialogs.length,0,'No native alert dialog should interrupt the quote and PDF workflow: '+JSON.stringify(cdp.unexpectedDialogs));
+    const injection=await evaluate(cdp,function(){
+      const hostile='<img src=x onerror="window.__schismXssTriggered=true">';
+      window.__schismXssTriggered=false;
+      techMatrixData.services[0].label=hostile;
+      techMatrixData.services[0].reason='<svg onload="window.__schismXssTriggered=true"></svg>';
+      techMatrixData.hazards=[{hazard:hostile,action:'Synthetic QA hazard'}];
+      renderAdminModeView(techMatrixData);
+      const markupSafe=!document.querySelector('#analysisResult img, #analysisResult svg')&&
+        document.getElementById('analysisResult').textContent.includes(hostile);
+      techMatrixData.services[0].calculatedPrice='NOT A PRICE';
+      renderAdminModeView(techMatrixData);
+      window.SchismDashboard.syncCrewHandoffState();
+      return {
+        markupSafe,
+        executionTriggered:window.__schismXssTriggered,
+        priceLabel:document.getElementById('grandTotalDisplay').textContent,
+        handoffDisabled:document.getElementById('btnCrewHandoff').disabled
+      };
+    });
+    assert(injection.markupSafe&&!injection.executionTriggered&&
+      injection.priceLabel==='Price Review Required'&&injection.handoffDisabled,
+      'Untrusted analysis markup or malformed price bypass: '+JSON.stringify(injection));
+    console.log('Mobile Chrome untrusted analysis HTML and invalid pricing fail closed: PASS');
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
