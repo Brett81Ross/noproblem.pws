@@ -2962,14 +2962,7 @@
           byId('reportsBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
           byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
-          // Direct PDF buttons must not bypass the field release gate.
-          byId('downloadQuotePdfButton')?.addEventListener('click',event=>{
-            if(typeof isTechMode==='undefined'||!isTechMode) return;
-            if(getFieldReadyRelease().ok) return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            alert('Field-plan export is blocked until the device release is re-approved.');
-          },true);
+          // The PDF action checks the validated release itself and gives a nonblocking notice.
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
           document.addEventListener('schism:release-state-changed',syncVisibleCrewRelease);
           window.addEventListener('storage',event=>{

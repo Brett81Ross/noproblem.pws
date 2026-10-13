@@ -54,14 +54,12 @@ async function endpoint(profile,child){
   throw Error('Chrome debugging endpoint timeout');
 }
 async function connect(url){
-  const ws=new WebSocket(url),pending=new Map();let seq=0;
+  const ws=new WebSocket(url),pending=new Map(),unexpectedDialogs=[];let seq=0;
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});
   ws.onmessage=message=>{
     const data=JSON.parse(String(message.data));
-    if(data.method==='Runtime.consoleAPICalled')console.log('CHROME TRACE: '+(data.params?.args||[]).map(x=>x.value||x.description||'').join(' '));
-    if(data.method==='Runtime.exceptionThrown')console.log('CHROME EXCEPTION: '+(data.params?.exceptionDetails?.exception?.description||data.params?.exceptionDetails?.text||''));
     if(data.method==='Page.javascriptDialogOpening'){
-      console.log('CHROME DIALOG: '+JSON.stringify(data.params));
+      unexpectedDialogs.push(data.params?.message||'Unexpected browser dialog');
       ws.send(JSON.stringify({id:++seq,method:'Page.handleJavaScriptDialog',params:{accept:false}}));
     }
     if(!data.id)return;
@@ -69,7 +67,7 @@ async function connect(url){
     if(data.error)p.reject(Error(JSON.stringify(data.error)));
     else p.resolve(data.result||{});
   };
-  return {close:()=>ws.close(),send:(method,params={})=>new Promise((resolve,reject)=>{
+  return {close:()=>ws.close(),unexpectedDialogs,send:(method,params={})=>new Promise((resolve,reject)=>{
     const id=++seq;
     const timer=setTimeout(()=>{pending.delete(id);reject(Error('Chrome CDP timeout: '+method))},18000);
     pending.set(id,{resolve:v=>{clearTimeout(timer);resolve(v)},reject:e=>{clearTimeout(timer);reject(e)}});
@@ -202,9 +200,6 @@ async function main(){
     await cdp.send('Emulation.setDeviceMetricsOverride',{
       width:393,height:852,deviceScaleFactor:2,mobile:true,screenWidth:393,screenHeight:852
     });
-    await cdp.send('Page.addScriptToEvaluateOnNewDocument',{
-      source:"(() => { const Native = MutationObserver; window.MutationObserver = class extends Native { constructor(callback){ const where = String(new Error().stack).split('\\n').slice(2,4).join(' '); let count = 0; super((records, self) => { count++; if(count === 1 || count % 100 === 0) console.log('OBSERVER', where, 'events', count); if(count > 300){console.log('OBSERVER DISCONNECTED',where); self.disconnect(); return;} callback(records,self); }); } }; })();"
-    });
     await cdp.send('Page.navigate',{url:host+'/index.html'});
     await delay(1300);
     const fixtureSet=await evaluate(cdp,function(){
@@ -236,11 +231,8 @@ async function main(){
     assert.equal(renderState.count,1,'Synthetic reviewed quote did not render');
     console.log('Chromium synthetic quote rendered');
     const prepared=await evaluate(cdp,function(){
-      console.log('sync status begin');
       window.SchismDashboard.syncCrewHandoffState();
-      console.log('sync status completed');
       const source=window.SchismRuntime.quoteDocument();
-      console.log('quote document completed');
       return {buttonDisabled:document.getElementById('btnCrewHandoff').disabled,
         services:source?.services.length,totalCents:source?.totalCents,
         visibleTotal:document.getElementById('grandTotalDisplay').textContent};
@@ -298,6 +290,7 @@ async function main(){
     assert(invalidated.status==='superseded'&&!invalidated.ready&&invalidated.planHidden&&
       invalidated.approvalText==='Re-release Required'&&!invalidated.pdfGenerated,
       'Mutation must block plan and PDF: '+JSON.stringify(invalidated));
+    assert.equal(cdp.unexpectedDialogs.length,0,'No native alert dialog should interrupt the quote and PDF workflow: '+JSON.stringify(cdp.unexpectedDialogs));
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
