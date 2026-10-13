@@ -2872,6 +2872,21 @@
             byId('outputCard').style.display='block';
             byId('actionPanel').setAttribute('style','display:grid !important;');
             renderAdminModeView(techMatrixData);
+            // Older local records did not track exclusions; keep their existing
+            // behavior. New records restore selected scope IDs exactly.
+            if(Array.isArray(project.selectedScopeItemIds)){
+              const approvedIds=new Set(project.selectedScopeItemIds);
+              priceItemsRegistry.forEach((item,index)=>{
+                item.disabled=!approvedIds.has(item.scopeItemId);
+                byId('priceCard_'+index)?.classList.toggle('disabled-card',item.disabled);
+              });
+              recalculateGrandTotal();
+              if(Number.isSafeInteger(project.quoteTotalCents) &&
+                  project.quoteTotalCents!==approvedScopeTotalCents()){
+                window.__schismReleaseState={locked:true,reason:'Saved price totals changed. Review or re-analyze the quote before sending.'};
+                document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+              }
+            }
             syncCrewHandoffState();
             setTimeout(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
           }else{
@@ -2942,15 +2957,21 @@
           if(!card||card.style.display==='none') return;
           const name=byId('jobName')?.value?.trim()||'Pressure washing project';
           const address=byId('jobAddress')?.value?.trim()||'';
-          const total=byId('grandTotalDisplay')?.textContent?.trim()||'';
+          // Preserve the selected, finalized cents. The counter may still be
+          // animating, and saving its text can understate the actual quote.
+          if(window.__schismReleaseState?.locked===true)return;
+          const quote=window.SchismRuntime?.quoteDocument?.();
+          if(!quote||quote.released||!quote.services.length)return;
+          const total='$'+(quote.totalCents/100).toFixed(2);
+          const selectedScopeItemIds=quote.services.map(service=>service.scopeItemId);
           const current=readJson(DASH_RECENTS,[]);
           const matrix=(typeof techMatrixData!=='undefined' && techMatrixData) ? techMatrixData : null;
           const customerEmail=byId('customerEmail')?.value?.trim()||'';
           const customerPhone=byId('customerPhone')?.value?.trim()||'';
-          const item={name,address,total,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
+          const item={name,address,total,quoteTotalCents:quote.totalCents,selectedScopeItemIds,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
           const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
           try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
-          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date,matrixData:matrix,photoCount:item.photoCount,customerEmail,customerPhone})); }catch(e){}
+          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({...item,jobName:name,jobAddress:address})); }catch(e){}
           renderRecents(); renderSavedProject();
         }
         function dockDemoControl(){
@@ -3095,7 +3116,7 @@
             };
           }
         };
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,getCurrentEstimateRelease,estimateRevisionId,makeLocalId};
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,getCurrentEstimateRelease,estimateRevisionId,makeLocalId,saveRecentFromVisibleResult,loadProjectIntoQuote};
       })();
     </script>
 
