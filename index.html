@@ -3074,6 +3074,7 @@
                 releaseId:saved.releaseId,siteNotes:saved.siteNotes||''
               };
             }
+            if(window.__schismReleaseState?.locked===true)return null;
             if(!techMatrixData||techMatrixData.requiresHumanReview===true||
                techMatrixData.evidenceReview?.readyForEstimate!==true)return null;
             const totalCents=approvedScopeTotalCents();
