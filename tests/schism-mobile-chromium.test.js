@@ -59,6 +59,11 @@ async function connect(url){
   ws.onmessage=message=>{
     const data=JSON.parse(String(message.data));
     if(data.method==='Runtime.consoleAPICalled')console.log('CHROME TRACE: '+(data.params?.args||[]).map(x=>x.value||x.description||'').join(' '));
+    if(data.method==='Runtime.exceptionThrown')console.log('CHROME EXCEPTION: '+(data.params?.exceptionDetails?.exception?.description||data.params?.exceptionDetails?.text||''));
+    if(data.method==='Page.javascriptDialogOpening'){
+      console.log('CHROME DIALOG: '+JSON.stringify(data.params));
+      ws.send(JSON.stringify({id:++seq,method:'Page.handleJavaScriptDialog',params:{accept:false}}));
+    }
     if(!data.id)return;
     const p=pending.get(data.id);if(!p)return;pending.delete(data.id);
     if(data.error)p.reject(Error(JSON.stringify(data.error)));
