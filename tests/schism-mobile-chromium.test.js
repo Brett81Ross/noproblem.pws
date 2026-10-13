@@ -85,11 +85,14 @@ async function main(){
     '--disable-dev-shm-usage','--disable-background-networking','--disable-extensions',
     '--no-first-run','--remote-allow-origins=*','--remote-debugging-port=0',
     '--user-data-dir='+profile,'about:blank'],{stdio:'ignore'});
+  const fixture=path.join(profile,'photo-fixture.png');
+  fs.writeFileSync(fixture,Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAFElEQVR4nGMM2LKPAQaYGJAAbg4AWHoBymN8plAAAAAASUVORK5CYII=','base64'));
   let cdp;
   try{
     cdp=await connect(await endpoint(profile,child));
     await cdp.send('Page.enable');
     await cdp.send('Runtime.enable');
+    await cdp.send('DOM.enable');
     await cdp.send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5});
     const screens=[['narrow Android',320,720],['Fold cover',360,780],
       ['Android phone',393,852],['Fold unfolded',720,884],['Fold landscape',884,720]];
@@ -121,6 +124,23 @@ async function main(){
           address:!!document.getElementById('jobAddress')};
       });
       assert(quote.found&&quote.workspace&&quote.address,name+': Quote Matrix navigation '+JSON.stringify(quote));
+      // File input uses actual Chromium FileReader -> Image -> canvas -> data URL.
+      // It does not test Android camera hardware or camera permission prompts.
+      const rootNode=(await cdp.send('DOM.getDocument',{depth:1})).root.nodeId;
+      const fileNode=(await cdp.send('DOM.querySelector',{nodeId:rootNode,selector:'#fileInput'})).nodeId;
+      assert(fileNode,name+': saved-photo input not found');
+      await cdp.send('DOM.setFileInputFiles',{files:[fixture],nodeId:fileNode});
+      await delay(450);
+      const evidence=await evaluate(cdp,function(){
+        return {
+          count:document.getElementById('jobPhotoCount')?.textContent||'',
+          staged:document.querySelectorAll('#evidenceGrid .evidence-slot.has-photo').length,
+          encoded:!!document.querySelector('#evidenceGrid .evidence-slot.has-photo'),
+          uploadAvailable:!!document.getElementById('btnTakePhoto')
+        };
+      });
+      assert(evidence.staged>=1 && evidence.uploadAvailable,
+        name+': browser image stage/compress path failed '+JSON.stringify(evidence));
       const crew=await evaluate(cdp,function(){
         window.SchismDashboard.selectCrew();
         return {panel:document.getElementById('crewCommandPanel').classList.contains('is-visible'),
@@ -137,8 +157,15 @@ async function main(){
     }
   }finally{
     try{cdp?.close()}catch(_){}
-    child.kill('SIGTERM');server.close();
-    fs.rmSync(profile,{recursive:true,force:true});
+    const exited=child.exitCode!==null?Promise.resolve():new Promise(resolve=>child.once('exit',resolve));
+    child.kill('SIGTERM');
+    await Promise.race([exited,delay(1800)]);
+    server.close();
+    // Child profile files may still flush briefly after the CDP socket closes.
+    // Cleanup must not convert a successful UI test into an unrelated CI failure.
+    try{fs.rmSync(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100})}
+    catch(error){console.warn('Temporary Chromium profile cleanup skipped: '+error.code)}
+
   }
 }
 main().catch(error=>{console.error(error.stack||error);process.exitCode=1});
