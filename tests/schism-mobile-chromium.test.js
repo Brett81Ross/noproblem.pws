@@ -188,6 +188,95 @@ async function main(){
     assert(entered.route==='/index.html'&&entered.dashboard&&entered.visible,
       'Tap-to-enter failed: '+JSON.stringify(entered));
     console.log('Mobile Chrome Fold cover splash logos and tap-to-enter: PASS');
+
+    // Full operator flow uses a deterministic, synthetic reviewed estimate.
+    // No real customer data or AI endpoint is touched; validation is performed
+    // by the same browser controller and PDF generator shipped with the app.
+    await cdp.send('Emulation.setDeviceMetricsOverride',{
+      width:393,height:852,deviceScaleFactor:2,mobile:true,screenWidth:393,screenHeight:852
+    });
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1300);
+    const prepared=await evaluate(cdp,function(){
+      document.querySelector('[data-dashboard-action="quote"]').click();
+      document.getElementById('jobName').value='QA SAMPLE PROPERTY';
+      document.getElementById('jobAddress').value='123 Acceptance Test Lane';
+      window.__schismReleaseState={locked:false,reason:''};
+      techMatrixData={
+        requiresHumanReview:false,
+        evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+        services:[{
+          serviceId:'driveway_cleaning',scopeItemId:'scope_qa_driveway',
+          label:'Driveway Cleaning',quantity:1,quantityUnit:'job',
+          calculatedPrice:175,estimatedTimeMinutes:45,waterUsageGallons:90,
+          reason:'QA sample only'
+        }],
+        fieldPlan:{crewSizeRecommended:1,totalEstimatedMinutes:45,totalWaterUsageGallons:90,
+          totalEstimatedHours:'0.8 Hours',difficulty:'low'},
+        hazards:[]
+      };
+      techMatrixData=window.SchismDashboard.prepareMatrixForEstimate(techMatrixData);
+      renderAdminModeView(techMatrixData);
+      window.SchismDashboard.syncCrewHandoffState();
+      const source=window.SchismRuntime.quoteDocument();
+      return {buttonDisabled:document.getElementById('btnCrewHandoff').disabled,
+        services:source?.services.length,totalCents:source?.totalCents,
+        visibleTotal:document.getElementById('grandTotalDisplay').textContent};
+    });
+    assert.equal(prepared.buttonDisabled,false,'Reviewed synthetic quote was not eligible for handoff: '+JSON.stringify(prepared));
+    assert.equal(prepared.totalCents,17500,'Quote document must use selected registry, not animated counter');
+
+    // Capture the bytes actually passed to the browser's Blob download path.
+    const pdf=await evaluate(cdp,async function(){
+      let blob=null;
+      const original=URL.createObjectURL;
+      URL.createObjectURL=function(value){blob=value;return original.call(URL,value)};
+      try {
+        const button=document.getElementById('downloadQuotePdfButton');
+        if(!button)return {error:'PDF button not rendered'};
+        button.click();
+        if(!blob)return {error:'PDF blob not generated'};
+        const text=await blob.text();
+        return {header:text.slice(0,8),correctTotal:text.includes('SELECTED PLAN TOTAL: $175.00'),
+          service:text.includes('Driveway Cleaning'),
+          falseEmpty:text.includes('No services selected.')};
+      } finally {URL.createObjectURL=original}
+    });
+    assert(pdf.header?.startsWith('%PDF-1.4')&&pdf.correctTotal&&pdf.service&&!pdf.falseEmpty,
+      'Actual generated customer PDF mismatch: '+JSON.stringify(pdf));
+
+    const release=await evaluate(cdp,function(){
+      document.getElementById('btnCrewHandoff').click();
+      const saved=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+      return {saved:!!saved,status:saved?.status,approved:saved?.approvedTotal,
+        valid:window.SchismDashboard.getFieldReadyRelease().ok,
+        crewShown:document.getElementById('crewCommandPanel').classList.contains('is-visible'),
+        fieldPlanVisible:document.getElementById('resultsSection').style.display!=='none',
+        releasePdf:window.SchismRuntime.quoteDocument()};
+    });
+    assert(release.saved&&release.status==='released'&&release.approved==='$175.00'&&
+      release.valid&&release.crewShown&&release.fieldPlanVisible&&
+      release.releasePdf?.released===true&&release.releasePdf?.totalCents===17500,
+      'Browser handoff must freeze and validate approved work: '+JSON.stringify(release));
+
+    const invalidated=await evaluate(cdp,async function(){
+      window.SchismDashboard.markEstimateMutated('QA scope changed');
+      let attemptedBlob=null;
+      const original=URL.createObjectURL;
+      URL.createObjectURL=function(value){attemptedBlob=value;return original.call(URL,value)};
+      try {
+        document.getElementById('downloadQuotePdfButton')?.click();
+        return {status:JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')).status,
+          ready:window.SchismDashboard.getFieldReadyRelease().ok,
+          planHidden:document.getElementById('resultsSection').style.display==='none',
+          approvalText:document.getElementById('crewApprovalState').textContent,
+          pdfGenerated:!!attemptedBlob};
+      }finally{URL.createObjectURL=original}
+    });
+    assert(invalidated.status==='superseded'&&!invalidated.ready&&invalidated.planHidden&&
+      invalidated.approvalText==='Re-release Required'&&!invalidated.pdfGenerated,
+      'Mutation must block plan and PDF: '+JSON.stringify(invalidated));
+    console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
     const exited=child.exitCode!==null?Promise.resolve():new Promise(resolve=>child.once('exit',resolve));
