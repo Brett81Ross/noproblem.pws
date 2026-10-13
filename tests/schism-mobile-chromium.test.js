@@ -197,7 +197,7 @@ async function main(){
     });
     await cdp.send('Page.navigate',{url:host+'/index.html'});
     await delay(1300);
-    const prepared=await evaluate(cdp,function(){
+    const fixtureSet=await evaluate(cdp,function(){
       document.querySelector('[data-dashboard-action="quote"]').click();
       document.getElementById('jobName').value='QA SAMPLE PROPERTY';
       document.getElementById('jobAddress').value='123 Acceptance Test Lane';
@@ -212,11 +212,20 @@ async function main(){
           reason:'QA sample only'
         }],
         fieldPlan:{crewSizeRecommended:1,totalEstimatedMinutes:45,totalWaterUsageGallons:90,
-          totalEstimatedHours:'0.8 Hours',difficulty:'low'},
-        hazards:[]
+          totalEstimatedHours:'0.8 Hours',difficulty:'low'},hazards:[]
       };
       techMatrixData=window.SchismDashboard.prepareMatrixForEstimate(techMatrixData);
+      return {loaded:!!techMatrixData,scope:techMatrixData.services[0].scopeItemId};
+    });
+    assert(fixtureSet.loaded,'Synthetic estimate did not initialize');
+    console.log('Chromium synthetic estimate initialized');
+    const renderState=await evaluate(cdp,function(){
       renderAdminModeView(techMatrixData);
+      return {count:priceItemsRegistry.length,total:priceItemsRegistry[0]?.value};
+    });
+    assert.equal(renderState.count,1,'Synthetic reviewed quote did not render');
+    console.log('Chromium synthetic quote rendered');
+    const prepared=await evaluate(cdp,function(){
       window.SchismDashboard.syncCrewHandoffState();
       const source=window.SchismRuntime.quoteDocument();
       return {buttonDisabled:document.getElementById('btnCrewHandoff').disabled,
