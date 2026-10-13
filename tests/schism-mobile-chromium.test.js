@@ -57,7 +57,9 @@ async function connect(url){
   const ws=new WebSocket(url),pending=new Map();let seq=0;
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject});
   ws.onmessage=message=>{
-    const data=JSON.parse(String(message.data));if(!data.id)return;
+    const data=JSON.parse(String(message.data));
+    if(data.method==='Runtime.consoleAPICalled')console.log('CHROME TRACE: '+(data.params?.args||[]).map(x=>x.value||x.description||'').join(' '));
+    if(!data.id)return;
     const p=pending.get(data.id);if(!p)return;pending.delete(data.id);
     if(data.error)p.reject(Error(JSON.stringify(data.error)));
     else p.resolve(data.result||{});
@@ -226,8 +228,11 @@ async function main(){
     assert.equal(renderState.count,1,'Synthetic reviewed quote did not render');
     console.log('Chromium synthetic quote rendered');
     const prepared=await evaluate(cdp,function(){
+      console.log('sync status begin');
       window.SchismDashboard.syncCrewHandoffState();
+      console.log('sync status completed');
       const source=window.SchismRuntime.quoteDocument();
+      console.log('quote document completed');
       return {buttonDisabled:document.getElementById('btnCrewHandoff').disabled,
         services:source?.services.length,totalCents:source?.totalCents,
         visibleTotal:document.getElementById('grandTotalDisplay').textContent};
