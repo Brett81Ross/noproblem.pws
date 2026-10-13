@@ -197,6 +197,9 @@ async function main(){
     await cdp.send('Emulation.setDeviceMetricsOverride',{
       width:393,height:852,deviceScaleFactor:2,mobile:true,screenWidth:393,screenHeight:852
     });
+    await cdp.send('Page.addScriptToEvaluateOnNewDocument',{
+      source:"(() => { const Native = MutationObserver; window.MutationObserver = class extends Native { constructor(callback){ const where = String(new Error().stack).split('\\n').slice(2,4).join(' '); let count = 0; super((records, self) => { count++; if(count === 1 || count % 100 === 0) console.log('OBSERVER', where, 'events', count); if(count > 300){console.log('OBSERVER DISCONNECTED',where); self.disconnect(); return;} callback(records,self); }); } }; })();"
+    });
     await cdp.send('Page.navigate',{url:host+'/index.html'});
     await delay(1300);
     const fixtureSet=await evaluate(cdp,function(){
