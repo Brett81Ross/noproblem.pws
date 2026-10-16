@@ -254,6 +254,31 @@ function blocked(tab){
     'deselecting the entire quote scope must never retain Field Ready');
 }
 {
+  // A saved release cannot authorize a changed live quote price, even when
+  // the service IDs, metrics, and estimate revision are unchanged.
+  const tab=createTab(new Map()),snap=releaseFixture();
+  tab.put(snap);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(snap.matrixData));
+  tab.ctx.priceItemsRegistry=[{
+    scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false
+  }];
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,
+    'identical selected cents and scope should validate');
+  tab.ctx.priceItemsRegistry[0].value=175;
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_price_mismatch',
+    'live price edits must block previously released total');
+  tab.ctx.priceItemsRegistry[0].value=150;
+  tab.ctx.priceItemsRegistry[0].disabled=true;
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_selection_mismatch',
+    'deselecting a frozen release scope must block it');
+  tab.ctx.priceItemsRegistry[0].disabled=false;
+  tab.ctx.priceItemsRegistry.push({
+    scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false
+  });
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_selection_mismatch',
+    'duplicated live scope cannot authorize a frozen release');
+}
+{
   // Exercise the actual PDF action body, not just whether its click listener exists.
   // A MutationObserver may add the button after the dashboard binds its listeners.
   const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');

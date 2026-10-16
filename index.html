@@ -2541,6 +2541,19 @@
               }));
               if(contract.stableStringify(services)!==contract.stableStringify(snapshot.matrixData.services))
                 return {ok:false,snapshot,code:'current_scope_mismatch',reason:'The current approved scope differs from the device release.'};
+              // Live draft pricing may change independently of matrix metrics.
+              // A same-estimate, same-scope record is NOT permission to reuse
+              // a previous total after the selected price or selection changes.
+              if(Array.isArray(priceItemsRegistry)&&priceItemsRegistry.length){
+                const chosen=priceItemsRegistry.filter(item=>item&&!item.disabled)
+                  .map(item=>item.scopeItemId);
+                if(contract.stableStringify(chosen.slice().sort())!==
+                   contract.stableStringify(snapshot.selectedScopeItemIds.slice().sort()))
+                  return {ok:false,snapshot,code:'current_selection_mismatch',reason:'The current selected work differs from the device release.'};
+                const currentCents=approvedScopeTotalCents();
+                if(currentCents===null||currentCents!==snapshot.approvedTotalCents)
+                  return {ok:false,snapshot,code:'current_price_mismatch',reason:'The selected quote amount changed after release. Re-approval is required.'};
+              }
             }
             return {ok:true,snapshot,code:'ok',reason:''};
           }catch(error){
