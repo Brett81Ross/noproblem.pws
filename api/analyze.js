@@ -1,5 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
+const { buildMatrixDecisionSupport } = require('../lib/matrix-decision-support');
+const { normalizeServices } = require('../lib/matrix-quote-guardrails');
 const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
 const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
@@ -307,19 +309,44 @@ async function handler(req, res) {
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
-        if (scanData.services && Array.isArray(scanData.services)) {
-            scanData.services.forEach((item) => {
-                const spec = rateCard.services[item.serviceId];
-                if (!spec) {
-                    item.calculatedPrice = rateCard.minimumJob;
-                    item.label = item.label || 'Custom Service';
-                    return;
-                }
-                item.label = spec.label;
-                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
-                item.calculatedPrice = roundMoney(basePrice * multiplier);
-            });
+        const normalizedQuote = normalizeServices({
+            services: scanData.services,
+            requestedServices: safeRequestedServices,
+            rateCard,
+            multiplier
+        });
+        scanData.services = normalizedQuote.services;
+        scanData.quoteGuardrails = {
+            issues: normalizedQuote.issues,
+            requiresReview: normalizedQuote.requiresReview
+        };
+
+        if (normalizedQuote.requiresReview) {
+            scanData.requiresHumanReview = true;
+            const guardrailSummary = normalizedQuote.issues
+                .map((issue) => issue && issue.message)
+                .filter(Boolean)
+                .slice(0, 3)
+                .join(' ');
+            scanData.humanReviewReason = guardrailSummary || scanData.humanReviewReason || 'Quote output needs manual review before release.';
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: guardrailSummary || 'Quote output needs manual review before release.'
+            };
         }
+
+        scanData.decisionSupport = buildMatrixDecisionSupport({
+            scanData,
+            requestedServices: safeRequestedServices,
+            evidenceMeta: activeEvidenceMeta,
+            photoCount: activeImages.length,
+            satelliteMeasurements: safeMeasurements,
+            rateCard,
+            difficulty,
+            multiplier,
+            elevatedScopeRequested
+        });
 
         return res.status(200).json({
             success: true,

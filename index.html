@@ -1109,6 +1109,20 @@
           </div>
         </section>
 
+        <section class="dashboard-section" id="matrixLearningSection">
+          <div class="dashboard-section-head">
+            <h2>Matrix Learning</h2>
+            <button class="dashboard-link-button" type="button" data-dashboard-action="crew">Open Job Learning →</button>
+          </div>
+          <div class="inventory-summary-grid">
+            <div class="inventory-summary-card"><span>Completed Jobs</span><strong id="dashLearningJobs">0</strong><small>Device-local outcomes</small></div>
+            <div class="inventory-summary-card"><span>Matrix Price Bias</span><strong id="dashLearningPrice">—</strong><small id="dashLearningPriceState">Collecting data</small></div>
+            <div class="inventory-summary-card"><span>Time Bias</span><strong id="dashLearningTime">—</strong><small id="dashLearningTimeState">Collecting data</small></div>
+            <div class="inventory-summary-card"><span>Learning State</span><strong id="dashLearningSignal">—</strong><small>Advisory only</small></div>
+          </div>
+          <div class="inventory-warning" id="dashLearningNote"><span>Complete jobs in Crew Command to teach SchismMatrix what actually happened.</span><button class="dashboard-link-button" type="button" data-dashboard-action="crew">Crew Command →</button></div>
+        </section>
+
         <section class="dashboard-section">
           <div class="dashboard-section-head">
             <h2>Inventory Overview</h2>
@@ -1810,14 +1824,27 @@
                     runningSum += item.value;
                 }
             });
+            if(!Number.isFinite(runningSum)){
+                currentTotalValue=Number.NaN;
+                document.getElementById('grandTotalDisplay').textContent='Price Review Required';
+                return;
+            }
             animatePriceRollup(runningSum);
+        }
+
+        // Values from the analysis service are untrusted text, not HTML.
+        function escapeMatrixHtml(value) {
+            return String(value===null||value===undefined?'':value)
+                .replace(/[&<>"']/g,character=>({
+                    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+                }[character]));
         }
 
         function renderAdminModeView(scanData) {
             let htmlOutput = "";
             if (scanData.requiresHumanReview) {
                 const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not treat this estimate as field-ready until the missing evidence is reviewed.</strong></div></div>`;
+                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${escapeMatrixHtml(reason)}<br><strong>Do not treat this estimate as field-ready until the missing evidence is reviewed.</strong></div></div>`;
             }
             priceItemsRegistry = [];
             let globalCardIndex = 0;
@@ -1826,7 +1853,9 @@
             if (scanData.services && Array.isArray(scanData.services)) {
                 htmlOutput += `<div class="proposal-section-title">${t.diagTitle}</div>`;
                 scanData.services.forEach(item => {
-                    const itemTotal = item.calculatedPrice || 0;
+                    const price=Number(item.calculatedPrice);
+                    const itemTotal=item.calculatedPrice!==undefined && item.calculatedPrice!==null &&
+                        Number.isFinite(price) && price>=0 ? price : Number.NaN;
                     const desc = currentLang === 'es' && item.spanishReason ? item.spanishReason : (item.reason || 'Surface treatment required.');
                     const textContent = `${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit}): ${desc}`;
                     
@@ -1834,8 +1863,8 @@
 
                     htmlOutput += `
                         <div class="proposal-item" id="priceCard_${globalCardIndex}" onclick="togglePriceCard(${globalCardIndex})">
-                            <div class="item-text">${textContent}</div>
-                            <span class="price-badge" id="priceBadge_${globalCardIndex}">$${itemTotal.toFixed(2)}</span>
+                            <div class="item-text">${escapeMatrixHtml(textContent)}</div>
+                            <span class="price-badge" id="priceBadge_${globalCardIndex}">${Number.isFinite(itemTotal)?'$'+itemTotal.toFixed(2):'Price Review Required'}</span>
                         </div>`;
                     globalCardIndex++;
                 });
@@ -1845,7 +1874,7 @@
                 htmlOutput += `<div class="proposal-section-title">${t.hazardsTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
                     const hazText = currentLang === 'es' && hazard.spanishAction ? `${hazard.spanishHazard} - ${hazard.spanishAction}` : `${hazard.hazard} - ${hazard.action}`;
-                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazText}</div>`;
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${escapeMatrixHtml(hazText)}</div>`;
                 });
             }
 
@@ -1868,7 +1897,7 @@
             let htmlOutput = "";
             if (scanData.requiresHumanReview) {
                 const reason = scanData.humanReviewReason || 'Important property evidence is still missing.';
-                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${reason}<br><strong>Do not start work from this plan until the missing evidence is reviewed.</strong></div></div>`;
+                htmlOutput += `<div class="review-required-card"><div class="review-required-title">Needs Human Review</div><div class="review-required-text">${escapeMatrixHtml(reason)}<br><strong>Do not start work from this plan until the missing evidence is reviewed.</strong></div></div>`;
             }
             const t = translations[currentLang];
 
@@ -1887,9 +1916,9 @@
                 htmlOutput += `
                     <div class="tech-execution-card" style="border-color: #22c55e; background: rgba(34, 197, 94, 0.08);">
                         <div class="tech-card-title" style="color: #22c55e;">${t.crewPlanTitle}</div>
-                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${scanData.fieldPlan.totalEstimatedHours ?? '—'}</div>
-                        <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${scanData.fieldPlan.crewSizeRecommended || 1} Tech(s)</div>
-                        <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${scanData.fieldPlan.difficulty || 'Moderate'}</div>
+                        <div class="tech-metric-row"><strong>${t.totalWindow}</strong> ${escapeMatrixHtml(scanData.fieldPlan.totalEstimatedHours ?? '—')}</div>
+                        <div class="tech-metric-row"><strong>${t.recCrew}</strong> ${escapeMatrixHtml(scanData.fieldPlan.crewSizeRecommended ?? '—')} Tech(s)</div>
+                        <div class="tech-metric-row"><strong>${t.siteDiff}</strong> ${escapeMatrixHtml(scanData.fieldPlan.difficulty || 'Moderate')}</div>
                     </div>`;
             }
 
@@ -1898,12 +1927,12 @@
                 scanData.services.forEach(item => {
                     htmlOutput += `
                         <div class="tech-execution-card">
-                            <div class="tech-card-title">📌 ${item.label || item.serviceId}</div>
-                            <div class="tech-metric-row"><strong>${t.scope}</strong> ${item.quantity} ${item.quantityUnit}</div>
-                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${item.estimatedTimeMinutes ?? '—'} Minutes</div>
-                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${item.waterUsageGallons ?? '—'} Gallons</div>
-                            <div class="tech-metric-row"><strong>${t.chem}</strong> ${item.chemicalPrescription || 'Standard'} -> ${item.batchMixingInstructions || 'Standard mix'}</div>
-                            <div class="tech-metric-row"><strong>${t.steps}</strong> ${item.executionInstructions || 'Standard operating procedure.'}</div>
+                            <div class="tech-card-title">📌 ${escapeMatrixHtml(item.label || item.serviceId)}</div>
+                            <div class="tech-metric-row"><strong>${t.scope}</strong> ${escapeMatrixHtml(item.quantity)} ${escapeMatrixHtml(item.quantityUnit)}</div>
+                            <div class="tech-metric-row"><strong>${t.timeline}</strong> ${escapeMatrixHtml(item.estimatedTimeMinutes ?? '—')} Minutes</div>
+                            <div class="tech-metric-row"><strong>${t.water}</strong> ~${escapeMatrixHtml(item.waterUsageGallons ?? '—')} Gallons</div>
+                            <div class="tech-metric-row"><strong>${t.chem}</strong> ${escapeMatrixHtml(item.chemicalPrescription || 'Standard')} -> ${escapeMatrixHtml(item.batchMixingInstructions || 'Standard mix')}</div>
+                            <div class="tech-metric-row"><strong>${t.steps}</strong> ${escapeMatrixHtml(item.executionInstructions || 'Standard operating procedure.')}</div>
                         </div>`;
                 });
             }
@@ -1911,7 +1940,7 @@
             if (scanData.hazards && scanData.hazards.length > 0) {
                 htmlOutput += `<div class="proposal-section-title">${t.safetyTitle}</div>`;
                 scanData.hazards.forEach(hazard => {
-                    htmlOutput += `<div class="diagnostic-note">⚠️ ${hazard.hazard}: ${hazard.action}</div>`;
+                    htmlOutput += `<div class="diagnostic-note">⚠️ ${escapeMatrixHtml(hazard.hazard)}: ${escapeMatrixHtml(hazard.action)}</div>`;
                 });
             }
 
@@ -1919,64 +1948,55 @@
             syncReviewLockState();
         }
 
+        // Copy and Email must show exactly the data approved for PDF export.
+        // The field plan is generated from the immutable device release.
         function generateActiveProposalText() {
-            let proposalText = "";
-            const reviewWarning = techMatrixData?.requiresHumanReview
-                ? `REVIEW REQUIRED: ${techMatrixData.humanReviewReason || 'Important property evidence is still missing.'}\nThis estimate/work plan is not field-ready until reviewed.\n\n`
-                : "";
-            if (isTechMode) {
-                proposalText = `SCHISMMATRIX - FIELD WORK PLAN\n` + reviewWarning;
-                proposalText += `EQUIPMENT: Craftsman Model 580.752070 (3000 PSI / 2.7 GPM / 190cc B&S)\n\n`;
-                if (currentJobLocation) {
-                    proposalText += `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
-                if (userSiteNotes) {
-                    proposalText += `SATELLITE/SITE NOTES: ${userSiteNotes}\n\n`;
-                } else {
-                    proposalText += `\n`;
-                }
-                if (techMatrixData && techMatrixData.fieldPlan) {
-                    proposalText += `JOB SUMMARY:\n`;
-                    proposalText += `- Total Window: ${techMatrixData.fieldPlan.totalEstimatedHours || '2 Hours'}\n`;
-                    proposalText += `- Crew Size: ${techMatrixData.fieldPlan.crewSizeRecommended || 1} Tech(s)\n\n`;
-                }
-                if (techMatrixData && techMatrixData.services) {
-                    techMatrixData.services.forEach(item => {
-                        proposalText += `* ${item.label || item.serviceId} (${item.quantity} ${item.quantityUnit})\n`;
-                        proposalText += `  - Timeline: ${item.estimatedTimeMinutes ?? '—'} Mins | Water: ~${item.waterUsageGallons ?? '—'} Gal\n`;
-                        proposalText += `  - Chemical: ${item.chemicalPrescription} (${item.batchMixingInstructions})\n`;
-                        proposalText += `  - Execution: ${item.executionInstructions}\n\n`;
-                    });
-                }
-            } else {
-                proposalText = currentLang === 'es' 
-                    ? `SCHISMMATRIX - REVISIÓN DE ESTIMACIÓN\n\n`
-                    : `SCHISMMATRIX - ESTIMATE REVIEW\n\n`;
-                
-                if (currentJobLocation) {
-                    proposalText += currentLang === 'es' 
-                        ? `GPS DEL SITIO: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`
-                        : `JOB SITE GPS: Lat ${currentJobLocation.lat.toFixed(5)}, Lon ${currentJobLocation.lon.toFixed(5)}\n`;
-                }
-                if (userSiteNotes) {
-                    proposalText += currentLang === 'es'
-                        ? `NOTAS DEL SITIO: ${userSiteNotes}\n\n`
-                        : `SITE NOTES: ${userSiteNotes}\n\n`;
-                } else {
-                    proposalText += `\n`;
-                }
-
-                priceItemsRegistry.forEach(item => {
-                    if (item.disabled) return;
-                    if (item.value > 0) {
-                        proposalText += `- ${item.cleanText}: $${item.value.toFixed(2)}\n`;
-                    }
+            const quote=window.SchismRuntime?.quoteDocument?.();
+            if(!quote)return '';
+            const amount=cents=>'$'+(cents/100).toFixed(2);
+            const lines=[
+                quote.released?'SCHISMMATRIX - APPROVED FIELD WORK PLAN':'SCHISMMATRIX - CUSTOMER ESTIMATE',
+                'Project: '+(quote.jobName||'Property'),
+                'Property: '+(quote.jobAddress||'Address not saved')
+            ];
+            if(quote.released){
+                const verified=window.SchismDashboard?.getFieldReadyRelease?.();
+                if(!verified?.ok||verified.snapshot.releaseId!==quote.releaseId)return '';
+                const release=verified.snapshot;
+                const matrix=release.matrixData;
+                lines.push('Release ID: '+release.releaseId);
+                if(release.location && Number.isFinite(Number(release.location.lat))&&Number.isFinite(Number(release.location.lon)))
+                    lines.push('Job site GPS: '+Number(release.location.lat).toFixed(5)+', '+Number(release.location.lon).toFixed(5));
+                if(quote.siteNotes)lines.push('Site notes: '+quote.siteNotes);
+                lines.push('','JOB SUMMARY:');
+                const plan=matrix.fieldPlan||{};
+                lines.push('Total window: '+(plan.totalEstimatedHours??'Not established'));
+                lines.push('Crew size: '+(plan.crewSizeRecommended??'Not established'));
+                lines.push('','APPROVED EXECUTION SCOPE:');
+                (matrix.services||[]).forEach(item=>{
+                    lines.push('- '+(item.label||item.serviceId||'Service')+' ('+String(item.quantity??'—')+' '+String(item.quantityUnit||'')+')');
+                    lines.push('  Time: '+(item.estimatedTimeMinutes??'—')+' minutes; Water: '+(item.waterUsageGallons??'—')+' gallons');
+                    if(item.chemicalPrescription)lines.push('  Chemical: '+item.chemicalPrescription);
+                    if(item.batchMixingInstructions)lines.push('  Mixing: '+item.batchMixingInstructions);
+                    if(item.executionInstructions)lines.push('  Execution: '+item.executionInstructions);
                 });
-                proposalText += `\nTOTAL: ${document.getElementById('grandTotalDisplay').innerText}\n`;
-                proposalText += `\n----------------------------------------\n`;
-                proposalText += currentLang === 'es' ? `TÉRMINOS Y CONDICIONES:\n- Estimación válida por 30 días.\n- El cliente garantiza acceso a fuente de agua y electricidad.` : `TERMS & CONDITIONS:\n- Estimate valid for 30 days.\n- Client guarantees access to water and power.`;
+            }else{
+                if(quote.siteNotes)lines.push('Site notes: '+quote.siteNotes);
+                lines.push('','SELECTED SERVICES:');
+                quote.services.forEach(item=>{
+                    lines.push('- '+(item.label||item.serviceId||'Service')+
+                        (Number.isSafeInteger(item.priceCents)?': '+amount(item.priceCents):''));
+                    if(item.quantity!==undefined&&item.quantity!==null)
+                        lines.push('  Quantity: '+item.quantity+' '+(item.quantityUnit||''));
+                    if(item.reason)lines.push('  '+item.reason);
+                });
             }
-            return proposalText;
+            lines.push('','TOTAL: '+amount(quote.totalCents));
+            if(!quote.released){
+                lines.push('','Estimate valid for 30 days. Customer provides water and power.');
+                lines.push('Final measurements, access, and conditions must be confirmed on site.');
+            }
+            return lines.join('\n');
         }
 
         function syncReviewLockState() {
@@ -1992,16 +2012,14 @@
         }
 
         function blockUnreviewedExternalAction(actionName) {
-            if (isTechMode) {
-                const release=window.SchismDashboard?.getFieldReadyRelease?.();
-                if(!release?.ok){
-                    alert(actionName + ' is blocked. Crew Command requires a validated device release.');
-                    return true;
-                }
+            const quote=window.SchismRuntime?.quoteDocument?.();
+            if(quote&&quote.services.length>0)return false;
+            const toast=document.getElementById('toast');
+            if(toast){
+                toast.textContent=actionName+' blocked. Review the current quote or re-release the field plan.';
+                toast.classList.add('is-visible');
+                setTimeout(()=>toast.classList.remove('is-visible'),2800);
             }
-            if (!techMatrixData?.requiresHumanReview) return false;
-            const reason = techMatrixData.humanReviewReason || 'Important property evidence is still missing.';
-            alert(actionName + ' is locked until human review is complete.\n\n' + reason);
             return true;
         }
 
@@ -2012,16 +2030,34 @@
                 pdfButton.click();
                 return;
             }
-            window.print();
+            // Do not print the entire app when the protected PDF action is unavailable.
+            const toast=document.getElementById('toast');
+            if(toast){
+                toast.textContent='PDF export is unavailable. Reload the app and retry.';
+                toast.classList.add('is-visible');
+                setTimeout(()=>toast.classList.remove('is-visible'),2800);
+            }
         }
 
         function copyToClipboard() {
             if (blockUnreviewedExternalAction('Copy')) return;
-            navigator.clipboard.writeText(generateActiveProposalText());
-            const btn = document.getElementById('copyButton');
-            const originalText = btn.innerText;
-            btn.innerText = translations[currentLang].copied;
-            setTimeout(() => { btn.innerText = originalText; }, 2000);
+            const text=generateActiveProposalText();
+            if(!text)return;
+            const button=document.getElementById('copyButton');
+            const original=button?.innerText;
+            if(!navigator.clipboard?.writeText){
+                const toast=document.getElementById('toast');
+                if(toast){toast.textContent='Clipboard is unavailable in this browser.';toast.classList.add('is-visible');}
+                return;
+            }
+            navigator.clipboard.writeText(text).then(()=>{
+                if(!button)return;
+                button.innerText=translations[currentLang].copied;
+                setTimeout(()=>{button.innerText=original;},2000);
+            }).catch(()=>{
+                const toast=document.getElementById('toast');
+                if(toast){toast.textContent='Copy was blocked by browser permissions.';toast.classList.add('is-visible');}
+            });
         }
 
         function sendProposalEmail() {
@@ -2029,7 +2065,9 @@
             const recipient = document.getElementById('customerEmail')?.value?.trim() || '';
             const project = document.getElementById('jobName')?.value?.trim() || document.getElementById('jobAddress')?.value?.trim() || 'Property';
             const subject = 'SchismMatrix Quote — ' + project;
-            window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(generateActiveProposalText())}`;
+            const text=generateActiveProposalText();
+            if(!text)return;
+            window.location.href = `mailto:${encodeURIComponent(recipient)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
         }
 
         function hideEvidenceFollowup() {
@@ -2170,6 +2208,16 @@
                     throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
                 
+                if (window.SchismRevisionIntelligence && typeof window.SchismRevisionIntelligence.capture === 'function') {
+                    const requestedServicesForRevision = Array.from(document.querySelectorAll('#scopeGrid [data-service][aria-pressed="true"]'))
+                        .map(button => button.getAttribute('data-service')).filter(Boolean);
+                    window.SchismRevisionIntelligence.capture(data.rawMatrixData, {
+                        address: document.getElementById('jobAddress')?.value?.trim() || '',
+                        photoCount: stagedBase64Images.length,
+                        requestedServices: requestedServicesForRevision,
+                        recordedAt: new Date().toISOString()
+                    });
+                }
                 const previousMatrixForRevision = techMatrixData;
                 techMatrixData = data.rawMatrixData;
                 if (window.SchismDashboard && typeof window.SchismDashboard.prepareMatrixForEstimate === 'function') {
@@ -2282,6 +2330,9 @@
     <script src="/enhancements.js" defer></script>
     <script src="/quick-quote.js" defer></script>
     <script src="/quote-review.js" defer></script>
+    <script src="/job-learning.js" defer></script>
+    <script src="/analysis-revision.js" defer></script>
+    <script src="/workflow-preflight.js" defer></script>
     <script src="/demo-config.js"></script>
     <script src="/schism-walkaround.js"></script>
     <script src="/schism-release-contract.js"></script>
@@ -2300,6 +2351,7 @@
           if(dash) dash.hidden=true;
           if(work) work.hidden=false;
           if(byId('workspaceTitle')) byId('workspaceTitle').textContent=title||'Quote Matrix';
+          document.dispatchEvent(new CustomEvent('schism:workspace-changed',{detail:{title:title||'Quote Matrix',dashboard:false}}));
           window.scrollTo({top:0,behavior:'smooth'});
         }
         function showDashboard(){
@@ -2312,6 +2364,7 @@
           byId('dashboardMenuPanel')?.classList.remove('is-open');
           byId('dashboardMenuPanel')?.setAttribute('aria-hidden','true');
           refreshDashboard();
+          document.dispatchEvent(new CustomEvent('schism:workspace-changed',{detail:{title:'Dashboard',dashboard:true}}));
           window.scrollTo({top:0,behavior:'smooth'});
         }
         function restoreEstimatorSections(){
@@ -2469,6 +2522,8 @@
           try{
             const stored=readCrewHandoffRecord();
             if(stored.error) return {ok:false,snapshot:null,error:true,code:'storage_corrupt',reason:stored.error};
+            if(window.__schismReleaseState?.locked===true)
+              return {ok:false,snapshot:stored.snapshot,error:true,code:'analysis_not_approved',reason:'Estimate analysis or evidence review is still in progress.'};
             const snapshot=stored.snapshot;
             const state=validateCrewRelease(snapshot);
             if(!state.ok) return {ok:false,snapshot,code:state.code,reason:state.reason};
@@ -2486,14 +2541,48 @@
               }));
               if(contract.stableStringify(services)!==contract.stableStringify(snapshot.matrixData.services))
                 return {ok:false,snapshot,code:'current_scope_mismatch',reason:'The current approved scope differs from the device release.'};
+              // Live draft pricing may change independently of matrix metrics.
+              // A same-estimate, same-scope record is NOT permission to reuse
+              // a previous total after the selected price or selection changes.
+              if(Array.isArray(priceItemsRegistry)&&priceItemsRegistry.length){
+                const chosen=priceItemsRegistry.filter(item=>item&&!item.disabled)
+                  .map(item=>item.scopeItemId);
+                if(contract.stableStringify(chosen.slice().sort())!==
+                   contract.stableStringify(snapshot.selectedScopeItemIds.slice().sort()))
+                  return {ok:false,snapshot,code:'current_selection_mismatch',reason:'The current selected work differs from the device release.'};
+                const currentCents=approvedScopeTotalCents();
+                if(currentCents===null||currentCents!==snapshot.approvedTotalCents)
+                  return {ok:false,snapshot,code:'current_price_mismatch',reason:'The selected quote amount changed after release. Re-approval is required.'};
+              }
             }
             return {ok:true,snapshot,code:'ok',reason:''};
           }catch(error){
             return {ok:false,snapshot:null,error:true,code:'validation_error',reason:'Release validation failed. Re-release is required.'};
           }
         }
+        // Decision Brief / Next Move evaluate the CURRENT estimate, not another
+        // property's otherwise valid local release.
+        function getCurrentEstimateRelease(){
+          const verified=getFieldReadyRelease();
+          if(!verified.ok)return verified;
+          const released=verified.snapshot;
+          const meta=techMatrixData?.__schismEstimate;
+          if(!meta||meta.estimateId!==released.estimateId||meta.revision!==released.estimateRevision)
+            return {ok:false,snapshot:released,code:'different_estimate',reason:'This estimate has not been released.'};
+          const normalize=value=>String(value||'').trim().toLowerCase().replace(/\s+/g,' ');
+          if(normalize(byId('jobName')?.value)!==normalize(released.jobName)||
+             normalize(byId('jobAddress')?.value)!==normalize(released.jobAddress))
+            return {ok:false,snapshot:released,code:'different_property',reason:'The displayed property differs from the approved release.'};
+          const contract=releaseContract();
+          const picked=priceItemsRegistry.filter(item=>item&&!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
+          if(priceItemsRegistry.length && contract.stableStringify(picked.slice().sort())!==
+              contract.stableStringify(released.selectedScopeItemIds.slice().sort()))
+            return {ok:false,snapshot:released,code:'different_selection',reason:'The displayed scope differs from the approved release.'};
+          return verified;
+        }
         function syncVisibleCrewRelease(){
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
           const crew=byId('crewCommandPanel');
           if(!crew?.classList.contains('is-visible')) return;
           const state=getFieldReadyRelease();
@@ -2524,6 +2613,7 @@
           if(new Set(scopeIds).size!==scopeIds.length) return {ok:false,reason:'Duplicate scope IDs require a new estimate review.'};
           const selected=priceItemsRegistry.filter(item=>!item.disabled&&item.scopeItemId).map(item=>item.scopeItemId);
           if(!selected.length) return {ok:false,reason:'Select at least one approved scope item before release.'};
+          if(approvedScopeTotalCents()===null)return {ok:false,reason:'A selected service has invalid pricing. Review the quote before release.'};
           if(new Set(selected).size!==selected.length||selected.some(id=>!scopeIds.includes(id)))
             return {ok:false,reason:'Selected scope identity is invalid. Review the estimate again.'};
           return {ok:true,reason:'',selectedScopeItemIds:selected};
@@ -2627,6 +2717,7 @@
           if(!verified.ok) return null;
           renderCrewHandoffSummary(verified.snapshot);
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
           return verified.snapshot;
         }
         function restoreCrewHandoff(snapshot){
@@ -2691,6 +2782,7 @@
           if(byId('resultsSection')) byId('resultsSection').style.display='none';
           setCrewEmptyState('No released crew job yet.','Finish and review a Quote Matrix job, then use “Send Approved Job to Crew Command.” Crew Command only shows jobs that were explicitly released for field execution.');
           refreshCrewBadge();
+          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
         }
         function markEstimateMutated(reason){
           if(typeof techMatrixData==='undefined'||!techMatrixData) return false;
@@ -2776,18 +2868,55 @@
           if(byId('customerEmail')) byId('customerEmail').value=project.customerEmail||'';
           if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
           if(project.matrixData && typeof project.matrixData==='object'){
+            if(window.SchismRevisionIntelligence && typeof window.SchismRevisionIntelligence.seed==='function'){
+              window.SchismRevisionIntelligence.seed(project.matrixData,{
+                address,
+                photoCount:Number(project.photoCount)||0,
+                requestedServices:Array.isArray(project.matrixData.services)?project.matrixData.services.map(service=>service&&service.serviceId).filter(Boolean):[],
+                recordedAt:new Date().toISOString()
+              });
+            }
             techMatrixData=prepareMatrixForEstimate(project.matrixData);
+            window.__schismDecisionSupport=project.matrixData.decisionSupport&&typeof project.matrixData.decisionSupport==='object'
+              ?project.matrixData.decisionSupport:null;
+            document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
             if(typeof setAppMode==='function') setAppMode('admin');
             selectQuote();
             byId('outputCard').style.display='block';
             byId('actionPanel').setAttribute('style','display:grid !important;');
             renderAdminModeView(techMatrixData);
+            // Older local records did not track exclusions; keep their existing
+            // behavior. New records restore selected scope IDs exactly.
+            if(Array.isArray(project.selectedScopeItemIds)){
+              const selected=project.selectedScopeItemIds;
+              const approvedIds=new Set(selected);
+              const availableIds=new Set(priceItemsRegistry.map(item=>item.scopeItemId));
+              const validSelection=selected.length>0 &&
+                selected.every(id=>typeof id==='string'&&id.trim()&&availableIds.has(id)) &&
+                approvedIds.size===selected.length;
+              priceItemsRegistry.forEach((item,index)=>{
+                item.disabled=!approvedIds.has(item.scopeItemId);
+                byId('priceCard_'+index)?.classList.toggle('disabled-card',item.disabled);
+              });
+              recalculateGrandTotal();
+              if(!validSelection ||
+                 !Number.isSafeInteger(project.quoteTotalCents) ||
+                 project.quoteTotalCents<0 ||
+                 project.quoteTotalCents!==approvedScopeTotalCents()){
+                window.__schismReleaseState={
+                  locked:true,
+                  reason:'Saved scope or pricing could not be verified. Re-analyze the property before sending or exporting.'
+                };
+                document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+              }
+            }
             syncCrewHandoffState();
             setTimeout(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
           }else{
             selectQuote();
             setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
           }
+          document.dispatchEvent(new CustomEvent('schism:project-loaded',{detail:{address,name}}));
           return true;
         }
         function toggleSaved(){
@@ -2851,15 +2980,21 @@
           if(!card||card.style.display==='none') return;
           const name=byId('jobName')?.value?.trim()||'Pressure washing project';
           const address=byId('jobAddress')?.value?.trim()||'';
-          const total=byId('grandTotalDisplay')?.textContent?.trim()||'';
+          // Preserve the selected, finalized cents. The counter may still be
+          // animating, and saving its text can understate the actual quote.
+          if(window.__schismReleaseState?.locked===true)return;
+          const quote=window.SchismRuntime?.quoteDocument?.();
+          if(!quote||quote.released||!quote.services.length)return;
+          const total='$'+(quote.totalCents/100).toFixed(2);
+          const selectedScopeItemIds=quote.services.map(service=>service.scopeItemId);
           const current=readJson(DASH_RECENTS,[]);
           const matrix=(typeof techMatrixData!=='undefined' && techMatrixData) ? techMatrixData : null;
           const customerEmail=byId('customerEmail')?.value?.trim()||'';
           const customerPhone=byId('customerPhone')?.value?.trim()||'';
-          const item={name,address,total,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
+          const item={name,address,total,quoteTotalCents:quote.totalCents,selectedScopeItemIds,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
           const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
           try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
-          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({jobName:name,jobAddress:address,total,date:item.date,matrixData:matrix,photoCount:item.photoCount,customerEmail,customerPhone})); }catch(e){}
+          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({...item,jobName:name,jobAddress:address})); }catch(e){}
           renderRecents(); renderSavedProject();
         }
         function dockDemoControl(){
@@ -2896,15 +3031,9 @@
           byId('reportsBuildQuoteButton')?.addEventListener('click',selectQuote);
           byId('btnCrewHandoff')?.addEventListener('click',handoffToCrew);
           byId('crewClearJobButton')?.addEventListener('click',clearCrewHandoff);
-          // Direct PDF buttons must not bypass the field release gate.
-          byId('downloadQuotePdfButton')?.addEventListener('click',event=>{
-            if(typeof isTechMode==='undefined'||!isTechMode) return;
-            if(getFieldReadyRelease().ok) return;
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            alert('Field-plan export is blocked until the device release is re-approved.');
-          },true);
+          // The PDF action checks the validated release itself and gives a nonblocking notice.
           document.addEventListener('schism:release-state-changed',syncCrewHandoffState);
+          document.addEventListener('schism:release-state-changed',syncVisibleCrewRelease);
           window.addEventListener('storage',event=>{
             if(event.key===CREW_HANDOFF||event.key===null) syncVisibleCrewRelease();
           });
@@ -2946,7 +3075,82 @@
             crewReleased:getFieldReadyRelease().ok
           };
         }
-        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,estimateRevisionId,makeLocalId};
+        window.SchismRuntime={
+          // Use the final selected registry for draft quotes and immutable
+          // release data for Crew Command. Never read an animated DOM price.
+          quoteDocument(){
+            const field=document.body.classList.contains('tech-mode')||
+              Boolean(byId('crewCommandPanel')?.classList.contains('is-visible'));
+            if(field){
+              const verified=getFieldReadyRelease();
+              if(!verified.ok)return null;
+              const saved=verified.snapshot;
+              return {
+                released:true,jobName:saved.jobName,jobAddress:saved.jobAddress,
+                customerEmail:saved.customerEmail||'',customerPhone:saved.customerPhone||'',
+                totalCents:saved.approvedTotalCents,
+                services:saved.matrixData.services.map(item=>({
+                  scopeItemId:item.scopeItemId,serviceId:item.serviceId,
+                  label:item.label||item.serviceId,quantity:item.quantity,
+                  quantityUnit:item.quantityUnit,priceCents:null,reason:item.reason||''
+                })),
+                releaseId:saved.releaseId,siteNotes:saved.siteNotes||''
+              };
+            }
+            if(window.__schismReleaseState?.locked===true)return null;
+            if(!techMatrixData||techMatrixData.requiresHumanReview===true||
+               techMatrixData.evidenceReview?.readyForEstimate!==true)return null;
+            const totalCents=approvedScopeTotalCents();
+            if(totalCents===null)return null;
+            const picked=priceItemsRegistry.filter(item=>item&&!item.disabled);
+            const matrixScopes=Array.isArray(techMatrixData.services)?techMatrixData.services:[];
+            const allScopeIds=matrixScopes.map(item=>item?.scopeItemId);
+            const selectedIds=picked.map(item=>item.scopeItemId);
+            if(!picked.length||selectedIds.some(id=>typeof id!=='string'||!id.trim())||
+               new Set(selectedIds).size!==selectedIds.length||
+               new Set(allScopeIds).size!==allScopeIds.length)return null;
+            const services=picked.map(item=>{
+              const service=matrixScopes.find(entry=>entry?.scopeItemId===item.scopeItemId);
+              if(!service||service.serviceId!==item.serviceId||
+                 releaseContract()?.EXCLUDED_SERVICE_IDS?.[service.serviceId]||
+                 !Number.isFinite(Number(item.value))||Number(item.value)<0)return null;
+              return {
+                scopeItemId:service.scopeItemId,serviceId:service.serviceId,
+                label:service.label||service.serviceId,quantity:service.quantity,
+                quantityUnit:service.quantityUnit,priceCents:Math.round(Number(item.value)*100),
+                reason:service.reason||''
+              };
+            });
+            if(services.some(item=>!item)||
+               services.reduce((sum,item)=>sum+item.priceCents,0)!==totalCents)return null;
+            return {
+              released:false,jobName:byId('jobName')?.value?.trim()||'',
+              jobAddress:byId('jobAddress')?.value?.trim()||'',
+              customerEmail:byId('customerEmail')?.value?.trim()||'',
+              customerPhone:byId('customerPhone')?.value?.trim()||'',
+              totalCents,services,
+              siteNotes:typeof userSiteNotes==='string'?userSiteNotes:''
+            };
+          },
+          snapshot(){
+            let matrix=null;
+            try{ matrix=(typeof techMatrixData!=='undefined'&&techMatrixData)?JSON.parse(JSON.stringify(techMatrixData)):null; }catch(e){ matrix=(typeof techMatrixData!=='undefined'?techMatrixData:null); }
+            const selectedServiceIds=(typeof priceItemsRegistry!=='undefined'&&Array.isArray(priceItemsRegistry))
+              ? priceItemsRegistry.filter(item=>item&&!item.disabled&&item.serviceId).map(item=>item.serviceId)
+              : [];
+            const quote=this.quoteDocument();
+            return {
+              matrix,
+              jobName:byId('jobName')?.value?.trim()||'',
+              jobAddress:byId('jobAddress')?.value?.trim()||'',
+              // A null quote means review is needed; do not reinterpret the
+              // animated visual as an approved zero-dollar estimate.
+              quotedTotal:quote?quote.totalCents/100:null,
+              selectedServiceIds
+            };
+          }
+        };
+        window.SchismDashboard={showDashboard,selectQuote,selectCrew,selectInventory,selectPhotos,selectReports,refreshDashboard,syncCrewHandoffState,workflowState,prepareMatrixForEstimate,markEstimateMutated,noteEstimateReanalysis,validateCrewRelease,getFieldReadyRelease,getCurrentEstimateRelease,estimateRevisionId,makeLocalId,saveRecentFromVisibleResult,loadProjectIntoQuote};
       })();
     </script>
 
