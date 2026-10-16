@@ -2875,15 +2875,25 @@
             // Older local records did not track exclusions; keep their existing
             // behavior. New records restore selected scope IDs exactly.
             if(Array.isArray(project.selectedScopeItemIds)){
-              const approvedIds=new Set(project.selectedScopeItemIds);
+              const selected=project.selectedScopeItemIds;
+              const approvedIds=new Set(selected);
+              const availableIds=new Set(priceItemsRegistry.map(item=>item.scopeItemId));
+              const validSelection=selected.length>0 &&
+                selected.every(id=>typeof id==='string'&&id.trim()&&availableIds.has(id)) &&
+                approvedIds.size===selected.length;
               priceItemsRegistry.forEach((item,index)=>{
                 item.disabled=!approvedIds.has(item.scopeItemId);
                 byId('priceCard_'+index)?.classList.toggle('disabled-card',item.disabled);
               });
               recalculateGrandTotal();
-              if(Number.isSafeInteger(project.quoteTotalCents) &&
-                  project.quoteTotalCents!==approvedScopeTotalCents()){
-                window.__schismReleaseState={locked:true,reason:'Saved price totals changed. Review or re-analyze the quote before sending.'};
+              if(!validSelection ||
+                 !Number.isSafeInteger(project.quoteTotalCents) ||
+                 project.quoteTotalCents<0 ||
+                 project.quoteTotalCents!==approvedScopeTotalCents()){
+                window.__schismReleaseState={
+                  locked:true,
+                  reason:'Saved scope or pricing could not be verified. Re-analyze the property before sending or exporting.'
+                };
                 document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
               }
             }
@@ -3079,9 +3089,18 @@
                techMatrixData.evidenceReview?.readyForEstimate!==true)return null;
             const totalCents=approvedScopeTotalCents();
             if(totalCents===null)return null;
-            const services=priceItemsRegistry.filter(item=>!item.disabled).map(item=>{
-              const service=techMatrixData.services?.find(entry=>entry.scopeItemId===item.scopeItemId);
-              if(!service||!Number.isFinite(Number(item.value))||Number(item.value)<0)return null;
+            const picked=priceItemsRegistry.filter(item=>item&&!item.disabled);
+            const matrixScopes=Array.isArray(techMatrixData.services)?techMatrixData.services:[];
+            const allScopeIds=matrixScopes.map(item=>item?.scopeItemId);
+            const selectedIds=picked.map(item=>item.scopeItemId);
+            if(!picked.length||selectedIds.some(id=>typeof id!=='string'||!id.trim())||
+               new Set(selectedIds).size!==selectedIds.length||
+               new Set(allScopeIds).size!==allScopeIds.length)return null;
+            const services=picked.map(item=>{
+              const service=matrixScopes.find(entry=>entry?.scopeItemId===item.scopeItemId);
+              if(!service||service.serviceId!==item.serviceId||
+                 releaseContract()?.EXCLUDED_SERVICE_IDS?.[service.serviceId]||
+                 !Number.isFinite(Number(item.value))||Number(item.value)<0)return null;
               return {
                 scopeItemId:service.scopeItemId,serviceId:service.serviceId,
                 label:service.label||service.serviceId,quantity:service.quantity,
@@ -3089,7 +3108,8 @@
                 reason:service.reason||''
               };
             });
-            if(services.some(item=>!item))return null;
+            if(services.some(item=>!item)||
+               services.reduce((sum,item)=>sum+item.priceCents,0)!==totalCents)return null;
             return {
               released:false,jobName:byId('jobName')?.value?.trim()||'',
               jobAddress:byId('jobAddress')?.value?.trim()||'',
@@ -3105,14 +3125,14 @@
             const selectedServiceIds=(typeof priceItemsRegistry!=='undefined'&&Array.isArray(priceItemsRegistry))
               ? priceItemsRegistry.filter(item=>item&&!item.disabled&&item.serviceId).map(item=>item.serviceId)
               : [];
-            const displayedTotal=Number(String(byId('grandTotalDisplay')?.textContent||'').replace(/[^0-9.-]/g,''));
+            const quote=this.quoteDocument();
             return {
               matrix,
               jobName:byId('jobName')?.value?.trim()||'',
               jobAddress:byId('jobAddress')?.value?.trim()||'',
-              quotedTotal:(typeof currentTotalValue!=='undefined'&&Number.isFinite(Number(currentTotalValue))&&Number(currentTotalValue)>0)
-                ? Number(currentTotalValue)
-                : (Number.isFinite(displayedTotal)?displayedTotal:0),
+              // A null quote means review is needed; do not reinterpret the
+              // animated visual as an approved zero-dollar estimate.
+              quotedTotal:quote?quote.totalCents/100:null,
               selectedServiceIds
             };
           }
