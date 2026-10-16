@@ -375,6 +375,46 @@ async function main(){
       savedQuote.restoredCents===17500&&!savedQuote.blocked,
       'Saved quote must preserve selected scope and finalized total, not animation: '+JSON.stringify(savedQuote));
     console.log('Mobile Chrome saved quote cents and scope restoration: PASS');
+
+    const sourceGuard=await evaluate(cdp,function(){
+      document.getElementById('grandTotalDisplay').textContent='$0.01';
+      const source=window.SchismRuntime.snapshot();
+      const original=priceItemsRegistry.map(item=>({ ...item }));
+      priceItemsRegistry=[...original,{...original[0]}];
+      const duplicated=window.SchismRuntime.quoteDocument();
+      priceItemsRegistry=original.map(item=>({...item}));
+      priceItemsRegistry[0].scopeItemId='unknown_scope';
+      const unknown=window.SchismRuntime.quoteDocument();
+      priceItemsRegistry=original;
+      return {
+        total:source.quotedTotal,
+        duplicated:duplicated===null,
+        unknown:unknown===null,
+        recovered:window.SchismRuntime.quoteDocument()?.totalCents
+      };
+    });
+    assert(sourceGuard.total===175&&sourceGuard.duplicated&&sourceGuard.unknown&&
+      sourceGuard.recovered===17500,
+      'Runtime snapshot or quote source accepted animation/duplicate/unknown scopes: '+JSON.stringify(sourceGuard));
+
+    const corrupted=await evaluate(cdp,function(){
+      const saved=JSON.parse(localStorage.getItem('no-problem-matrix-last-project'));
+      saved.selectedScopeItemIds=['scope_qa_driveway','scope_qa_driveway'];
+      const before=JSON.stringify(localStorage.getItem('no-problem-matrix-last-project'));
+      window.SchismDashboard.loadProjectIntoQuote(saved);
+      return {
+        locked:window.__schismReleaseState?.locked===true,
+        handoffLocked:document.getElementById('btnCrewHandoff').disabled,
+        blockedQuote:window.SchismRuntime.quoteDocument()===null,
+        blockedSnapshot:window.SchismRuntime.snapshot().quotedTotal===null,
+        savedStillAvailable:!!localStorage.getItem('no-problem-matrix-last-project'),
+        corruptedInputKeptOutOfStorage:before===JSON.stringify(localStorage.getItem('no-problem-matrix-last-project'))
+      };
+    });
+    assert(corrupted.locked&&corrupted.handoffLocked&&corrupted.blockedQuote&&
+      corrupted.blockedSnapshot&&corrupted.savedStillAvailable,
+      'Duplicate saved scope must require explicit reanalysis: '+JSON.stringify(corrupted));
+    console.log('Mobile Chrome selected-scope identity and saved corruption fail-closed: PASS');
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
     try{cdp?.close()}catch(_){}
