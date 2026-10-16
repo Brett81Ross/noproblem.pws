@@ -247,10 +247,10 @@ function blocked(tab){
   tab.node('jobName').value='Test property';
   tab.node('jobAddress').value='123 Test St';
   tab.ctx.priceItemsRegistry=[{scopeItemId:'different_id',serviceId:'driveway_cleaning',value:50,disabled:false}];
-  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_selection',
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'current_selection_mismatch',
     'a newly selected scope may not borrow an earlier scope release');
   tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:true}];
-  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_selection',
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'current_selection_mismatch',
     'deselecting the entire quote scope must never retain Field Ready');
 }
 {
