@@ -151,8 +151,8 @@ async function handler(req, res) {
         if (location) {
             contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
         }
-        if (Array.isArray(satelliteMeasurements) && satelliteMeasurements.length) {
-            const safeMeasurements = satelliteMeasurements.slice(0, 40).map(m => ({
+        const safeMeasurements = Array.isArray(satelliteMeasurements)
+            ? satelliteMeasurements.slice(0, 40).map(m => ({
                 label: String(m?.label || 'Measured surface').slice(0, 80),
                 kind: m?.kind === 'line' ? 'line' : 'area',
                 quantity: Math.max(0, Number(m?.quantity) || 0),
@@ -161,7 +161,9 @@ async function handler(req, res) {
                 method: m?.evidence?.method || 'user_traced',
                 provider: m?.evidence?.provider || 'unknown',
                 capturedAt: m?.evidence?.capturedAt || null
-            }));
+            }))
+            : [];
+        if (safeMeasurements.length) {
             contextBlock += `\n- Aerial property measurements (user-traced evidence): ${JSON.stringify(safeMeasurements)}`;
             contextBlock += `\n- Measurement rule: use these quantities as geometry evidence only. Do not infer contamination, material condition, access, hazards, drainage, or cleanability from aerial geometry alone.`;
         }
