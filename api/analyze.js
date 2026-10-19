@@ -94,6 +94,9 @@ async function handler(req, res) {
     }
 
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ error: 'Bad Request: JSON request body is required.' });
+        }
         const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
         const launchExcludedServices = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
         const safeRequestedServices = Array.isArray(requestedServices)
