@@ -5,7 +5,7 @@ const { normalizeServices } = require('../lib/matrix-quote-guardrails');
 const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
 const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
-const MODEL = 'gemini-3.5-flash'; 
+const MODEL = process.env.SCHISM_GEMINI_MODEL || 'gemini-3.6-flash'; 
 const MAX_IMAGES = 24;
 
 const DEFAULT_RATE_CARD = Object.freeze({
