@@ -1,9 +1,11 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
+const { buildMatrixDecisionSupport } = require('../lib/matrix-decision-support');
+const { normalizeServices } = require('../lib/matrix-quote-guardrails');
 const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
 const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
-const MODEL = 'gemini-3.5-flash'; 
+const MODEL = process.env.SCHISM_GEMINI_MODEL || 'gemini-3.6-flash'; 
 const MAX_IMAGES = 24;
 
 const DEFAULT_RATE_CARD = Object.freeze({
@@ -92,6 +94,9 @@ async function handler(req, res) {
     }
 
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ error: 'Bad Request: JSON request body is required.' });
+        }
         const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
         const launchExcludedServices = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
         const safeRequestedServices = Array.isArray(requestedServices)
@@ -146,8 +151,8 @@ async function handler(req, res) {
         if (location) {
             contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
         }
-        if (Array.isArray(satelliteMeasurements) && satelliteMeasurements.length) {
-            const safeMeasurements = satelliteMeasurements.slice(0, 40).map(m => ({
+        const safeMeasurements = Array.isArray(satelliteMeasurements)
+            ? satelliteMeasurements.slice(0, 40).map(m => ({
                 label: String(m?.label || 'Measured surface').slice(0, 80),
                 kind: m?.kind === 'line' ? 'line' : 'area',
                 quantity: Math.max(0, Number(m?.quantity) || 0),
@@ -156,7 +161,9 @@ async function handler(req, res) {
                 method: m?.evidence?.method || 'user_traced',
                 provider: m?.evidence?.provider || 'unknown',
                 capturedAt: m?.evidence?.capturedAt || null
-            }));
+            }))
+            : [];
+        if (safeMeasurements.length) {
             contextBlock += `\n- Aerial property measurements (user-traced evidence): ${JSON.stringify(safeMeasurements)}`;
             contextBlock += `\n- Measurement rule: use these quantities as geometry evidence only. Do not infer contamination, material condition, access, hazards, drainage, or cleanability from aerial geometry alone.`;
         }
@@ -307,19 +314,44 @@ async function handler(req, res) {
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
-        if (scanData.services && Array.isArray(scanData.services)) {
-            scanData.services.forEach((item) => {
-                const spec = rateCard.services[item.serviceId];
-                if (!spec) {
-                    item.calculatedPrice = rateCard.minimumJob;
-                    item.label = item.label || 'Custom Service';
-                    return;
-                }
-                item.label = spec.label;
-                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
-                item.calculatedPrice = roundMoney(basePrice * multiplier);
-            });
+        const normalizedQuote = normalizeServices({
+            services: scanData.services,
+            requestedServices: safeRequestedServices,
+            rateCard,
+            multiplier
+        });
+        scanData.services = normalizedQuote.services;
+        scanData.quoteGuardrails = {
+            issues: normalizedQuote.issues,
+            requiresReview: normalizedQuote.requiresReview
+        };
+
+        if (normalizedQuote.requiresReview) {
+            scanData.requiresHumanReview = true;
+            const guardrailSummary = normalizedQuote.issues
+                .map((issue) => issue && issue.message)
+                .filter(Boolean)
+                .slice(0, 3)
+                .join(' ');
+            scanData.humanReviewReason = guardrailSummary || scanData.humanReviewReason || 'Quote output needs manual review before release.';
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: guardrailSummary || 'Quote output needs manual review before release.'
+            };
         }
+
+        scanData.decisionSupport = buildMatrixDecisionSupport({
+            scanData,
+            requestedServices: safeRequestedServices,
+            evidenceMeta: activeEvidenceMeta,
+            photoCount: activeImages.length,
+            satelliteMeasurements: safeMeasurements,
+            rateCard,
+            difficulty,
+            multiplier,
+            elevatedScopeRequested
+        });
 
         return res.status(200).json({
             success: true,

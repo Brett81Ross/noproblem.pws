@@ -127,7 +127,8 @@
 
     while ((node = walker.nextNode())) {
       if (/One-Story House Soft Wash|Multi-Level House Soft Wash/i.test(node.nodeValue || '')) {
-        node.nodeValue = node.nodeValue.replace(/One-Story House Soft Wash|Multi-Level House Soft Wash/gi, replacement);
+        var nextValue=node.nodeValue.replace(/One-Story House Soft Wash|Multi-Level House Soft Wash/gi, replacement);
+        if(nextValue!==node.nodeValue)node.nodeValue=nextValue;
       }
     }
   }
@@ -259,6 +260,8 @@
           response.clone().json().then(function (payload) {
             if (requestGeneration !== analysisGeneration) return;
             var matrix = payload && payload.rawMatrixData;
+            window.__schismDecisionSupport = matrix && matrix.decisionSupport && typeof matrix.decisionSupport === 'object' ? matrix.decisionSupport : null;
+            document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
             if (!matrix || typeof matrix !== 'object') {
               window.__schismReleaseState = { locked: true, reason: 'SchismMatrix could not verify a field-ready estimate.' };
             } else {
@@ -290,14 +293,15 @@
   function blockQuoteRelease(actionName) {
     if (!isQuoteReleaseLocked()) return false;
     var reason = window.__schismReleaseState.reason || 'Important property evidence still needs review.';
-    showNotice(actionName + ' is locked until human review is complete.');
-    window.alert(actionName + ' is locked until human review is complete.\n\n' + reason);
+    // Blocking native alerts can freeze mobile flow and Chromium automation.
+    // The same fail-closed guard still prevents the action from proceeding.
+    showNotice(actionName + ' blocked: ' + reason);
     return true;
   }
 
   function syncQuoteReleaseControls() {
     var locked = isQuoteReleaseLocked();
-    ['downloadQuotePdfButton', 'btnExportPDF', 'btnEmailClient', 'copyButton', 'btnCrewHandoff'].forEach(function (id) {
+    ['downloadQuotePdfButton', 'btnExportPDF', 'btnEmailClient', 'copyButton'].forEach(function (id) {
       var button = document.getElementById(id);
       if (!button) return;
       button.disabled = locked;
@@ -439,63 +443,44 @@
     return new Blob([pdf], { type: 'application/pdf' });
   }
 
-  function quotePdfLines() {
-    var jobName = document.getElementById('jobName');
-    var jobAddress = document.getElementById('jobAddress');
-    var customerEmail = document.getElementById('customerEmail');
-    var customerPhone = document.getElementById('customerPhone');
-    var resultTitle = document.querySelector('.result-title');
-    var resultSummary = document.querySelector('.result-summary');
-    var total = document.querySelector('.quote-total strong');
-    var selectedServices = document.querySelectorAll('.quoted-service[aria-pressed="true"]');
-    var editState = window.NPMatrixQuote && typeof window.NPMatrixQuote.getState === 'function' ? window.NPMatrixQuote.getState() : { discountPercent: 0, quoteNotes: '' };
-    var level = document.body.getAttribute('data-building-level') === MULTIPLE_LEVELS ? 'Multiple levels' : 'One story';
-    var lines = [
-      'SCHISMMATRIX(TM)',
-      'PROPERTY INTELLIGENCE',
-      'CUSTOMER QUOTE',
-      '',
-      'Prepared: ' + new Date().toLocaleDateString('en-US'),
-      jobName && jobName.value.trim() ? 'Project: ' + jobName.value.trim() : 'Project: Pressure washing service',
-      jobAddress && jobAddress.value.trim() ? 'Property: ' + jobAddress.value.trim() : '',
-      customerEmail && customerEmail.value.trim() ? 'Customer email: ' + customerEmail.value.trim() : '',
-      customerPhone && customerPhone.value.trim() ? 'Customer phone: ' + customerPhone.value.trim() : '',
-      'Building height: ' + level,
-      '',
-      'QUOTE SUMMARY',
-      resultTitle ? resultTitle.textContent.trim() : '',
-      resultSummary ? resultSummary.textContent.trim() : '',
-      '',
-      'SELECTED SERVICES'
-    ].filter(function (line, index, array) {
-      return line || (index > 0 && array[index - 1] !== '');
+  function quotePdfLines(quote) {
+    if(!quote||!Array.isArray(quote.services)||!quote.services.length||
+      !Number.isSafeInteger(quote.totalCents)||quote.totalCents<0)return [];
+    const state=!quote.released&&window.NPMatrixQuote&&
+      typeof window.NPMatrixQuote.getState==='function'
+      ?window.NPMatrixQuote.getState():{quoteNotes:''};
+    const level=document.body.getAttribute('data-building-level')===MULTIPLE_LEVELS
+      ?'Multiple levels':'One story';
+    const lines=[
+      'SCHISMMATRIX(TM)','PROPERTY INTELLIGENCE',
+      quote.released?'APPROVED DEVICE RELEASE':'CUSTOMER QUOTE',
+      '','Prepared: '+new Date().toLocaleDateString('en-US'),
+      'Project: '+(quote.jobName||'Pressure washing service'),
+      'Property: '+(quote.jobAddress||'Address not saved'),
+      quote.customerEmail?'Customer email: '+quote.customerEmail:'',
+      quote.customerPhone?'Customer phone: '+quote.customerPhone:'',
+      'Building height: '+level,
+      quote.released?'Release ID: '+quote.releaseId:'',
+      '','SELECTED SERVICES'
+    ].filter((line,index,all)=>line||(index>0&&all[index-1]!==''));
+    quote.services.forEach((service,index)=>{
+      const price=Number.isSafeInteger(service.priceCents)
+        ?' - $'+(service.priceCents/100).toFixed(2):'';
+      const quantity=service.quantity===null||service.quantity===undefined?''
+        :String(service.quantity)+' '+String(service.quantityUnit||'');
+      lines.push((index+1)+'. '+(service.label||service.serviceId||'Service')+price);
+      if(quantity.trim())lines.push('   Quantity: '+quantity.trim());
+      if(service.reason)lines.push('   '+service.reason);
     });
-
-    Array.prototype.forEach.call(selectedServices, function (service, index) {
-      var name = service.querySelector('.service-name');
-      var price = service.querySelector('.service-price');
-      var meta = service.querySelector('.service-meta');
-      var reason = service.querySelector('.service-reason');
-      lines.push((index + 1) + '. ' + (name ? name.textContent.trim() : 'Service') + (price ? ' - ' + price.textContent.trim() : ''));
-      if (meta) lines.push('   ' + meta.textContent.replace(/\s+/g, ' ').trim());
-      if (reason) lines.push('   ' + reason.textContent.trim());
-    });
-
-    if (!selectedServices.length) lines.push('No services selected.');
-
-    lines.push('');
-    if (Number(editState.discountPercent)) lines.push('DISCOUNT: ' + Number(editState.discountPercent) + '%');
-    lines.push('SELECTED PLAN TOTAL: ' + (total ? total.textContent.trim() : 'To be confirmed'));
-    if (editState.quoteNotes) lines.push('QUOTE NOTES: ' + editState.quoteNotes);
-    lines.push('');
-    lines.push('Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.');
-    lines.push(level === 'Multiple levels'
-      ? 'Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'
-      : 'Ground-level and one-story exterior washing are included. Roof cleaning is not included.');
-    lines.push('');
-    lines.push('SchismMatrix(TM)');
-    lines.push('Cactus Byte Studios(TM) | All Rights Reserved');
-
+    lines.push('','SELECTED PLAN TOTAL: $'+(quote.totalCents/100).toFixed(2));
+    if(state?.quoteNotes)lines.push('QUOTE NOTES: '+state.quoteNotes);
+    if(quote.siteNotes)lines.push('SITE NOTES: '+quote.siteNotes);
+    lines.push('',
+      'Estimate is photo-based. Final measurements, access, safety conditions, and scope are confirmed on site before work begins.',
+      level==='Multiple levels'
+      ?'Multiple levels require manual review. Roofs, ladders, gutter work, and high-access or multi-level execution are excluded from the launch scope.'
+      :'Ground-level and one-story exterior washing are included. Roof cleaning is not included.',
+      '','SchismMatrix(TM)','Cactus Byte Studios(TM) | All Rights Reserved');
     return lines;
   }
 
@@ -523,12 +508,14 @@
       }
     }
     if (blockQuoteRelease('Download customer PDF')) return;
-    if (!document.querySelector('.quote-total')) {
-      showNotice('Finish a quote before downloading the customer PDF.');
+    var source=window.SchismRuntime && typeof window.SchismRuntime.quoteDocument==='function'
+      ?window.SchismRuntime.quoteDocument():null;
+    var lines=quotePdfLines(source);
+    if(!lines.length){
+      showNotice('Review and select a valid quote before downloading the PDF.');
       return;
     }
-
-    var blob = createPdfBlob(quotePdfLines());
+    var blob = createPdfBlob(lines);
     var url = URL.createObjectURL(blob);
     var link = document.createElement('a');
     link.href = url;
@@ -540,6 +527,130 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
     showNotice('Customer quote PDF downloaded.');
   }
+
+  function decisionEscapeHtml(value) {
+    return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[character];
+    });
+  }
+
+  function decisionMoney(value) {
+    var number=Number(value);
+    return Number.isFinite(number) ? '$' + number.toFixed(2) : '';
+  }
+
+  function decisionLabelId(value) {
+    return String(value || '').replace(/_/g, ' ').replace(/\b\w/g, function (letter) { return letter.toUpperCase(); });
+  }
+
+  function ensureDecisionBriefStyles() {
+    if (document.getElementById('schismDecisionBriefStyles')) return;
+    var style = document.createElement('style');
+    style.id = 'schismDecisionBriefStyles';
+    style.textContent = [
+      '.schism-decision-brief{margin:0 0 14px;padding:16px;border:1px solid rgba(93,235,245,.24);border-radius:16px;background:linear-gradient(145deg,rgba(7,31,40,.96),rgba(4,14,23,.98));box-shadow:0 18px 34px rgba(0,0,0,.16)}',
+      '.schism-decision-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.schism-decision-kicker{color:#64edf6;font-size:9px;font-weight:950;letter-spacing:.13em;text-transform:uppercase}.schism-decision-status{flex:0 0 auto;padding:6px 9px;border:1px solid rgba(93,235,245,.28);border-radius:999px;color:#bffaff;background:rgba(93,235,245,.07);font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}.schism-decision-brief[data-status="review_required"] .schism-decision-status,.schism-decision-brief[data-status="blocked"] .schism-decision-status{border-color:rgba(214,176,107,.34);color:#e7cc95;background:rgba(214,176,107,.07)}',
+      '.schism-decision-summary{margin:8px 0 12px;color:#eefcff;font-size:17px;line-height:1.25}.schism-decision-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.schism-decision-stat{padding:10px;border:1px solid rgba(93,235,245,.13);border-radius:11px;background:rgba(1,13,20,.58)}.schism-decision-stat span{display:block;color:#718f9a;font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}.schism-decision-stat strong{display:block;margin-top:5px;color:#e7fbff;font-size:12px}',
+      '.schism-next-action{margin-top:10px;padding:12px;border:1px solid rgba(101,224,238,.2);border-radius:12px;background:rgba(82,231,242,.045)}.schism-next-action b{display:block;color:#74eef7;font-size:9px;letter-spacing:.08em;text-transform:uppercase}.schism-next-action strong{display:block;margin-top:5px;color:#effcff;font-size:13px}.schism-next-action span{display:block;margin-top:4px;color:#839ea8;font-size:9px;line-height:1.45}',
+      '.schism-decision-section{margin-top:11px}.schism-decision-section h4{margin:0 0 7px;color:#8aa7b1;font-size:8px;letter-spacing:.1em;text-transform:uppercase}.schism-price-driver,.schism-scope-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid rgba(93,235,245,.08);color:#bcd1d8;font-size:9px}.schism-price-driver:first-of-type,.schism-scope-line:first-of-type{border-top:0}.schism-price-driver strong,.schism-scope-line strong{color:#effcff;font-size:10px}.schism-decision-note{margin-top:7px;color:#708b95;font-size:8px;line-height:1.45}',
+      '@media(max-width:560px){.schism-decision-grid{grid-template-columns:1fr}.schism-decision-summary{font-size:15px}}'
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  function renderDecisionBrief() {
+    var mount = document.getElementById('resultsMount');
+    if (!mount) return;
+
+    var support = window.__schismDecisionSupport;
+    var existing = document.getElementById('schismDecisionBrief');
+    if (!support || typeof support !== 'object') {
+      if (existing) existing.remove();
+      return;
+    }
+
+    ensureDecisionBriefStyles();
+
+    // Analysis eligibility does not authorize field execution.
+    var approvedRelease = Boolean(window.SchismDashboard && typeof window.SchismDashboard.getCurrentEstimateRelease === 'function' && window.SchismDashboard.getCurrentEstimateRelease().ok === true);
+    var status = support.status || 'review_required';
+    if(status === 'field_ready' && !approvedRelease) status = 'review_required';
+    var statusLabel = approvedRelease ? (support.statusLabel || status) : (support.status === 'field_ready' ? 'Release Approval Required' : (support.statusLabel || status));
+    var evidence = support.evidence || {};
+    var pricing = support.pricing || {};
+    var scope = support.scope || {};
+    var crew = support.crew || {};
+    var next = support.nextBestAction;
+    var drivers = Array.isArray(pricing.drivers) ? pricing.drivers : [];
+    var requestedNotQuoted = Array.isArray(scope.requestedNotQuoted) ? scope.requestedNotQuoted : [];
+    var additionalObserved = Array.isArray(scope.additionalObserved) ? scope.additionalObserved : [];
+    var quoteIntegrity = support.quoteIntegrity || {};
+    var integrityIssues = Array.isArray(quoteIntegrity.issues) ? quoteIntegrity.issues : [];
+
+    var html = '<div class="schism-decision-head"><div><div class="schism-decision-kicker">Matrix Decision Brief</div></div><span class="schism-decision-status">' +
+      decisionEscapeHtml(statusLabel) + '</span></div>' +
+      '<div class="schism-decision-summary">' + decisionEscapeHtml(support.summary || '') + '</div>' +
+      '<div class="schism-decision-grid">' +
+        '<div class="schism-decision-stat"><span>Evidence</span><strong>' + decisionEscapeHtml(decisionLabelId(evidence.strength || 'limited')) + '</strong></div>' +
+        '<div class="schism-decision-stat"><span>Photos / Measurements</span><strong>' + decisionEscapeHtml(String(evidence.photoCount || 0)) + ' / ' + decisionEscapeHtml(String(evidence.measuredSurfaceCount || 0)) + '</strong></div>' +
+        '<div class="schism-decision-stat"><span>Crew Handoff</span><strong>' + (approvedRelease ? 'Device Release Ready' : (crew.ready ? 'Approval Required' : 'Locked')) + '</strong></div>' +
+      '</div>';
+
+    if (next && next.prompt) {
+      html += '<div class="schism-next-action"><b>Best next capture</b><strong>' + decisionEscapeHtml(next.prompt) + '</strong>' +
+        (next.reason ? '<span>' + decisionEscapeHtml(next.reason) + '</span>' : '') + '</div>';
+    }
+
+    if (drivers.length) {
+      html += '<div class="schism-decision-section"><h4>Price drivers · before manual edits</h4>' +
+        drivers.map(function (driver) {
+          var detail = driver.quantity !== null && driver.quantity !== undefined
+            ? decisionEscapeHtml(String(driver.quantity) + ' ' + String(driver.quantityUnit || ''))
+            : '';
+          return '<div class="schism-price-driver"><div><strong>' + decisionEscapeHtml(driver.label || decisionLabelId(driver.serviceId)) + '</strong>' +
+            (detail ? '<div class="schism-decision-note">' + detail + '</div>' : '') +
+            '</div><strong>' + decisionEscapeHtml(decisionMoney(driver.finalPrice)) + '</strong></div>';
+        }).join('') +
+        '<div class="schism-decision-note">' + decisionEscapeHtml(pricing.explanation || '') + '</div></div>';
+    }
+
+    if (requestedNotQuoted.length || additionalObserved.length) {
+      html += '<div class="schism-decision-section"><h4>Scope intelligence</h4>';
+      if (requestedNotQuoted.length) {
+        html += '<div class="schism-scope-line"><span>Requested but not qualified</span><strong>' +
+          decisionEscapeHtml(requestedNotQuoted.map(decisionLabelId).join(', ')) + '</strong></div>';
+      }
+      if (additionalObserved.length) {
+        html += '<div class="schism-scope-line"><span>Observed beyond selected scope</span><strong>' +
+          decisionEscapeHtml(additionalObserved.map(decisionLabelId).join(', ')) + '</strong></div>';
+      }
+      html += '</div>';
+    }
+
+    if (integrityIssues.length) {
+      html += '<div class="schism-decision-section"><h4>Quote integrity</h4>' +
+        integrityIssues.map(function (issue) {
+          return '<div class="schism-scope-line"><span>' + decisionEscapeHtml(issue.code || 'Review') + '</span><strong>' +
+            decisionEscapeHtml(issue.message || 'Manual review required.') + '</strong></div>';
+        }).join('') + '</div>';
+    }
+
+    var card = existing || document.createElement('section');
+    card.id = 'schismDecisionBrief';
+    card.className = 'schism-decision-brief';
+    card.setAttribute('data-status', status);
+    // DOM childList observers include this card. Write only when the content changes
+    // or they can repeatedly trigger themselves and freeze mobile browsers.
+    if (card.__schismRenderSignature !== html) {
+      card.__schismRenderSignature = html;
+      card.innerHTML = html;
+    }
+
+    if (!existing || card.parentNode !== mount) mount.insertBefore(card, mount.firstChild);
+  }
+
+  document.addEventListener('schism:decision-support-changed', renderDecisionBrief);
+  document.addEventListener('schism:device-release-updated', renderDecisionBrief);
 
   function ensurePdfButton() {
     var quoteActions = document.querySelector('.quote-actions');
@@ -559,12 +670,22 @@
     var resultsMount = document.getElementById('resultsMount');
     if (!resultsMount || typeof MutationObserver !== 'function') return;
 
+    // Multiple quote widgets observe this subtree. Defer their work to one
+    // animation frame, so a nested render cannot recursively starve Chrome.
+    var scheduled=false;
     var observer = new MutationObserver(function () {
-      updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
-      ensurePdfButton();
+      if(scheduled)return;
+      scheduled=true;
+      requestAnimationFrame(function(){
+        scheduled=false;
+        updateHouseWashLabels(document.body.getAttribute('data-building-level'), resultsMount);
+        ensurePdfButton();
+        renderDecisionBrief();
+      });
     });
     observer.observe(resultsMount, { childList: true, subtree: true });
     ensurePdfButton();
+    renderDecisionBrief();
   }
 
   function observeEvidenceGrid() {
