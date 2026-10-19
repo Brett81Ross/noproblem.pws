@@ -1,0 +1,13 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const script=fs.readFileSync(path.join(__dirname,'schism-live-gemini-qa.js'),'utf8');
+const api=fs.readFileSync(path.join(__dirname,'../api/analyze.js'),'utf8');
+assert(script.includes("process.env.SCHISM_ALLOW_LIVE_QA,'YES'"),'Live QA must require explicit opt-in');
+assert(script.includes('SCHISM_QA_GEMINI_KEY'),'Live QA must use isolated credential');
+assert(script.includes('SCHISM_QA_SYNTHETIC_JPEG'),'Live QA must use synthetic media');
+assert(!script.includes('https://noproblem-pws.vercel.app/'),'Live QA must not call production');
+assert(api.includes("process.env.SCHISM_GEMINI_MODEL || 'gemini-3.6-flash'"),'Expected active Gemini model and QA override');
+assert(!fs.readFileSync(path.join(__dirname,'../package.json'),'utf8').includes('node tests/schism-live-gemini-qa.js'),'Real Gemini integration must be opt-in only');
+console.log('Schism isolated Gemini release-readiness guard QA passed (no API usage)');
