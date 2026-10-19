@@ -2553,6 +2553,15 @@
                 const currentCents=approvedScopeTotalCents();
                 if(currentCents===null||currentCents!==snapshot.approvedTotalCents)
                   return {ok:false,snapshot,code:'current_price_mismatch',reason:'The selected quote amount changed after release. Re-approval is required.'};
+                if(Array.isArray(snapshot.approvedScopePrices)){
+                  const actual=priceItemsRegistry.filter(item=>item&&!item.disabled).map(item=>({
+                    scopeItemId:item.scopeItemId,serviceId:item.serviceId,
+                    priceCents:Math.round(Number(item.value)*100)
+                  }));
+                  const normalize=items=>items.slice().sort((a,b)=>a.scopeItemId.localeCompare(b.scopeItemId));
+                  if(contract.stableStringify(normalize(actual))!==contract.stableStringify(normalize(snapshot.approvedScopePrices)))
+                    return {ok:false,snapshot,code:'current_line_price_mismatch',reason:'A service price changed after approval, even though the total may be unchanged.'};
+                }
               }
             }
             return {ok:true,snapshot,code:'ok',reason:''};
@@ -2694,6 +2703,13 @@
             customerPhone:byId('customerPhone')?.value?.trim()||'',
             approvedTotalCents,
             approvedTotal:'$'+(approvedTotalCents/100).toFixed(2),
+            approvedScopePrices:priceItemsRegistry
+              .filter(item=>item&&!item.disabled)
+              .map(item=>({
+                scopeItemId:item.scopeItemId,
+                serviceId:item.serviceId,
+                priceCents:Math.round(Number(item.value)*100)
+              })),
             workBasis:{
               services:matrix.services.map(item=>({scopeItemId:item.scopeItemId,estimatedTimeMinutes:item.estimatedTimeMinutes,waterUsageGallons:item.waterUsageGallons})),
               totalEstimatedMinutes:matrix.fieldPlan.totalEstimatedMinutes,
@@ -3092,7 +3108,11 @@
                 services:saved.matrixData.services.map(item=>({
                   scopeItemId:item.scopeItemId,serviceId:item.serviceId,
                   label:item.label||item.serviceId,quantity:item.quantity,
-                  quantityUnit:item.quantityUnit,priceCents:null,reason:item.reason||''
+                  quantityUnit:item.quantityUnit,
+                  priceCents:Array.isArray(saved.approvedScopePrices)
+                    ?(saved.approvedScopePrices.find(price=>price.scopeItemId===item.scopeItemId)?.priceCents??null)
+                    :null,
+                  reason:item.reason||''
                 })),
                 releaseId:saved.releaseId,siteNotes:saved.siteNotes||''
               };

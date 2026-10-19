@@ -280,11 +280,14 @@ async function main(){
         valid:window.SchismDashboard.getFieldReadyRelease().ok,
         crewShown:document.getElementById('crewCommandPanel').classList.contains('is-visible'),
         fieldPlanVisible:document.getElementById('resultsSection').style.display!=='none',
-        releasePdf:window.SchismRuntime.quoteDocument()};
+        releasePdf:window.SchismRuntime.quoteDocument(),
+        frozenPrices:saved?.approvedScopePrices};
     });
     assert(release.saved&&release.status==='released'&&release.approved==='$175.00'&&
       release.valid&&release.crewShown&&release.fieldPlanVisible&&
-      release.releasePdf?.released===true&&release.releasePdf?.totalCents===17500,
+      release.releasePdf?.released===true&&release.releasePdf?.totalCents===17500&&
+      release.releasePdf?.services[0]?.priceCents===17500&&
+      release.frozenPrices?.[0]?.priceCents===17500,
       'Browser handoff must freeze and validate approved work: '+JSON.stringify(release));
     const fieldText=await evaluate(cdp,function(){return generateActiveProposalText();});
     assert(fieldText.includes('APPROVED FIELD WORK PLAN')&&

@@ -279,6 +279,21 @@ function blocked(tab){
     'duplicated live scope cannot authorize a frozen release');
 }
 {
+  const tab=createTab(new Map()),snap=releaseFixture();
+  snap.approvedScopePrices=[{scopeItemId:'scope_a',serviceId:'house_wash',priceCents:15000}];
+  snap.integrityFingerprint=contract.computeReleaseFingerprint(snap);
+  tab.put(snap);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(snap.matrixData));
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false}];
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,
+    'new releases with frozen line pricing must be restored');
+  tab.ctx.priceItemsRegistry[0].serviceId='driveway_cleaning';
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_line_price_mismatch',
+    'a changed service identity must not inherit the frozen per-scope price');
+  tab.ctx.priceItemsRegistry[0].serviceId='house_wash';
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true);
+}
+{
   // Exercise the actual PDF action body, not just whether its click listener exists.
   // A MutationObserver may add the button after the dashboard binds its listeners.
   const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');
