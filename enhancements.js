@@ -293,8 +293,9 @@
   function blockQuoteRelease(actionName) {
     if (!isQuoteReleaseLocked()) return false;
     var reason = window.__schismReleaseState.reason || 'Important property evidence still needs review.';
-    showNotice(actionName + ' is locked until human review is complete.');
-    window.alert(actionName + ' is locked until human review is complete.\n\n' + reason);
+    // Blocking native alerts can freeze mobile flow and Chromium automation.
+    // The same fail-closed guard still prevents the action from proceeding.
+    showNotice(actionName + ' blocked: ' + reason);
     return true;
   }
 

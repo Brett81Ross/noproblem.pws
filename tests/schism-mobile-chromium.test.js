@@ -400,6 +400,47 @@ async function main(){
       sourceGuard.recovered===17500,
       'Runtime snapshot or quote source accepted animation/duplicate/unknown scopes: '+JSON.stringify(sourceGuard));
 
+    const twoService=await evaluate(cdp,function(){
+      window.SchismDashboard.selectQuote();
+      window.__schismReleaseState={locked:false,reason:''};
+      // After restoring saved quote, patio remained deselected. Approve both.
+      const patio=priceItemsRegistry.findIndex(item=>item.scopeItemId==='scope_qa_patio');
+      if(patio<0)return {error:'patio quote item missing'};
+      if(priceItemsRegistry[patio].disabled)togglePriceCard(patio);
+      window.SchismDashboard.syncCrewHandoffState();
+      const approve=document.getElementById('btnCrewHandoff');
+      if(approve.disabled)return {error:'handoff blocked',title:approve.title};
+      approve.click();
+      const snapshot=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+      const baseline=window.SchismDashboard.getFieldReadyRelease();
+      const live=priceItemsRegistry.filter(item=>!item.disabled);
+      const before=window.SchismRuntime.quoteDocument();
+      if(live.length!==2)return {error:'missing line item',length:live.length};
+      live[0].value+=10;
+      live[1].value-=10;
+      const drift=window.SchismDashboard.getFieldReadyRelease();
+      const blockedPdfSource=window.SchismRuntime.quoteDocument()===null;
+      live[0].value-=10;
+      live[1].value+=10;
+      return {
+        frozenCount:snapshot?.approvedScopePrices?.length,
+        frozenCents:snapshot?.approvedTotalCents,
+        frozenServiceCents:snapshot?.approvedScopePrices?.map(item=>item.priceCents),
+        validBefore:baseline.ok,
+        pdfCents:before?.services?.map(item=>item.priceCents),
+        driftCode:drift.code,
+        blockedPdfSource,
+        recovered:window.SchismDashboard.getFieldReadyRelease().ok
+      };
+    });
+    assert(twoService.frozenCount===2&&twoService.frozenCents===23500&&
+      twoService.frozenServiceCents?.includes(17500)&&twoService.frozenServiceCents?.includes(6000)&&
+      twoService.pdfCents?.includes(17500)&&twoService.pdfCents?.includes(6000)&&
+      twoService.validBefore&&twoService.driftCode==='current_line_price_mismatch'&&
+      twoService.blockedPdfSource&&twoService.recovered,
+      'Equal-total service price redistribution must invalidate old approval: '+JSON.stringify(twoService));
+    console.log('Mobile Chrome two-service same-total price drift: PASS');
+
     const corrupted=await evaluate(cdp,function(){
       const saved=JSON.parse(localStorage.getItem('no-problem-matrix-last-project'));
       saved.selectedScopeItemIds=['scope_qa_driveway','scope_qa_driveway'];
@@ -417,6 +458,12 @@ async function main(){
     assert(corrupted.locked&&corrupted.handoffLocked&&corrupted.blockedQuote&&
       corrupted.blockedSnapshot&&corrupted.savedStillAvailable,
       'Duplicate saved scope must require explicit reanalysis: '+JSON.stringify(corrupted));
+    const reviewToast=await evaluate(cdp,function(){
+      const blocked=window.NPMatrixReleaseGuard.block('QA locked quote');
+      return {blocked,locked:window.NPMatrixReleaseGuard.isLocked()};
+    });
+    assert(reviewToast.blocked&&reviewToast.locked&&cdp.unexpectedDialogs.length===0,
+      'Blocked quote actions must show a nonblocking notice, never a native alert');
     console.log('Mobile Chrome selected-scope identity and saved corruption fail-closed: PASS');
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
   }finally{
