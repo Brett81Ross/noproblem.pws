@@ -309,7 +309,16 @@ async function handler(req, res) {
                 summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
             };
         }
-        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
+        const unresolvedHighPriority = [...missingEvidence, ...uncertainEvidence].some(item =>
+            item && (item.priority === 'high' || item.priority === 'critical'));
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority;
+        if (unresolvedHighPriority) {
+            scanData.evidenceReview = {
+                ...scanData.evidenceReview,
+                readyForEstimate: false,
+                summary: 'High-priority property evidence is unresolved. Manual review is required.'
+            };
+        }
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
             scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
@@ -332,6 +341,18 @@ async function handler(req, res) {
             multiplier
         });
         scanData.services = normalizedQuote.services;
+        const incompleteWorkBasis = scanData.services.some(service =>
+            !Number.isFinite(service.estimatedTimeMinutes) ||
+            !Number.isFinite(service.waterUsageGallons));
+        if (incompleteWorkBasis) {
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = 'A service is missing its estimated work time or water requirement. Manual review is required.';
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Work time or water estimates need verification before crew release.'
+            };
+        }
         scanData.quoteGuardrails = {
             issues: normalizedQuote.issues,
             requiresReview: normalizedQuote.requiresReview

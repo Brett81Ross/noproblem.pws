@@ -82,12 +82,32 @@ async function main(){
     assert(!called.contents?.[0]?.includes('Customer-requested launch services to evaluate against the photos: driveway_cleaning, roof_soft_wash'),
       'excluded service must not reach requested scope prompt');
     assert.equal(called.count,1);
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:250,estimatedTimeMinutes:35,waterUsageGallons:75}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[{priority:'high',prompt:'Show the runoff outlet'}],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'high-priority missing evidence must block readiness');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:250,estimatedTimeMinutes:null,waterUsageGallons:null}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'missing time/water basis must block readiness');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+
     generated='{not valid json';
     r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
     assert.equal(r.status,500,'bad AI response must be rejected, never shown as a ready quote');
     assert.equal(r.result.error,'Analysis Engine Failure');
     assert(!JSON.stringify(r.result).includes('{not valid json'),'raw AI response must never appear in HTTP error');
-    assert.equal(called.count,2);
+    assert.equal(called.count,4);
     console.log('Schism mock backend HTTP/AI safety QA passed (no real key or AI calls)');
   }finally{
     if(previousKey===undefined)delete process.env.GEMINI_API_KEY;
