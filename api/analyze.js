@@ -174,6 +174,19 @@ async function handler(req, res) {
                 capturedAt: m?.evidence?.capturedAt || null
             }))
             : [];
+        // Do not select a winner when user-traced records for the same
+        // named surface disagree about quantity or unit.
+        const measurementIndex = new Map();
+        const conflictingMeasurements = [];
+        for (const measurement of safeMeasurements) {
+            const key = measurement.label.trim().toLowerCase().replace(/\s+/g, ' ') + ':' + measurement.kind;
+            const prior = measurementIndex.get(key);
+            if (prior && (prior.quantity !== measurement.quantity || prior.unit !== measurement.unit)) {
+                conflictingMeasurements.push(measurement.label);
+            } else if (!prior) {
+                measurementIndex.set(key, measurement);
+            }
+        }
         if (safeMeasurements.length) {
             contextBlock += `\n- Aerial property measurements (user-traced evidence): ${JSON.stringify(safeMeasurements)}`;
             contextBlock += `\n- Measurement rule: use these quantities as geometry evidence only. Do not infer contamination, material condition, access, hazards, drainage, or cleanability from aerial geometry alone.`;
@@ -311,12 +324,19 @@ async function handler(req, res) {
         }
         const unresolvedHighPriority = [...missingEvidence, ...uncertainEvidence].some(item =>
             item && (item.priority === 'high' || item.priority === 'critical'));
-        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority;
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority && !conflictingMeasurements.length;
         if (unresolvedHighPriority) {
             scanData.evidenceReview = {
                 ...scanData.evidenceReview,
                 readyForEstimate: false,
                 summary: 'High-priority property evidence is unresolved. Manual review is required.'
+            };
+        }
+        if (conflictingMeasurements.length) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Conflicting measurements for the same named surface require manual verification.'
             };
         }
         if (!explicitlyReady) {

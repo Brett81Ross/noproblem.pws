@@ -64,4 +64,26 @@ assert.strictEqual(normalizeQuantity(undefined, 'flat'), 1);
   assert.strictEqual(result.issues.some(issue => issue.code === 'INVALID_QUANTITY'), true);
 }
 
+{
+  const result=normalizeServices({
+    services:[
+      {serviceId:'driveway_cleaning',scopeItemId:'driveway_a',quantity:800,evidence:'Main concrete driveway'},
+      {serviceId:'driveway_cleaning',scopeItemId:'driveway_a',quantity:800,evidence:'Main concrete driveway'},
+      {serviceId:'driveway_cleaning',scopeItemId:'driveway_b',quantity:300,evidence:'Side driveway'}
+    ],rateCard,multiplier:1
+  });
+  assert.strictEqual(result.services.length,2,'Duplicate scope must not be priced twice');
+  assert.strictEqual(result.issues.some(issue=>issue.code==='DUPLICATE_SURFACE'),true);
+  assert.strictEqual(result.requiresReview,true);
+}
+{
+  const result=normalizeServices({
+    services:[
+      {serviceId:'driveway_cleaning',quantity:800,evidence:'Main driveway'},
+      {serviceId:'driveway_cleaning',quantity:800,evidence:'Main driveway'},
+      {serviceId:'driveway_cleaning',quantity:250,evidence:'Side driveway'}
+    ],rateCard,multiplier:1
+  });
+  assert.strictEqual(result.services.length,2,'Identical evidence records must not double bill');
+}
 console.log('Schism quote guardrails QA passed');
