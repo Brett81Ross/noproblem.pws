@@ -334,6 +334,9 @@ async function handler(req, res) {
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
+        const incompleteWorkBasis = (Array.isArray(scanData.services) ? scanData.services : []).some(service =>
+            service && (!Number.isFinite(service.estimatedTimeMinutes) ||
+            !Number.isFinite(service.waterUsageGallons)));
         const normalizedQuote = normalizeServices({
             services: scanData.services,
             requestedServices: safeRequestedServices,
@@ -341,9 +344,7 @@ async function handler(req, res) {
             multiplier
         });
         scanData.services = normalizedQuote.services;
-        const incompleteWorkBasis = scanData.services.some(service =>
-            !Number.isFinite(service.estimatedTimeMinutes) ||
-            !Number.isFinite(service.waterUsageGallons));
+
         if (incompleteWorkBasis) {
             scanData.requiresHumanReview = true;
             scanData.humanReviewReason = 'A service is missing its estimated work time or water requirement. Manual review is required.';
