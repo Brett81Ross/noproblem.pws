@@ -44,13 +44,19 @@ async function main(){
     assert.equal(r.status,400,'array JSON body must be rejected');
     r=await request('POST',{});
     assert.equal(r.status,400,'no photographs must fail with 400');
+    r=await request('POST',{images:['not-base64']});
+    assert.equal(r.status,400,'malformed image must fail before AI lookup');
+    r=await request('POST',{images:[Buffer.from('not-a-jpeg').toString('base64')]});
+    assert.equal(r.status,400,'non-JPEG image must fail before AI lookup');
+    r=await request('POST',{images:Array(25).fill(Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64'))});
+    assert.equal(r.status,400,'too many images must be rejected instead of silently ignored');
     assert.equal(called.count,0,'invalid requests may not consume AI credits');
     // The real environment can carry several legacy Gemini key names.
     const envKeys=Object.keys(process.env).filter(k=>k.toLowerCase().includes('gemini')&&k.toLowerCase().includes('key'));
     const backup=Object.fromEntries(envKeys.map(k=>[k,process.env[k]]));
     try{
       envKeys.forEach(k=>delete process.env[k]);
-      r=await request('POST',{images:['fixture-image']});
+      r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
       assert.equal(r.status,500);
       assert.match(r.result.error,/Gemini API key is missing/);
       assert.equal(called.count,0,'missing key must not invoke Gemini');
@@ -63,7 +69,7 @@ async function main(){
       fieldPlan:{difficulty:'moderate',totalEstimatedHours:'1 Hour',crewSizeRecommended:1}
     });
     r=await request('POST',{
-      images:['fixture-image'],
+      images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')],
       requestedServices:['driveway_cleaning','roof_soft_wash'],
       buildingScope:{level:'multiple',label:'Multi-level structure'},
       siteNotes:'Synthetic acceptance, not a real customer'
@@ -77,9 +83,10 @@ async function main(){
       'excluded service must not reach requested scope prompt');
     assert.equal(called.count,1);
     generated='{not valid json';
-    r=await request('POST',{images:['fixture-image']});
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
     assert.equal(r.status,500,'bad AI response must be rejected, never shown as a ready quote');
     assert.equal(r.result.error,'Analysis Engine Failure');
+    assert(!JSON.stringify(r.result).includes('{not valid json'),'raw AI response must never appear in HTTP error');
     assert.equal(called.count,2);
     console.log('Schism mock backend HTTP/AI safety QA passed (no real key or AI calls)');
   }finally{

@@ -109,6 +109,17 @@ async function handler(req, res) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
         }
 
+        // Gemini receives raw base64 JPEG bytes. Reject malformed payloads
+        // before reading credentials or making a paid model request.
+        if (images.length > MAX_IMAGES || images.some((image) => {
+            if (typeof image !== 'string' || !image.length || image.length > 1000000 ||
+                image.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(image)) return true;
+            const bytes = Buffer.from(image, 'base64');
+            return bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8 ||
+                bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9;
+        })) {
+            return res.status(400).json({ error: 'Bad Request: Provide valid JPEG base64 photos (maximum 24 images).' });
+        }
         const activeImages = images.slice(0, MAX_IMAGES);
         const allowedEvidenceSources = new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload']);
         const allowedConfirmationStates = new Set(['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture']);
@@ -280,8 +291,8 @@ async function handler(req, res) {
             cleanedText = cleanedText.replace(/,\s*([\]}])/g, '$1');
             scanData = JSON.parse(cleanedText);
         } catch (parseError) {
-            console.error('JSON Parse Extraction Failed. Raw text was:', rawResultText);
-            throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
+            console.error('AI diagnostic output could not be parsed as a JSON object.');
+            throw new Error('AI diagnostic output could not be parsed as a JSON object.');
         }
         
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
@@ -359,10 +370,10 @@ async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error('API ENGINE FAILURE CORRIDOR:', error);
+        console.error('API ENGINE FAILURE CORRIDOR:', error?.name || 'AnalysisError');
         return res.status(500).json({
             error: 'Analysis Engine Failure',
-            details: error.message || error.toString()
+            details: 'The property analysis could not be completed. Please retry or request manual review.'
         });
     }
 }
