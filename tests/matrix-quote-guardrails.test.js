@@ -86,4 +86,17 @@ assert.strictEqual(normalizeQuantity(undefined, 'flat'), 1);
   });
   assert.strictEqual(result.services.length,2,'Identical evidence records must not double bill');
 }
+
+{
+  const withMinimum={...rateCard,minimumJob:99.99};
+  const small=normalizeServices({services:[{serviceId:'driveway_cleaning',quantity:100}],rateCard:withMinimum,multiplier:1});
+  assert.strictEqual(small.services[0].calculatedPrice,18,'preserve approved unit rate');
+  assert.strictEqual(small.requiresReview,true,'below-minimum job must not be field ready');
+  assert(small.issues.some(issue=>issue.code==='BELOW_MINIMUM_JOB'));
+  const large=normalizeServices({services:[{serviceId:'driveway_cleaning',quantity:800}],rateCard:withMinimum,multiplier:1.12});
+  assert.strictEqual(large.services[0].calculatedPrice,161.28,'preserve difficulty multiplier');
+  assert.strictEqual(large.requiresReview,false,'above minimum must remain releasable');
+  const exact=normalizeServices({services:[{serviceId:'rust_treatment',quantity:1}],rateCard:{...rateCard,minimumJob:125},multiplier:1});
+  assert.strictEqual(exact.requiresReview,false,'exact minimum must pass');
+}
 console.log('Schism quote guardrails QA passed');
