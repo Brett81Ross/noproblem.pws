@@ -418,6 +418,13 @@ async function main(){
         const readyAfterAnalysis=window.__schismReleaseState?.locked===false&&
           validQuote?.totalCents===18000;
         document.getElementById('btnCrewHandoff').click();
+        // Real IndexedDB evidence persistence is asynchronous. Wait for the
+        // durable receipt before testing frozen Crew Command authorization.
+        for(let i=0;i<35;i++){
+          const maybe=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+          if(maybe?.photoVault)break;
+          await new Promise(resolve=>setTimeout(resolve,35));
+        }
         const release=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
         validResult={readyAfterAnalysis,released:window.SchismDashboard.getFieldReadyRelease().ok,
           releasedCoverage:release?.photoCoverage,
