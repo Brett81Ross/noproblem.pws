@@ -560,11 +560,14 @@
     });
   }
 
-  function photoEvidencePayload() {
-    return capturedSlots().map(function (slot) {
+  function photoEvidencePayload(selectedSlots) {
+    var allowed = Array.isArray(selectedSlots) ? new Set(selectedSlots) : null;
+    return capturedSlots().filter(function (slot) {
+      return !allowed || allowed.has(Number(slot.getAttribute('data-slot')) + 1);
+    }).map(function (slot, index) {
       var slotIndex = slot.getAttribute('data-slot');
       var tag = photoTags[slotIndex] || { guideId: 'unassigned', promptIndex: 'unknown', title: 'Unassigned photo' };
-      return { slot: Number(slotIndex) + 1, serviceId: tag.guideId, view: tag.title };
+      return { imageIndex: index + 1, slot: Number(slotIndex) + 1, serviceId: tag.guideId, view: tag.title };
     });
   }
 
@@ -590,9 +593,9 @@
       if (url && /\/api\/analyze(?:\?|$)/.test(url) && options && typeof options.body === 'string') {
         try {
           var payload = JSON.parse(options.body);
-          var evidence = photoEvidencePayload();
+          var evidence = photoEvidencePayload(payload.photoSelection && payload.photoSelection.selectedSlots);
           var skipped = Object.keys(skippedViews).filter(function (key) { return skippedViews[key]; });
-          var notes = ['GUIDED QUICK QUOTE EVIDENCE:', evidence.map(function (item) { return 'Photo ' + item.slot + ': ' + item.serviceId + ' / ' + item.view; }).join('; ') || 'No photo tags available.'];
+          var notes = ['GUIDED QUICK QUOTE EVIDENCE:', evidence.map(function (item) { return 'AI photo ' + item.imageIndex + ' (staged photo ' + item.slot + '): ' + item.serviceId + ' / ' + item.view; }).join('; ') || 'No photo tags available.'];
           var measurementLines = measurementSummary();
           if (measurementLines.length) notes.push('OPTIONAL FIELD MEASUREMENTS: ' + measurementLines.join(' | '));
           if (skipped.length) notes.push('INTENTIONALLY SKIPPED OPTIONAL VIEWS: ' + skipped.join(', '));

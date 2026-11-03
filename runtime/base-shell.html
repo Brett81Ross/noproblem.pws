@@ -921,9 +921,14 @@
     </div>
 
     <script src="/photo-processing.js"></script>
+    <script src="/photo-selection.js"></script>
     <script>
         let stagedBase64Images = [];
         let stagedEvidenceMeta = [];
+        const schismPhotoReview=window.SchismPhotoSelection.createController({
+            limit:4,gridId:'imagePreviewGrid',photoSelector:'.preview-thumbnail-wrapper',
+            getImages:()=>stagedBase64Images,getMeta:()=>stagedEvidenceMeta
+        });
         let priceItemsRegistry = [];
         let techMatrixData = null;
         let currentTotalValue = 0;
@@ -1192,7 +1197,7 @@
                     }catch(error){failures++;}
                 }
                 const added=stagedBase64Images.length-before;
-                if(added)renderPreviewGrid();
+                if(added){schismPhotoReview.reset();renderPreviewGrid();}
                 if(failures||omitted)alert((failures?failures+' photo(s) could not be processed. ':'')+
                     (omitted?omitted+' photo(s) were not added because the 24-photo limit was reached.':''));
                 if(!added&&(failures||omitted))throw Error('No additional photos were added.');
@@ -1203,6 +1208,7 @@
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
             stagedEvidenceMeta.splice(index, 1);
+            schismPhotoReview.reset();
             renderPreviewGrid();
         }
 
@@ -1240,6 +1246,7 @@
             } else {
                 processTrigger.setAttribute('style', 'display: none !important;');
             }
+            schismPhotoReview.refresh();
         }
 
         function togglePriceCard(index) {
@@ -1450,6 +1457,15 @@
 
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
+            if(!stagedBase64Images.length||processTrigger.dataset.submitting==='true')return;
+            processTrigger.dataset.submitting='true';
+            await pendingPhotoBatch;
+            const analysisPhotoPlan=schismPhotoReview.preflight();
+            if(!analysisPhotoPlan.ok){
+                delete processTrigger.dataset.submitting;
+                alert(analysisPhotoPlan.reason);
+                return;
+            }
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
@@ -1480,8 +1496,9 @@
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const payloadImages = stagedBase64Images.slice(0, 4).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
-                const payloadEvidenceMeta = stagedEvidenceMeta.slice(0, payloadImages.length);
+                // Preserve legacy four-photo budget and actual selected slots.
+                const payloadImages=analysisPhotoPlan.images;
+                const payloadEvidenceMeta=analysisPhotoPlan.evidenceMeta;
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -1492,6 +1509,7 @@
                     body: JSON.stringify({ 
                         images: payloadImages,
                         evidenceMeta: payloadEvidenceMeta,
+                        photoSelection: analysisPhotoPlan.photoSelection,
                         settings: {},
                         location: currentJobLocation,
                         siteNotes: userSiteNotes 
@@ -1549,6 +1567,8 @@
                 alert('Analysis connection fault: ' + feedback);
                 processTrigger.className = "btn btn-trigger";
                 processTrigger.innerText = translations[currentLang].scanBtn;
+            } finally {
+                delete processTrigger.dataset.submitting;
             }
         }
 

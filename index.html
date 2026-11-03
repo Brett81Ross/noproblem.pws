@@ -1378,9 +1378,14 @@
     </div>
 
     <script src="/photo-processing.js"></script>
+    <script src="/photo-selection.js"></script>
     <script>
         let stagedBase64Images = [];
         let stagedEvidenceMeta = [];
+        const schismPhotoReview=window.SchismPhotoSelection.createController({
+            limit:8,gridId:'evidenceGrid',photoSelector:'.evidence-slot.has-photo',
+            getImages:()=>stagedBase64Images,getMeta:()=>stagedEvidenceMeta
+        });
         let priceItemsRegistry = [];
         let techMatrixData = null;
         let currentTotalValue = 0;
@@ -1688,6 +1693,7 @@
                 }
                 const added=stagedBase64Images.length-before;
                 if(added){
+                    schismPhotoReview.reset();
                     const followup=document.getElementById('evidenceFollowup');
                     if(followup?.dataset.awaitingRequestedEvidence==='true'){
                         for(let i=before;i<stagedEvidenceMeta.length;i++)
@@ -1714,6 +1720,7 @@
         function removeStagedImage(index) {
             stagedBase64Images.splice(index, 1);
             stagedEvidenceMeta.splice(index, 1);
+            schismPhotoReview.reset();
             renderPreviewGrid();
             if (techMatrixData && window.SchismDashboard?.markEstimateMutated) {
                 window.SchismDashboard.markEstimateMutated('Property evidence changed after release.');
@@ -1780,6 +1787,7 @@
             }
             const countLabel = document.getElementById('jobPhotoCount');
             if (countLabel) countLabel.textContent = stagedBase64Images.length + ' photo' + (stagedBase64Images.length === 1 ? '' : 's') + ' captured';
+            schismPhotoReview.refresh();
         }
 
         function togglePriceCard(index) {
@@ -2137,6 +2145,13 @@
             const processTrigger = document.getElementById('processTrigger');
             if (!stagedBase64Images.length || processTrigger.dataset.submitting === 'true') return;
             processTrigger.dataset.submitting = 'true';
+            await pendingPhotoBatch;
+            const analysisPhotoPlan=schismPhotoReview.preflight();
+            if(!analysisPhotoPlan.ok){
+                delete processTrigger.dataset.submitting;
+                alert(analysisPhotoPlan.reason);
+                return;
+            }
             processTrigger.disabled = true;
             processTrigger.className = "btn btn-trigger btn-loading";
 
@@ -2168,15 +2183,9 @@
             const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             try {
-                const submissionCount = Math.min(8, stagedBase64Images.length);
-                const payloadImages = stagedBase64Images.slice(0, submissionCount).map(img => img.replace(/^data:image\/\w+;base64,/, ""));
-                const payloadEvidenceMeta = Array.from({ length: submissionCount }, (_, index) => stagedEvidenceMeta[index] || {
-                    kind: 'photo',
-                    source: 'operator_upload',
-                    capturedAt: null,
-                    provenance: 'operator_selected_media',
-                    operatorConfirmationState: 'operator_selected'
-                });
+                // Operator-confirmed selection: one request, at most eight JPEGs.
+                const payloadImages=analysisPhotoPlan.images;
+                const payloadEvidenceMeta=analysisPhotoPlan.evidenceMeta;
                 
                 const response = await fetch(window.location.origin + '/api/analyze', {
                     method: 'POST',
@@ -2187,6 +2196,7 @@
                     body: JSON.stringify({ 
                         images: payloadImages,
                         evidenceMeta: payloadEvidenceMeta,
+                        photoSelection: analysisPhotoPlan.photoSelection,
                         settings: {},
                         location: currentJobLocation,
                         satelliteMeasurements: window.MatrixSatelliteMeasurement?.getMeasurements?.() || [],

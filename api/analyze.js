@@ -7,6 +7,7 @@ const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-ca
 
 const MODEL = process.env.SCHISM_GEMINI_MODEL || 'gemini-3.6-flash'; 
 const MAX_IMAGES = 24;
+const MAX_STAGED_IMAGES = 24;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -120,6 +121,29 @@ async function handler(req, res) {
         })) {
             return res.status(400).json({ error: 'Bad Request: Provide valid JPEG base64 photos (maximum 24 images).' });
         }
+        // Selection is validated before any Gemini credential is read or paid
+        // request starts. Legacy clients with no selection send every supplied photo.
+        const suppliedSelection=req.body.photoSelection;
+        let stagedCount=images.length;
+        let selectedSlots=images.map((_,index)=>index+1);
+        let operatorConfirmed=false;
+        if(suppliedSelection!==undefined){
+            const valid=suppliedSelection&&typeof suppliedSelection==='object'&&!Array.isArray(suppliedSelection);
+            if(!valid||!Number.isSafeInteger(suppliedSelection.stagedCount)||
+               suppliedSelection.stagedCount<images.length||suppliedSelection.stagedCount>MAX_STAGED_IMAGES||
+               !Array.isArray(suppliedSelection.selectedSlots)||
+               suppliedSelection.selectedSlots.length!==images.length||
+               suppliedSelection.selectedSlots.some(slot=>!Number.isSafeInteger(slot)||slot<1||slot>suppliedSelection.stagedCount)||
+               new Set(suppliedSelection.selectedSlots).size!==images.length||
+               (suppliedSelection.stagedCount>images.length&&suppliedSelection.operatorConfirmed!==true)){
+                return res.status(400).json({error:'Bad Request: Photo selection must identify unique submitted slots and confirm omissions.'});
+            }
+            stagedCount=suppliedSelection.stagedCount;
+            selectedSlots=suppliedSelection.selectedSlots.slice();
+            operatorConfirmed=suppliedSelection.operatorConfirmed===true;
+        }
+        const photoCoverage={stagedCount,submittedCount:images.length,
+            omittedCount:stagedCount-images.length,selectedSlots,operatorConfirmed};
         const activeImages = images.slice(0, MAX_IMAGES);
         const allowedEvidenceSources = new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload']);
         const allowedConfirmationStates = new Set(['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture']);
@@ -129,6 +153,7 @@ async function handler(req, res) {
                 : null;
             return {
                 imageIndex: index + 1,
+                stagedSlot: selectedSlots[index],
                 kind: 'photo',
                 source: item && allowedEvidenceSources.has(item.source) ? item.source : 'operator_upload',
                 capturedAt: item && typeof item.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
@@ -159,6 +184,13 @@ async function handler(req, res) {
         const rateCard = buildRateCard(settings);
 
         let contextBlock = "";
+        if(photoCoverage.omittedCount>0){
+            contextBlock += '\n- PHOTO COVERAGE LIMIT: Only '+photoCoverage.submittedCount+' of '+
+                photoCoverage.stagedCount+' staged photos were selected and supplied. '+
+                photoCoverage.omittedCount+' other staged photos were NOT sent for AI review. '+
+                'Do not infer conditions or claim visual confirmation from omitted photos. '+
+                'Original staged photo slots in submitted order: '+photoCoverage.selectedSlots.join(', ')+'.';
+        }
         if (location) {
             contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
         }
@@ -308,6 +340,8 @@ async function handler(req, res) {
             throw new Error('AI diagnostic output could not be parsed as a JSON object.');
         }
         
+        // Durable explanation of exactly which photos this model actually saw.
+        scanData.photoCoverage=photoCoverage;
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
