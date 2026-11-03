@@ -59,6 +59,16 @@
     };
   }
 
+  function matchesCoverage(coverage,photoSelection){
+    if(!coverage||!photoSelection)return false;
+    const expected=photoSelection.selectedSlots;
+    return Number.isSafeInteger(coverage.stagedCount)&&coverage.stagedCount===photoSelection.stagedCount&&
+      Number.isSafeInteger(coverage.submittedCount)&&coverage.submittedCount===expected.length&&
+      coverage.omittedCount===coverage.stagedCount-coverage.submittedCount&&
+      coverage.operatorConfirmed===photoSelection.operatorConfirmed&&
+      Array.isArray(coverage.selectedSlots)&&coverage.selectedSlots.length===expected.length&&
+      coverage.selectedSlots.every((slot,i)=>slot===expected[i]);
+  }
   function createController(options){
     if(!options||!validLimit(options.limit)||typeof options.getImages!=='function')
       throw Error('Photo selection configuration is invalid.');
@@ -88,7 +98,10 @@
       const copy=document.createElement('span');
       copy.textContent='I reviewed this selection. Only selected photos will be sent to AI; the other staged photos will NOT be analyzed.';
       label.append(checkbox,copy);
-      checkbox.addEventListener('change',()=>{confirmed=checkbox.checked;});
+      checkbox.addEventListener('change',()=>{
+        confirmed=checkbox.checked;
+        options.onConfirmationChanged?.(confirmed);
+      });
       outer.append(heading,note,label);
       trigger.parentNode.insertBefore(outer,trigger);
       dom={outer,heading,note,checkbox};
@@ -132,7 +145,9 @@
               if(view)view.note.textContent=result.reason;
               return;
             }
-            chosen=result.indices;confirmed=false;refresh();
+            chosen=result.indices;confirmed=false;
+            options.onSelectionChanged?.(chosen.slice());
+            refresh();
           });
           tile.appendChild(button);
         }
@@ -157,5 +172,5 @@
     }
     return {refresh,reset,preflight,selectedIndices:()=>chosen.slice(),isConfirmed:()=>confirmed};
   }
-  return {MAX_STAGED,defaultIndices,toggleIndices,compile,createController};
+  return {MAX_STAGED,defaultIndices,toggleIndices,compile,matchesCoverage,createController};
 });

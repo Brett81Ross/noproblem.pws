@@ -20,6 +20,11 @@ assert.deepEqual(plan.photoSelection.selectedSlots,[1,4,8,11,14,17,21,24]);
 assert.deepEqual(plan.evidenceMeta.map(x=>x.capturedAt),
   ['synthetic_0','synthetic_3','synthetic_7','synthetic_10','synthetic_13','synthetic_16','synthetic_20','synthetic_23']);
 assert.equal(plan.photoSelection.operatorConfirmed,true);
+assert.equal(photos.matchesCoverage({stagedCount:24,submittedCount:8,omittedCount:16,
+ selectedSlots:plan.photoSelection.selectedSlots,operatorConfirmed:true},plan.photoSelection),true);
+assert.equal(photos.matchesCoverage({stagedCount:24,submittedCount:8,omittedCount:16,
+ selectedSlots:[1,2,3,4,5,6,7,8],operatorConfirmed:true},plan.photoSelection),false);
+assert.equal(photos.matchesCoverage(null,plan.photoSelection),false);
 assert.equal(photos.compile(synthetic,evidence,[1,1],8,true).ok,false);
 assert.equal(photos.compile(synthetic,evidence,[-1,2],8,true).ok,false);
 assert.equal(photos.compile(synthetic,evidence,[24],8,true).ok,false);
@@ -47,4 +52,9 @@ for(const file of ['index.html','runtime/base-shell.html']){
 }
 const quick=fs.readFileSync(path.join(__dirname,'../quick-quote.js'),'utf8');
 assert(quick.includes('photoEvidencePayload(payload.photoSelection && payload.photoSelection.selectedSlots)'), 'QuickQuote must not label omitted photos as AI evidence');
+const index=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+assert(index.includes('currentAnalysisInputSignature()!==requestSignature'),'stale analysis responses must fail closed');
+assert(index.includes('window.__schismReleaseState={locked:true,reason:'),'analysis pending must lock crew release');
+assert(index.includes('matchesCoverage(data.rawMatrixData?.photoCoverage'),'model response must match selected photos');
+assert(index.includes('invalidatePhotoApproval('),'photo changes must invalidate released job');
 console.log('Schism 24-photo selection, evidence correspondence, no-extra-request QA passed');
