@@ -194,6 +194,68 @@ async function main(){
       'Tap-to-enter failed: '+JSON.stringify(entered));
     console.log('Mobile Chrome Fold cover splash logos and tap-to-enter: PASS');
 
+    // Real Chromium image conversion: portrait, panorama and EXIF orientation.
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1300);
+    const photoQA=await evaluate(cdp,async function(){
+      const pipe=window.SchismPhotoProcessing;
+      async function make(w,h,two=false){
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#bb2211';ctx.fillRect(0,0,w,h);
+        if(two){ctx.fillStyle='#1133bb';ctx.fillRect(w/2,0,w/2,h);}
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.85));
+        return new File([blob],'synthetic.jpg',{type:'image/jpeg'});
+      }
+      const decode=url=>new Promise((resolve,reject)=>{
+        const image=new Image();image.onload=()=>resolve(image);
+        image.onerror=reject;image.src=url;
+      });
+      const portraitUrl=await pipe.resizeAndCompressImage(await make(300,600));
+      const panoramaUrl=await pipe.resizeAndCompressImage(await make(2400,400));
+      const portrait=await decode(portraitUrl),panorama=await decode(panoramaUrl);
+      const j=new Uint8Array(await (await make(160,80,true)).arrayBuffer());
+      // Insert EXIF orientation=6 (rotate 90° clockwise) before JPEG APP0.
+      const exif=new Uint8Array([255,225,0,34,69,120,105,102,0,0,73,73,42,0,8,0,0,0,1,0,18,1,3,0,1,0,0,0,6,0,0,0,0,0,0,0]);
+      const oriented=new Uint8Array(j.length+exif.length);
+      oriented.set(j.slice(0,2));oriented.set(exif,2);oriented.set(j.slice(2),exif.length+2);
+      const exifUrl=await pipe.resizeAndCompressImage(new File([oriented],'rotated.jpg',{type:'image/jpeg'}));
+      const rotated=await decode(exifUrl);
+      const sample=document.createElement('canvas');
+      sample.width=rotated.naturalWidth;sample.height=rotated.naturalHeight;
+      const ctx=sample.getContext('2d');ctx.drawImage(rotated,0,0);
+      const top=ctx.getImageData(sample.width/2,Math.floor(sample.height/4),1,1).data;
+      const bottom=ctx.getImageData(sample.width/2,Math.floor(sample.height*3/4),1,1).data;
+      let added,batches,alertCount;
+      const bad=new File(['not a valid image'],'bad.png',{type:'image/png'});
+      const good=await make(120,160),originalAlert=window.alert;const alerts=[];
+      window.alert=v=>alerts.push(String(v));
+      try{
+        added=await stageFiles([bad,good]);
+        batches=await Promise.all([
+          stageFiles(Array(16).fill(good)),stageFiles(Array(16).fill(good))
+        ]);
+        alertCount=alerts.length;
+      }finally{window.alert=originalAlert;}
+      return {portrait:[portrait.naturalWidth,portrait.naturalHeight],
+        panorama:[panorama.naturalWidth,panorama.naturalHeight],
+        exif:[rotated.naturalWidth,rotated.naturalHeight],
+        exifColors:top[0]>top[2]&&bottom[2]>bottom[0],
+        jpeg:portraitUrl.startsWith('data:image/jpeg;base64,'),
+        withinLimit:portraitUrl.length-portraitUrl.indexOf(',')-1<=pipe.MAX_BASE64_CHARS,
+        added,batches,alertCount,
+        photoCount:stagedBase64Images.length,metadataCount:stagedEvidenceMeta.length,
+        rendered:document.querySelectorAll('#evidenceGrid .evidence-slot.has-photo').length};
+    });
+    assert(photoQA.jpeg&&photoQA.withinLimit&&photoQA.portrait[0]<photoQA.portrait[1]&&
+      photoQA.panorama[0]>photoQA.panorama[1]*4&&photoQA.exif[0]<photoQA.exif[1]&&photoQA.exifColors,
+      'Aspect or EXIF orientation error: '+JSON.stringify(photoQA));
+    assert(photoQA.added===1&&photoQA.batches[0]+photoQA.batches[1]===23&&
+      photoQA.photoCount===24&&photoQA.metadataCount===24&&photoQA.alertCount>=2,
+      'Partially bad or concurrent uploads must stay within visible photo cap: '+JSON.stringify(photoQA));
+    console.log('Mobile Chrome EXIF orientation, portrait/panorama and upload-cap QA: PASS');
+
     // Full operator flow uses a deterministic, synthetic reviewed estimate.
     // No real customer data or AI endpoint is touched; validation is performed
     // by the same browser controller and PDF generator shipped with the app.

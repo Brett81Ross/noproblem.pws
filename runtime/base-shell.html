@@ -920,6 +920,7 @@
         </div>
     </div>
 
+    <script src="/photo-processing.js"></script>
     <script>
         let stagedBase64Images = [];
         let stagedEvidenceMeta = [];
@@ -1149,51 +1150,54 @@
         }
 
         document.getElementById('cameraInput').addEventListener('change', function(e) { 
-            stageFiles(e.target.files); 
+            stageFiles(e.target.files).catch(() => {}); 
             this.value = ''; 
         });
         document.getElementById('fileInput').addEventListener('change', function(e) { 
-            stageFiles(e.target.files); 
+            stageFiles(e.target.files).catch(() => {}); 
             this.value = ''; 
         });
 
-        async function stageFiles(files) {
-            if (!files || files.length === 0) return;
-            
-            try {
-                const laser = document.getElementById('hudLaserBeam');
-                if (laser) laser.style.display = 'block'; 
-                
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const base64Str = await resizeAndCompressImage(file);
-                    const evidence = file && file.schismEvidence && typeof file.schismEvidence === 'object'
-                        ? file.schismEvidence
-                        : null;
-                    stagedBase64Images.push(base64Str);
-                    stagedEvidenceMeta.push(evidence ? {
-                        kind: 'photo',
-                        source: evidence.source || 'operator_upload',
-                        capturedAt: evidence.capturedAt || null,
-                        provenance: evidence.provenance || 'operator_selected_media',
-                        operatorConfirmationState: evidence.operatorConfirmationState || 'operator_selected'
-                    } : {
-                        kind: 'photo',
-                        source: 'operator_upload',
-                        capturedAt: null,
-                        provenance: 'operator_selected_media',
-                        operatorConfirmationState: 'operator_selected'
-                    });
+        let pendingPhotoBatch = Promise.resolve();
+        function stageFiles(files) {
+            const selectedFiles=Array.from(files||[]);
+            if(!selectedFiles.length)return Promise.resolve(0);
+            const queued=pendingPhotoBatch.then(()=>stageFilesBatch(selectedFiles));
+            pendingPhotoBatch=queued.catch(()=>{});
+            return queued;
+        }
+        async function stageFilesBatch(files) {
+            const laser=document.getElementById('hudLaserBeam');
+            if(laser)laser.style.display='block';
+            const available=Math.max(0,window.SchismPhotoProcessing.MAX_STAGED_IMAGES-stagedBase64Images.length);
+            const batch=files.slice(0,available);
+            const omitted=files.length-batch.length;
+            const before=stagedBase64Images.length;
+            let failures=0;
+            try{
+                for(const file of batch){
+                    try{
+                        const base64=await resizeAndCompressImage(file);
+                        const evidence=file?.schismEvidence&&typeof file.schismEvidence==='object'?file.schismEvidence:null;
+                        stagedBase64Images.push(base64);
+                        stagedEvidenceMeta.push(evidence?{
+                            kind:'photo',source:evidence.source||'operator_upload',
+                            capturedAt:evidence.capturedAt||null,
+                            provenance:evidence.provenance||'operator_selected_media',
+                            operatorConfirmationState:evidence.operatorConfirmationState||'operator_selected'
+                        }:{
+                            kind:'photo',source:'operator_upload',capturedAt:null,
+                            provenance:'operator_selected_media',operatorConfirmationState:'operator_selected'
+                        });
+                    }catch(error){failures++;}
                 }
-                
-                renderPreviewGrid();
-                
-                if (laser) laser.style.display = 'none';
-            } catch (error) {
-                alert("Image processing failed: " + error.message);
-                const laser = document.getElementById('hudLaserBeam');
-                if (laser) laser.style.display = 'none';
-            }
+                const added=stagedBase64Images.length-before;
+                if(added)renderPreviewGrid();
+                if(failures||omitted)alert((failures?failures+' photo(s) could not be processed. ':'')+
+                    (omitted?omitted+' photo(s) were not added because the 24-photo limit was reached.':''));
+                if(!added&&(failures||omitted))throw Error('No additional photos were added.');
+                return added;
+            }finally{if(laser)laser.style.display='none';}
         }
 
         function removeStagedImage(index) {
@@ -1549,32 +1553,7 @@
         }
 
         function resizeAndCompressImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function (event) {
-                    const img = new Image();
-                    
-                    img.onload = function () {
-                        try {
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            canvas.width = 600; 
-                            canvas.height = 450;
-                            ctx.drawImage(img, 0, 0, 600, 450);
-                            resolve(canvas.toDataURL('image/jpeg', 0.5)); 
-                        } catch (e) {
-                            reject(new Error("Canvas layout mapping failed."));
-                        }
-                    };
-                    
-                    img.onerror = () => reject(new Error("Browser engine failed to read image stream."));
-                    img.src = event.target.result; 
-                };
-                
-                reader.onerror = () => reject(new Error("File reader pipeline crashed."));
-                reader.readAsDataURL(file);
-            });
+            return window.SchismPhotoProcessing.resizeAndCompressImage(file);
         }
     </script>
     <script src="/demo-config.js"></script>
