@@ -175,12 +175,50 @@ async function main(){
     assert.equal(r.result.rawMatrixData.requiresHumanReview,false,'valid above-minimum work must remain ready');
     assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,true);
     assert.equal(r.result.rawMatrixData.services[0].calculatedPrice,360);
+    // No API credits may be used for mismatched or unconfirmed photo coverage.
+    const sample=Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64');
+    const previousCount=called.count;
+    r=await request('POST',{images:[sample,sample],photoSelection:{
+      stagedCount:24,selectedSlots:[1,24],operatorConfirmed:false
+    }});
+    assert.equal(r.status,400,'omitted photos require operator confirmation before AI');
+    r=await request('POST',{images:[sample,sample],photoSelection:{
+      stagedCount:24,selectedSlots:[1,1],operatorConfirmed:true
+    }});
+    assert.equal(r.status,400,'duplicate staged slots cannot misidentify evidence');
+    r=await request('POST',{images:[sample,sample],photoSelection:{
+      stagedCount:24,selectedSlots:[1,25],operatorConfirmed:true
+    }});
+    assert.equal(r.status,400,'out of range staged slot cannot reach AI');
+    r=await request('POST',{images:[sample,sample],photoSelection:{
+      stagedCount:1,selectedSlots:[1,2],operatorConfirmed:true
+    }});
+    assert.equal(r.status,400,'staged count cannot underreport submitted photo count');
+    assert.equal(called.count,previousCount,'invalid photo mappings must be rejected before model invocation');
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:2000,estimatedTimeMinutes:60,waterUsageGallons:120}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[sample,sample],evidenceMeta:[
+      {source:'operator_upload',capturedAt:'first'},
+      {source:'walkaround_manual_capture',capturedAt:'last'}
+    ],photoSelection:{stagedCount:24,selectedSlots:[1,24],operatorConfirmed:true}});
+    assert.equal(r.status,200);
+    assert.deepEqual(r.result.rawMatrixData.photoCoverage,{
+      stagedCount:24,submittedCount:2,omittedCount:22,selectedSlots:[1,24],operatorConfirmed:true
+    });
+    assert.equal(called.count,previousCount+1,'one selected set must produce only one model invocation');
+    assert.equal(called.contents.length,3,'the model receives one prompt and exactly two selected photos');
+    assert(called.contents[0].includes('Only 2 of 24 staged photos were selected'));
+    assert(called.contents[0].includes('22 other staged photos were NOT sent'));
+    assert(called.contents[0].includes('"stagedSlot":24'));
     generated='{not valid json';
     r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
     assert.equal(r.status,500,'bad AI response must be rejected, never shown as a ready quote');
     assert.equal(r.result.error,'Analysis Engine Failure');
     assert(!JSON.stringify(r.result).includes('{not valid json'),'raw AI response must never appear in HTTP error');
-    assert.equal(called.count,11,'mock model requests must match expected offline test cases');
+    assert.equal(called.count,12,'mock model requests must match expected offline test cases');
     console.log('Schism mock backend HTTP/AI safety QA passed (no real key or AI calls)');
   }finally{
     if(previousKey===undefined)delete process.env.GEMINI_API_KEY;

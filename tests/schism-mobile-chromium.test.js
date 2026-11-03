@@ -256,6 +256,88 @@ async function main(){
       'Partially bad or concurrent uploads must stay within visible photo cap: '+JSON.stringify(photoQA));
     console.log('Mobile Chrome EXIF orientation, portrait/panorama and upload-cap QA: PASS');
 
+    // End-to-end offline request interception: 24 locally staged views,
+    // explicit operator review, one eight-image request, original-slot mapping.
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1300);
+    const photoSelectionQA=await evaluate(cdp,async function(){
+      const source=document.createElement('canvas');
+      source.width=8;source.height=8;
+      const context=source.getContext('2d');
+      stagedBase64Images=Array.from({length:24},(_,index)=>{
+        context.fillStyle='rgb('+(index*9)+',30,45)';
+        context.fillRect(0,0,8,8);
+        return source.toDataURL('image/jpeg',.6);
+      });
+      stagedEvidenceMeta=Array.from({length:24},(_,index)=>({
+        kind:'photo',source:'operator_upload',capturedAt:'synthetic-slot-'+(index+1),
+        provenance:'operator_selected_media',operatorConfirmationState:'operator_selected'
+      }));
+      renderPreviewGrid();
+      const panel=document.getElementById('schismPhotoSelectionPanel');
+      const visible=Array.from(document.querySelectorAll('#evidenceGrid .evidence-slot.has-photo'))
+        .filter(node=>!node.hidden).length;
+      const defaultSlots=schismPhotoReview.selectedIndices().map(i=>i+1);
+      const savedAlert=window.alert,savedFetch=window.fetch,requests=[],alerts=[];
+      window.alert=message=>alerts.push(String(message));
+      window.fetch=async function(_url,options){
+        requests.push(JSON.parse(options.body));
+        return {ok:false,status:418,json:async()=>({error:'Offline interception — no Gemini request'})};
+      };
+      let unconfirmedCalls=0,afterSelection,staleConfirmed;
+      try{
+        await submitJobForAnalysis();
+        unconfirmedCalls=requests.length;
+        document.querySelector('.schism-photo-ai-toggle[data-photo-index="0"]').click();
+        document.querySelector('.schism-photo-ai-toggle[data-photo-index="1"]').click();
+        afterSelection=schismPhotoReview.selectedIndices().map(i=>i+1);
+        document.getElementById('schismPhotoSelectionConfirm').click();
+        await submitJobForAnalysis();
+        removeStagedImage(22);
+        staleConfirmed=document.getElementById('schismPhotoSelectionConfirm').checked;
+      }finally{window.fetch=savedFetch;window.alert=savedAlert;}
+      const submitted=requests[0];
+      return {
+        panelVisible:!!panel&&!panel.hidden,visible,defaultSlots,
+        unconfirmedCalls,afterSelection,alerts:alerts.length,
+        requestCount:requests.length,
+        submittedCount:submitted?.images.length,
+        metadata:submitted?.evidenceMeta.map(item=>item.capturedAt),
+        selection:submitted?.photoSelection,
+        staleConfirmed,remaining:stagedBase64Images.length
+      };
+    });
+    assert(photoSelectionQA.panelVisible&&photoSelectionQA.visible===24&&
+      photoSelectionQA.unconfirmedCalls===0&&photoSelectionQA.requestCount===1&&
+      photoSelectionQA.submittedCount===8&&photoSelectionQA.alerts>=2&&
+      photoSelectionQA.selection.stagedCount===24&&
+      photoSelectionQA.selection.operatorConfirmed===true&&
+      JSON.stringify(photoSelectionQA.selection.selectedSlots)===JSON.stringify(photoSelectionQA.afterSelection)&&
+      photoSelectionQA.metadata[0]==='synthetic-slot-2'&&
+      photoSelectionQA.metadata[7]==='synthetic-slot-24'&&
+      photoSelectionQA.staleConfirmed===false&&photoSelectionQA.remaining===23,
+      '24-photo coverage / consent / provenance / one-call budget regression: '+JSON.stringify(photoSelectionQA));
+    console.log('Mobile Chrome 24 staged / 8 reviewed / one offline-intercepted request: PASS');
+
+    await cdp.send('Page.navigate',{url:host+'/runtime/base-shell.html'});
+    await delay(850);
+    const legacySelectionQA=await evaluate(cdp,function(){
+      const image='data:image/jpeg;base64,'+btoa('syntheticphoto');
+      stagedBase64Images=Array(24).fill(image);
+      stagedEvidenceMeta=Array.from({length:24},(_,i)=>({kind:'photo',capturedAt:'legacy-slot-'+(i+1)}));
+      renderPreviewGrid();
+      const prior=schismPhotoReview.preflight();
+      return {panel:!!document.getElementById('schismPhotoSelectionPanel'),
+        visible:!document.getElementById('schismPhotoSelectionPanel')?.hidden,
+        preflightBlocked:prior.ok===false,
+        defaultSlots:schismPhotoReview.selectedIndices().map(i=>i+1),
+        photoButtons:document.querySelectorAll('.schism-photo-ai-toggle').length};
+    });
+    assert(legacySelectionQA.panel&&legacySelectionQA.visible&&legacySelectionQA.preflightBlocked&&
+      legacySelectionQA.photoButtons===24&&legacySelectionQA.defaultSlots.length===4,
+      'Legacy four-photo pathway must also require selection before request: '+JSON.stringify(legacySelectionQA));
+    console.log('Mobile Chrome legacy 24 staged / 4-selected review gate: PASS');
+
     // Full operator flow uses a deterministic, synthetic reviewed estimate.
     // No real customer data or AI endpoint is touched; validation is performed
     // by the same browser controller and PDF generator shipped with the app.
