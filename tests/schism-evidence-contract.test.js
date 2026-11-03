@@ -23,7 +23,7 @@ assert(walk.includes("source: manual ? 'walkaround_manual_capture' : 'walkaround
 assert(walk.includes("operatorConfirmationState: manual ? 'operator_captured' : 'not_confirmed'"), 'manual and sampled evidence are not distinguished');
 
 assert(analyze.includes("new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload'])"), 'server evidence source allowlist is missing');
-assert(analyze.includes('const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;'), 'server field-readiness must be explicit');
+assert(analyze.includes('scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority'), 'server field-readiness must be explicit and must reject high-priority uncertainty');
 assert(analyze.includes('scanData.requiresHumanReview = true;'), 'server fail-closed human-review lock is missing');
 
 assert(!enhancements.includes('multi-level exterior and roof soft washing are enabled'), 'stale high-access enablement copy remains');

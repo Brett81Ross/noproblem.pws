@@ -141,4 +141,35 @@ function baseSnapshot() {
   snapshot.integrityFingerprint=release.computeReleaseFingerprint(snapshot);
   assert.equal(release.validateRelease(snapshot).code,'work_basis_mismatch','missing time must block');
 }
+
+{
+  const snapshot=baseSnapshot();
+  snapshot.approvedScopePrices=[
+    {scopeItemId:'scope_house',serviceId:'house_wash',priceCents:20000},
+    {scopeItemId:'scope_driveway',serviceId:'driveway_cleaning',priceCents:12500}
+  ];
+  snapshot.integrityFingerprint=release.computeReleaseFingerprint(snapshot);
+  assert.equal(release.validateRelease(snapshot).ok,true,'new price-ledger releases should validate');
+  const redistributed=release.clone ? release.clone(snapshot) : JSON.parse(JSON.stringify(snapshot));
+  redistributed.approvedScopePrices[0].priceCents=19000;
+  redistributed.approvedScopePrices[1].priceCents=13500;
+  redistributed.integrityFingerprint=release.computeReleaseFingerprint(redistributed);
+  assert.equal(release.validateRelease(redistributed).ok,true,
+    'a new explicit 2-service approval may redistribute amounts if the ledger is reapproved');
+  redistributed.approvedScopePrices[1].priceCents=12500;
+  redistributed.integrityFingerprint=release.computeReleaseFingerprint(redistributed);
+  assert.equal(release.validateRelease(redistributed).code,'price_totals_mismatch',
+    'frozen per-scope ledger must reconcile to approved grand total');
+  const mismatched=JSON.parse(JSON.stringify(snapshot));
+  mismatched.approvedScopePrices[1].serviceId='house_wash';
+  mismatched.integrityFingerprint=release.computeReleaseFingerprint(mismatched);
+  assert.equal(release.validateRelease(mismatched).code,'price_basis_mismatch',
+    'ledger cannot move a scope amount to the wrong service');
+  const missing=JSON.parse(JSON.stringify(snapshot));
+  missing.approvedScopePrices.pop();
+  missing.integrityFingerprint=release.computeReleaseFingerprint(missing);
+  assert.equal(release.validateRelease(missing).code,'price_basis_missing',
+    'every selected line needs its frozen approved price');
+  assert.equal(release.validateRelease(baseSnapshot()).ok,true,'older valid schema-v2 records remain readable');
+}
 console.log('Schism release contract QA passed');

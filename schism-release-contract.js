@@ -141,6 +141,36 @@
         snapshot.approvedTotal !== '$' + (snapshot.approvedTotalCents / 100).toFixed(2)) {
       return { ok: false, code: 'approved_total_invalid', reason: 'The approved total is missing or inconsistent.' };
     }
+    // New approvals freeze line-item prices as well as their grand total.
+    // The ledger is optional for prior schema-v2 device records, so previously
+    // saved releases are still readable and subject to their existing checks.
+    if (snapshot.approvedScopePrices !== undefined) {
+      var prices = snapshot.approvedScopePrices;
+      if (!Array.isArray(prices) || prices.length !== matrix.services.length) {
+        return { ok: false, code: 'price_basis_missing', reason: 'The released line-item price ledger is incomplete.' };
+      }
+      var expectedPrices = Object.create(null);
+      matrix.services.forEach(function (service) { expectedPrices[service.scopeItemId] = service.serviceId; });
+      var seenPrices = Object.create(null);
+      var priceSum = 0;
+      for (var priceIndex = 0; priceIndex < prices.length; priceIndex += 1) {
+        var line = prices[priceIndex];
+        if (!line || typeof line.scopeItemId !== 'string' ||
+            !Object.prototype.hasOwnProperty.call(expectedPrices, line.scopeItemId) ||
+            seenPrices[line.scopeItemId] || line.serviceId !== expectedPrices[line.scopeItemId] ||
+            !Number.isSafeInteger(line.priceCents) || line.priceCents < 0) {
+          return { ok: false, code: 'price_basis_mismatch', reason: 'A released line-item price is invalid or assigned to the wrong service.' };
+        }
+        seenPrices[line.scopeItemId] = true;
+        priceSum += line.priceCents;
+        if (!Number.isSafeInteger(priceSum)) {
+          return { ok: false, code: 'price_basis_mismatch', reason: 'Released line-item prices exceed the supported range.' };
+        }
+      }
+      if (priceSum !== snapshot.approvedTotalCents) {
+        return { ok: false, code: 'price_totals_mismatch', reason: 'Released line-item prices do not equal the approved total.' };
+      }
+    }
     var basis = snapshot.workBasis;
     if (!basis || !Array.isArray(basis.services) || basis.services.length !== matrix.services.length ||
         !Number.isFinite(basis.totalEstimatedMinutes) || !Number.isFinite(basis.totalWaterUsageGallons)) {

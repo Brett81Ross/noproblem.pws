@@ -35,3 +35,6 @@ jobs:
 
       - name: Run QA tests
         run: npm test
+
+      - name: Mobile Chromium smoke QA (simulated Android and Fold)
+        run: node tests/schism-mobile-chromium.test.js

@@ -1,10 +1,13 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { buildEffectiveRateCard } = require('../lib/matrix-effective-rate-card');
+const { buildMatrixDecisionSupport } = require('../lib/matrix-decision-support');
+const { normalizeServices } = require('../lib/matrix-quote-guardrails');
 const { applyCompiledCalibration } = require('../lib/matrix-pricing-calibration');
 const { loadTrustedActivePricingCalibration } = require('../lib/matrix-active-calibration-vault');
 
-const MODEL = 'gemini-3.5-flash'; 
+const MODEL = process.env.SCHISM_GEMINI_MODEL || 'gemini-3.6-flash'; 
 const MAX_IMAGES = 24;
+const MAX_STAGED_IMAGES = 24;
 
 const DEFAULT_RATE_CARD = Object.freeze({
     minimumJob: 199,
@@ -92,6 +95,9 @@ async function handler(req, res) {
     }
 
     try {
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+            return res.status(400).json({ error: 'Bad Request: JSON request body is required.' });
+        }
         const { images, evidenceMeta, settings, location, siteNotes, requestedServices, buildingScope, job, satelliteMeasurements } = req.body;
         const launchExcludedServices = new Set(['roof_soft_wash', 'gutter_cleaning', 'gutter_brightening']);
         const safeRequestedServices = Array.isArray(requestedServices)
@@ -104,6 +110,40 @@ async function handler(req, res) {
             return res.status(400).json({ error: 'Bad Request: Array input parameters missing property images.' });
         }
 
+        // Gemini receives raw base64 JPEG bytes. Reject malformed payloads
+        // before reading credentials or making a paid model request.
+        if (images.length > MAX_IMAGES || images.some((image) => {
+            if (typeof image !== 'string' || !image.length || image.length > 1000000 ||
+                image.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/.test(image)) return true;
+            const bytes = Buffer.from(image, 'base64');
+            return bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8 ||
+                bytes[bytes.length - 2] !== 0xff || bytes[bytes.length - 1] !== 0xd9;
+        })) {
+            return res.status(400).json({ error: 'Bad Request: Provide valid JPEG base64 photos (maximum 24 images).' });
+        }
+        // Selection is validated before any Gemini credential is read or paid
+        // request starts. Legacy clients with no selection send every supplied photo.
+        const suppliedSelection=req.body.photoSelection;
+        let stagedCount=images.length;
+        let selectedSlots=images.map((_,index)=>index+1);
+        let operatorConfirmed=false;
+        if(suppliedSelection!==undefined){
+            const valid=suppliedSelection&&typeof suppliedSelection==='object'&&!Array.isArray(suppliedSelection);
+            if(!valid||!Number.isSafeInteger(suppliedSelection.stagedCount)||
+               suppliedSelection.stagedCount<images.length||suppliedSelection.stagedCount>MAX_STAGED_IMAGES||
+               !Array.isArray(suppliedSelection.selectedSlots)||
+               suppliedSelection.selectedSlots.length!==images.length||
+               suppliedSelection.selectedSlots.some(slot=>!Number.isSafeInteger(slot)||slot<1||slot>suppliedSelection.stagedCount)||
+               new Set(suppliedSelection.selectedSlots).size!==images.length||
+               (suppliedSelection.stagedCount>images.length&&suppliedSelection.operatorConfirmed!==true)){
+                return res.status(400).json({error:'Bad Request: Photo selection must identify unique submitted slots and confirm omissions.'});
+            }
+            stagedCount=suppliedSelection.stagedCount;
+            selectedSlots=suppliedSelection.selectedSlots.slice();
+            operatorConfirmed=suppliedSelection.operatorConfirmed===true;
+        }
+        const photoCoverage={stagedCount,submittedCount:images.length,
+            omittedCount:stagedCount-images.length,selectedSlots,operatorConfirmed};
         const activeImages = images.slice(0, MAX_IMAGES);
         const allowedEvidenceSources = new Set(['walkaround_manual_capture', 'walkaround_sampled_frame', 'operator_upload']);
         const allowedConfirmationStates = new Set(['operator_captured', 'not_confirmed', 'operator_selected', 'requested_followup_capture']);
@@ -113,6 +153,7 @@ async function handler(req, res) {
                 : null;
             return {
                 imageIndex: index + 1,
+                stagedSlot: selectedSlots[index],
                 kind: 'photo',
                 source: item && allowedEvidenceSources.has(item.source) ? item.source : 'operator_upload',
                 capturedAt: item && typeof item.capturedAt === 'string' ? item.capturedAt.slice(0, 40) : null,
@@ -143,11 +184,18 @@ async function handler(req, res) {
         const rateCard = buildRateCard(settings);
 
         let contextBlock = "";
+        if(photoCoverage.omittedCount>0){
+            contextBlock += '\n- PHOTO COVERAGE LIMIT: Only '+photoCoverage.submittedCount+' of '+
+                photoCoverage.stagedCount+' staged photos were selected and supplied. '+
+                photoCoverage.omittedCount+' other staged photos were NOT sent for AI review. '+
+                'Do not infer conditions or claim visual confirmation from omitted photos. '+
+                'Original staged photo slots in submitted order: '+photoCoverage.selectedSlots.join(', ')+'.';
+        }
         if (location) {
             contextBlock += `\n- Job GPS Coordinates: Latitude ${location.lat}, Longitude ${location.lon}`;
         }
-        if (Array.isArray(satelliteMeasurements) && satelliteMeasurements.length) {
-            const safeMeasurements = satelliteMeasurements.slice(0, 40).map(m => ({
+        const safeMeasurements = Array.isArray(satelliteMeasurements)
+            ? satelliteMeasurements.slice(0, 40).map(m => ({
                 label: String(m?.label || 'Measured surface').slice(0, 80),
                 kind: m?.kind === 'line' ? 'line' : 'area',
                 quantity: Math.max(0, Number(m?.quantity) || 0),
@@ -156,7 +204,22 @@ async function handler(req, res) {
                 method: m?.evidence?.method || 'user_traced',
                 provider: m?.evidence?.provider || 'unknown',
                 capturedAt: m?.evidence?.capturedAt || null
-            }));
+            }))
+            : [];
+        // Do not select a winner when user-traced records for the same
+        // named surface disagree about quantity or unit.
+        const measurementIndex = new Map();
+        const conflictingMeasurements = [];
+        for (const measurement of safeMeasurements) {
+            const key = measurement.label.trim().toLowerCase().replace(/\s+/g, ' ') + ':' + measurement.kind;
+            const prior = measurementIndex.get(key);
+            if (prior && (prior.quantity !== measurement.quantity || prior.unit !== measurement.unit)) {
+                conflictingMeasurements.push(measurement.label);
+            } else if (!prior) {
+                measurementIndex.set(key, measurement);
+            }
+        }
+        if (safeMeasurements.length) {
             contextBlock += `\n- Aerial property measurements (user-traced evidence): ${JSON.stringify(safeMeasurements)}`;
             contextBlock += `\n- Measurement rule: use these quantities as geometry evidence only. Do not infer contamination, material condition, access, hazards, drainage, or cleanability from aerial geometry alone.`;
         }
@@ -273,10 +336,12 @@ async function handler(req, res) {
             cleanedText = cleanedText.replace(/,\s*([\]}])/g, '$1');
             scanData = JSON.parse(cleanedText);
         } catch (parseError) {
-            console.error('JSON Parse Extraction Failed. Raw text was:', rawResultText);
-            throw new Error('Failed to parse AI diagnostic output into JSON matrix: ' + parseError.message);
+            console.error('AI diagnostic output could not be parsed as a JSON object.');
+            throw new Error('AI diagnostic output could not be parsed as a JSON object.');
         }
         
+        // Durable explanation of exactly which photos this model actually saw.
+        scanData.photoCoverage=photoCoverage;
         const evidenceReview = scanData && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : null;
         const missingEvidence = Array.isArray(evidenceReview?.missingEvidence) ? evidenceReview.missingEvidence : [];
         const uncertainEvidence = Array.isArray(evidenceReview?.uncertainEvidence) ? evidenceReview.uncertainEvidence : [];
@@ -291,7 +356,27 @@ async function handler(req, res) {
                 summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
             };
         }
-        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true;
+        // The model may vary case or whitespace in its priority labels.
+        // A high/critical evidence gap may never be waived by that formatting.
+        const unresolvedHighPriority = [...missingEvidence, ...uncertainEvidence].some(item => {
+            const priority = String(item?.priority || '').trim().toLowerCase();
+            return priority === 'high' || priority === 'critical';
+        });
+        const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority && !conflictingMeasurements.length;
+        if (unresolvedHighPriority) {
+            scanData.evidenceReview = {
+                ...scanData.evidenceReview,
+                readyForEstimate: false,
+                summary: 'High-priority property evidence is unresolved. Manual review is required.'
+            };
+        }
+        if (conflictingMeasurements.length) {
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Conflicting measurements for the same named surface require manual verification.'
+            };
+        }
         if (!explicitlyReady) {
             scanData.requiresHumanReview = true;
             scanData.humanReviewReason = typeof evidenceReview?.summary === 'string' && evidenceReview.summary.trim()
@@ -307,19 +392,61 @@ async function handler(req, res) {
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
-        if (scanData.services && Array.isArray(scanData.services)) {
-            scanData.services.forEach((item) => {
-                const spec = rateCard.services[item.serviceId];
-                if (!spec) {
-                    item.calculatedPrice = rateCard.minimumJob;
-                    item.label = item.label || 'Custom Service';
-                    return;
-                }
-                item.label = spec.label;
-                const basePrice = spec.unit === 'flat' ? spec.rate : (item.quantity * spec.rate);
-                item.calculatedPrice = roundMoney(basePrice * multiplier);
-            });
+        // Check the original model output BEFORE the normalizer clamps
+        // negative values to zero. A zeroed-out crew estimate is not approved.
+        const incompleteWorkBasis = (Array.isArray(scanData.services) ? scanData.services : []).some(service =>
+            !service || typeof service !== 'object' ||
+            !Number.isFinite(service.estimatedTimeMinutes) ||
+            !Number.isFinite(service.waterUsageGallons) ||
+            service.estimatedTimeMinutes < 0 || service.waterUsageGallons < 0);
+        const normalizedQuote = normalizeServices({
+            services: scanData.services,
+            requestedServices: safeRequestedServices,
+            rateCard,
+            multiplier
+        });
+        scanData.services = normalizedQuote.services;
+
+        if (incompleteWorkBasis) {
+            scanData.requiresHumanReview = true;
+            scanData.humanReviewReason = 'A service is missing its estimated work time or water requirement. Manual review is required.';
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: 'Work time or water estimates need verification before crew release.'
+            };
         }
+        scanData.quoteGuardrails = {
+            issues: normalizedQuote.issues,
+            requiresReview: normalizedQuote.requiresReview
+        };
+
+        if (normalizedQuote.requiresReview) {
+            scanData.requiresHumanReview = true;
+            const guardrailSummary = normalizedQuote.issues
+                .map((issue) => issue && issue.message)
+                .filter(Boolean)
+                .slice(0, 3)
+                .join(' ');
+            scanData.humanReviewReason = guardrailSummary || scanData.humanReviewReason || 'Quote output needs manual review before release.';
+            scanData.evidenceReview = {
+                ...(scanData.evidenceReview && typeof scanData.evidenceReview === 'object' ? scanData.evidenceReview : {}),
+                readyForEstimate: false,
+                summary: guardrailSummary || 'Quote output needs manual review before release.'
+            };
+        }
+
+        scanData.decisionSupport = buildMatrixDecisionSupport({
+            scanData,
+            requestedServices: safeRequestedServices,
+            evidenceMeta: activeEvidenceMeta,
+            photoCount: activeImages.length,
+            satelliteMeasurements: safeMeasurements,
+            rateCard,
+            difficulty,
+            multiplier,
+            elevatedScopeRequested
+        });
 
         return res.status(200).json({
             success: true,
@@ -327,10 +454,10 @@ async function handler(req, res) {
         });
 
     } catch (error) {
-        console.error('API ENGINE FAILURE CORRIDOR:', error);
+        console.error('API ENGINE FAILURE CORRIDOR:', error?.name || 'AnalysisError');
         return res.status(500).json({
             error: 'Analysis Engine Failure',
-            details: error.message || error.toString()
+            details: 'The property analysis could not be completed. Please retry or request manual review.'
         });
     }
 }

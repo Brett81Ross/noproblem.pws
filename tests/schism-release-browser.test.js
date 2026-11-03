@@ -215,11 +215,91 @@ function blocked(tab){
   assert.equal(tab.ctx.SchismDashboard.workflowState().crewReleased,false,'dashboard API must block current evidence regression');
 }
 {
+  // A valid release for Property A must not mark a different active Property B ready.
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(s.matrixData));
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().ok,true);
+  tab.node('jobAddress').value='999 Different Address';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_property');
+  tab.node('jobAddress').value='123 Test St';
+  tab.ctx.techMatrixData.__schismEstimate.estimateId='est_unrelated';
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'different_estimate');
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,'prior valid local record may still exist; it is not the new job release');
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s); ready(tab);
+  tab.ctx.__schismReleaseState={locked:true,reason:'Re-analysis in progress'};
+  tab.ctx.document.dispatchEvent({type:'schism:release-state-changed'});
+  blocked(tab);
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'analysis_not_approved');
+  tab.ctx.__schismReleaseState={locked:false,reason:''};
+  tab.ctx.document.dispatchEvent({type:'schism:release-state-changed'});
+  ready(tab);
+}
+{
+  const tab=createTab(new Map()),s=releaseFixture();
+  tab.put(s); ready(tab);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(s.matrixData));
+  tab.node('jobName').value='Test property';
+  tab.node('jobAddress').value='123 Test St';
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'different_id',serviceId:'driveway_cleaning',value:50,disabled:false}];
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'current_selection_mismatch',
+    'a newly selected scope may not borrow an earlier scope release');
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:true}];
+  assert.equal(tab.ctx.SchismDashboard.getCurrentEstimateRelease().code,'current_selection_mismatch',
+    'deselecting the entire quote scope must never retain Field Ready');
+}
+{
+  // A saved release cannot authorize a changed live quote price, even when
+  // the service IDs, metrics, and estimate revision are unchanged.
+  const tab=createTab(new Map()),snap=releaseFixture();
+  tab.put(snap);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(snap.matrixData));
+  tab.ctx.priceItemsRegistry=[{
+    scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false
+  }];
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,
+    'identical selected cents and scope should validate');
+  tab.ctx.priceItemsRegistry[0].value=175;
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_price_mismatch',
+    'live price edits must block previously released total');
+  tab.ctx.priceItemsRegistry[0].value=150;
+  tab.ctx.priceItemsRegistry[0].disabled=true;
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_selection_mismatch',
+    'deselecting a frozen release scope must block it');
+  tab.ctx.priceItemsRegistry[0].disabled=false;
+  tab.ctx.priceItemsRegistry.push({
+    scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false
+  });
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_selection_mismatch',
+    'duplicated live scope cannot authorize a frozen release');
+}
+{
+  const tab=createTab(new Map()),snap=releaseFixture();
+  snap.approvedScopePrices=[{scopeItemId:'scope_a',serviceId:'house_wash',priceCents:15000}];
+  snap.integrityFingerprint=contract.computeReleaseFingerprint(snap);
+  tab.put(snap);
+  tab.ctx.techMatrixData=JSON.parse(JSON.stringify(snap.matrixData));
+  tab.ctx.priceItemsRegistry=[{scopeItemId:'scope_a',serviceId:'house_wash',value:150,disabled:false}];
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true,
+    'new releases with frozen line pricing must be restored');
+  tab.ctx.priceItemsRegistry[0].serviceId='driveway_cleaning';
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().code,'current_line_price_mismatch',
+    'a changed service identity must not inherit the frozen per-scope price');
+  tab.ctx.priceItemsRegistry[0].serviceId='house_wash';
+  assert.equal(tab.ctx.SchismDashboard.getFieldReadyRelease().ok,true);
+}
+{
   // Exercise the actual PDF action body, not just whether its click listener exists.
   // A MutationObserver may add the button after the dashboard binds its listeners.
   const enhancementSource=fs.readFileSync(path.join(__dirname,'../enhancements.js'),'utf8');
   const start=enhancementSource.indexOf('  function downloadQuotePdf() {');
-  const end=enhancementSource.indexOf('  function ensurePdfButton() {',start);
+  const nextHelper=enhancementSource.indexOf('  function decisionEscapeHtml(value) {',start);
+  const end=nextHelper>start?nextHelper:enhancementSource.indexOf('  function ensurePdfButton() {',start);
   assert(start>=0&&end>start,'PDF action must exist');
   const pdfAction=enhancementSource.slice(start,end);
   function invokePdf(fieldMode,validRelease){
@@ -235,7 +315,7 @@ function blocked(tab){
     const env={document,window,
       showNotice:text=>result.notices.push(text),
       blockQuoteRelease:()=>false,
-      createPdfBlob:()=>({}),quotePdfLines:()=>[],pdfFileName:()=>('approved-quote.pdf'),
+      createPdfBlob:()=>({}),quotePdfLines:()=>['QUOTE'],pdfFileName:()=>('approved-quote.pdf'),
       URL:{createObjectURL:()=>('blob:fixture'),revokeObjectURL(){}},
       setTimeout(){}};
     vm.runInNewContext(pdfAction+'\ndownloadQuotePdf();',env);
