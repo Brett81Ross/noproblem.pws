@@ -781,6 +781,189 @@ async function main(){
       'Blocked quote actions must show a nonblocking notice, never a native alert');
     console.log('Mobile Chrome selected-scope identity and saved corruption fail-closed: PASS');
     console.log('Mobile Chrome synthetic quote -> PDF -> release -> supersede: PASS');
+
+    // A fresh Chromium tab must reopen actual JPEGs, aligned provenance,
+    // final edited cents, notes, and the AI-reviewed photo subset from IndexedDB.
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1150);
+    const persisted=await evaluate(cdp,async function(){
+      window.SchismDashboard.selectQuote();
+      const title='Vault QA estimate',address='123 Synthetic Evidence Lane';
+      document.getElementById('jobName').value=title;
+      document.getElementById('jobAddress').value=address;
+      document.getElementById('customerEmail').value='qa@example.invalid';
+      userSiteNotes='Synthetic: keep chemicals away from garden plants.';
+      currentJobLocation={lat:35.1,lon:-97.5};
+      const canvas=document.createElement('canvas');
+      canvas.width=12;canvas.height=9;
+      const ctx=canvas.getContext('2d');
+      stagedBase64Images=Array.from({length:3},(_,i)=>{
+        ctx.fillStyle=['#bc2312','#55ca22','#126cba'][i];
+        ctx.fillRect(0,0,12,9);
+        return canvas.toDataURL('image/jpeg',0.68);
+      });
+      stagedEvidenceMeta=Array.from({length:3},(_,i)=>({
+        kind:'photo',source:'operator_upload',capturedAt:'QA-photo-'+(i+1),
+        provenance:'operator_selected_media',operatorConfirmationState:'operator_selected'
+      }));
+      techMatrixData={
+        photoCoverage:{stagedCount:3,submittedCount:3,omittedCount:0,
+          selectedSlots:[1,2,3],operatorConfirmed:false},
+        requiresHumanReview:false,
+        evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+        services:[{serviceId:'driveway_cleaning',scopeItemId:'qa_vault_drive',
+          label:'Driveway Cleaning',calculatedPrice:175,
+          quantity:1,quantityUnit:'job',estimatedTimeMinutes:45,waterUsageGallons:90}],
+        fieldPlan:{totalEstimatedMinutes:45,totalWaterUsageGallons:90,
+          totalEstimatedHours:'0.8 Hours',crewSizeRecommended:1,difficulty:'low'}
+      };
+      techMatrixData=window.SchismDashboard.prepareMatrixForEstimate(techMatrixData);
+      window.__schismReleaseState={locked:false,reason:''};
+      renderPreviewGrid();
+      renderAdminModeView(techMatrixData);
+      priceItemsRegistry[0].value=205;
+      recalculateGrandTotal();
+      document.getElementById('outputCard').style.display='block';
+      await new Promise(resolve=>setTimeout(resolve,45));
+      const saved=await window.SchismDashboard.saveRecentFromVisibleResult();
+      const record=JSON.parse(localStorage.getItem('no-problem-matrix-last-project')||'null');
+      return {saved,receipt:record?.photoVault,photoCount:record?.photoCount,
+        totalCents:record?.quoteTotalCents,ledger:record?.approvedScopePrices,
+        noBase64InSummary:!localStorage.getItem('no-problem-matrix-last-project')?.includes('data:image/jpeg'),
+        savedLocation:record?.location,notes:record?.siteNotes,
+        stagedBefore:stagedBase64Images.length};
+    });
+    assert(persisted.saved===true&&persisted.receipt?.count===3&&
+      persisted.receipt?.digest?.startsWith('sha256:')&&
+      persisted.photoCount===3&&persisted.totalCents===20500&&
+      persisted.ledger?.[0]?.priceCents===20500&&persisted.noBase64InSummary&&
+      persisted.stagedBefore===3&&persisted.notes.includes('Synthetic:'),
+      'Local photo vault must durably save bytes + metadata before summary: '+JSON.stringify(persisted));
+    console.log('Mobile Chrome durable local JPEG save and approved cents: PASS');
+
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1100);
+    const reopened=await evaluate(cdp,async function(){
+      const saved=JSON.parse(localStorage.getItem('no-problem-matrix-last-project'));
+      const returned=await window.SchismDashboard.loadProjectIntoQuote(saved);
+      return {returned,photoCount:stagedBase64Images.length,
+        provenance:stagedEvidenceMeta.map(item=>item.capturedAt),
+        contentMatches:stagedBase64Images.every(x=>x.startsWith('data:image/jpeg;base64,')),
+        quoteCents:window.SchismRuntime.quoteDocument()?.totalCents,
+        locked:window.__schismReleaseState?.locked,
+        selection:schismPhotoReview.selectedIndices().map(i=>i+1),
+        notes:userSiteNotes,latitude:currentJobLocation?.lat,
+        email:document.getElementById('customerEmail').value};
+    });
+    assert(reopened.returned&&reopened.photoCount===3&&reopened.contentMatches&&
+      JSON.stringify(reopened.provenance)===JSON.stringify(['QA-photo-1','QA-photo-2','QA-photo-3'])&&
+      reopened.quoteCents===20500&&!reopened.locked&&
+      JSON.stringify(reopened.selection)==='[1,2,3]'&&reopened.notes.includes('Synthetic:')&&
+      reopened.latitude===35.1&&reopened.email==='qa@example.invalid',
+      'Reopened quote must restore actual evidence, provenance, price ledger and context: '+JSON.stringify(reopened));
+    console.log('Mobile Chrome saved estimate and photo evidence reopened after browser restart: PASS');
+
+    const crossProject=await evaluate(cdp,async function(){
+      const original=JSON.parse(localStorage.getItem('no-problem-matrix-last-project'));
+      const different={...original,jobName:'Different property',jobAddress:'Different street'};
+      await window.SchismDashboard.loadProjectIntoQuote(different);
+      const wrongJob={images:stagedBase64Images.length,
+        locked:window.__schismReleaseState?.locked===true,
+        quoteBlocked:window.SchismRuntime.quoteDocument()===null};
+      const legacy={...original};delete legacy.photoVault;
+      await window.SchismDashboard.loadProjectIntoQuote(legacy);
+      const legacyGuard={images:stagedBase64Images.length,
+        locked:window.__schismReleaseState?.locked===true,
+        quoteBlocked:window.SchismRuntime.quoteDocument()===null};
+      await window.SchismDashboard.loadProjectIntoQuote(original);
+      return {wrongJob,legacyGuard,recovered:stagedBase64Images.length===3 &&
+        window.SchismRuntime.quoteDocument()?.totalCents===20500};
+    });
+    assert(crossProject.wrongJob.images===0&&crossProject.wrongJob.locked&&
+      crossProject.wrongJob.quoteBlocked&&crossProject.legacyGuard.images===0&&
+      crossProject.legacyGuard.locked&&crossProject.legacyGuard.quoteBlocked&&
+      crossProject.recovered,'Wrong-property or older non-backed-up evidence must fail closed: '+
+      JSON.stringify(crossProject));
+    console.log('Mobile Chrome cross-property isolation and legacy missing-photo lock: PASS');
+
+    const crewPersist=await evaluate(cdp,async function(){
+      window.SchismDashboard.syncCrewHandoffState();
+      const btn=document.getElementById('btnCrewHandoff');
+      if(btn.disabled)return {error:'crew release already blocked',title:btn.title};
+      btn.click();
+      for(let i=0;i<30;i++){
+        const saved=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+        if(saved?.photoVault)break;
+        await new Promise(resolve=>setTimeout(resolve,40));
+      }
+      const saved=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+      return {released:window.SchismDashboard.getFieldReadyRelease().ok,
+        status:saved?.status,photoVault:saved?.photoVault,
+        photoCount:saved?.photoCount,coverage:saved?.photoCoverage,
+        work:window.SchismRuntime.quoteDocument()?.totalCents,
+        crewShown:document.getElementById('crewCommandPanel').classList.contains('is-visible')};
+    });
+    assert(crewPersist.released&&crewPersist.status==='released'&&crewPersist.photoVault?.count===3&&
+      crewPersist.photoCount===3&&crewPersist.coverage?.submittedCount===3&&
+      crewPersist.work===20500&&crewPersist.crewShown,
+      'Crew handoff must freeze verified JPEGs with provenance before release: '+JSON.stringify(crewPersist));
+    console.log('Mobile Chrome crew handoff persists photo receipt before approval: PASS');
+
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1050);
+    const recoveredCrew=await evaluate(cdp,async function(){
+      let state;
+      for(let i=0;i<35;i++){
+        state=window.SchismDashboard.getFieldReadyRelease();
+        if(state.ok)break;
+        await new Promise(resolve=>setTimeout(resolve,40));
+      }
+      window.SchismDashboard.selectCrew();
+      const quote=window.SchismRuntime.quoteDocument();
+      return {ready:state.ok,code:state.code,
+        restoredCount:stagedBase64Images.length,
+        receipt:JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1'))?.photoVault,
+        fieldShown:document.getElementById('resultsSection').style.display!=='none',
+        releasedQuote:quote?.released,
+        total:quote?.totalCents,
+        photoDisplay:document.getElementById('crewReleasedPhotos').textContent};
+    });
+    assert(recoveredCrew.ready&&recoveredCrew.restoredCount===3&&
+      recoveredCrew.fieldShown&&recoveredCrew.releasedQuote&&recoveredCrew.total===20500&&
+      recoveredCrew.photoDisplay.includes('3 sent to AI / 3 staged'),
+      'After restart crew may only use a verified snapshot with intact photo evidence: '+
+      JSON.stringify(recoveredCrew));
+    console.log('Mobile Chrome complete browser restart restores verified Crew Command release: PASS');
+
+    const lostMedia=await evaluate(cdp,async function(){
+      const released=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1'));
+      const db=await new Promise((resolve,reject)=>{
+        const request=indexedDB.open(window.SchismPhotoVault.DATABASE,1);
+        request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
+      });
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction(window.SchismPhotoVault.STORE,'readwrite');
+        tx.objectStore(window.SchismPhotoVault.STORE).delete(released.photoVault.key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+      });
+      db.close();
+      return {stillStored:!!localStorage.getItem('schismmatrix-crew-handoff-v1')};
+    });
+    assert(lostMedia.stillStored,'Missing media regression requires an intact release record');
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1120);
+    const blockedRecovery=await evaluate(cdp,function(){
+      window.SchismDashboard.selectCrew();
+      const state=window.SchismDashboard.getFieldReadyRelease();
+      return {ready:state.ok,code:state.code,
+        planHidden:document.getElementById('resultsSection').style.display==='none',
+        releaseStillRecorded:!!localStorage.getItem('schismmatrix-crew-handoff-v1')};
+    });
+    assert(!blockedRecovery.ready&&blockedRecovery.code==='released_photo_evidence_unverified'&&
+      blockedRecovery.planHidden&&blockedRecovery.releaseStillRecorded,
+      'Lost IndexedDB photos must block a previously released Crew Command plan: '+JSON.stringify(blockedRecovery));
+    console.log('Mobile Chrome missing release photo evidence blocks field execution after restart: PASS');
+
   }finally{
     try{cdp?.close()}catch(_){}
     const exited=child.exitCode!==null?Promise.resolve():new Promise(resolve=>child.once('exit',resolve));
