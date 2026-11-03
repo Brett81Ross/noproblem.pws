@@ -57,4 +57,7 @@ assert(index.includes('currentAnalysisInputSignature()!==requestSignature'),'sta
 assert(index.includes('window.__schismReleaseState={locked:true,reason:'),'analysis pending must lock crew release');
 assert(index.includes('matchesCoverage(data.rawMatrixData?.photoCoverage'),'model response must match selected photos');
 assert(index.includes('invalidatePhotoApproval('),'photo changes must invalidate released job');
+const legacyShell=fs.readFileSync(path.join(__dirname,'../runtime/base-shell.html'),'utf8');
+assert(legacyShell.includes('legacyAnalysisInputSignature()!==requestSignature'),'legacy analysis cannot accept stale photo sets');
+assert(legacyShell.includes('matchesCoverage(data.rawMatrixData?.photoCoverage'),'legacy response must match four-photo evidence');
 console.log('Schism 24-photo selection, evidence correspondence, no-extra-request QA passed');

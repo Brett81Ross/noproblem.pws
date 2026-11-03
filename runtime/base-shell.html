@@ -925,9 +925,12 @@
     <script>
         let stagedBase64Images = [];
         let stagedEvidenceMeta = [];
+        let legacyPhotoGeneration=0;
         const schismPhotoReview=window.SchismPhotoSelection.createController({
             limit:4,gridId:'imagePreviewGrid',photoSelector:'.preview-thumbnail-wrapper',
-            getImages:()=>stagedBase64Images,getMeta:()=>stagedEvidenceMeta
+            getImages:()=>stagedBase64Images,getMeta:()=>stagedEvidenceMeta,
+            onSelectionChanged:()=>{legacyPhotoGeneration++;},
+            onConfirmationChanged:()=>{legacyPhotoGeneration++;}
         });
         let priceItemsRegistry = [];
         let techMatrixData = null;
@@ -1167,6 +1170,7 @@
         function stageFiles(files) {
             const selectedFiles=Array.from(files||[]);
             if(!selectedFiles.length)return Promise.resolve(0);
+            legacyPhotoGeneration++;
             const queued=pendingPhotoBatch.then(()=>stageFilesBatch(selectedFiles));
             pendingPhotoBatch=queued.catch(()=>{});
             return queued;
@@ -1206,6 +1210,7 @@
         }
 
         function removeStagedImage(index) {
+            legacyPhotoGeneration++;
             stagedBase64Images.splice(index, 1);
             stagedEvidenceMeta.splice(index, 1);
             schismPhotoReview.reset();
@@ -1455,6 +1460,16 @@
             window.location.href = `mailto:?subject=Project Quote&body=${encodeURIComponent(generateActiveProposalText())}`;
         }
 
+        function legacyAnalysisInputSignature(){
+            return JSON.stringify({generation:legacyPhotoGeneration,
+                count:stagedBase64Images.length,metadata:stagedEvidenceMeta,
+                selection:schismPhotoReview.selectedIndices(),confirmed:schismPhotoReview.isConfirmed(),
+                jobName:document.getElementById('jobName')?.value||'',
+                jobAddress:document.getElementById('jobAddress')?.value||'',
+                siteNotes:userSiteNotes,location:currentJobLocation,
+                buildingLevel:document.body.getAttribute('data-building-level')||'one'
+            });
+        }
         async function submitJobForAnalysis() {
             const processTrigger = document.getElementById('processTrigger');
             if(!stagedBase64Images.length||processTrigger.dataset.submitting==='true')return;
@@ -1466,6 +1481,7 @@
                 alert(analysisPhotoPlan.reason);
                 return;
             }
+            const requestSignature=legacyAnalysisInputSignature();
             processTrigger.className = "btn btn-trigger btn-loading";
 
             const loadingPhrases = currentLang === 'es' ? [
@@ -1537,7 +1553,11 @@
                 if (data.error) {
                     throw new Error(typeof data.error === 'object' ? JSON.stringify(data.error) : data.error);
                 }
-                
+                if(legacyAnalysisInputSignature()!==requestSignature)
+                    throw new Error('Photos or property details changed during analysis. Re-analyze the current evidence.');
+                if(!window.SchismPhotoSelection.matchesCoverage(data.rawMatrixData?.photoCoverage,
+                    analysisPhotoPlan.photoSelection))
+                    throw new Error('The returned photo coverage does not match the submitted evidence. Re-analyze before approval.');
                 techMatrixData = data.rawMatrixData;
                 
                 document.getElementById('outputCard').style.display = 'block';

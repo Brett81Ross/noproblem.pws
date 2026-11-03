@@ -338,6 +338,35 @@ async function main(){
       'Legacy four-photo pathway must also require selection before request: '+JSON.stringify(legacySelectionQA));
     console.log('Mobile Chrome legacy 24 staged / 4-selected review gate: PASS');
 
+    const legacyInFlight=await evaluate(cdp,async function(){
+      const oldAlert=window.alert,oldFetch=window.fetch;
+      const alerts=[];
+      window.alert=message=>alerts.push(String(message));
+      const confirmation=document.getElementById('schismPhotoSelectionConfirm');
+      confirmation.click();
+      let resolveReply;
+      window.fetch=()=>new Promise(resolve=>{resolveReply=resolve;});
+      try{
+        const before=techMatrixData;
+        const pending=submitJobForAnalysis();
+        await new Promise(resolve=>setTimeout(resolve,45));
+        removeStagedImage(23);
+        resolveReply({ok:true,status:200,json:async()=>({success:true,rawMatrixData:{
+          photoCoverage:{stagedCount:24,submittedCount:4,omittedCount:20,
+            selectedSlots:[1,9,16,24],operatorConfirmed:true},
+          evidenceReview:{readyForEstimate:true},services:[{serviceId:'driveway_cleaning',calculatedPrice:999}]
+        }})});
+        await pending;
+        return {rejected:alerts.some(v=>v.includes('Photos or property details changed during analysis')),
+          unchanged:techMatrixData===before,count:stagedBase64Images.length};
+      }finally{window.alert=oldAlert;window.fetch=oldFetch;}
+    });
+    assert(legacyInFlight.rejected&&legacyInFlight.unchanged&&legacyInFlight.count===23,
+      'Legacy route may not accept stale 4-photo analysis: '+JSON.stringify(legacyInFlight));
+    console.log('Mobile Chrome legacy 4-photo stale-response rejection: PASS');
+
+
+
     // Synthetic analysis responses are intercepted locally. Verify that a
     // reviewed 9->8 subset can release, photo-selection edits supersede that
     // release, and mid-flight evidence changes cannot publish stale AI results.
