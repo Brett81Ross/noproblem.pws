@@ -15,7 +15,7 @@ const learning = read('job-learning.js');
 
 assert(index.includes('<script src="/analysis-revision.js" defer></script>'), 'revision intelligence browser module is not loaded');
 assert(index.includes('SchismRevisionIntelligence.capture(data.rawMatrixData'), 'analysis results do not enter Revision Watch');
-assert(index.includes('SchismRevisionIntelligence.seed(project.matrixData'), 'saved projects do not seed revision history');
+assert(index.includes('window.SchismRevisionIntelligence.seed(matrix'), 'saved projects do not seed revision history');
 assert(index.includes("new CustomEvent('schism:project-loaded'"), 'saved project loads do not refresh property context');
 
 assert(revision.includes('Revision Watch'), 'Revision Watch UI is missing');
