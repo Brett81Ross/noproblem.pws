@@ -1379,6 +1379,7 @@
 
     <script src="/photo-processing.js"></script>
     <script src="/photo-selection.js"></script>
+    <script src="/photo-vault.js"></script>
     <script>
         let stagedBase64Images = [];
         let stagedEvidenceMeta = [];
@@ -2386,6 +2387,20 @@
         const SAVED_PROJECT='no-problem-matrix-last-project';
         const INVENTORY_KEY='no-problem-matrix-inventory-v1';
         const CREW_HANDOFF='schismmatrix-crew-handoff-v1';
+        let verifiedCrewPhotoReceipt=null;
+        let projectLoadSequence=0;
+        let recentSaveSequence=0;
+        function evidenceJobKey(name,address){
+          return String(name||'').trim().toLowerCase()+'|'+String(address||'').trim().toLowerCase();
+        }
+        function setSavedEvidenceLock(locked,reason){
+          window.__schismReleaseState={locked:Boolean(locked),reason:reason||''};
+          document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
+        }
+        function savedEvidenceNotice(message){
+          const summary=byId('savedProjectSummary');
+          if(summary)summary.textContent=message;
+        }
 
         function byId(id){ return document.getElementById(id); }
         function showWorkspace(title){
@@ -2570,6 +2585,12 @@
             const snapshot=stored.snapshot;
             const state=validateCrewRelease(snapshot);
             if(!state.ok) return {ok:false,snapshot,code:state.code,reason:state.reason};
+            if(snapshot.photoVault && snapshot.photoCount>0 &&
+               (!verifiedCrewPhotoReceipt ||
+                verifiedCrewPhotoReceipt.key!==snapshot.photoVault.key ||
+                verifiedCrewPhotoReceipt.digest!==snapshot.photoVault.digest))
+              return {ok:false,snapshot,code:'released_photo_evidence_unverified',
+                reason:'Released photo evidence must be verified on this device before crew execution.'};
             if(typeof techMatrixData!=='undefined'&&techMatrixData?.__schismEstimate?.estimateId===snapshot.estimateId){
               const current=techMatrixData;
               if(current.__schismEstimate.revision!==snapshot.estimateRevision)
@@ -2771,14 +2792,36 @@
         }
         function persistCrewHandoff(){
           const snapshot=buildCrewHandoffSnapshot();
-          if(!snapshot) return null;
-          try{ localStorage.setItem(CREW_HANDOFF,JSON.stringify(snapshot)); }catch(e){ return null; }
-          const verified=getFieldReadyRelease();
-          if(!verified.ok) return null;
-          renderCrewHandoffSummary(verified.snapshot);
-          refreshCrewBadge();
-          document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
-          return verified.snapshot;
+          if(!snapshot)return null;
+          function finalize(){
+            snapshot.integrityFingerprint=releaseContract().computeReleaseFingerprint(snapshot);
+            if(!validateCrewRelease(snapshot).ok)return null;
+            try{localStorage.setItem(CREW_HANDOFF,JSON.stringify(snapshot));}catch(error){return null;}
+            const verified=getFieldReadyRelease();
+            if(!verified.ok)return null;
+            renderCrewHandoffSummary(verified.snapshot);
+            refreshCrewBadge();
+            document.dispatchEvent(new CustomEvent('schism:device-release-updated'));
+            return verified.snapshot;
+          }
+          if(!stagedBase64Images.length)return finalize();
+          const key='crew:'+snapshot.releaseId;
+          const jobKey=evidenceJobKey(snapshot.jobName,snapshot.jobAddress);
+          const images=stagedBase64Images.slice();
+          const provenance=JSON.parse(JSON.stringify(stagedEvidenceMeta));
+          const generation=photoEvidenceGeneration;
+          return window.SchismPhotoVault.save(key,jobKey,images,provenance).then(receipt=>{
+            if(generation!==photoEvidenceGeneration || !currentReleaseAuthorization().ok){
+              savedEvidenceNotice('Photo evidence changed before crew approval. Re-analyze and release again.');
+              return null;
+            }
+            snapshot.photoVault=receipt;
+            verifiedCrewPhotoReceipt=receipt;
+            return finalize();
+          }).catch(()=>{
+            savedEvidenceNotice('Crew release blocked: local photo evidence could not be saved. Free device storage and retry.');
+            return null;
+          });
         }
         function restoreCrewHandoff(snapshot){
           const validation=getFieldReadyRelease();
@@ -2896,10 +2939,13 @@
         function handoffToCrew(){
           syncCrewHandoffState();
           const button=byId('btnCrewHandoff');
-          if(!button || button.disabled) return;
-          const snapshot=persistCrewHandoff();
-          if(!snapshot) return;
-          selectCrew();
+          if(!button||button.disabled)return;
+          const pending=persistCrewHandoff();
+          if(pending&&typeof pending.then==='function'){
+            button.disabled=true;
+            pending.then(snapshot=>{if(snapshot)selectCrew();else syncCrewHandoffState();})
+              .catch(()=>syncCrewHandoffState());
+          }else if(pending)selectCrew();
         }
         function openSettings(){
           const gear=byId('matrixSettingsGear');
@@ -2922,68 +2968,116 @@
           summary.textContent=name+' · '+address;
         }
         function loadProjectIntoQuote(project){
-          if(!project) return false;
+          if(!project)return false;
+          const sequence=++projectLoadSequence;
           const name=project.jobName||project.projectName||project.name||'';
           const address=project.jobAddress||project.address||'';
-          if(byId('jobName')) byId('jobName').value=name;
-          if(byId('jobAddress')) byId('jobAddress').value=address;
-          if(byId('customerEmail')) byId('customerEmail').value=project.customerEmail||'';
-          if(byId('customerPhone')) byId('customerPhone').value=project.customerPhone||'';
-          if(project.matrixData && typeof project.matrixData==='object'){
-            if(window.SchismRevisionIntelligence && typeof window.SchismRevisionIntelligence.seed==='function'){
-              window.SchismRevisionIntelligence.seed(project.matrixData,{
-                address,
-                photoCount:Number(project.photoCount)||0,
-                requestedServices:Array.isArray(project.matrixData.services)?project.matrixData.services.map(service=>service&&service.serviceId).filter(Boolean):[],
+          const jobKey=evidenceJobKey(name,address);
+          setSavedEvidenceLock(true,'Restoring saved project evidence and approved prices.');
+          // A different property's in-memory photos must NEVER be carried over.
+          stagedBase64Images=[];
+          stagedEvidenceMeta=[];
+          photoEvidenceGeneration++;
+          schismPhotoReview.reset();
+          renderPreviewGrid();
+          if(byId('jobName'))byId('jobName').value=name;
+          if(byId('jobAddress'))byId('jobAddress').value=address;
+          if(byId('customerEmail'))byId('customerEmail').value=project.customerEmail||'';
+          if(byId('customerPhone'))byId('customerPhone').value=project.customerPhone||'';
+          if(typeof userSiteNotes!=='undefined')userSiteNotes=project.siteNotes||'';
+          if(typeof currentJobLocation!=='undefined')currentJobLocation=project.location||null;
+          const matrix=project.matrixData;
+          let validScope=false,reason='Saved estimate has not been verified. Re-analyze before exporting.';
+          if(matrix&&typeof matrix==='object'&&!Array.isArray(matrix)){
+            if(window.SchismRevisionIntelligence?.seed){
+              window.SchismRevisionIntelligence.seed(matrix,{
+                address,photoCount:Number(project.photoCount)||0,
+                requestedServices:Array.isArray(matrix.services)?matrix.services.map(item=>item?.serviceId).filter(Boolean):[],
                 recordedAt:new Date().toISOString()
               });
             }
-            techMatrixData=prepareMatrixForEstimate(project.matrixData);
-            window.__schismDecisionSupport=project.matrixData.decisionSupport&&typeof project.matrixData.decisionSupport==='object'
-              ?project.matrixData.decisionSupport:null;
+            // Clone stored records; do not mutate their reference while restoring.
+            techMatrixData=prepareMatrixForEstimate(JSON.parse(JSON.stringify(matrix)));
+            window.__schismDecisionSupport=matrix.decisionSupport&&typeof matrix.decisionSupport==='object'?matrix.decisionSupport:null;
             document.dispatchEvent(new CustomEvent('schism:decision-support-changed'));
-            if(typeof setAppMode==='function') setAppMode('admin');
+            if(typeof setAppMode==='function')setAppMode('admin');
             selectQuote();
             byId('outputCard').style.display='block';
             byId('actionPanel').setAttribute('style','display:grid !important;');
             renderAdminModeView(techMatrixData);
-            // Older local records did not track exclusions; keep their existing
-            // behavior. New records restore selected scope IDs exactly.
             if(Array.isArray(project.selectedScopeItemIds)){
               const selected=project.selectedScopeItemIds;
-              const approvedIds=new Set(selected);
-              const availableIds=new Set(priceItemsRegistry.map(item=>item.scopeItemId));
-              const validSelection=selected.length>0 &&
-                selected.every(id=>typeof id==='string'&&id.trim()&&availableIds.has(id)) &&
-                approvedIds.size===selected.length;
+              const picked=new Set(selected);
+              const available=new Set(priceItemsRegistry.map(item=>item.scopeItemId));
+              const validSelection=selected.length>0&&
+                selected.every(id=>typeof id==='string'&&id.trim()&&available.has(id))&&
+                picked.size===selected.length;
+              let validLedger=true;
+              if(project.approvedScopePrices!==undefined){
+                const ledger=project.approvedScopePrices;
+                validLedger=Array.isArray(ledger)&&ledger.length===selected.length&&
+                  ledger.every(line=>line&&typeof line.scopeItemId==='string'&&picked.has(line.scopeItemId)&&
+                    Number.isSafeInteger(line.priceCents)&&line.priceCents>=0&&
+                    priceItemsRegistry.some(item=>item.scopeItemId===line.scopeItemId&&item.serviceId===line.serviceId))&&
+                  new Set(ledger.map(line=>line.scopeItemId)).size===ledger.length;
+                if(validLedger){
+                  ledger.forEach(line=>{
+                    const item=priceItemsRegistry.find(x=>x.scopeItemId===line.scopeItemId);
+                    item.value=line.priceCents/100;
+                    const badge=byId('priceBadge_'+item.id);
+                    if(badge)badge.textContent='$'+(line.priceCents/100).toFixed(2);
+                  });
+                }
+              }
               priceItemsRegistry.forEach((item,index)=>{
-                item.disabled=!approvedIds.has(item.scopeItemId);
+                item.disabled=!picked.has(item.scopeItemId);
                 byId('priceCard_'+index)?.classList.toggle('disabled-card',item.disabled);
               });
               recalculateGrandTotal();
-              if(!validSelection ||
-                 !Number.isSafeInteger(project.quoteTotalCents) ||
-                 project.quoteTotalCents<0 ||
-                 project.quoteTotalCents!==approvedScopeTotalCents()){
-                window.__schismReleaseState={
-                  locked:true,
-                  reason:'Saved scope or pricing could not be verified. Re-analyze the property before sending or exporting.'
-                };
-                document.dispatchEvent(new CustomEvent('schism:release-state-changed'));
-              }
+              validScope=validSelection&&validLedger&&Number.isSafeInteger(project.quoteTotalCents)&&
+                project.quoteTotalCents>=0&&project.quoteTotalCents===approvedScopeTotalCents();
+              if(!validScope)reason='Saved scope or line-item prices do not match the approved total. Re-analyze this project.';
+            }else{
+              // Older local records remain viewable, never silently certified.
+              reason='This older saved estimate has no verified selected scope. Review before release.';
             }
             syncCrewHandoffState();
             setTimeout(()=>byId('resultsSection')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
           }else{
+            techMatrixData=null;
+            priceItemsRegistry=[];
             selectQuote();
-            setTimeout(()=>byId('missionCard')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+            reason='The saved project does not contain a reviewed estimate.';
           }
-          document.dispatchEvent(new CustomEvent('schism:project-loaded',{detail:{address,name}}));
-          return true;
+          function finish(photoReady,why){
+            if(sequence!==projectLoadSequence)return false;
+            if(photoReady&&validScope)setSavedEvidenceLock(false,'');
+            else setSavedEvidenceLock(true,why||reason);
+            syncCrewHandoffState();
+            if(!photoReady){
+              savedEvidenceNotice((name||'Saved project')+' · Photo evidence missing or unavailable. Re-capture and re-analyze.');
+            }
+            document.dispatchEvent(new CustomEvent('schism:project-loaded',{detail:{address,name,photoReady,validScope}}));
+            return true;
+          }
+          const count=Number(project.photoCount)||0;
+          if(!Number.isSafeInteger(count)||count<0||count>24)return finish(false,'Invalid saved photo count.');
+          if(count===0)return finish(true,reason);
+          if(!project.photoVault)return finish(false,'This older project does not contain recoverable saved photo files.');
+          return window.SchismPhotoVault.load(project.photoVault,jobKey).then(photos=>{
+            if(sequence!==projectLoadSequence)return false;
+            if(photos.images.length!==count)return finish(false,'Saved photo count does not match this project.');
+            stagedBase64Images=photos.images;
+            stagedEvidenceMeta=photos.metadata;
+            photoEvidenceGeneration++;
+            schismPhotoReview.reset();
+            renderPreviewGrid();
+            return finish(true,reason);
+          }).catch(()=>finish(false,'Saved photo files failed integrity verification. Re-capture and re-analyze.'));
         }
         function toggleSaved(){
           const saved=readJson(SAVED_PROJECT,null);
-          if(saved && loadProjectIntoQuote(saved)) return;
+          if(saved){loadProjectIntoQuote(saved);return;}
           renderSavedProject();
           byId('savedProjectPanel')?.classList.add('is-open');
         }
@@ -3039,25 +3133,52 @@
         }
         function saveRecentFromVisibleResult(){
           const card=byId('outputCard');
-          if(!card||card.style.display==='none') return;
+          if(!card||card.style.display==='none'||window.__schismReleaseState?.locked===true)return;
+          const quote=window.SchismRuntime?.quoteDocument?.();
+          if(!quote||quote.released||!quote.services.length||!techMatrixData?.__schismEstimate)return;
           const name=byId('jobName')?.value?.trim()||'Pressure washing project';
           const address=byId('jobAddress')?.value?.trim()||'';
-          // Preserve the selected, finalized cents. The counter may still be
-          // animating, and saving its text can understate the actual quote.
-          if(window.__schismReleaseState?.locked===true)return;
-          const quote=window.SchismRuntime?.quoteDocument?.();
-          if(!quote||quote.released||!quote.services.length)return;
-          const total='$'+(quote.totalCents/100).toFixed(2);
-          const selectedScopeItemIds=quote.services.map(service=>service.scopeItemId);
-          const current=readJson(DASH_RECENTS,[]);
-          const matrix=(typeof techMatrixData!=='undefined' && techMatrixData) ? techMatrixData : null;
-          const customerEmail=byId('customerEmail')?.value?.trim()||'';
-          const customerPhone=byId('customerPhone')?.value?.trim()||'';
-          const item={name,address,total,quoteTotalCents:quote.totalCents,selectedScopeItemIds,date:new Date().toLocaleDateString('en-US'),matrixData:matrix,photoCount:(typeof stagedBase64Images!=='undefined'?stagedBase64Images.length:0),customerEmail,customerPhone};
-          const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
-          try{ localStorage.setItem(DASH_RECENTS,JSON.stringify(next)); }catch(e){}
-          try{ localStorage.setItem(SAVED_PROJECT,JSON.stringify({...item,jobName:name,jobAddress:address})); }catch(e){}
-          renderRecents(); renderSavedProject();
+          const meta=techMatrixData.__schismEstimate;
+          const images=stagedBase64Images.slice();
+          const photoMetadata=JSON.parse(JSON.stringify(stagedEvidenceMeta));
+          const currentGeneration=photoEvidenceGeneration;
+          const nextSequence=++recentSaveSequence;
+          const item={
+            name,address,total:'$'+(quote.totalCents/100).toFixed(2),
+            quoteTotalCents:quote.totalCents,
+            selectedScopeItemIds:quote.services.map(service=>service.scopeItemId),
+            approvedScopePrices:quote.services.map(service=>({
+              scopeItemId:service.scopeItemId,serviceId:service.serviceId,priceCents:service.priceCents
+            })),
+            date:new Date().toLocaleDateString('en-US'),
+            matrixData:JSON.parse(JSON.stringify(techMatrixData)),
+            photoCount:images.length,
+            siteNotes:typeof userSiteNotes==='string'?userSiteNotes:'',
+            location:currentJobLocation?JSON.parse(JSON.stringify(currentJobLocation)):null,
+            customerEmail:byId('customerEmail')?.value?.trim()||'',
+            customerPhone:byId('customerPhone')?.value?.trim()||''
+          };
+          function commit(receipt){
+            if(nextSequence!==recentSaveSequence||currentGeneration!==photoEvidenceGeneration||
+               window.__schismReleaseState?.locked===true)return false;
+            if(receipt)item.photoVault=receipt;
+            const current=readJson(DASH_RECENTS,[]);
+            const next=[item].concat(Array.isArray(current)?current.filter(x=>!(x&&x.name===name&&x.address===address)):[]).slice(0,8);
+            try{
+              localStorage.setItem(DASH_RECENTS,JSON.stringify(next));
+              localStorage.setItem(SAVED_PROJECT,JSON.stringify({...item,jobName:name,jobAddress:address}));
+            }catch(error){savedEvidenceNotice('Unable to save project summary. Check browser storage.');return false;}
+            renderRecents();renderSavedProject();
+            return true;
+          }
+          if(!images.length)return commit(null);
+          const key='quote:'+meta.estimateId+':r'+meta.revision;
+          return window.SchismPhotoVault.save(key,evidenceJobKey(name,address),images,photoMetadata)
+            .then(receipt=>commit(receipt))
+            .catch(()=>{
+              savedEvidenceNotice('Photo evidence could not be stored; this project was not saved. Free device storage and retry.');
+              return false;
+            });
         }
         function dockDemoControl(){
           const rail=document.querySelector('.dashboard-status');
@@ -3075,6 +3196,33 @@
           setTimeout(()=>observer.disconnect(),10000);
         }
         function refreshDashboard(){ inventoryState(); renderRecents(); renderSavedProject(); refreshCrewBadge(); dockDemoControl(); }
+        function recoverCrewEvidenceOnRestart(){
+          const stored=readCrewHandoffRecord();
+          const snapshot=stored.snapshot;
+          if(!snapshot?.photoVault||snapshot.photoCount<=0||!validateCrewRelease(snapshot).ok)return;
+          const key=evidenceJobKey(snapshot.jobName,snapshot.jobAddress);
+          window.SchismPhotoVault.load(snapshot.photoVault,key).then(photos=>{
+            const current=readCrewHandoffRecord().snapshot;
+            if(current?.releaseId!==snapshot.releaseId)return;
+            if(photos.images.length!==snapshot.photoCount||photos.metadata.length!==snapshot.evidence.length)
+              throw Error('Released photo record count mismatch.');
+            verifiedCrewPhotoReceipt=photos.receipt;
+            if(!techMatrixData&&!stagedBase64Images.length){
+              stagedBase64Images=photos.images;
+              stagedEvidenceMeta=photos.metadata;
+              photoEvidenceGeneration++;
+              schismPhotoReview.reset();
+              renderPreviewGrid();
+            }
+            syncVisibleCrewRelease();
+          }).catch(()=>{
+            if(readCrewHandoffRecord().snapshot?.releaseId===snapshot.releaseId){
+              verifiedCrewPhotoReceipt=null;
+              savedEvidenceNotice('Released photo evidence is missing or corrupted. Crew execution requires reapproval.');
+              syncVisibleCrewRelease();
+            }
+          });
+        }
         function bindActions(){
           document.querySelectorAll('[data-dashboard-action]').forEach(btn=>btn.addEventListener('click',()=>{
             const menu=byId('dashboardMenuPanel');
@@ -3125,7 +3273,10 @@
             new MutationObserver(()=>{ if(output.style.display!=='none') saveRecentFromVisibleResult(); }).observe(output,{attributes:true,childList:true,subtree:true,attributeFilter:['style']});
           }
         }
-        document.addEventListener('DOMContentLoaded',()=>{ bindActions(); refreshDashboard(); watchForDemoControl(); showDashboard(); });
+        document.addEventListener('DOMContentLoaded',()=>{
+          bindActions();refreshDashboard();watchForDemoControl();showDashboard();
+          recoverCrewEvidenceOnRestart();
+        });
         function workflowState(){
           return {
             dashboard:Boolean(byId('augustDashboard') && !byId('augustDashboard').hidden),
