@@ -158,6 +158,17 @@
         button.textContent=selected?'✓ AI selected':'Add to AI';
       });
     }
+    function restoreSelection(coverage){
+      const count=getCount();
+      if(!coverage||!Array.isArray(coverage.selectedSlots)||coverage.stagedCount!==count)return false;
+      const indices=coverage.selectedSlots.map(slot=>slot-1);
+      const planned=compile(options.getImages(),options.getMeta?.(),indices,limit,
+        coverage.operatorConfirmed===true);
+      if(!planned.ok||!matchesCoverage(coverage,planned.photoSelection))return false;
+      currentCount=count;chosen=indices;confirmed=coverage.operatorConfirmed===true;
+      refresh();
+      return true;
+    }
     function reset(){currentCount=-1;chosen=[];confirmed=false;refresh();}
     function preflight(){
       const value=compile(options.getImages(),options.getMeta?.(),chosen,limit,confirmed);
@@ -170,7 +181,7 @@
       }
       return value;
     }
-    return {refresh,reset,preflight,selectedIndices:()=>chosen.slice(),isConfirmed:()=>confirmed};
+    return {refresh,reset,restoreSelection,preflight,selectedIndices:()=>chosen.slice(),isConfirmed:()=>confirmed};
   }
   return {MAX_STAGED,defaultIndices,toggleIndices,compile,matchesCoverage,createController};
 });

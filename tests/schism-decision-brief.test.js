@@ -33,7 +33,7 @@ assert(enhancements.includes('<h4>Quote integrity</h4>'), 'quote-integrity guard
 assert(enhancements.includes('renderDecisionBrief();'), 'decision brief is not refreshed after result DOM changes');
 assert(enhancements.includes("document.addEventListener('schism:decision-support-changed', renderDecisionBrief)"), 'decision brief does not react to analysis updates');
 
-assert(index.includes("window.__schismDecisionSupport=project.matrixData.decisionSupport"), 'saved analyzed projects do not restore decision support');
+assert(index.includes("window.__schismDecisionSupport=matrix.decisionSupport"), 'saved analyzed projects do not restore decision support');
 assert(index.includes("new CustomEvent('schism:decision-support-changed')"), 'saved project restore does not refresh the decision brief');
 
 console.log('Schism decision brief QA passed');

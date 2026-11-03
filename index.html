@@ -3072,6 +3072,8 @@
             photoEvidenceGeneration++;
             schismPhotoReview.reset();
             renderPreviewGrid();
+            if(!schismPhotoReview.restoreSelection(techMatrixData?.photoCoverage))
+              return finish(false,'Saved AI photo selection could not be verified. Re-analyze the property.');
             return finish(true,reason);
           }).catch(()=>finish(false,'Saved photo files failed integrity verification. Re-capture and re-analyze.'));
         }
@@ -3206,14 +3208,19 @@
             if(current?.releaseId!==snapshot.releaseId)return;
             if(photos.images.length!==snapshot.photoCount||photos.metadata.length!==snapshot.evidence.length)
               throw Error('Released photo record count mismatch.');
-            verifiedCrewPhotoReceipt=photos.receipt;
+            if(snapshot.evidence.some((item,index)=>!item||!photos.metadata[index]||
+               Object.keys(item).some(key=>item[key]!==photos.metadata[index][key])))
+              throw Error('Released evidence provenance does not match the saved photos.');
             if(!techMatrixData&&!stagedBase64Images.length){
               stagedBase64Images=photos.images;
               stagedEvidenceMeta=photos.metadata;
               photoEvidenceGeneration++;
               schismPhotoReview.reset();
               renderPreviewGrid();
+              if(!schismPhotoReview.restoreSelection(snapshot.matrixData?.photoCoverage))
+                throw Error('Released AI photo selection does not match saved photos.');
             }
+            verifiedCrewPhotoReceipt=photos.receipt;
             syncVisibleCrewRelease();
           }).catch(()=>{
             if(readCrewHandoffRecord().snapshot?.releaseId===snapshot.releaseId){
