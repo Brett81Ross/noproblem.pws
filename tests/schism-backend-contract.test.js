@@ -117,12 +117,70 @@ async function main(){
     assert.equal(r.status,200);
     assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'conflicting aerial measurements must block');
     assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+    // Explicitly ready must fail closed when the model varies priority casing.
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:2000,estimatedTimeMinutes:60,waterUsageGallons:120}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[{priority:' HIGH ',prompt:'Inspect the runoff path'}],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false,'case-varied HIGH evidence must block approval');
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true);
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:2000,estimatedTimeMinutes:-15,waterUsageGallons:120}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'negative original crew time must require review');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:2000,estimatedTimeMinutes:60,waterUsageGallons:-25}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'negative original water estimate must require review');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+    generated=JSON.stringify({
+      services:[],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'empty services may not appear ready');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,false);
+    assert(r.result.rawMatrixData.quoteGuardrails.issues.some(issue=>issue.code==='NO_EXECUTABLE_SCOPE'));
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:1500000,estimatedTimeMinutes:60,waterUsageGallons:120}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,true,'oversized service may not be silently priced at the limit');
+    assert.equal(r.result.rawMatrixData.services.length,0);
+    assert(r.result.rawMatrixData.quoteGuardrails.issues.some(issue=>issue.code==='INVALID_QUANTITY'));
+    generated=JSON.stringify({
+      services:[{serviceId:'driveway_cleaning',quantity:2000,estimatedTimeMinutes:60,waterUsageGallons:120}],
+      evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+      fieldPlan:{difficulty:'low'}
+    });
+    r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
+    assert.equal(r.status,200);
+    assert.equal(r.result.rawMatrixData.requiresHumanReview,false,'valid above-minimum work must remain ready');
+    assert.equal(r.result.rawMatrixData.evidenceReview.readyForEstimate,true);
+    assert.equal(r.result.rawMatrixData.services[0].calculatedPrice,360);
     generated='{not valid json';
     r=await request('POST',{images:[Buffer.from('ffd8ffe000104a46494600010100000100010000ffd9','hex').toString('base64')]});
     assert.equal(r.status,500,'bad AI response must be rejected, never shown as a ready quote');
     assert.equal(r.result.error,'Analysis Engine Failure');
     assert(!JSON.stringify(r.result).includes('{not valid json'),'raw AI response must never appear in HTTP error');
-    assert.equal(called.count,5);
+    assert.equal(called.count,11,'mock model requests must match expected offline test cases');
     console.log('Schism mock backend HTTP/AI safety QA passed (no real key or AI calls)');
   }finally{
     if(previousKey===undefined)delete process.env.GEMINI_API_KEY;

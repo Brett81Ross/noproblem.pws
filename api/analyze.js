@@ -322,8 +322,12 @@ async function handler(req, res) {
                 summary: 'Manual review required: launch scope excludes roofs, ladders, gutter work, and high-access/multi-level execution.'
             };
         }
-        const unresolvedHighPriority = [...missingEvidence, ...uncertainEvidence].some(item =>
-            item && (item.priority === 'high' || item.priority === 'critical'));
+        // The model may vary case or whitespace in its priority labels.
+        // A high/critical evidence gap may never be waived by that formatting.
+        const unresolvedHighPriority = [...missingEvidence, ...uncertainEvidence].some(item => {
+            const priority = String(item?.priority || '').trim().toLowerCase();
+            return priority === 'high' || priority === 'critical';
+        });
         const explicitlyReady = scanData.evidenceReview?.readyForEstimate === true && !unresolvedHighPriority && !conflictingMeasurements.length;
         if (unresolvedHighPriority) {
             scanData.evidenceReview = {
@@ -354,9 +358,13 @@ async function handler(req, res) {
         const difficulty = scanData.fieldPlan?.difficulty || 'low';
         const multiplier = rateCard.difficultyMultipliers[difficulty] || 1;
 
+        // Check the original model output BEFORE the normalizer clamps
+        // negative values to zero. A zeroed-out crew estimate is not approved.
         const incompleteWorkBasis = (Array.isArray(scanData.services) ? scanData.services : []).some(service =>
-            service && (!Number.isFinite(service.estimatedTimeMinutes) ||
-            !Number.isFinite(service.waterUsageGallons)));
+            !service || typeof service !== 'object' ||
+            !Number.isFinite(service.estimatedTimeMinutes) ||
+            !Number.isFinite(service.waterUsageGallons) ||
+            service.estimatedTimeMinutes < 0 || service.waterUsageGallons < 0);
         const normalizedQuote = normalizeServices({
             services: scanData.services,
             requestedServices: safeRequestedServices,

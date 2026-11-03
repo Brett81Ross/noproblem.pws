@@ -16,6 +16,9 @@ assert.strictEqual(normalizeQuantity(-10, 'sq_ft'), null);
 assert.strictEqual(normalizeQuantity('bad', 'sq_ft'), null);
 assert.strictEqual(normalizeQuantity(2.4, 'vehicle'), 2);
 assert.strictEqual(normalizeQuantity(undefined, 'flat'), 1);
+assert.strictEqual(normalizeQuantity(1000000, 'sq_ft'), 1000000, 'maximum supported area stays valid');
+assert.strictEqual(normalizeQuantity(1000001, 'sq_ft'), null, 'oversized area must not be silently capped');
+assert.strictEqual(normalizeQuantity(10001, 'vehicle'), null, 'oversized fleet count must not be silently capped');
 
 {
   const result = normalizeServices({
@@ -98,5 +101,21 @@ assert.strictEqual(normalizeQuantity(undefined, 'flat'), 1);
   assert.strictEqual(large.requiresReview,false,'above minimum must remain releasable');
   const exact=normalizeServices({services:[{serviceId:'rust_treatment',quantity:1}],rateCard:{...rateCard,minimumJob:125},multiplier:1});
   assert.strictEqual(exact.requiresReview,false,'exact minimum must pass');
+}
+{
+  const oversized=normalizeServices({services:[
+    {serviceId:'driveway_cleaning',quantity:1500000,estimatedTimeMinutes:90,waterUsageGallons:120}
+  ],rateCard,multiplier:1});
+  assert.strictEqual(oversized.services.length,0,'oversized property must not generate a capped and underpriced quote');
+  assert(oversized.issues.some(issue=>issue.code==='INVALID_QUANTITY'));
+  assert(oversized.issues.some(issue=>issue.code==='NO_EXECUTABLE_SCOPE'));
+  assert.strictEqual(oversized.requiresReview,true);
+}
+{
+  const empty=normalizeServices({services:[],rateCard,multiplier:1});
+  assert.strictEqual(empty.services.length,0);
+  assert(empty.issues.some(issue=>issue.code==='NO_EXECUTABLE_SCOPE'),
+    'an empty AI scope must not be shown as field ready');
+  assert.strictEqual(empty.requiresReview,true);
 }
 console.log('Schism quote guardrails QA passed');
