@@ -338,6 +338,148 @@ async function main(){
       'Legacy four-photo pathway must also require selection before request: '+JSON.stringify(legacySelectionQA));
     console.log('Mobile Chrome legacy 24 staged / 4-selected review gate: PASS');
 
+    // Synthetic analysis responses are intercepted locally. Verify that a
+    // reviewed 9->8 subset can release, photo-selection edits supersede that
+    // release, and mid-flight evidence changes cannot publish stale AI results.
+    await cdp.send('Page.navigate',{url:host+'/index.html'});
+    await delay(1150);
+    const approvalIntegrity=await evaluate(cdp,async function(){
+      window.SchismDashboard.selectQuote();
+      document.getElementById('jobName').value='Photo integrity QA';
+      document.getElementById('jobAddress').value='123 Synthetic Road';
+      const canvas=document.createElement('canvas');
+      canvas.width=8;canvas.height=8;
+      const ctx=canvas.getContext('2d');
+      stagedBase64Images=Array.from({length:9},(_,i)=>{
+        ctx.fillStyle='rgb('+(i*22)+',45,55)';
+        ctx.fillRect(0,0,8,8);
+        return canvas.toDataURL('image/jpeg',.65);
+      });
+      stagedEvidenceMeta=Array.from({length:9},(_,i)=>({
+        kind:'photo',source:'operator_upload',capturedAt:'QA-photo-'+(i+1)
+      }));
+      renderPreviewGrid();
+      const consent=document.getElementById('schismPhotoSelectionConfirm');
+      consent.click();
+      const oldFetch=window.fetch,oldAlert=window.alert,notices=[];
+      window.alert=msg=>notices.push(String(msg));
+      let requestCount=0,validResult,staleResult;
+      try{
+        window.fetch=async function(_url,opts){
+          requestCount++;
+          const request=JSON.parse(opts.body);
+          const sel=request.photoSelection;
+          return {ok:true,status:200,json:async()=>({success:true,rawMatrixData:{
+            requiresHumanReview:false,
+            evidenceReview:{readyForEstimate:true,missingEvidence:[],uncertainEvidence:[]},
+            photoCoverage:{stagedCount:sel.stagedCount,submittedCount:request.images.length,
+              omittedCount:sel.stagedCount-request.images.length,selectedSlots:sel.selectedSlots,
+              operatorConfirmed:sel.operatorConfirmed},
+            services:[{
+              scopeItemId:'qa_driveway_scope',serviceId:'driveway_cleaning',
+              label:'Driveway',quantity:1000,quantityUnit:'sq_ft',
+              calculatedPrice:180,estimatedTimeMinutes:40,waterUsageGallons:100
+            }],
+            fieldPlan:{totalEstimatedMinutes:40,totalWaterUsageGallons:100,
+              totalEstimatedHours:'0.7 Hours',crewSizeRecommended:1,difficulty:'low'},hazards:[]
+          }})};
+        };
+        await submitJobForAnalysis();
+        const validQuote=window.SchismRuntime.quoteDocument();
+        const readyAfterAnalysis=window.__schismReleaseState?.locked===false&&
+          validQuote?.totalCents===18000;
+        document.getElementById('btnCrewHandoff').click();
+        const release=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1')||'null');
+        validResult={readyAfterAnalysis,released:window.SchismDashboard.getFieldReadyRelease().ok,
+          releasedCoverage:release?.photoCoverage,
+          crewPhotos:document.getElementById('crewReleasedPhotos').textContent};
+        window.SchismDashboard.selectQuote();
+        document.querySelector('.schism-photo-ai-toggle[data-photo-index="0"]').click();
+        const superseded=JSON.parse(localStorage.getItem('schismmatrix-crew-handoff-v1'));
+        validResult.changedSelectionBlocked=window.__schismReleaseState?.locked===true&&
+          window.SchismRuntime.quoteDocument()===null&&
+          !window.SchismDashboard.getFieldReadyRelease().ok&&
+          superseded.status==='superseded';
+        consent.click();
+        let resolvePending;
+        window.fetch=(_url,opts)=>{
+          requestCount++;
+          return new Promise(resolve=>{resolvePending=resolve;});
+        };
+        const oldMatrix=techMatrixData;
+        const task=submitJobForAnalysis();
+        await new Promise(resolve=>setTimeout(resolve,55));
+        const lockedWhilePending=window.__schismReleaseState?.locked===true;
+        const oldRevision=techMatrixData?.__schismEstimate?.revision;
+        removeStagedImage(8);
+        resolvePending({ok:true,status:200,json:async()=>({success:true,rawMatrixData:{
+          evidenceReview:{readyForEstimate:true},requiresHumanReview:false,
+          photoCoverage:{stagedCount:9,submittedCount:7,omittedCount:2,
+            selectedSlots:[2,3,4,5,6,7,8],operatorConfirmed:true},
+          services:[{serviceId:'driveway_cleaning',calculatedPrice:999}]
+        }})});
+        await task;
+        staleResult={lockedWhilePending,unchangedMatrix:techMatrixData===oldMatrix,
+          staleBlocked:window.__schismReleaseState?.locked===true &&
+            window.SchismRuntime.quoteDocument()===null,
+          originalRevision:oldRevision,nowRevision:techMatrixData?.__schismEstimate?.revision,
+          alerts:notices.slice(),requestCount};
+      }finally{window.fetch=oldFetch;window.alert=oldAlert;}
+      return {validResult,staleResult};
+    });
+    assert(approvalIntegrity.validResult.readyAfterAnalysis&&approvalIntegrity.validResult.released&&
+      approvalIntegrity.validResult.changedSelectionBlocked&&
+      approvalIntegrity.validResult.releasedCoverage?.submittedCount===8&&
+      approvalIntegrity.validResult.crewPhotos.includes('8 sent to AI / 9 staged')&&
+      approvalIntegrity.staleResult.lockedWhilePending&&
+      approvalIntegrity.staleResult.unchangedMatrix&&approvalIntegrity.staleResult.staleBlocked&&
+      approvalIntegrity.staleResult.requestCount===2&&
+      approvalIntegrity.staleResult.alerts.some(v=>v.includes('Photos or property details changed during analysis')),
+      'Selected photo drift/stale response bypassed Crew Command safeguards: '+JSON.stringify(approvalIntegrity));
+    console.log('Mobile Chrome selected coverage, Crew approval and stale-response rejection: PASS');
+
+    // Explicitly missing follow-up evidence must not become field ready.
+    const followupGate=await evaluate(cdp,async function(){
+      const picture=document.createElement('canvas');
+      picture.width=4;picture.height=4;
+      const jpeg=picture.toDataURL('image/jpeg',.6);
+      stagedBase64Images=[jpeg];
+      stagedEvidenceMeta=[{kind:'photo',source:'operator_upload',capturedAt:'followup-synthetic'}];
+      renderPreviewGrid();
+      const oldFetch=window.fetch,oldAlert=window.alert,alerts=[];
+      window.alert=v=>alerts.push(String(v));
+      try{
+        window.fetch=async(_url,options)=>{
+          const payload=JSON.parse(options.body),sel=payload.photoSelection;
+          return {ok:true,json:async()=>({success:true,rawMatrixData:{
+            requiresHumanReview:true,
+            humanReviewReason:'Inspect the runoff before quoting.',
+            photoCoverage:{stagedCount:sel.stagedCount,submittedCount:payload.images.length,
+              omittedCount:0,selectedSlots:sel.selectedSlots,operatorConfirmed:false},
+            evidenceReview:{readyForEstimate:false,summary:'Runoff confirmation needed.',
+              missingEvidence:[{prompt:'Inspect the runoff exit',priority:'high'}],uncertainEvidence:[]},
+            services:[{serviceId:'driveway_cleaning',calculatedPrice:180,quantity:1000,
+              estimatedTimeMinutes:40,waterUsageGallons:100}],
+            fieldPlan:{difficulty:'low'}
+          }})};
+        };
+        await submitJobForAnalysis();
+        const followupOpen=document.getElementById('evidenceFollowup').classList.contains('open');
+        const locked=window.__schismReleaseState?.locked===true&&
+          !window.SchismDashboard.getCurrentEstimateRelease().ok;
+        // A full 24-photo tray must not open the camera for a picture it
+        // cannot stage; the human-review alternative remains available.
+        stagedBase64Images=Array(24).fill(jpeg);
+        document.getElementById('evidenceFollowupPhoto').click();
+        const noRequestedFlag=document.getElementById('evidenceFollowup').dataset.awaitingRequestedEvidence!=='true';
+        return {followupOpen,locked,noRequestedFlag,alerts};
+      }finally{window.fetch=oldFetch;window.alert=oldAlert;}
+    });
+    assert(followupGate.followupOpen&&followupGate.locked&&followupGate.noRequestedFlag&&
+      followupGate.alerts.some(v=>v.includes('24 photo slots')),
+      'Follow-up evidence and capacity guard must fail closed: '+JSON.stringify(followupGate));
+    console.log('Mobile Chrome high-priority follow-up and full-tray capture gate: PASS');
+
     // Full operator flow uses a deterministic, synthetic reviewed estimate.
     // No real customer data or AI endpoint is touched; validation is performed
     // by the same browser controller and PDF generator shipped with the app.
